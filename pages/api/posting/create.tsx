@@ -7,21 +7,15 @@ initializeApi();
 const db = firestore();
 const POSTINGS_COLLECTION = '/postings';
 
-// yes or no?
 interface PostingData {
-  team: String;
-  interestedPpl: String;
-  amountOfPplWanted: Number;
-  skillSet: String;
+  postingId: string;
+  numberOfPeopleWanted: number;
+  skillSet: string;
 }
 
 async function createPosting(req: NextApiRequest, res: NextApiResponse) {
   try {
-    //  process each field
-    // if undefined,
-    const postingData = JSON.parse(req.body);
-    postingData.name = postingData.name.trim();
-
+    const postingData: PostingData = JSON.parse(req.body);
     await db.collection(POSTINGS_COLLECTION).add(postingData);
     return res.status(201).json({
       msg: 'Posting created',
@@ -35,7 +29,7 @@ async function createPosting(req: NextApiRequest, res: NextApiResponse) {
 
 async function handlePostRequest(req: NextApiRequest, res: NextApiResponse) {
   const userToken = req.headers['authorization'] as string;
-  const isAuthorized = await userIsAuthorized(userToken, ['super_admin']);
+  const isAuthorized = await userIsAuthorized(userToken, ['hacker']);
 
   if (!isAuthorized) {
     return res.status(403).json({

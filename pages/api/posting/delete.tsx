@@ -7,23 +7,24 @@ initializeApi();
 const db = firestore();
 const POSTINGS_COLLECTION = '/postings';
 
+interface PostingData {
+  postingId: string;
+}
+
 async function deletePosting(req: NextApiRequest, res: NextApiResponse) {
   try {
-    const { postingData } = req.body;
+    const postingData: PostingData = JSON.parse(req.body);
+    const snapshot = await db.collection(POSTINGS_COLLECTION).doc(postingData.postingId).get();
 
-    const snapshot = await db
-      .collection(POSTINGS_COLLECTION)
-      .where('name', '==', postingData.name)
-      .get();
-
-    if (snapshot.empty) {
+    if (!snapshot.exists) {
       return res.status(404).json({
         msg: 'Posting not found',
       });
     }
-    await db.collection(POSTINGS_COLLECTION).doc(postingData).delete();
+
+    await db.collection(POSTINGS_COLLECTION).doc(postingData.postingId).delete();
     return res.status(200).json({
-      msg: 'ScanType deleted',
+      msg: 'Posting deleted',
     });
   } catch (error) {
     return res.status(500).json({
@@ -32,13 +33,13 @@ async function deletePosting(req: NextApiRequest, res: NextApiResponse) {
   }
 }
 
-async function handlePostRequest(req: NextApiRequest, res: NextApiResponse) {
+async function handleDeletionRequest(req: NextApiRequest, res: NextApiResponse) {
   const userToken = req.headers['authorization'] as string;
-  const isAuthorized = await userIsAuthorized(userToken, ['super_admin']);
+  const isAuthorized = await userIsAuthorized(userToken, ['hacker']);
 
   if (!isAuthorized) {
     return res.status(403).json({
-      msg: 'Request is not allowed to perform super admin functionality',
+      msg: 'Request is not allowed to perform hacker functionality',
     });
   }
 
@@ -49,7 +50,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
   const { method } = req;
   switch (method) {
     case 'POST': {
-      return handlePostRequest(req, res);
+      return handleDeletionRequest(req, res);
     }
     default: {
       return res.status(404).json({
