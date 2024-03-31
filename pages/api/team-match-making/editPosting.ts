@@ -1,7 +1,7 @@
 import { firestore } from 'firebase-admin';
 import { NextApiRequest, NextApiResponse } from 'next';
-import initializeApi from '../../lib/admin/init';
-import { userIsAuthorized } from '../../lib/authorization/check-authorization';
+import initializeApi from '../../../lib/admin/init';
+import { userIsAuthorized } from '../../../lib/authorization/check-authorization';
 
 initializeApi();
 const db = firestore();
