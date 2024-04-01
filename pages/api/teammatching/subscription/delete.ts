@@ -26,8 +26,8 @@ async function deleteSubscription(req: NextApiRequest, res: NextApiResponse) {
         msg: 'Subscription to posting not found',
       });
     }
-    snapshot.forEach((doc) => {
-      doc.ref.delete();
+    snapshot.forEach(async (doc) => {
+      await doc.ref.delete();
     });
     return res.status(200).json({
       msg: 'Subscription to posting deleted',
