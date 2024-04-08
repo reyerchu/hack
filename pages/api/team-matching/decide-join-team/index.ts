@@ -17,13 +17,20 @@ initializeApi();
 const db = firestore();
 
 async function putJoinTeamDecision(req: NextApiRequest, res: NextApiResponse) {
+  /*
+    Goal:
+    - The hacker can make a decision (accept/reject) joining into a certain team
+    - The hacker can only make this decision after the poster already accepted the hacker's interest
+  */
+
   const { headers } = req;
   const userToken = headers['authorization'];
 
   // Get user payload to get team matching profile and interest
-  let userPayload: DecodedIdToken;
+  // - In this case, the requester should be Hacker
+  let hackerPayload: DecodedIdToken;
   try {
-    userPayload = await auth().verifyIdToken(userToken);
+    hackerPayload = await auth().verifyIdToken(userToken);
   } catch (err) {
     return res.status(403).json({
       msg: 'Request is not authorized to decide on joining team.',
@@ -50,24 +57,25 @@ async function putJoinTeamDecision(req: NextApiRequest, res: NextApiResponse) {
   // Main
   try {
     // 1. Fetch team matching profile of requester
-    const userProfileQuery = await db
+    const hackerProfileQuery = await db
       .collection(TEAM_MATCHING_PROFILES_COLLECTION)
-      .where('userId', '==', userPayload.uid)
+      .where('userId', '==', hackerPayload.uid)
       .get();
 
-    if (userProfileQuery.empty) {
+    if (hackerProfileQuery.empty) {
       return res.status(403).json({
         msg: 'Team matching profile not found.',
       });
     }
 
-    const userProfileDoc = userProfileQuery.docs[0];
+    const hackerProfileDoc = hackerProfileQuery.docs[0];
+    const hackerProfile = hackerProfileDoc.data() as unknown as TeamMatchingProfile;
 
     // 2. Fetch interest
     const interestQuery = await db
       .collection(TEAM_MATCHING_INTERESTS_COLLECTION)
       .where('postingId', '==', postingId)
-      .where('teamMatchingProfileId', '==', userProfileDoc.id)
+      .where('teamMatchingProfileId', '==', hackerProfileDoc.id)
       .get();
 
     const interestDoc = interestQuery.docs[0];
@@ -82,14 +90,12 @@ async function putJoinTeamDecision(req: NextApiRequest, res: NextApiResponse) {
     // 3. Batch update team matching interest + team matching profile alreadyInTeam status
     const batch = db.batch();
     batch.update(interestDoc.ref, { status: decision });
-
     if (decision === TeamMatchingInterestStatus.accepted) {
-      batch.update(userProfileDoc.ref, { alreadyInTeam: true });
+      batch.update(hackerProfileDoc.ref, { alreadyInTeam: true });
     }
-
     await batch.commit();
 
-    // 4. Fetch post
+    // 4. Fetch posting
     const postingQuery = await db
       .collection(TEAM_MATCHING_POSTINGS_COLLECTION)
       .where(firestore.FieldPath.documentId(), '==', postingId)
@@ -107,8 +113,12 @@ async function putJoinTeamDecision(req: NextApiRequest, res: NextApiResponse) {
     const posterProfile = posterProfileQuery.docs[0].data() as unknown as TeamMatchingProfile;
 
     // 6. Notify poster of this decision
-    const sendEmailCommand = aws_ses.createSendEmailCommand(posterProfile.email, 'FROM_EMAIL');
-
+    const sendEmailCommand = aws_ses.createSendEmailCommand({
+      fromAddress: 'tu.do@acmutd.co', // TODO: Change this email to more appropriate ACM email
+      toAddress: posterProfile.email,
+      subject: `HackUTD team joining decision`,
+      textContent: `Hacker ${hackerProfile.email} has ${decision} joining in your team.`,
+    });
     await aws_ses.sesClient.send(sendEmailCommand);
   } catch (error) {
     console.error(error);

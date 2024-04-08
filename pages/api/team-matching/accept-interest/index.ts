@@ -13,13 +13,20 @@ initializeApi();
 const db = firestore();
 
 async function putAcceptInterest(req: NextApiRequest, res: NextApiResponse) {
+  /*
+    Goal: 
+    - The poster can accept interests joining team from other hackers
+    - The interest records of other hackers will be updated to waiting confirmation from the hackers themselves
+  */
+
   const { headers } = req;
   const userToken = headers['authorization'];
 
   // Get user payload to check against posting owner id
-  let userPayload: DecodedIdToken;
+  // - In this case, the requester should be Poster
+  let posterPayload: DecodedIdToken;
   try {
-    userPayload = await auth().verifyIdToken(userToken);
+    posterPayload = await auth().verifyIdToken(userToken);
   } catch (err) {
     return res.status(403).json({
       msg: 'Request is not authorized to update posting interests.',
@@ -57,7 +64,7 @@ async function putAcceptInterest(req: NextApiRequest, res: NextApiResponse) {
     const posting: TeamMatchingPosting =
       postingQuery.docs[0].data() as unknown as TeamMatchingPosting;
 
-    if (posting.ownerUserId !== userPayload.uid) {
+    if (posting.ownerUserId !== posterPayload.uid) {
       return res.status(403).json({
         msg: 'Must be the posting owner to update interests.',
       });

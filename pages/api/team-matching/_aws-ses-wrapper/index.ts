@@ -19,16 +19,24 @@ import { SESClient, SendEmailCommand } from '@aws-sdk/client-ses';
 
 // Set the AWS Region.
 const REGION = 'us-east-2';
+
 // Create SES service object.
 const sesClient = new SESClient({
   region: REGION,
   credentials: {
-    accessKeyId: '',
-    secretAccessKey: '',
+    accessKeyId: process.env.AWS_SES_ACCESS_KEY,
+    secretAccessKey: process.env.AWS_SES_SECRET_KEY,
   },
 });
 
-const createSendEmailCommand = (toAddress: string, fromAddress: string) => {
+const createSendEmailCommand = (input: {
+  fromAddress: string;
+  toAddress: string;
+  subject: string;
+  textContent: string;
+}) => {
+  const { fromAddress, toAddress, subject, textContent } = input;
+
   return new SendEmailCommand({
     Destination: {
       /* required */
@@ -46,16 +54,16 @@ const createSendEmailCommand = (toAddress: string, fromAddress: string) => {
         /* required */
         Html: {
           Charset: 'UTF-8',
-          Data: 'HTML_FORMAT_BODY',
+          Data: textContent,
         },
         Text: {
           Charset: 'UTF-8',
-          Data: 'TEXT_FORMAT_BODY',
+          Data: textContent,
         },
       },
       Subject: {
         Charset: 'UTF-8',
-        Data: 'EMAIL_SUBJECT',
+        Data: subject,
       },
     },
     Source: fromAddress,
@@ -65,8 +73,15 @@ const createSendEmailCommand = (toAddress: string, fromAddress: string) => {
   });
 };
 
+// --- Test bench
+
 const run = async () => {
-  const sendEmailCommand = createSendEmailCommand('doanhtu07@gmail.com', 'doanhtu07@gmail.com');
+  const sendEmailCommand = createSendEmailCommand({
+    fromAddress: 'doanhtu07@gmail.com',
+    toAddress: 'doanhtu07@gmail.com',
+    subject: 'Hello',
+    textContent: 'This is the body content.',
+  });
 
   try {
     return await sesClient.send(sendEmailCommand);
@@ -79,6 +94,8 @@ const run = async () => {
 // run().catch((err) => {
 //   console.error(err);
 // });
+
+// --- Export
 
 const module = { sesClient, createSendEmailCommand };
 export default module;
