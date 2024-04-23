@@ -1,4 +1,4 @@
-import { firestore } from 'firebase-admin';
+import { firestore, auth } from 'firebase-admin';
 import { NextApiRequest, NextApiResponse } from 'next';
 import initializeApi from '../../../../lib/admin/init';
 import { userIsAuthorized } from '../../../../lib/authorization/check-authorization';
@@ -14,6 +14,14 @@ interface SubscriptionData {
 
 // delete one subscription for user that unsubscribe them to a post
 async function deleteSubscription(req: NextApiRequest, res: NextApiResponse) {
+  // check if check if current logged in user matches the user id in the subscription data
+  const loggedInUserId = (await auth().verifyIdToken(req.headers['authorization'] as string)).uid;
+  if (loggedInUserId !== JSON.parse(req.body).userId) {
+    return res.status(403).json({
+      msg: 'Unauthorized to delete subscription',
+    });
+  }
+
   try {
     const subscriptionData: SubscriptionData = JSON.parse(req.body);
     const snapshot = await db

@@ -1,4 +1,4 @@
-import { firestore } from 'firebase-admin';
+import { firestore, auth } from 'firebase-admin';
 import { NextApiRequest, NextApiResponse } from 'next';
 import initializeApi from '../../../../lib/admin/init';
 import { userIsAuthorized } from '../../../../lib/authorization/check-authorization';
@@ -10,6 +10,14 @@ const db = firestore();
 async function getSubscriptions(req: NextApiRequest, res: NextApiResponse) {
   try {
     const userId = req.query.userId as string;
+    const loggedInUserId = (await auth().verifyIdToken(req.headers['authorization'] as string)).uid;
+
+    if (userId !== loggedInUserId) {
+      return res.status(403).json({
+        msg: 'Unauthorized to get subscriptions',
+      });
+    }
+
     const snapshot = await db.collection('subscriptions').where('userId', '==', userId).get();
     if (snapshot.empty) {
       return res.status(404).json({
