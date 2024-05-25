@@ -1,4 +1,4 @@
-import { firestore } from 'firebase-admin';
+import { firestore, auth } from 'firebase-admin';
 import { NextApiRequest, NextApiResponse } from 'next';
 import initializeApi from '../../../lib/admin/init';
 import { userIsAuthorized } from '../../../lib/authorization/check-authorization';
@@ -8,10 +8,11 @@ const db = firestore();
 const POSTINGS_COLLECTION = '/postings';
 
 interface PostingData {
+  authorId: string;
   postingId: string;
 }
 
-async function deletePosting(req: NextApiRequest, res: NextApiResponse) {
+async function deletePosting(req: NextApiRequest, res: NextApiResponse, userId: string) {
   try {
     const postingData: PostingData = JSON.parse(req.body);
     const snapshot = await db.collection(POSTINGS_COLLECTION).doc(postingData.postingId).get();
@@ -22,7 +23,14 @@ async function deletePosting(req: NextApiRequest, res: NextApiResponse) {
       });
     }
 
+    if (snapshot.data().authorId !== userId) {
+      return res.status(403).json({
+        msg: 'User unauthorized to delete this posting because they are not the author',
+      });
+    }
+
     await db.collection(POSTINGS_COLLECTION).doc(postingData.postingId).delete();
+
     return res.status(200).json({
       msg: 'Posting deleted',
     });
@@ -36,6 +44,7 @@ async function deletePosting(req: NextApiRequest, res: NextApiResponse) {
 async function handleDeletionRequest(req: NextApiRequest, res: NextApiResponse) {
   const userToken = req.headers['authorization'] as string;
   const isAuthorized = await userIsAuthorized(userToken, ['hacker']);
+  const userId = await auth().verifyIdToken(userToken);
 
   if (!isAuthorized) {
     return res.status(403).json({
@@ -43,7 +52,7 @@ async function handleDeletionRequest(req: NextApiRequest, res: NextApiResponse) 
     });
   }
 
-  return deletePosting(req, res);
+  return deletePosting(req, res, userId.uid);
 }
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
