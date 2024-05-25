@@ -1,4 +1,4 @@
-import { firestore } from 'firebase-admin';
+import { firestore, auth } from 'firebase-admin';
 import { NextApiRequest, NextApiResponse } from 'next';
 import initializeApi from '../../../lib/admin/init';
 import { userIsAuthorized } from '../../../lib/authorization/check-authorization';
@@ -8,14 +8,17 @@ const db = firestore();
 const POSTINGS_COLLECTION = '/postings';
 
 interface PostingData {
+  authorId: string;
   postingId: string;
   numberOfPeopleWanted: number;
   skillSet: string;
 }
 
-async function createPosting(req: NextApiRequest, res: NextApiResponse) {
+async function createPosting(req: NextApiRequest, res: NextApiResponse, authorId: string) {
   try {
     const postingData: PostingData = JSON.parse(req.body);
+    postingData.authorId = authorId;
+
     await db.collection(POSTINGS_COLLECTION).add(postingData);
     return res.status(201).json({
       msg: 'Posting created',
@@ -30,6 +33,7 @@ async function createPosting(req: NextApiRequest, res: NextApiResponse) {
 async function handlePostRequest(req: NextApiRequest, res: NextApiResponse) {
   const userToken = req.headers['authorization'] as string;
   const isAuthorized = await userIsAuthorized(userToken, ['hacker']);
+  const authorId = await auth().verifyIdToken(userToken);
 
   if (!isAuthorized) {
     return res.status(403).json({
@@ -38,7 +42,7 @@ async function handlePostRequest(req: NextApiRequest, res: NextApiResponse) {
     });
   }
 
-  return createPosting(req, res);
+  return createPosting(req, res, authorId.uid);
 }
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
