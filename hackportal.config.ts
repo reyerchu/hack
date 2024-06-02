@@ -38,6 +38,13 @@ export const hackPortalConfig: HackPortalConfig = {
             required: true,
             initialValue: '',
           },
+          {
+            question: 'Phone number',
+            id: 'phoneNumber',
+            name: 'phoneNumber',
+            required: true,
+            initialValue: '',
+          },
         ],
       },
       {
@@ -210,6 +217,14 @@ export const hackPortalConfig: HackPortalConfig = {
             name: 'studyLevel',
             initialValue: '',
             options: [
+              {
+                title: 'Less than Secondary/High School',
+                value: 'LessThanSecondaryHighSchool',
+              },
+              {
+                title: 'Secondary/High School',
+                value: 'SecondaryHighSchool',
+              },
               {
                 title: 'Undergraduate University(2 year)',
                 value: 'Undergraduate(2 year)',
@@ -505,7 +520,7 @@ export const hackPortalConfig: HackPortalConfig = {
       {
         checkboxQuestions: [
           {
-            question: 'MLH Code of Conduct',
+            question: 'I have read and agree to the MLH Code of Conduct.',
             required: true,
             id: 'CoC',
             name: 'CoC',
@@ -533,7 +548,7 @@ export const hackPortalConfig: HackPortalConfig = {
           },
           {
             question:
-              'I authorize MLH to send me an email where I can further opt into the MLH Hacker, Events, or Organizer Newsletters and other communications from MLH',
+              'I authorize MLH to send me occasional emails about relevant events, career opportunities, and community announcements',
             required: false,
             id: 'emailMLH',
             name: 'emailMLH',
