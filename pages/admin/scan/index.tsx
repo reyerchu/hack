@@ -17,6 +17,7 @@ const successStrings = {
   unexpectedError: 'Unexpected error...',
   notCheckedIn: "User hasn't checked in!",
   invalidFormat: 'Invalid hacker tag format...',
+  lateCheckInIneligible: 'User is not eligible for late check-in...',
 };
 
 interface UserProfile extends Omit<Registration, 'user'> {
@@ -109,6 +110,8 @@ export default function Admin() {
           return setSuccess(successStrings.alreadyClaimed);
         } else if (result.status === 403) {
           return setSuccess(successStrings.notCheckedIn);
+        } else if (result.status === 400) {
+          return setSuccess(successStrings.lateCheckInIneligible);
         } else if (result.status !== 200) {
           return setSuccess(successStrings.unexpectedError);
         }
