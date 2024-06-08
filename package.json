@@ -98,5 +98,8 @@
       "maxLineWidth": 80,
       "defaultType": "chore"
     }
+  },
+  "engines" : { 
+    "node" : "<=17.9.1"
   }
 }
