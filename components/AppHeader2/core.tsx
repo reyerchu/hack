@@ -1,9 +1,12 @@
 import { useAuthContext } from '@/lib/user/AuthContext';
 import Link from 'next/link';
 
-export default function AppHeader2_Core() {
-  const { hasProfile } = useAuthContext();
+interface AppHeaderProps {
+  displayAdmin: boolean;
+}
 
+export default function AppHeader2_Core({ displayAdmin }: AppHeaderProps) {
+  const { hasProfile } = useAuthContext();
   return (
     <div className="flex justify-center py-2 w-full">
       {/* Real navbar */}
@@ -20,6 +23,22 @@ export default function AppHeader2_Core() {
         <Link href="/#faq-section" className="p-2 text-[#5D5A88] cursor-pointer">
           FAQ
         </Link>
+
+        {displayAdmin && (
+          <div className="p-2 cursor-pointer flex items-center gap-x-2">
+            <div className="text-[#5D5A88]">Admin</div>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="#5D5A88"
+              className="size-4"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+            </svg>
+          </div>
+        )}
 
         <div className="p-2 text-white cursor-pointer">
           {!hasProfile && (
