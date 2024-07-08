@@ -6,17 +6,10 @@ import AppHeader2_Wrapper from '../AppHeader2/wrapper';
 import { useRouter } from 'next/router';
 
 export default function HomeHero() {
-  const router = useRouter();
-  const { user } = useAuthContext();
-
   return (
     <section className="min-h-screen bg-contain bg-white flex flex-col-reverse md:flex-col">
       {/* App header */}
-      <AppHeader2_Wrapper
-        displayAdmin={
-          user.permissions.indexOf('admin') !== -1 || user.permissions.indexOf('super_admin') !== -1
-        }
-      />
+      <AppHeader2_Wrapper />
 
       <div className="flex h-screen w-full relative">
         <div className="w-full h-full absolute top-0 left-0 z-0">

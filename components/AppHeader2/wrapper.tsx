@@ -7,11 +7,7 @@ export const APP_HEADER_HEIGHT = 86;
 const INITIAL_HEADER_HEIGHT = APP_HEADER_HEIGHT;
 const TOP_OFFSET = 0; // Can be set to APP_HEADER_HEIGHT if want to app bar to be separated from the Hero part
 
-interface AppHeaderWrapperProps {
-  displayAdmin: boolean;
-}
-
-export default function AppHeader2_Wrapper({ displayAdmin }: AppHeaderWrapperProps) {
+export default function AppHeader2_Wrapper() {
   // Handle scrolling state
 
   const [height, setHeight] = useState(INITIAL_HEADER_HEIGHT);
@@ -101,7 +97,7 @@ export default function AppHeader2_Wrapper({ displayAdmin }: AppHeaderWrapperPro
         //   height: APP_HEADER_HEIGHT,
         // }}
       >
-        <AppHeader2_Core displayAdmin={displayAdmin} />
+        <AppHeader2_Core />
       </div>
     </header>
   );
