@@ -9,6 +9,8 @@ import { isAuthorized } from '..';
 import { RequestHelper } from '../../../lib/request-helper';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import { Dialog } from '@headlessui/react';
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
+import { TextField } from '@mui/material';
 
 const successStrings = {
   claimed: 'Scan claimed...',
@@ -63,6 +65,9 @@ export default function Admin() {
   const [newScanForm, setNewScanForm] = useState({
     name: '',
     isCheckIn: false,
+    isPermanentScan: false,
+    startDate: new Date(),
+    endDate: new Date(),
   });
   const [startScan, setStartScan] = useState(false);
 
@@ -157,6 +162,13 @@ export default function Admin() {
   const createNewScan = async () => {
     if (!user.permissions.includes('super_admin')) {
       alert('You do not have the required permission to use this functionality');
+      return;
+    }
+    if (
+      !newScanForm.isPermanentScan &&
+      newScanForm.startDate.getTime() > newScanForm.endDate.getTime()
+    ) {
+      alert('Invalid date range');
       return;
     }
     try {
@@ -325,6 +337,32 @@ export default function Admin() {
               }}
               placeholder="Enter name of scantype"
             />
+            {!newScanForm.isPermanentScan && (
+              <div className="flex flex-row gap-x-2 items-center my-4">
+                <DateTimePicker
+                  label="Enter start date"
+                  value={newScanForm.startDate}
+                  onChange={(newValue) =>
+                    setNewScanForm((prev) => ({
+                      ...prev,
+                      startDate: newValue,
+                    }))
+                  }
+                  renderInput={(params) => <TextField {...params} />}
+                />
+                <DateTimePicker
+                  label="Enter end date"
+                  value={newScanForm.endDate}
+                  onChange={(newValue) =>
+                    setNewScanForm((prev) => ({
+                      ...prev,
+                      endDate: newValue,
+                    }))
+                  }
+                  renderInput={(params) => <TextField {...params} />}
+                />
+              </div>
+            )}
             <div className="flex flex-row gap-x-2 items-center my-4">
               <input
                 type="checkbox"
@@ -339,6 +377,21 @@ export default function Admin() {
                 }}
               />
               <h1>Is this for check-in event?</h1>
+            </div>
+            <div className="flex flex-row gap-x-2 items-center my-4">
+              <input
+                type="checkbox"
+                id="isPermanent"
+                name="isPermanent"
+                checked={newScanForm.isPermanentScan}
+                onChange={(e) => {
+                  setNewScanForm((prev) => ({
+                    ...prev,
+                    isPermanentScan: e.target.checked,
+                  }));
+                }}
+              />
+              <h1>Will this scan be available throughout the event?</h1>
             </div>
           </div>
           <div className="flex justify-around">
