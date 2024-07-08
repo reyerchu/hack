@@ -1,16 +1,42 @@
 import { useAuthContext } from '@/lib/user/AuthContext';
 import { Menu, Transition } from '@headlessui/react';
 import Link from 'next/link';
-import { Fragment } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import AdminNavbarColumn from './AdminNavbarColumn';
 import { useRouter } from 'next/router';
 import AdminNavbarGrid from './AdminNavbarGrid';
+import { RequestHelper } from '@/lib/request-helper';
+import QRScanDialog from './QRScanDialog';
+
+type Scan = {
+  netPoint: number;
+  precendence: number;
+  name: string;
+  isSwag: boolean;
+  isCheckIn: boolean;
+};
 
 export default function AppHeader2_Core() {
   const { user, hasProfile } = useAuthContext();
   const router = useRouter();
   const isSuperAdmin = user.permissions.indexOf('super_admin') !== -1;
   const isAdmin = isSuperAdmin || user.permissions.indexOf('admin') !== -1;
+  const [scanList, setScanList] = useState<Scan[]>([]);
+  const [currentScan, setCurrentScan] = useState<Scan | null>(null);
+  useEffect(() => {
+    if (!isAdmin) {
+      setScanList([]);
+    }
+    async function getScanData() {
+      const scans = await RequestHelper.get<Scan[]>('/api/scantypes', {
+        headers: {
+          authorization: user.token || '',
+        },
+      });
+      setScanList(scans.data);
+    }
+    getScanData();
+  }, [user, isAdmin]);
   return (
     <div className="flex justify-center py-2 w-full">
       {/* Real navbar */}
@@ -27,6 +53,8 @@ export default function AppHeader2_Core() {
         <Link href="/#faq-section" className="p-2 text-[#5D5A88] cursor-pointer">
           FAQ
         </Link>
+
+        <QRScanDialog scan={currentScan} onModalClose={() => setCurrentScan(null)} />
 
         {isAdmin && (
           <Menu as="div" className="w-full">
@@ -80,56 +108,10 @@ export default function AppHeader2_Core() {
                   <AdminNavbarGrid
                     numCols={3}
                     sectionTitle="Temporary Scans"
-                    options={[
-                      {
-                        optionName: 'User Dashboard',
-                        onClick: () => router.push('/admin/users'),
-                      },
-                      {
-                        optionName: 'Stats at a Glance',
-                        onClick: () => router.push('/admin/stats'),
-                      },
-                      {
-                        optionName: 'User Dashboard',
-                        onClick: () => router.push('/admin/users'),
-                      },
-                      {
-                        optionName: 'Stats at a Glance',
-                        onClick: () => router.push('/admin/stats'),
-                      },
-                      {
-                        optionName: 'User Dashboard',
-                        onClick: () => router.push('/admin/users'),
-                      },
-                      {
-                        optionName: 'Stats at a Glance',
-                        onClick: () => router.push('/admin/stats'),
-                      },
-                      {
-                        optionName: 'User Dashboard',
-                        onClick: () => router.push('/admin/users'),
-                      },
-                      {
-                        optionName: 'Stats at a Glance',
-                        onClick: () => router.push('/admin/stats'),
-                      },
-                      {
-                        optionName: 'User Dashboard',
-                        onClick: () => router.push('/admin/users'),
-                      },
-                      {
-                        optionName: 'Stats at a Glance',
-                        onClick: () => router.push('/admin/stats'),
-                      },
-                      {
-                        optionName: 'User Dashboard',
-                        onClick: () => router.push('/admin/users'),
-                      },
-                      {
-                        optionName: 'Stats at a Glance',
-                        onClick: () => router.push('/admin/stats'),
-                      },
-                    ]}
+                    options={scanList.map((scan) => ({
+                      optionName: scan.name,
+                      onClick: () => setCurrentScan(scan),
+                    }))}
                   />
                 </div>
                 <div className="px-1 py-1">
