@@ -109,25 +109,23 @@ export default function AppHeader2_Core() {
                   <AdminNavbarGrid
                     numCols={3}
                     sectionTitle="Temporary Scans"
-                    options={scanList.map((scan) => ({
-                      optionName: scan.name,
-                      onClick: () => setCurrentScan(scan),
-                    }))}
+                    options={scanList
+                      .filter((scan) => !scan.isPermanentScan)
+                      .map((scan) => ({
+                        optionName: scan.name,
+                        onClick: () => setCurrentScan(scan),
+                      }))}
                   />
                 </div>
                 <div className="px-1 py-1">
                   <AdminNavbarColumn
                     sectionTitle="Permanent Scans"
-                    options={[
-                      {
-                        optionName: 'User Dashboard',
-                        onClick: () => router.push('/admin/users'),
-                      },
-                      {
-                        optionName: 'Stats at a Glance',
-                        onClick: () => router.push('/admin/stats'),
-                      },
-                    ]}
+                    options={scanList
+                      .filter((scan) => scan.isPermanentScan)
+                      .map((scan) => ({
+                        optionName: scan.name,
+                        onClick: () => setCurrentScan(scan),
+                      }))}
                   />
                 </div>
               </Menu.Items>
