@@ -7,11 +7,12 @@ import QrScanner from 'qr-scanner';
 
 interface QRScanDialogProps {
   scan: {
-    netPoint: number;
     precendence: number;
     name: string;
-    isSwag: boolean;
     isCheckIn: boolean;
+    startDate: Date;
+    endDate: Date;
+    isPermanentScan: boolean;
   } | null;
   onModalClose: () => void;
 }

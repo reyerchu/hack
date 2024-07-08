@@ -9,11 +9,12 @@ import { RequestHelper } from '@/lib/request-helper';
 import QRScanDialog from './QRScanDialog';
 
 type Scan = {
-  netPoint: number;
   precendence: number;
   name: string;
-  isSwag: boolean;
   isCheckIn: boolean;
+  startDate: Date;
+  endDate: Date;
+  isPermanentScan: boolean;
 };
 
 export default function AppHeader2_Core() {
