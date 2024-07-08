@@ -66,8 +66,8 @@ export default function Admin() {
     name: '',
     isCheckIn: false,
     isPermanentScan: false,
-    startDate: new Date(),
-    endDate: new Date(),
+    startTime: new Date(),
+    endTime: new Date(),
   });
   const [startScan, setStartScan] = useState(false);
 
@@ -131,6 +131,13 @@ export default function Admin() {
       alert('You do not have the required permission to use this functionality');
       return;
     }
+    if (
+      !currentEditScan.isPermanentScan &&
+      currentEditScan.startTime.getTime() > currentEditScan.endTime.getTime()
+    ) {
+      alert('Invalid date range');
+      return;
+    }
     const updatedScanData = { ...currentEditScan };
     try {
       const { status, data } = await RequestHelper.post<any, any>(
@@ -166,7 +173,7 @@ export default function Admin() {
     }
     if (
       !newScanForm.isPermanentScan &&
-      newScanForm.startDate.getTime() > newScanForm.endDate.getTime()
+      newScanForm.startTime.getTime() > newScanForm.endTime.getTime()
     ) {
       alert('Invalid date range');
       return;
@@ -341,22 +348,22 @@ export default function Admin() {
               <div className="flex flex-row gap-x-2 items-center my-4">
                 <DateTimePicker
                   label="Enter start date"
-                  value={newScanForm.startDate}
+                  value={newScanForm.startTime}
                   onChange={(newValue) =>
                     setNewScanForm((prev) => ({
                       ...prev,
-                      startDate: newValue,
+                      startTime: newValue,
                     }))
                   }
                   renderInput={(params) => <TextField {...params} />}
                 />
                 <DateTimePicker
                   label="Enter end date"
-                  value={newScanForm.endDate}
+                  value={newScanForm.endTime}
                   onChange={(newValue) =>
                     setNewScanForm((prev) => ({
                       ...prev,
-                      endDate: newValue,
+                      endTime: newValue,
                     }))
                   }
                   renderInput={(params) => <TextField {...params} />}
@@ -500,6 +507,32 @@ export default function Admin() {
                             }}
                             placeholder="Enter name of scantype"
                           />
+                          {!currentEditScan.isPermanentScan && (
+                            <div className="flex flex-row gap-x-2 items-center my-4">
+                              <DateTimePicker
+                                label="Enter start date"
+                                value={currentEditScan.startTime}
+                                onChange={(newValue) =>
+                                  setCurrentEditScan((prev) => ({
+                                    ...prev,
+                                    startTime: newValue,
+                                  }))
+                                }
+                                renderInput={(params) => <TextField {...params} />}
+                              />
+                              <DateTimePicker
+                                label="Enter end date"
+                                value={currentEditScan.endTime}
+                                onChange={(newValue) =>
+                                  setCurrentEditScan((prev) => ({
+                                    ...prev,
+                                    endTime: newValue,
+                                  }))
+                                }
+                                renderInput={(params) => <TextField {...params} />}
+                              />
+                            </div>
+                          )}
                           <div className="flex flex-row gap-x-2 items-center my-4">
                             <input
                               type="checkbox"
@@ -514,6 +547,21 @@ export default function Admin() {
                               }}
                             />
                             <h1>Is this for check-in event?</h1>
+                          </div>
+                          <div className="flex flex-row gap-x-2 items-center my-4">
+                            <input
+                              type="checkbox"
+                              id="isPermanent"
+                              name="isPermanent"
+                              checked={currentEditScan.isPermanentScan}
+                              onChange={(e) => {
+                                setCurrentEditScan((prev) => ({
+                                  ...prev,
+                                  isPermanentScan: e.target.checked,
+                                }));
+                              }}
+                            />
+                            <h1>Will this scan be available throughout the event?</h1>
                           </div>
                         </div>
                         <div className="flex justify-around">
