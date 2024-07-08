@@ -12,8 +12,8 @@ type Scan = {
   precendence: number;
   name: string;
   isCheckIn: boolean;
-  startDate: Date;
-  endDate: Date;
+  startTime: Date;
+  endTime: Date;
   isPermanentScan: boolean;
 };
 
