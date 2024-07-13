@@ -20,8 +20,8 @@ type Scan = {
 export default function AppHeader2_Core() {
   const { user, hasProfile } = useAuthContext();
   const router = useRouter();
-  const isSuperAdmin = user.permissions.indexOf('super_admin') !== -1;
-  const isAdmin = isSuperAdmin || user.permissions.indexOf('admin') !== -1;
+  const isSuperAdmin = user ? user.permissions.indexOf('super_admin') !== -1 : false;
+  const isAdmin = isSuperAdmin || (user ? user.permissions.indexOf('admin') !== -1 : false);
   const [scanList, setScanList] = useState<Scan[]>([]);
   const [currentScan, setCurrentScan] = useState<Scan | null>(null);
   useEffect(() => {
@@ -31,7 +31,7 @@ export default function AppHeader2_Core() {
     async function getScanData() {
       const scans = await RequestHelper.get<Scan[]>('/api/scantypes', {
         headers: {
-          authorization: user.token || '',
+          authorization: user?.token || '',
         },
       });
       setScanList(scans.data);
