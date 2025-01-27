@@ -1,13 +1,13 @@
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import LoadIcon from '../components/LoadIcon';
 import { useUser } from '../lib/profile/user-data';
 import { RequestHelper } from '../lib/request-helper';
 import { useAuthContext } from '../lib/user/AuthContext';
 import firebase from 'firebase/compat/app';
-import { Formik, Form, Field, ErrorMessage } from 'formik';
-import { hackPortalConfig, formInitialValues } from '../hackportal.config';
+import { Formik, Form, Field, ErrorMessage, useFormikContext } from 'formik';
+import { hackPortalConfig, generateInitialValues } from '../hackportal.config';
 import DisplayQuestion from '../components/registerComponents/DisplayQuestion';
 import { getFileExtension } from '../lib/util';
 import Link from 'next/link';
@@ -15,9 +15,73 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import { GetServerSideProps } from 'next';
 import { grid } from '@mui/system';
+import { NavbarCallbackRegistryContext } from '@/lib/context/navbar';
+
+// TODO: add save profile ui button to implement the save profile features, backend is already written
 
 interface RegisterPageProps {
   allowedRegistrations: boolean;
+}
+
+function ApplicationAutosaveHandler({
+  currentPage,
+  updatePartialProfile,
+  resumeFile,
+  defaultResumeUrl,
+}: {
+  currentPage: number;
+  updatePartialProfile: (p: PartialRegistration) => void;
+  resumeFile: File | null;
+  defaultResumeUrl: string;
+}) {
+  const { values, dirty, resetForm } = useFormikContext<PartialRegistration>();
+  const { setCallback, removeCallback } = useContext(NavbarCallbackRegistryContext);
+  const { user } = useAuthContext();
+  const router = useRouter();
+  useEffect(() => {
+    if (dirty || resumeFile) {
+      setCallback(router.pathname, async () => {
+        let resumeUrl = defaultResumeUrl;
+        if (resumeFile) {
+          const formData = new FormData();
+          formData.append('resume', resumeFile);
+          formData.append('fileName', `${user.id}${getFileExtension(resumeFile.name)}`);
+          formData.append('studyLevel', values['studyLevel']);
+          formData.append('major', values['major']);
+          formData.append('isPartialProfile', 'true');
+
+          const res = await fetch('/api/resume/upload', {
+            method: 'post',
+            body: formData,
+          });
+          resumeUrl = (await res.json()).url;
+        }
+        return RequestHelper.put<any, { msg: string; registrationData: PartialRegistration }>(
+          '/api/applications/save',
+          {},
+          {
+            ...values,
+            id: values.id || user.id,
+            currentRegistrationPage: currentPage,
+            resume: resumeUrl,
+          },
+        )
+          .then(({ data }) => {
+            resetForm({ values });
+            updatePartialProfile(data.registrationData);
+          })
+          .catch((err) => {
+            console.error(err);
+          });
+      });
+    } else {
+      removeCallback(router.pathname);
+    }
+    return () => {
+      removeCallback(router.pathname);
+    };
+  }, [dirty, values, resumeFile]);
+  return null;
 }
 
 /**
@@ -34,39 +98,73 @@ export default function Register({ allowedRegistrations }: RegisterPageProps) {
       generalQuestions,
       schoolQuestions,
       hackathonExperienceQuestions,
+      shortAnswerQuestions,
       eventInfoQuestions,
       sponsorInfoQuestions,
+      teammateQuestions,
     },
   } = hackPortalConfig;
 
-  const { user, hasProfile, updateProfile } = useAuthContext();
+  const { user, profile, partialProfile, hasProfile, updateProfile, updatePartialProfile } =
+    useAuthContext();
   const [resumeFile, setResumeFile] = useState<File | null>(null);
+  const [isSavingApplication, setIsSavingApplication] = useState(false);
+  const [resumeFileUpdated, setResumeFileUpdated] = useState(false);
+  const resumeFileRef = useRef(null);
+  const [displayProfileSavedToaster, setDisplayProfileSavedToaster] = useState(false);
   // update this to false for testing
   const [loading, setLoading] = useState(false);
-  const [formValid, setFormValid] = useState(true);
-  const [registrationSection, setRegistrationSection] = useState(0);
+  const [registrationSection, setRegistrationSection] = useState(
+    partialProfile?.currentRegistrationPage || 0,
+  );
   const checkRedirect = async () => {
     if (!allowedRegistrations) return;
     if (hasProfile) router.push('/profile');
-    else setLoading(false);
+    if (user) setLoading(false);
   };
 
-  useEffect(() => {
-    //setting user specific initial values
-    formInitialValues['id'] = user?.id || '';
-    formInitialValues['preferredEmail'] = user?.preferredEmail || '';
-    formInitialValues['firstName'] = user?.firstName?.split(' ')[0] || '';
-    formInitialValues['lastName'] = user?.lastName || '';
-    formInitialValues['permissions'] = user?.permissions || ['hacker'];
-  }, []);
-
   // disbale this for testing
-  useEffect(() => {
-    checkRedirect();
-  }, [user]);
+  // useEffect(() => {
+  //   checkRedirect();
+  // }, [user]);
+
+  const cleanData = (registrationData: PartialRegistration): Registration => {
+    let cleanedValues = { ...registrationData };
+    const userValues = {
+      id: registrationData.id,
+      firstName: registrationData.firstName,
+      lastName: registrationData.lastName,
+      preferredEmail: registrationData.preferredEmail,
+      permissions: registrationData.permissions,
+    };
+    delete cleanedValues.firstName;
+    delete cleanedValues.lastName;
+    delete cleanedValues.permissions;
+    delete cleanedValues.preferredEmail;
+    return {
+      ...cleanedValues,
+      user: userValues,
+    };
+  };
 
   const handleSubmit = async (registrationData) => {
-    let resumeUrl: string = '';
+    registrationData = cleanData(registrationData);
+    if (registrationData['university'] === 'Other') {
+      registrationData['university'] = registrationData['universityManual'];
+    }
+
+    if (registrationData['major'] === 'Other') {
+      registrationData['major'] = registrationData['majorManual'];
+    }
+
+    if (registrationData['heardFrom'] === 'Other') {
+      registrationData['heardFrom'] = registrationData['heardFromManual'];
+    }
+
+    delete registrationData.universityManual;
+    delete registrationData.majorManual;
+    delete registrationData.heardFromManual;
+    let resumeUrl: string = partialProfile?.resume || '';
     try {
       if (resumeFile) {
         const formData = new FormData();
@@ -80,19 +178,111 @@ export default function Register({ allowedRegistrations }: RegisterPageProps) {
           body: formData,
         });
         resumeUrl = (await res.json()).url;
+      } else if (resumeUrl !== '') {
+        const { data } = await RequestHelper.post<
+          { major: string; studyLevel: string; resumeUrl: string },
+          { url: string }
+        >(
+          '/api/resume/move',
+          {
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          },
+          {
+            major: registrationData.major,
+            studyLevel: registrationData.studyLevel,
+            resumeUrl,
+          },
+        );
+        resumeUrl = data.url;
       }
-      await RequestHelper.post<Registration, any>(
+      const { data } = await RequestHelper.post<
+        Registration,
+        { msg: string; registrationData: Registration }
+      >(
         '/api/applications',
         {},
-        { ...registrationData, resume: resumeUrl },
+        {
+          ...registrationData,
+          id: registrationData.id || user.id,
+          user: {
+            ...registrationData.user,
+            id: registrationData.user.id || user.id,
+          },
+          resume: resumeUrl,
+        },
       );
-      alert('Registered successfully');
-      updateProfile(registrationData);
+      alert('Application Submitted');
+      updateProfile(data.registrationData);
+      updatePartialProfile(null);
       router.push('/profile');
     } catch (error) {
       console.error(error);
       console.log('Request creation error');
     }
+  };
+
+  const isValidUSPhoneNumber = (phoneNumber: string) => {
+    return /^(1[ -]?)?\d{3}[ -]?\d{3}[ -]?\d{4}$/.test(phoneNumber);
+  };
+
+  const isValidInternationalPhoneNumber = (phoneNumber: string) => {
+    return /(\+|00)(297|93|244|1264|358|355|376|971|54|374|1684|1268|61|43|994|257|32|229|226|880|359|973|1242|387|590|375|501|1441|591|55|1246|673|975|267|236|1|61|41|56|86|225|237|243|242|682|57|269|238|506|53|5999|61|1345|357|420|49|253|1767|45|1809|1829|1849|213|593|20|291|212|34|372|251|358|679|500|33|298|691|241|44|995|44|233|350|224|590|220|245|240|30|1473|299|502|594|1671|592|852|504|385|509|36|62|44|91|246|353|98|964|354|972|39|1876|44|962|81|76|77|254|996|855|686|1869|82|383|965|856|961|231|218|1758|423|94|266|370|352|371|853|590|212|377|373|261|960|52|692|389|223|356|95|382|976|1670|258|222|1664|596|230|265|60|262|264|687|227|672|234|505|683|31|47|977|674|64|968|92|507|64|51|63|680|675|48|1787|1939|850|351|595|970|689|974|262|40|7|250|966|249|221|65|500|4779|677|232|503|378|252|508|381|211|239|597|421|386|46|268|1721|248|963|1649|235|228|66|992|690|993|670|676|1868|216|90|688|886|255|256|380|598|1|998|3906698|379|1784|58|1284|1340|84|678|681|685|967|27|260|263)(9[976]\d|8[987530]\d|6[987]\d|5[90]\d|42\d|3[875]\d|2[98654321]\d|9[8543210]|8[6421]|6[6543210]|5[87654321]|4[987654310]|3[9643210]|2[70]|7|1)\d{4,20}$/.test(
+      phoneNumber.replaceAll(' ', ''),
+    );
+  };
+
+  const handleSaveProfile = (
+    registrationData: PartialRegistration,
+    nextPage: number,
+    resetForm: (param: { values: any }) => void,
+  ) => {
+    // const cleanedData = cleanData(registrationData);
+    return (async () => {
+      if (resumeFile && resumeFileUpdated) {
+        const formData = new FormData();
+        formData.append('resume', resumeFile);
+        formData.append('fileName', `${user.id}${getFileExtension(resumeFile.name)}`);
+        formData.append('studyLevel', registrationData['studyLevel']);
+        formData.append('major', registrationData['major']);
+        formData.append('isPartialProfile', 'true');
+
+        const res = await fetch('/api/resume/upload', {
+          method: 'post',
+          body: formData,
+        });
+        const resumeUrl = (await res.json()).url;
+        return resumeUrl;
+      } else {
+        return partialProfile?.resume || '';
+      }
+    })()
+      .then((resumeUrl: string) => {
+        return RequestHelper.put<any, { msg: string; registrationData: PartialRegistration }>(
+          '/api/applications/save',
+          {},
+          {
+            ...registrationData,
+            id: registrationData.id || user.id,
+            currentRegistrationPage: nextPage,
+            resume: resumeUrl,
+          },
+        )
+          .then(() => {
+            setDisplayProfileSavedToaster(true);
+            resetForm({ values: registrationData });
+            setResumeFileUpdated(false);
+            updatePartialProfile(registrationData);
+          })
+          .catch((err) => {
+            console.error(err);
+          });
+      })
+      .catch((err) => {
+        alert('something is wrong with saving profile');
+        console.error(err);
+      });
   };
 
   const handleResumeFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -118,6 +308,7 @@ export default function Register({ allowedRegistrations }: RegisterPageProps) {
       return alert(`Accepted file types: ${acceptedFileExtensions.join(' ')}`);
 
     setResumeFile(file);
+    setResumeFileUpdated(true);
   };
 
   if (!allowedRegistrations) {
@@ -129,9 +320,10 @@ export default function Register({ allowedRegistrations }: RegisterPageProps) {
   }
 
   // disable this for testing
-  if (!user) {
-    router.push('/');
-  }
+  // if (!user) {
+  //   // If user haven't signed in, redirect them to login page
+  //   router.push('/auth');
+  // }
 
   if (loading) {
     return <LoadIcon width={200} height={200} />;
@@ -154,7 +346,9 @@ export default function Register({ allowedRegistrations }: RegisterPageProps) {
     if (obj.numberInputQuestions)
       for (let inputObj of obj.numberInputQuestions) {
         if (inputObj.required) {
-          if (!values[inputObj.name] && values[inputObj.name] !== 0)
+          if (isNaN(parseInt(values[inputObj.name]))) {
+            errors[inputObj.name] = 'Invalid number';
+          } else if (!values[inputObj.name] && values[inputObj.name] !== 0)
             errors[inputObj.name] = 'Required';
         }
       }
@@ -167,7 +361,8 @@ export default function Register({ allowedRegistrations }: RegisterPageProps) {
     if (obj.checkboxQuestions)
       for (let inputObj of obj.checkboxQuestions) {
         if (inputObj.required) {
-          if (!values[inputObj.name]) errors[inputObj.name] = 'Required';
+          if (!values[inputObj.name] || values[inputObj.name].length === 0)
+            errors[inputObj.name] = 'Required';
         }
       }
     if (obj.datalistQuestions)
@@ -201,7 +396,19 @@ export default function Register({ allowedRegistrations }: RegisterPageProps) {
 
       <section className="relative">
         <Formik
-          initialValues={formInitialValues}
+          initialValues={{
+            ...generateInitialValues(partialProfile),
+            id: partialProfile?.id || '',
+            firstName: partialProfile?.firstName || '',
+            lastName: partialProfile?.lastName || '',
+            preferredEmail: partialProfile?.preferredEmail || user?.preferredEmail || '',
+            majorManual: partialProfile?.majorManual || '',
+            universityManual: partialProfile?.universityManual || '',
+            heardFromManual: partialProfile?.heardFromManual || '',
+            resume: partialProfile?.resume || '',
+          }}
+          validateOnBlur={false}
+          validateOnChange={false}
           //validation
           //Get condition in which values.[value] is invalid and set error message in errors.[value]. Value is a value from the form(look at initialValues)
           validate={(values) => {
@@ -215,11 +422,24 @@ export default function Register({ allowedRegistrations }: RegisterPageProps) {
             for (let obj of hackathonExperienceQuestions) {
               errors = setErrors(obj, values, errors);
             }
+            for (let obj of shortAnswerQuestions) {
+              errors = setErrors(obj, values, errors);
+            }
             for (let obj of eventInfoQuestions) {
               errors = setErrors(obj, values, errors);
             }
             for (let obj of sponsorInfoQuestions) {
               errors = setErrors(obj, values, errors);
+            }
+            for (let obj of teammateQuestions) {
+              errors = setErrors(obj, values, errors);
+            }
+
+            if (
+              !isValidUSPhoneNumber(values['phoneNumber']) &&
+              !isValidInternationalPhoneNumber(values['phoneNumber'])
+            ) {
+              errors.phoneNumber = 'Invalid phone number';
             }
 
             //additional custom error validation
@@ -240,33 +460,27 @@ export default function Register({ allowedRegistrations }: RegisterPageProps) {
               errors.hackathonExperience = 'Not a valid number';
             }
 
+            if (values['major'] === 'Other' && values['majorManual'] === '') {
+              errors['majorManual'] = 'Required';
+            }
+
+            if (values['university'] === 'Other' && values['universityManual'] === '') {
+              errors['universityManual'] = 'Required';
+            }
+
+            if (values['heardFrom'] === 'Other' && values['heardFromManual'] === '') {
+              errors['heardFromManual'] = 'Required';
+            }
             return errors;
           }}
           onSubmit={async (values, { setSubmitting }) => {
-            await new Promise((r) => setTimeout(r, 500));
-            let finalValues: any = values;
-            //add user object
-            const userValues: any = {
-              id: values.id,
-              firstName: values.firstName,
-              lastName: values.lastName,
-              preferredEmail: values.preferredEmail,
-              permissions: values.permissions,
-            };
-            finalValues['user'] = userValues;
-            //delete unnecessary values
-            delete finalValues.firstName;
-            delete finalValues.lastName;
-            delete finalValues.permissions;
-            delete finalValues.preferredEmail;
-
             //submitting
-            handleSubmit(values);
+            await handleSubmit(values);
             setSubmitting(false);
             // alert(JSON.stringify(values, null, 2)); //Displays form results on submit for testing purposes
           }}
         >
-          {({ values, handleChange, isValid, dirty }) => (
+          {({ values, isValid, isSubmitting, dirty, resetForm }) => (
             // Field component automatically hooks input to form values. Use name attribute to match corresponding value
             // ErrorMessage component automatically displays error based on validation above. Use name attribute to match corresponding value
             <Form
@@ -288,12 +502,7 @@ export default function Register({ allowedRegistrations }: RegisterPageProps) {
                   </header>
                   <div className="flex flex-col">
                     {generalQuestions.map((obj, idx) => (
-                      <DisplayQuestion
-                        key={idx}
-                        obj={obj}
-                        values={values}
-                        onChange={handleChange}
-                      />
+                      <DisplayQuestion key={idx} obj={obj} />
                     ))}
                   </div>
                 </section>
@@ -305,12 +514,7 @@ export default function Register({ allowedRegistrations }: RegisterPageProps) {
                   <h2 className="sm:text-2xl text-xl font-semibold sm:mb-3 mb-1">School Info</h2>
                   <div className="flex flex-col">
                     {schoolQuestions.map((obj, idx) => (
-                      <DisplayQuestion
-                        key={idx}
-                        obj={obj}
-                        values={values}
-                        onChange={handleChange}
-                      />
+                      <DisplayQuestion key={idx} obj={obj} />
                     ))}
                   </div>
                 </section>
@@ -324,12 +528,7 @@ export default function Register({ allowedRegistrations }: RegisterPageProps) {
                   </h2>
                   <div className="flex flex-col">
                     {hackathonExperienceQuestions.map((obj, idx) => (
-                      <DisplayQuestion
-                        key={idx}
-                        obj={obj}
-                        values={values}
-                        onChange={handleChange}
-                      />
+                      <DisplayQuestion key={idx} obj={obj} />
                     ))}
                   </div>
                 </section>
@@ -342,24 +541,11 @@ export default function Register({ allowedRegistrations }: RegisterPageProps) {
                   <div className="flex flex-col">
                     {/* apply styling issue fix, it's an ugly fix but this solve the styling issue */}
                     {eventInfoQuestions.map((obj, idx) => {
-                      if (idx !== 0)
-                        return (
-                          <DisplayQuestion
-                            key={idx}
-                            obj={obj}
-                            values={values}
-                            onChange={handleChange}
-                          />
-                        );
+                      if (idx !== 0) return <DisplayQuestion key={idx} obj={obj} />;
 
                       return (
                         <div style={{ height: '56px' }} className="mb-8" key={idx}>
-                          <DisplayQuestion
-                            key={idx}
-                            obj={obj}
-                            values={values}
-                            onChange={handleChange}
-                          />
+                          <DisplayQuestion key={idx} obj={obj} />
                         </div>
                       );
                     })}
@@ -373,42 +559,66 @@ export default function Register({ allowedRegistrations }: RegisterPageProps) {
                   <h2 className="sm:text-2xl text-xl font-semibold sm:mb-3 mb-1">Sponsor Info</h2>
                   <div className="flex flex-col">
                     {sponsorInfoQuestions.map((obj, idx) => (
-                      <DisplayQuestion
-                        key={idx}
-                        obj={obj}
-                        values={values}
-                        onChange={handleChange}
-                      />
+                      <DisplayQuestion key={idx} obj={obj} />
                     ))}
                   </div>
                   {/* Resume Upload */}
-                  <div className=" mt-8">
-                    Upload your resume:
+                  <div className="mt-8 md:px-4 poppins-regular">
+                    <div className="flex items-center">
+                      Upload your resume{' '}
+                      <span className="text-gray-600 ml-2 text-[8px]">optional</span>
+                    </div>
                     <br />
                     <input
                       onChange={(e) => handleResumeFileChange(e)}
+                      ref={resumeFileRef}
                       name="resume"
                       type="file"
                       formEncType="multipart/form-data"
                       accept=".pdf, .doc, .docx, image/png, image/jpeg, .txt, .tex, .rtf"
-                      className="cursor-pointer w-full text-complementary border border-complementary/20 rounded-md file:md:p-2 file:p-1 file:bg-primaryDark file:text-white file:cursor-pointer file:h-full file:rounded-l-md file:border-none"
+                      className="hidden"
                     />
-                    <br />
-                    <p className="text-xs text-complementary/50">
+                    <div className="flex items-center gap-x-3 poppins-regular w-full border border-primaryDark rounded-md">
+                      <button
+                        className="md:p-2 p-1 bg-primaryDark text-white h-full rounded-l-md border-none"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          resumeFileRef.current?.click();
+                        }}
+                      >
+                        Upload new resume...
+                      </button>
+                      <p className="text-[#4C4950]">
+                        {resumeFile ? resumeFile.name : 'No file selected.'}
+                      </p>
+                    </div>
+                    <p className="poppins-regular text-xs text-primaryDark">
                       Accepted file types: .pdf, .doc, .docx, .png, .jpeg, .txt, .tex, .rtf
                     </p>
+                    {partialProfile?.resume && (
+                      <div className="my-4 w-fit">
+                        <Link href={partialProfile.resume} target="_blank">
+                          <div className="bg-[#40B7BA] md:p-2 p-1 text-white rounded-lg">
+                            Click to view your current resume
+                          </div>
+                        </Link>
+                      </div>
+                    )}
                   </div>
                   {/* Submit */}
-                  <div className="text-white absolute right-4">
+                  <div className="mt-8 text-white">
                     <button
+                      disabled={isSubmitting}
                       type="submit"
                       className="mr-auto cursor-pointer px-4 py-2 rounded-lg bg-primaryDark hover:brightness-90"
-                      onClick={() => setFormValid(!(!isValid || !dirty))}
                     >
                       Submit
                     </button>
-                    {!isValid && !formValid && (
-                      <div className="text-red-600">Error: The form has invalid fields</div>
+                    {!isValid && (
+                      <div className="text-red-600 poppins-regular">
+                        Error: The form has invalid fields. Please go through the form again to make
+                        sure that every required fields are filled out.
+                      </div>
                     )}
                   </div>
                 </section>
