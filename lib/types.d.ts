@@ -87,6 +87,7 @@ type Registration = {
      */
     preferredEmail: string;
     group?: string;
+    status?: string; // TODO: add this as temp place holder to fix bug for now
   };
   // TODO: Allow for qualifiers like "how old will you be at the day of the event?"
   // TODO: Allow this to be dynamically defined by the organizers
