@@ -26,12 +26,28 @@ export default function initializeApi() {
  */
 function initializeFirebase() {
   if (admin.apps.length < 1) {
-    admin.initializeApp({
-      credential: admin.credential.cert({
-        projectId: process.env.SERVICE_ACCOUNT_PROJECT_ID,
-        clientEmail: process.env.SERVICE_ACCOUNT_CLIENT_EMAIL,
-        privateKey: process.env.SERVICE_ACCOUNT_PRIVATE_KEY.replace(/\\n/g, '\n'),
-      }),
-    });
+    try {
+      // 检查必要的环境变量
+      if (
+        !process.env.SERVICE_ACCOUNT_PROJECT_ID ||
+        !process.env.SERVICE_ACCOUNT_CLIENT_EMAIL ||
+        !process.env.SERVICE_ACCOUNT_PRIVATE_KEY
+      ) {
+        console.warn(
+          'Firebase Admin SDK: Missing required environment variables. Using default app.',
+        );
+        return;
+      }
+
+      admin.initializeApp({
+        credential: admin.credential.cert({
+          projectId: process.env.SERVICE_ACCOUNT_PROJECT_ID,
+          clientEmail: process.env.SERVICE_ACCOUNT_CLIENT_EMAIL,
+          privateKey: process.env.SERVICE_ACCOUNT_PRIVATE_KEY.replace(/\\n/g, '\n'),
+        }),
+      });
+    } catch (error) {
+      console.error('Firebase Admin SDK initialization failed:', error);
+    }
   }
 }

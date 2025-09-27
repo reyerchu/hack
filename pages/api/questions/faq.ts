@@ -17,12 +17,18 @@ const FAQS_COLLECTION = '/faqs';
  *
  */
 async function getFaqs(req: NextApiRequest, res: NextApiResponse) {
-  const snapshot = await db.collection(FAQS_COLLECTION).get();
-  let data = [];
-  snapshot.forEach((doc) => {
-    data.push(doc.data());
-  });
-  res.json(data);
+  try {
+    const db = firestore();
+    const snapshot = await db.collection(FAQS_COLLECTION).get();
+    let data = [];
+    snapshot.forEach((doc) => {
+      data.push(doc.data());
+    });
+    res.json(data);
+  } catch (error) {
+    console.error('Error fetching FAQs:', error);
+    res.json([]);
+  }
 }
 
 function handleGetRequest(req: NextApiRequest, res: NextApiResponse) {

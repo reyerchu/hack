@@ -17,12 +17,18 @@ const SPONSORS = '/sponsors';
  *
  */
 async function getSponsors(req: NextApiRequest, res: NextApiResponse) {
-  const snapshot = await db.collection(SPONSORS).get();
-  let data = [];
-  snapshot.forEach((doc) => {
-    data.push(doc.data());
-  });
-  res.json(data);
+  try {
+    const db = firestore();
+    const snapshot = await db.collection(SPONSORS).get();
+    let data = [];
+    snapshot.forEach((doc) => {
+      data.push(doc.data());
+    });
+    res.json(data);
+  } catch (error) {
+    console.error('Error fetching sponsors:', error);
+    res.json([]);
+  }
 }
 
 function handleGetRequest(req: NextApiRequest, res: NextApiResponse) {

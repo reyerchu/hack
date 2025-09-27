@@ -17,12 +17,18 @@ const MEMBERS_COLLECTION = '/members';
  *
  */
 async function getMembersData(req: NextApiRequest, res: NextApiResponse) {
-  const snapshot = await db.collection(MEMBERS_COLLECTION).get();
-  let data = [];
-  snapshot.forEach((doc) => {
-    data.push(doc.data());
-  });
-  res.json(data);
+  try {
+    const db = firestore();
+    const snapshot = await db.collection(MEMBERS_COLLECTION).get();
+    let data = [];
+    snapshot.forEach((doc) => {
+      data.push(doc.data());
+    });
+    res.json(data);
+  } catch (error) {
+    console.error('Error fetching members:', error);
+    res.json([]);
+  }
 }
 
 function handleGetRequest(req: NextApiRequest, res: NextApiResponse) {

@@ -45,16 +45,33 @@ export class RequestHelper {
    *
    */
   static async get<ResBody>(url: string, config: RequestInit): Promise<ResponseData<ResBody>> {
-    const temp = await fetch(url, {
-      ...config,
-      method: 'GET',
-      mode: 'cors',
-    });
-    const data = await temp.json();
-    return {
-      status: temp.status,
-      data,
-    };
+    try {
+      const temp = await fetch(url, {
+        ...config,
+        method: 'GET',
+        mode: 'cors',
+      });
+
+      if (!temp.ok) {
+        console.warn(`Request failed with status ${temp.status} for ${url}`);
+        return {
+          status: temp.status,
+          data: [] as unknown as ResBody,
+        };
+      }
+
+      const data = await temp.json();
+      return {
+        status: temp.status,
+        data,
+      };
+    } catch (error) {
+      console.error(`Request error for ${url}:`, error);
+      return {
+        status: 500,
+        data: [] as unknown as ResBody,
+      };
+    }
   }
 
   /**

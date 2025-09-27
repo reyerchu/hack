@@ -3,7 +3,6 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import initializeApi from '../../../lib/admin/init';
 
 initializeApi();
-const db = firestore();
 
 const KEYNOTE_SPEAKERS = '/keynotespeakers';
 
@@ -17,12 +16,19 @@ const KEYNOTE_SPEAKERS = '/keynotespeakers';
  *
  */
 async function getKeynoteSpeakers(req: NextApiRequest, res: NextApiResponse) {
-  const snapshot = await db.collection(KEYNOTE_SPEAKERS).get();
-  let data = [];
-  snapshot.forEach((doc) => {
-    data.push(doc.data());
-  });
-  res.json(data);
+  try {
+    const db = firestore();
+    const snapshot = await db.collection(KEYNOTE_SPEAKERS).get();
+    let data = [];
+    snapshot.forEach((doc) => {
+      data.push(doc.data());
+    });
+    res.json(data);
+  } catch (error) {
+    console.error('Error fetching keynote speakers:', error);
+    // 返回空数组而不是错误
+    res.json([]);
+  }
 }
 
 function handleGetRequest(req: NextApiRequest, res: NextApiResponse) {
