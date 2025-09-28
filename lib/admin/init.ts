@@ -31,10 +31,14 @@ function initializeFirebase() {
       if (
         !process.env.SERVICE_ACCOUNT_PROJECT_ID ||
         !process.env.SERVICE_ACCOUNT_CLIENT_EMAIL ||
-        !process.env.SERVICE_ACCOUNT_PRIVATE_KEY
+        !process.env.SERVICE_ACCOUNT_PRIVATE_KEY ||
+        process.env.SERVICE_ACCOUNT_PROJECT_ID === 'dummy-project' ||
+        process.env.SERVICE_ACCOUNT_CLIENT_EMAIL ===
+          'dummy@dummy-project.iam.gserviceaccount.com' ||
+        process.env.SERVICE_ACCOUNT_PRIVATE_KEY === 'dummy-private-key'
       ) {
         console.warn(
-          'Firebase Admin SDK: Missing required environment variables. Using default app.',
+          'Firebase Admin SDK: Missing or invalid environment variables. Skipping Firebase Admin initialization.',
         );
         return;
       }
@@ -46,6 +50,7 @@ function initializeFirebase() {
           privateKey: process.env.SERVICE_ACCOUNT_PRIVATE_KEY.replace(/\\n/g, '\n'),
         }),
       });
+      console.log('Firebase Admin SDK initialized successfully');
     } catch (error) {
       console.error('Firebase Admin SDK initialization failed:', error);
     }

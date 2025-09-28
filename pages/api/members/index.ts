@@ -3,7 +3,6 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import initializeApi from '../../../lib/admin/init';
 
 initializeApi();
-const db = firestore();
 
 const MEMBERS_COLLECTION = '/members';
 
@@ -18,6 +17,17 @@ const MEMBERS_COLLECTION = '/members';
  */
 async function getMembersData(req: NextApiRequest, res: NextApiResponse) {
   try {
+    try {
+      const db = firestore();
+      if (!db) {
+        console.warn('Firebase not initialized, returning empty array for members');
+        return res.json([]);
+      }
+    } catch (_e) {
+      console.warn('Firebase not initialized, returning empty array for members');
+      return res.json([]);
+    }
+
     const db = firestore();
     const snapshot = await db.collection(MEMBERS_COLLECTION).get();
     let data = [];

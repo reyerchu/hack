@@ -4,7 +4,6 @@ import initializeApi from '../../../lib/admin/init';
 import { userIsAuthorized } from '../../../lib/authorization/check-authorization';
 
 initializeApi();
-const db = firestore();
 
 const CHALLENGES = '/challenges';
 
@@ -19,6 +18,17 @@ const CHALLENGES = '/challenges';
  */
 async function getChallenges(req: NextApiRequest, res: NextApiResponse) {
   try {
+    try {
+      const db = firestore();
+      if (!db) {
+        console.warn('Firebase not initialized, returning empty array for challenges');
+        return res.json([]);
+      }
+    } catch (_e) {
+      console.warn('Firebase not initialized, returning empty array for challenges');
+      return res.json([]);
+    }
+
     const db = firestore();
     const snapshot = await db.collection(CHALLENGES).get();
     let data = [];
@@ -42,6 +52,7 @@ async function updateChallengeDatabase(req: NextApiRequest, res: NextApiResponse
       msg: 'Request is not authorized to perform admin functionality',
     });
   }
+  const db = firestore();
   const challenge = await db.collection(CHALLENGES).where('rank', '==', challengeData.rank).get();
   if (challenge.empty) {
     await db.collection(CHALLENGES).add(challengeData);
@@ -69,6 +80,7 @@ async function deleteChallenge(req: NextApiRequest, res: NextApiResponse) {
       msg: 'Request is not authorized to perform admin functionality',
     });
   }
+  const db = firestore();
   const challengeDoc = await db
     .collection(CHALLENGES)
     .where('rank', '==', challengeData.rank)

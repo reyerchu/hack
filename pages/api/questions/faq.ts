@@ -3,7 +3,6 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import initializeApi from '../../../lib/admin/init';
 
 initializeApi();
-const db = firestore();
 
 const FAQS_COLLECTION = '/faqs';
 
@@ -18,6 +17,18 @@ const FAQS_COLLECTION = '/faqs';
  */
 async function getFaqs(req: NextApiRequest, res: NextApiResponse) {
   try {
+    // 检查 Firebase 是否已初始化
+    try {
+      const db = firestore();
+      if (!db) {
+        console.warn('Firebase not initialized, returning empty array for FAQs');
+        return res.json([]);
+      }
+    } catch (error) {
+      console.warn('Firebase not initialized, returning empty array for FAQs');
+      return res.json([]);
+    }
+
     const db = firestore();
     const snapshot = await db.collection(FAQS_COLLECTION).get();
     let data = [];

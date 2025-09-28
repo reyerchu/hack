@@ -17,6 +17,18 @@ const KEYNOTE_SPEAKERS = '/keynotespeakers';
  */
 async function getKeynoteSpeakers(req: NextApiRequest, res: NextApiResponse) {
   try {
+    // Guard: Firebase may not be initialized
+    try {
+      const db = firestore();
+      if (!db) {
+        console.warn('Firebase not initialized, returning empty array for keynote speakers');
+        return res.json([]);
+      }
+    } catch (_e) {
+      console.warn('Firebase not initialized, returning empty array for keynote speakers');
+      return res.json([]);
+    }
+
     const db = firestore();
     const snapshot = await db.collection(KEYNOTE_SPEAKERS).get();
     let data = [];

@@ -4,7 +4,6 @@ import initializeApi from '../../../lib/admin/init';
 import { userIsAuthorized } from '../../../lib/authorization/check-authorization';
 
 initializeApi();
-const db = firestore();
 
 const SCHEDULE_EVENTS = '/schedule-events';
 
@@ -18,19 +17,37 @@ const SCHEDULE_EVENTS = '/schedule-events';
  *
  */
 async function getScheduleEvents(req: NextApiRequest, res: NextApiResponse) {
-  const snapshot = await db.collection(SCHEDULE_EVENTS).get();
-  let data = [];
-  snapshot.forEach((doc) => {
-    const currentEvent = doc.data();
-    data.push({
-      ...currentEvent,
-      startTimestamp: currentEvent.startDate,
-      endTimestamp: currentEvent.endDate,
-      startDate: currentEvent.startDate.toDate(),
-      endDate: currentEvent.endDate.toDate(),
+  try {
+    // 检查 Firebase 是否已初始化
+    try {
+      const db = firestore();
+      if (!db) {
+        console.warn('Firebase not initialized, returning empty array for schedule events');
+        return res.json([]);
+      }
+    } catch (error) {
+      console.warn('Firebase not initialized, returning empty array for schedule events');
+      return res.json([]);
+    }
+
+    const db = firestore();
+    const snapshot = await db.collection(SCHEDULE_EVENTS).get();
+    let data = [];
+    snapshot.forEach((doc) => {
+      const currentEvent = doc.data();
+      data.push({
+        ...currentEvent,
+        startTimestamp: currentEvent.startDate,
+        endTimestamp: currentEvent.endDate,
+        startDate: currentEvent.startDate.toDate(),
+        endDate: currentEvent.endDate.toDate(),
+      });
     });
-  });
-  res.json(data);
+    res.json(data);
+  } catch (error) {
+    console.error('Error fetching schedule events:', error);
+    res.json([]);
+  }
 }
 
 async function updateEventDatabase(req: NextApiRequest, res: NextApiResponse) {
@@ -44,6 +61,7 @@ async function updateEventDatabase(req: NextApiRequest, res: NextApiResponse) {
       msg: 'Request is not authorized to perform admin functionality',
     });
   }
+  const db = firestore();
   const event = await db.collection(SCHEDULE_EVENTS).where('Event', '==', eventData.Event).get();
   if (event.empty) {
     await db.collection(SCHEDULE_EVENTS).add({
@@ -83,6 +101,7 @@ async function deleteEvent(req: NextApiRequest, res: NextApiResponse) {
   }
 
   const eventData = JSON.parse(req.body);
+  const db = firestore();
   const eventDoc = await db.collection(SCHEDULE_EVENTS).where('Event', '==', eventData.Event).get();
   eventDoc.forEach(async (doc) => {
     await db.collection(SCHEDULE_EVENTS).doc(doc.id).delete();

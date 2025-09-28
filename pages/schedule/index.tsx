@@ -24,7 +24,7 @@ import PinDrop from '@material-ui/icons/PinDrop';
 import ClockIcon from '@material-ui/icons/AccessTime';
 import Backpack from '@material-ui/icons/LocalMall';
 import Description from '@material-ui/icons/BorderColor';
-import firebase from 'firebase';
+// Removed firebase usage on client to avoid requiring firestore in browser
 
 const styles = ({ palette }: Theme) =>
   createStyles({
@@ -154,9 +154,30 @@ export default function Calendar(props: { scheduleCard: ScheduleEvent[] }) {
     ),
   );
 
+  // Robust timestamp -> Date parser supporting multiple shapes
+  const parseTimestampToDate = (value: any): Date => {
+    if (!value) return new Date(0);
+    if (value instanceof Date) return value;
+    if (typeof value === 'number') return new Date(value);
+    if (typeof value === 'string') return new Date(value);
+    if (typeof value === 'object') {
+      if (typeof value.seconds === 'number') return new Date(value.seconds * 1000);
+      if (typeof value._seconds === 'number') return new Date(value._seconds * 1000);
+      if (typeof value.nanoseconds === 'number' && typeof value.seconds === 'number') {
+        return new Date(value.seconds * 1000 + Math.floor(value.nanoseconds / 1e6));
+      }
+      if (typeof value.toDate === 'function') {
+        try {
+          return value.toDate();
+        } catch (e) {}
+      }
+    }
+    return new Date(0);
+  };
+
   const changeEventData = (data) => {
-    const startDate = new firebase.firestore.Timestamp(data.startTimestamp._seconds, 0).toDate();
-    const endDate = new firebase.firestore.Timestamp(data.endTimestamp._seconds, 0).toDate();
+    const startDate = parseTimestampToDate(data.startTimestamp);
+    const endDate = parseTimestampToDate(data.endTimestamp);
     //first match extracts day abbreviation
     //second match extracts month abbreviation and the number day of the month
     var dayString =
@@ -207,8 +228,10 @@ export default function Calendar(props: { scheduleCard: ScheduleEvent[] }) {
   };
 
   useEffect(() => {
-    // Split event description by newlines
-    const descSplit = eventData.description.split('\n');
+    // Split event description by newlines (guard against non-string)
+    const descriptionString =
+      typeof eventData.description === 'string' ? eventData.description : '';
+    const descSplit = descriptionString.split('\n');
     setEventDescription(
       descSplit.map((d, i) => (
         <p key={i} className="mb-2">
@@ -233,23 +256,23 @@ export default function Calendar(props: { scheduleCard: ScheduleEvent[] }) {
     else return teal;
   };
 
-  const scheduleEvents = props.scheduleCard;
-  const tracks = scheduleEvents.map((event) => event.track);
+  const scheduleEvents = Array.isArray(props.scheduleCard) ? props.scheduleCard : [];
+  const tracks = scheduleEvents.map((event) => event && (event as any).track).filter(Boolean);
   const uniqueTracks = new Set(tracks);
 
+  const resourceInstances = Array.from(uniqueTracks).map((track) => ({
+    id: track,
+    text: track,
+    color: trackColor(track as any),
+  }));
   const resources = [
     {
       fieldName: 'track',
       title: 'track',
-      instances: Array.from(
-        new Set(
-          Array.from(uniqueTracks).map((track) => ({
-            id: track,
-            text: track,
-            color: trackColor(track),
-          })),
-        ),
-      ),
+      instances:
+        resourceInstances.length > 0
+          ? resourceInstances
+          : [{ id: 'General', text: 'General', color: trackColor('General' as any) }],
     },
   ];
 
@@ -343,8 +366,11 @@ export default function Calendar(props: { scheduleCard: ScheduleEvent[] }) {
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const protocol = context.req.headers.referer?.split('://')[0] || 'http';
+  const host = context.req.headers.host || 'localhost:3000';
+  const baseUrl = `${protocol}://${host}`;
+
   const { data: scheduleData } = await RequestHelper.get<ScheduleEvent[]>(
-    `${protocol}://${context.req.headers.host}/api/schedule`,
+    `${baseUrl}/api/schedule`,
     {},
   );
   return {
