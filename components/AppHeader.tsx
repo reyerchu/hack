@@ -21,16 +21,19 @@ export default function AppHeader() {
   const user = useUser();
 
   useEffect(() => {
-    if (firebase.auth().currentUser !== null && !firebase.auth().currentUser.emailVerified) {
-      firebase
-        .auth()
-        .signOut()
-        .then(() => {
-          //signed out succesfully
-        })
-        .catch((error) => {
-          console.warn('Could not sign out');
-        });
+    // Check if Firebase is initialized before accessing auth
+    if (firebase.apps.length > 0) {
+      if (firebase.auth().currentUser !== null && !firebase.auth().currentUser.emailVerified) {
+        firebase
+          .auth()
+          .signOut()
+          .then(() => {
+            //signed out succesfully
+          })
+          .catch((error) => {
+            console.warn('Could not sign out');
+          });
+      }
     }
 
     //creating dynamic nav items

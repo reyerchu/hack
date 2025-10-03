@@ -20,5 +20,23 @@ export function initFirebase() {
     return;
   }
 
-  firebase.initializeApp(firebaseConfig);
+  // Check if Firebase credentials are configured
+  if (
+    !firebaseConfig.apiKey ||
+    !firebaseConfig.projectId ||
+    firebaseConfig.apiKey === 'dummy-api-key' ||
+    firebaseConfig.projectId === 'dummy-project'
+  ) {
+    console.warn(
+      'Firebase client: Missing or invalid configuration. Skipping Firebase initialization.',
+    );
+    return;
+  }
+
+  try {
+    firebase.initializeApp(firebaseConfig);
+    console.log('Firebase client initialized successfully');
+  } catch (error) {
+    console.error('Firebase client initialization failed:', error);
+  }
 }
