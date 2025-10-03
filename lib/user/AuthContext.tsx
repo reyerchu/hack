@@ -119,10 +119,19 @@ function AuthProvider({ children }: React.PropsWithChildren<Record<string, any>>
   };
 
   React.useEffect(() => {
-    firebase.auth().onAuthStateChanged((user) => {
+    // Check if Firebase is initialized before setting up auth listener
+    if (firebase.apps.length === 0) {
+      console.warn('Firebase not initialized, skipping auth state listener');
+      setLoading(false);
+      return;
+    }
+
+    const unsubscribe = firebase.auth().onAuthStateChanged((user) => {
       if (user !== null && !user.emailVerified) return;
       updateUser(user);
     });
+
+    return () => unsubscribe();
   }, []);
 
   /**
@@ -131,6 +140,11 @@ function AuthProvider({ children }: React.PropsWithChildren<Record<string, any>>
    * This switches to the guest user.
    */
   async function signOut() {
+    if (firebase.apps.length === 0) {
+      console.warn('Firebase not initialized, cannot sign out');
+      return Promise.resolve();
+    }
+
     return firebase
       .auth()
       .signOut()
@@ -143,6 +157,12 @@ function AuthProvider({ children }: React.PropsWithChildren<Record<string, any>>
   }
 
   const signInWithGoogle = async () => {
+    if (firebase.apps.length === 0) {
+      console.warn('Firebase not initialized, cannot sign in');
+      alert('Authentication is not configured. Please contact the administrator.');
+      return Promise.resolve();
+    }
+
     const provider = new firebase.auth.GoogleAuthProvider();
     return firebase
       .auth()

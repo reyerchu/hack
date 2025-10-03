@@ -14,7 +14,7 @@ import {
 import { withStyles, Theme, createStyles } from '@material-ui/core';
 import { grey, indigo, blue, teal, purple, red, orange } from '@material-ui/core/colors';
 import Paper from '@material-ui/core/Paper';
-import { alpha } from '@material-ui/core/styles/colorManipulator';
+import { alpha } from '@material-ui/core/styles';
 import { WithStyles } from '@material-ui/styles';
 import classNames from 'clsx';
 import { GetServerSideProps } from 'next';
@@ -122,6 +122,15 @@ const AppointmentContent = withStyles(styles, { name: 'AppointmentContent' })(
 );
 
 export default function Calendar(props: { scheduleCard: ScheduleEvent[] }) {
+  // Parse and normalize schedule data from server
+  const normalizedScheduleData = Array.isArray(props.scheduleCard)
+    ? props.scheduleCard.map((event) => ({
+        ...event,
+        startDate: new Date(event.startDate),
+        endDate: new Date(event.endDate),
+      }))
+    : [];
+
   // Hooks
   const [eventData, setEventData] = useState({
     title: '',
@@ -256,7 +265,7 @@ export default function Calendar(props: { scheduleCard: ScheduleEvent[] }) {
     else return teal;
   };
 
-  const scheduleEvents = Array.isArray(props.scheduleCard) ? props.scheduleCard : [];
+  const scheduleEvents = normalizedScheduleData;
   const tracks = scheduleEvents.map((event) => event && (event as any).track).filter(Boolean);
   const uniqueTracks = new Set(tracks);
 
@@ -284,7 +293,7 @@ export default function Calendar(props: { scheduleCard: ScheduleEvent[] }) {
         <div className="overflow-y-auto overflow-x-hidden lg:w-[62%] w-full h-full border-2 border-black rounded-md">
           <Paper>
             <div className="flex flex-row">
-              <Scheduler data={props.scheduleCard}>
+              <Scheduler data={normalizedScheduleData}>
                 <ViewState defaultCurrentDate={defaultCurrentDate} />
                 <DayView startDayHour={8} endDayHour={24} intervalCount={1} />
                 <Appointments
