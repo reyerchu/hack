@@ -22,7 +22,7 @@ import 'katex/dist/katex.min.css';
 initFirebase();
 
 /**
- * A Wrapper for the HackPortal web app.
+ * A Wrapper for the RWA Hackathon Taiwan web app.
  *
  * This is the root of the component heirarchy. When the site is hydrated, this
  * will load into memory and never re-initialize unless the page refreshes.
@@ -40,7 +40,7 @@ function PortalApp({ Component, pageProps }: AppProps) {
                 name="viewport"
                 content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no"
               />
-              <title>HackPortal</title> {/* !change */}
+              <title>RWA Hackathon Taiwan</title> {/* !change */}
               <meta name="description" content="Your all-in-one guide to this hackathon." />
               {process.env.ENABLE_PWA ||
                 (process.env.NODE_ENV !== 'development' && (

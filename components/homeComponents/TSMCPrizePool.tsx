@@ -1,4 +1,4 @@
-export default function TSMCPricePool() {
+export default function TSMCPrizePool() {
   const prizes = [
     {
       rank: 'RWA 創新獎',

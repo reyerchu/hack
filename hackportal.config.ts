@@ -244,7 +244,7 @@ export const hackPortalConfig: HackPortalConfig = {
           },
           {
             //Heard from question
-            question: 'Where did you hear about HackPortal?',
+            question: 'Where did you hear about RWA Hackathon Taiwan?',
             required: true,
             id: 'heardFrom',
             name: 'heardFrom',

@@ -2,7 +2,7 @@ import Head from 'next/head';
 import { GetServerSideProps } from 'next';
 import { useEffect, useState } from 'react';
 import { RequestHelper } from '../lib/request-helper';
-import TSMCProfessionalHero from '../components/homeComponents/TSMCProfessionalHero';
+import BackgroundCarousel from '../components/homeComponents/BackgroundCarousel';
 import TSMCChallengeTimeline from '../components/homeComponents/TSMCChallengeTimeline';
 import TSMCParticipationGuidelines from '../components/homeComponents/TSMCParticipationGuidelines';
 import TSMCPrizePool from '../components/homeComponents/TSMCPrizePool';
@@ -51,11 +51,11 @@ export default function Home(props: {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <TSMCProfessionalHero />
+      <BackgroundCarousel />
+      <TSMCChallenges challenges={props.challenges} />
       <TSMCChallengeTimeline />
       <TSMCParticipationGuidelines />
       <TSMCPrizePool />
-      <TSMCChallenges challenges={props.challenges} />
       <HomeSpeakers keynoteSpeakers={props.keynoteSpeakers} />
       <HomeTeam members={props.fetchedMembers} />
       <HomeSponsors sponsorCard={props.sponsorCard} />

@@ -17,7 +17,7 @@ export default function HomeAbout() {
           href="https://github.com/acmutd/hackportal/blob/develop/docs/set-up.md"
           className="underline"
         >
-          HackPortal Github
+          RWA Hackathon Taiwan Github
         </a>
         ！
       </div>
