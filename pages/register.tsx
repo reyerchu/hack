@@ -144,38 +144,37 @@ export default function Register() {
     if (obj.textInputQuestions)
       for (let inputObj of obj.textInputQuestions) {
         if (inputObj.required) {
-          if (!values[inputObj.name]) errors[inputObj.name] = 'Required';
+          if (!values[inputObj.name]) errors[inputObj.name] = '必填';
         }
       }
     if (obj.numberInputQuestions)
       for (let inputObj of obj.numberInputQuestions) {
         if (inputObj.required) {
-          if (!values[inputObj.name] && values[inputObj.name] !== 0)
-            errors[inputObj.name] = 'Required';
+          if (!values[inputObj.name] && values[inputObj.name] !== 0) errors[inputObj.name] = '必填';
         }
       }
     if (obj.dropdownQuestions)
       for (let inputObj of obj.dropdownQuestions) {
         if (inputObj.required) {
-          if (!values[inputObj.name]) errors[inputObj.name] = 'Required';
+          if (!values[inputObj.name]) errors[inputObj.name] = '必填';
         }
       }
     if (obj.checkboxQuestions)
       for (let inputObj of obj.checkboxQuestions) {
         if (inputObj.required) {
-          if (!values[inputObj.name]) errors[inputObj.name] = 'Required';
+          if (!values[inputObj.name]) errors[inputObj.name] = '必填';
         }
       }
     if (obj.datalistQuestions)
       for (let inputObj of obj.datalistQuestions) {
         if (inputObj.required) {
-          if (!values[inputObj.name]) errors[inputObj.name] = 'Required';
+          if (!values[inputObj.name]) errors[inputObj.name] = '必填';
         }
       }
     if (obj.textAreaQuestions)
       for (let inputObj of obj.textAreaQuestions) {
         if (inputObj.required) {
-          if (!values[inputObj.name]) errors[inputObj.name] = 'Required';
+          if (!values[inputObj.name]) errors[inputObj.name] = '必填';
         }
       }
 
@@ -185,19 +184,16 @@ export default function Register() {
   return (
     <div className="flex flex-col flex-grow bg-white">
       <Head>
-        <title>Hacker Registration</title>
-        <meta name="description" content="Register for [HACKATHON NAME]" />
+        <title>黑客註冊</title>
+        <meta name="description" content="註冊參加 [黑客松名稱]" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
       <section id="jumbotron" className="p-2 px-6">
         <div className="max-w-4xl py-6 mx-auto flex flex-col items-center">
-          <div className="registrationTitle text-4xl font-bold text-center">
-            Hacker Registration
-          </div>
+          <div className="registrationTitle text-4xl font-bold text-center">黑客註冊</div>
           <div className="text-1xl my-4 font-bold font-small text-center">
-            Please fill out the following fields. The application should take approximately 5
-            minutes.
+            請填寫以下欄位。完成申請表格大約需要 5 分鐘。
           </div>
         </div>
       </section>
@@ -231,16 +227,16 @@ export default function Register() {
               !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(values.preferredEmail)
             ) {
               //regex matches characters before @, characters after @, and 2 or more characters after . (domain)
-              errors.preferredEmail = 'Invalid email address';
+              errors.preferredEmail = '電子郵件地址無效';
             }
             if ((values.age && values.age < 1) || values.age > 100) {
-              errors.age = 'Not a valid age';
+              errors.age = '年齡無效';
             }
             if (
               (values.hackathonExperience && values.hackathonExperience < 0) ||
               values.hackathonExperience > 100
             ) {
-              errors.hackathonExperience = 'Not a valid number';
+              errors.hackathonExperience = '數字無效';
             }
 
             return errors;
@@ -277,36 +273,34 @@ export default function Register() {
               noValidate
               className="registrationForm flex flex-col max-w-4xl px-6 w-[56rem] text-lg"
             >
-              <div className="text-2xl py-1 border-b-2 border-black mr-auto mt-8">General</div>
+              <div className="text-2xl py-1 border-b-2 border-black mr-auto mt-8">基本資料</div>
               {generalQuestions.map((obj, idx) => (
                 <DisplayQuestion key={idx} obj={obj} values={values} onChange={handleChange} />
               ))}
 
-              <div className="text-2xl py-1 border-b-2 border-black mr-auto mt-8">School Info</div>
+              <div className="text-2xl py-1 border-b-2 border-black mr-auto mt-8">學校資訊</div>
               {schoolQuestions.map((obj, idx) => (
                 <DisplayQuestion key={idx} obj={obj} values={values} onChange={handleChange} />
               ))}
 
-              <div className="text-2xl py-1 border-b-2 border-black mr-auto mt-8">
-                Hackathon Experience
-              </div>
+              <div className="text-2xl py-1 border-b-2 border-black mr-auto mt-8">黑客松經驗</div>
               {hackathonExperienceQuestions.map((obj, idx) => (
                 <DisplayQuestion key={idx} obj={obj} values={values} onChange={handleChange} />
               ))}
 
-              <div className="text-2xl py-1 border-b-2 border-black mr-auto mt-8">Event Info</div>
+              <div className="text-2xl py-1 border-b-2 border-black mr-auto mt-8">活動資訊</div>
               {eventInfoQuestions.map((obj, idx) => (
                 <DisplayQuestion key={idx} obj={obj} values={values} onChange={handleChange} />
               ))}
 
-              <div className="text-2xl py-1 border-b-2 border-black mr-auto mt-8">Sponsor Info</div>
+              <div className="text-2xl py-1 border-b-2 border-black mr-auto mt-8">贊助商資訊</div>
               {sponsorInfoQuestions.map((obj, idx) => (
                 <DisplayQuestion key={idx} obj={obj} values={values} onChange={handleChange} />
               ))}
 
               {/* Resume Upload */}
               <label className="mt-4">
-                Upload your resume:
+                上傳您的履歷：
                 <br />
                 <input
                   onChange={(e) => handleResumeFileChange(e)}

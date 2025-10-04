@@ -35,7 +35,7 @@ export default function Home(props: {
   if (loading) {
     return (
       <div>
-        <h1>Loading...</h1>
+        <h1>載入中...</h1>
       </div>
     );
   }

@@ -76,15 +76,13 @@ export default function Dashboard(props: {
 
   var eventCountString;
   if (eventCount === 1) {
-    eventCountString = 'There is 1 event is happening right now!';
+    eventCountString = '目前有 1 個活動正在進行中！';
   } else {
-    eventCountString = `There are ${eventCount} events are happening right now!`;
+    eventCountString = `目前有 ${eventCount} 個活動正在進行中！`;
   }
 
   if (!isSignedIn)
-    return (
-      <div className="text-2xl font-black text-center">Please sign-in to view your dashboard</div>
-    );
+    return <div className="text-2xl font-black text-center">請登入以查看您的儀表板</div>;
 
   return (
     <>
@@ -104,7 +102,7 @@ export default function Dashboard(props: {
             {/* Hides spotlight if no events are going on */}
             {eventCount > 0 && (
               <div className="lg:w-3/5 w-full h-96">
-                <h1 className="md:text-3xl text-xl font-black">Spotlight</h1>
+                <h1 className="md:text-3xl text-xl font-black">焦點活動</h1>
                 <div>{eventCountString}</div>
                 <Swiper
                   modules={[Navigation, Pagination, A11y]}
@@ -138,7 +136,7 @@ export default function Dashboard(props: {
             )}
             {/* Announcements */}
             <div className={`${eventCount > 0 ? 'lg:w-2/5' : 'lg:w-full'} w-full h-96`}>
-              <h1 className="md:text-3xl text-xl font-black">Announcements</h1>
+              <h1 className="md:text-3xl text-xl font-black">公告</h1>
               <div id="announcement-items" className="overflow-y-scroll h-9/10">
                 {announcements.map((announcement, idx) => {
                   const dateObj = new Date(announcement.timestamp!);
@@ -159,7 +157,7 @@ export default function Dashboard(props: {
 
           {/* Challenges */}
           <div className="flex flex-col items-center my-8">
-            <h1 className="md:text-3xl text-xl font-black">Challenges</h1>
+            <h1 className="md:text-3xl text-xl font-black">挑戰任務</h1>
             {/* Cards */}
             <div className="challengeGrid my-8">
               {challenges.map(({ title, description, prizes }, idx) => (

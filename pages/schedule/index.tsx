@@ -101,19 +101,19 @@ const defaultCurrentDate = new Date(2021, 10, 13, 9, 0);
 
 const AppointmentContent = withStyles(styles, { name: 'AppointmentContent' })(
   ({ classes, data, ...restProps }: AppointmentContentProps) => {
-    let Event = 'Event';
-    if (data.Event === 2) Event = 'Sponsor';
-    if (data.Event === 3) Event = 'Tech Talk';
-    if (data.Event === 4) Event = 'Workshop';
-    if (data.Event === 5) Event = 'Social';
+    let Event = '活動';
+    if (data.Event === 2) Event = '贊助商';
+    if (data.Event === 3) Event = '技術演講';
+    if (data.Event === 4) Event = '工作坊';
+    if (data.Event === 5) Event = '社交';
 
     return (
       <Appointments.AppointmentContent {...restProps} data={data}>
         <div className={classes.container}>
           <div className={classes.text}>{data.title}</div>
-          <div className={classNames(classes.text, classes.content)}>{`Type: ${Event}`}</div>
+          <div className={classNames(classes.text, classes.content)}>{`類型：${Event}`}</div>
           <div className={classNames(classes.text, classes.content)}>
-            {`Location: ${data.location}`}
+            {`地點：${data.location}`}
           </div>
         </div>
       </Appointments.AppointmentContent>
@@ -201,16 +201,16 @@ export default function Calendar(props: { scheduleCard: ScheduleEvent[] }) {
     var speakerString = '';
     if (speakersData !== undefined && speakersData !== null && speakersData.length !== 0) {
       if (speakersData.length == 2) {
-        speakerString = `Hosted by ${speakersData[0]} & ${speakersData[1]}`;
+        speakerString = `主持人：${speakersData[0]} 和 ${speakersData[1]}`;
       } else if (speakersData.length == 1) {
-        speakerString = `Hosted by ${speakersData[0]}`;
+        speakerString = `主持人：${speakersData[0]}`;
       } else {
-        speakerString = 'Hosted by ';
+        speakerString = '主持人：';
         for (var i = 0; i < speakersData.length; i++) {
           if (i === speakersData.length - 1) {
-            speakerString += 'and ' + speakersData[i];
+            speakerString += '和 ' + speakersData[i];
           } else {
-            speakerString += speakersData[i] + ', ';
+            speakerString += speakersData[i] + '、';
           }
         }
       }
@@ -287,7 +287,7 @@ export default function Calendar(props: { scheduleCard: ScheduleEvent[] }) {
 
   return (
     <>
-      <div className="text-6xl font-black p-6">Schedule</div>
+      <div className="text-6xl font-black p-6">時程表</div>
       <div className="flex flex-wrap lg:justify-between px-6 h-[75vh]">
         {/* Calendar */}
         <div className="overflow-y-auto overflow-x-hidden lg:w-[62%] w-full h-full border-2 border-black rounded-md">
@@ -316,7 +316,7 @@ export default function Calendar(props: { scheduleCard: ScheduleEvent[] }) {
         <div className="overflow-y-auto flex flex-col justify-between lg:w-[36%] w-full h-full lg:my-0 my-2 border-2 border-black rounded-md bg-white p-4">
           <section>
             {eventData.title === '' ? (
-              <div className="text-2xl">Click on an event for more info</div>
+              <div className="text-2xl">點擊活動以查看更多資訊</div>
             ) : (
               <div />
             )}
@@ -329,28 +329,28 @@ export default function Calendar(props: { scheduleCard: ScheduleEvent[] }) {
                 <div className="">
                   <p className="flex items-center font-semibold">
                     {<CalendarIcon style={{ fontSize: 'medium', margin: '2px' }} />}
-                    Date
+                    日期
                   </p>
                   <p>{eventData.date}</p>
                 </div>
                 <div className="">
                   <p className="flex items-center font-semibold">
                     {<PinDrop style={{ fontSize: 'medium', margin: '2px' }} />}
-                    Location
+                    地點
                   </p>
                   <p>{eventData.location}</p>
                 </div>
                 <div className="">
                   <p className="flex items-center font-semibold">
                     {<ClockIcon style={{ fontSize: 'large', margin: '2px' }} />}
-                    Time
+                    時間
                   </p>
                   <p>{eventData.time}</p>
                 </div>
                 <div className="">
                   <p className="flex items-center font-semibold">
                     {<Backpack style={{ fontSize: 'medium', margin: '2px' }} />}
-                    Page
+                    頁面
                   </p>
                   <p>{eventData.page}</p>
                 </div>
@@ -359,14 +359,14 @@ export default function Calendar(props: { scheduleCard: ScheduleEvent[] }) {
               <div className="lg:text-base text-sm">
                 <p className="flex items-center font-semibold">
                   {<Description style={{ fontSize: 'medium', margin: '2px' }} />}
-                  Description
+                  說明
                 </p>
                 <p>{eventDescription}</p>
               </div>
             </div>
           </section>
 
-          <div className="text-right">*All events are given in CST</div>
+          <div className="text-right">*所有活動時間均以 CST 為準</div>
         </div>
       </div>
     </>

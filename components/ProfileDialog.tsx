@@ -16,12 +16,12 @@ interface ProfileDialogProps {
 }
 
 const ROLE_MAPPINGS: Record<UserPermission, string> = {
-  hacker: 'Hacker',
-  admin: 'Event Administrator',
-  sponsor: 'Event Sponsor',
-  organizer: 'Event Organizer',
-  super_admin: 'Super Admin',
-  judge: 'Judge',
+  hacker: '黑客',
+  admin: '活動管理員',
+  sponsor: '活動贊助商',
+  organizer: '活動組織者',
+  super_admin: '超級管理員',
+  judge: '評審',
 };
 
 /**
@@ -40,10 +40,10 @@ export default function ProfileDialog({ onDismiss }: ProfileDialogProps) {
 
     name = firstName !== null ? `${firstName} ${lastName}` : '';
     // TODO: Come up with more robust way of implementing this
-    role = permissions && permissions.length > 0 ? ROLE_MAPPINGS[permissions[0]] : 'Hacker';
+    role = permissions && permissions.length > 0 ? ROLE_MAPPINGS[permissions[0]] : '黑客';
   } else {
-    name = 'Guest';
-    role = 'User';
+    name = '訪客';
+    role = '使用者';
   }
 
   return (
@@ -66,9 +66,7 @@ export default function ProfileDialog({ onDismiss }: ProfileDialogProps) {
             <div className="text-md">{role}</div>
           </div>
         )) || (
-          <div className="p-4 text-lg font-bold">
-            Sign in to add events to your schedule, check in, and more!
-          </div>
+          <div className="p-4 text-lg font-bold">登入以將活動加入您的時程表、簽到等更多功能！</div>
         )}
       </div>
       {(isSignedIn && (
@@ -77,7 +75,7 @@ export default function ProfileDialog({ onDismiss }: ProfileDialogProps) {
             <Link href="/profile">
               <a className="block p-4 hover:bg-gray-200">
                 <NotesIcon />
-                <span className="ml-4">{hasProfile ? 'Your profile' : 'Register'}</span>
+                <span className="ml-4">{hasProfile ? '您的個人檔案' : '註冊'}</span>
               </a>
             </Link>
           </div>
@@ -85,7 +83,7 @@ export default function ProfileDialog({ onDismiss }: ProfileDialogProps) {
             <Link href="/auth/signOut">
               <a className="block p-4 hover:bg-gray-200 rounded-b-md">
                 <ExitToAppIcon />
-                <span className="ml-4">Sign out</span>
+                <span className="ml-4">登出</span>
               </a>
             </Link>
           </div>
@@ -96,7 +94,7 @@ export default function ProfileDialog({ onDismiss }: ProfileDialogProps) {
             <a className="block p-4 hover:bg-gray-200 rounded-b-md">
               {/* TODO: Swap with better icon */}
               <ExitToAppIcon />
-              <span className="ml-4">Sign in</span>
+              <span className="ml-4">登入</span>
             </a>
           </Link>
         </div>

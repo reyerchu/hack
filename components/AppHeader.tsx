@@ -43,9 +43,9 @@ export default function AppHeader() {
         profile &&
         (profile.user.permissions[0] === 'admin' ||
           profile.user.permissions[0] === 'super_admin') &&
-        dynamicNavItems.filter(({ text }) => text === 'Admin').length === 0
+        dynamicNavItems.filter(({ text }) => text === '管理員').length === 0
       ) {
-        return [...dynamicNavItems, { text: 'Admin', path: '/admin' }];
+        return [...dynamicNavItems, { text: '管理員', path: '/admin' }];
       }
       return dynamicNavItems;
     });
@@ -123,7 +123,7 @@ export default function AppHeader() {
             className="font-header font-bold bg-secondary rounded-full text-primaryDark text-sm px-10 py-1 hover:bg-primaryDark hover:text-secondary transition duration-300 ease-in-out"
             onClick={toggleDialog}
           >
-            {!user || !isSignedIn ? 'Sign in' : hasProfile ? 'Profile' : 'Register'}
+            {!user || !isSignedIn ? '登入' : hasProfile ? '個人檔案' : '註冊'}
           </button>
         </div>
         {showProfileDialog && <ProfileDialog onDismiss={dismissDialog} />}

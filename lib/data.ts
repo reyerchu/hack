@@ -1,14 +1,14 @@
 export const buttonDatas = [
-  { text: 'Hacker App', path: '/' },
-  { text: 'Mentor App', path: '/' },
-  { text: 'Sponsor App', path: '/' },
+  { text: '黑客入口', path: '/dashboard' },
+  { text: '評審入口', path: '/judge' },
+  { text: '贊助商入口', path: '/sponsor' },
 ];
 
 export const navItems = [
-  { text: 'Home', path: '/' },
-  { text: 'Dashboard', path: '/dashboard' },
-  { text: 'Schedule', path: '/schedule' },
-  { text: 'HackerPacks', path: '/hackerpacks' },
+  { text: '首頁', path: '/' },
+  { text: '儀表板', path: '/dashboard' },
+  { text: '時程表', path: '/schedule' },
+  { text: '黑客包', path: '/hackerpacks' },
 ];
 
 export const stats = [

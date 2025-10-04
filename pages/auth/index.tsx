@@ -119,7 +119,7 @@ export default function AuthPage() {
           <Link href="/" passHref>
             <div className="cursor-pointer items-center inline-flex text-primaryDark font-medium">
               <ChevronLeftIcon />
-              return to event site
+              返回活動網站
             </div>
           </Link>
         </div>
@@ -132,17 +132,17 @@ export default function AuthPage() {
               {!passwordResetDialog ? (
                 <>
                   <h1 className="md:text-3xl text-2xl font-black text-center text-primaryDark mt-4">
-                    {signInOption ? 'Sign in' : 'Create an account'}
+                    {signInOption ? '登入' : '建立帳號'}
                   </h1>
                   <div className="text-center text-complementary/60 mt-4 mb-12">
-                    {signInOption ? ' New to HackPortal?' : 'Already have an account?'}{' '}
+                    {signInOption ? ' 第一次使用黑客台灣？' : '已經有帳號了？'}{' '}
                     <span
                       onClick={() =>
                         signInOption ? setSignInOption(false) : setSignInOption(true)
                       }
                       className="text-primary cursor-pointer"
                     >
-                      {signInOption ? 'Create an account' : 'Sign in'}
+                      {signInOption ? '建立帳號' : '登入'}
                     </span>
                   </div>
                   <React.Fragment>
@@ -154,7 +154,7 @@ export default function AuthPage() {
                         type="text"
                         name="email"
                         autoComplete="email"
-                        placeholder="Email Address*"
+                        placeholder="電子郵件*"
                       ></input>
                       <input
                         className="w-full rounded-md border border-complementary/20 p-2 mb-2"
@@ -163,7 +163,7 @@ export default function AuthPage() {
                         type={showPassword ? 'text' : 'password'}
                         name="password"
                         autoComplete="current-password"
-                        placeholder="Password*"
+                        placeholder="密碼*"
                       ></input>
                       <div className="inline-flex md:flex justify-between md:flex-row flex-col-reverse">
                         <div
@@ -174,7 +174,7 @@ export default function AuthPage() {
                             setSendVerification(false);
                           }}
                         >
-                          Forgot password?
+                          忘記密碼？
                         </div>
                         <div className="text-primaryDark text-base">
                           <input
@@ -182,7 +182,7 @@ export default function AuthPage() {
                             type="checkbox"
                             onClick={() => setShowPassword(!showPassword)}
                           />
-                          {showPassword ? 'Hide password' : 'Show password'}
+                          {showPassword ? '隱藏密碼' : '顯示密碼'}
                         </div>
                         <input className="hidden" type="submit" value="Submit" />
                       </div>
@@ -194,7 +194,7 @@ export default function AuthPage() {
                             handleSubmit();
                           }}
                         >
-                          {signInOption ? 'Sign in' : 'Create an account'}
+                          {signInOption ? '登入' : '建立帳號'}
                         </button>
                       </div>
                     </form>
@@ -214,7 +214,7 @@ export default function AuthPage() {
                       onClick={() => signInWithGoogle()}
                     >
                       <Image src={GoogleIcon} alt="GoogleIcon" width={25} height={25} />
-                      <p className="mx-2">Sign in with Google</p>
+                      <p className="mx-2">使用 Google 登入</p>
                     </button>
                   </React.Fragment>
                 </>
@@ -230,10 +230,10 @@ export default function AuthPage() {
                     />
                   </div>
                   <h1 className="md:text-3xl text-2xl font-black text-center text-primaryDark mt-4">
-                    Reset Password
+                    重設密碼
                   </h1>
                   <div className="text-center text-complementary/60 mt-4 mb-12">
-                    Enter your email address and we&apos;ll send you a link to reset your password.
+                    輸入您的電子郵件地址，我們將向您發送重設密碼的連結。
                   </div>
 
                   <input
@@ -243,7 +243,7 @@ export default function AuthPage() {
                     type="text"
                     name="email"
                     autoComplete="email"
-                    placeholder="Email Address*"
+                    placeholder="電子郵件*"
                   ></input>
                   <div className="flex justify-center mt-6 mb-4">
                     <button
@@ -254,7 +254,7 @@ export default function AuthPage() {
                         setErrorMsg('');
                       }}
                     >
-                      Send reset link
+                      發送重設連結
                     </button>
                   </div>
                   {/* Error and verification messages */}
