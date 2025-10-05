@@ -1,9 +1,7 @@
 import { useRouter } from 'next/router';
 import Image from 'next/image';
-import React, { useRef, useState } from 'react';
+import React from 'react';
 import { useAuthContext } from '../lib/user/AuthContext';
-import LoadIcon from '../components/LoadIcon';
-import { getFileExtension } from '../lib/util';
 import QRCode from '../components/dashboardComponents/QRCode';
 
 /**
@@ -14,47 +12,6 @@ import QRCode from '../components/dashboardComponents/QRCode';
 export default function ProfilePage() {
   const router = useRouter();
   const { isSignedIn, hasProfile, user, profile } = useAuthContext();
-  const [uploading, setUploading] = useState<boolean>(false);
-  const resumeRef = useRef(null);
-
-  const handleResumeUpload = (profile) => {
-    if (resumeRef.current.files.length !== 1) return alert('Must submit one file');
-
-    const fileExtension = getFileExtension(resumeRef.current.files[0].name);
-    const acceptedFileExtensions = [
-      '.pdf',
-      '.doc',
-      '.docx',
-      '.png',
-      '.jpg',
-      '.jpeg',
-      '.txt',
-      '.tex',
-      '.rtf',
-    ];
-
-    if (!acceptedFileExtensions.includes(fileExtension))
-      return alert(`Accepted file types: ${acceptedFileExtensions.join(' ')}`);
-
-    const resumeFile = resumeRef.current.files[0];
-
-    setUploading(true);
-
-    const formData = new FormData();
-    formData.append('resume', resumeFile);
-    formData.append('fileName', `${user.id}${fileExtension}`);
-
-    fetch('/api/resume/upload', {
-      method: 'post',
-      body: formData,
-    }).then((res) => {
-      if (res.status !== 200) alert('Resume upload failed...');
-      else {
-        setUploading(false);
-        alert('Resume updated...');
-      }
-    });
-  };
 
   if (!isSignedIn) {
     return <div className="p-4 flex-grow text-center">請登入以查看您的個人檔案！</div>;
@@ -137,29 +94,6 @@ export default function ProfilePage() {
                     </a>
                   </div>
                 )}
-                <div>
-                  {!uploading ? (
-                    <>
-                      <input
-                        id="resume"
-                        style={{ display: 'none' }}
-                        type="file"
-                        ref={resumeRef}
-                        onChange={() => handleResumeUpload(profile)}
-                        accept=".pdf, .doc, .docx, image/png, image/jpeg, .txt, .tex, .rtf"
-                      />
-                      <label
-                        id="resume_label"
-                        className="transition rounded p-3 text-center whitespace-nowrap text-white w-min bg-gray-500 cursor-pointer font-black gap-y-2 hover:brightness-110"
-                        htmlFor="resume"
-                      >
-                        更新履歷
-                      </label>
-                    </>
-                  ) : (
-                    <LoadIcon width={16} height={16} />
-                  )}
-                </div>
               </div>
             </div>
           </div>

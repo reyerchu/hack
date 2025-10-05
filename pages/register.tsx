@@ -11,7 +11,6 @@ import schools from '../public/schools.json';
 import majors from '../public/majors.json';
 import { hackPortalConfig, formInitialValues } from '../hackportal.config';
 import DisplayQuestion from '../components/registerComponents/DisplayQuestion';
-import { getFileExtension } from '../lib/util';
 
 /**
  * The registration page.
@@ -33,7 +32,6 @@ export default function Register() {
   } = hackPortalConfig;
 
   const { user, hasProfile, updateProfile } = useAuthContext();
-  const [resumeFile, setResumeFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(true);
   const [formValid, setFormValid] = useState(true);
   const checkRedirect = async () => {
@@ -78,18 +76,6 @@ export default function Register() {
 
   const handleSubmit = async (registrationData) => {
     try {
-      if (resumeFile) {
-        const formData = new FormData();
-        formData.append('resume', resumeFile);
-        formData.append('fileName', `${user.id}${getFileExtension(resumeFile.name)}`);
-        formData.append('studyLevel', registrationData['studyLevel']);
-        formData.append('major', registrationData['major']);
-
-        await fetch('/api/resume/upload', {
-          method: 'post',
-          body: formData,
-        });
-      }
       await RequestHelper.post<Registration, any>('/api/applications', {}, registrationData);
       alert('註冊成功！');
       updateProfile(registrationData);
@@ -98,31 +84,6 @@ export default function Register() {
       console.error(error);
       console.log('Request creation error');
     }
-  };
-
-  const handleResumeFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files.length !== 1) return alert('必須提交一個檔案');
-
-    const file = e.target.files[0];
-
-    const fileExtension = getFileExtension(file.name);
-
-    const acceptedFileExtensions = [
-      '.pdf',
-      '.doc',
-      '.docx',
-      '.png',
-      '.jpg',
-      '.jpeg',
-      '.txt',
-      '.tex',
-      '.rtf',
-    ];
-
-    if (!acceptedFileExtensions.includes(fileExtension))
-      return alert(`接受的檔案類型：${acceptedFileExtensions.join(' ')}`);
-
-    setResumeFile(file);
   };
 
   if (!user) {
@@ -273,20 +234,6 @@ export default function Register() {
               {sponsorInfoQuestions.map((obj, idx) => (
                 <DisplayQuestion key={idx} obj={obj} values={values} onChange={handleChange} />
               ))}
-
-              {/* Resume Upload */}
-              <label className="mt-4">
-                上傳您的履歷：
-                <br />
-                <input
-                  onChange={(e) => handleResumeFileChange(e)}
-                  name="resume"
-                  type="file"
-                  formEncType="multipart/form-data"
-                  accept=".pdf, .doc, .docx, image/png, image/jpeg, .txt, .tex, .rtf"
-                />
-                <br />
-              </label>
 
               {/* Submit */}
               <div className="my-8">
