@@ -36,21 +36,6 @@ export const hackPortalConfig: HackPortalConfig = {
         ],
       },
       {
-        numberInputQuestions: [
-          {
-            //Age question
-            question: 'Age',
-            required: true,
-            id: 'age',
-            name: 'age',
-            min: '1',
-            max: '100',
-            pattern: '[0-9]+',
-            initialValue: null,
-          },
-        ],
-      },
-      {
         dropdownQuestions: [
           {
             //Gender question
@@ -78,277 +63,15 @@ export const hackPortalConfig: HackPortalConfig = {
               },
             ],
           },
-          {
-            //Race question
-            question: 'Race',
-            required: true,
-            id: 'race',
-            name: 'race',
-            initialValue: '',
-            options: [
-              {
-                title: 'Native American',
-                value: 'Native American',
-              },
-              {
-                title: 'Asian/Pacific Islander',
-                value: 'Asian',
-              },
-              {
-                title: 'Black or African American',
-                value: 'Black',
-              },
-              {
-                title: 'Hispanic',
-                value: 'Hispanic',
-              },
-              {
-                title: 'White/Caucasian',
-                value: 'White',
-              },
-              {
-                title: 'Multiple/Other',
-                value: 'Other',
-              },
-              {
-                title: 'Prefer not to answer',
-                value: 'notSay',
-              },
-            ],
-          },
-          {
-            //Ethnicity question
-            question: 'Ethnicity',
-            required: true,
-            id: 'ethnicity',
-            name: 'ethnicity',
-            initialValue: '',
-            options: [
-              {
-                title: 'Hispanic or Latino',
-                value: 'hispanic',
-              },
-              {
-                title: 'Not Hispanic or Latino',
-                value: 'notHispanic',
-              },
-            ],
-          },
         ],
       },
     ],
     //Question Topic
-    schoolQuestions: [
-      {
-        datalistQuestions: [
-          {
-            //University question
-            question:
-              'This event is for college students worldwide. Which university do you attend?',
-            id: 'university',
-            name: 'university',
-            required: true,
-            datalist: 'schools',
-            initialValue: '',
-          },
-          {
-            //Major question
-            question: 'All majors are welcome at this event. What is your major?',
-            id: 'major',
-            name: 'major',
-            required: true,
-            datalist: 'majors',
-            initialValue: '',
-          },
-        ],
-      },
-      {
-        dropdownQuestions: [
-          {
-            //Grade question
-            question: 'Current level of study',
-            required: true,
-            id: 'studyLevel',
-            name: 'studyLevel',
-            initialValue: '',
-            options: [
-              {
-                title: 'Freshman',
-                value: 'freshman',
-              },
-              {
-                title: 'Sophomore',
-                value: 'sophomore',
-              },
-              {
-                title: 'Junior',
-                value: 'junior',
-              },
-              {
-                title: 'Senior',
-                value: 'senior',
-              },
-              {
-                title: 'Graduate Student',
-                value: 'grad',
-              },
-            ],
-          },
-        ],
-      },
-    ],
+    schoolQuestions: [],
     //Question Topic
-    hackathonExperienceQuestions: [
-      {
-        numberInputQuestions: [
-          {
-            //Hackathons attended question
-            question: 'How many hackathons have you attended before?',
-            required: true,
-            id: 'hackathonExperience',
-            name: 'hackathonExperience',
-            min: '0',
-            max: '100',
-            pattern: '[0-9]+',
-            initialValue: null,
-          },
-        ],
-      },
-      {
-        dropdownQuestions: [
-          {
-            //Experience question
-            question: 'Relative software-building experience:',
-            required: true,
-            id: 'softwareExperience',
-            name: 'softwareExperience',
-            initialValue: '',
-            options: [
-              {
-                title: 'Beginner',
-                value: 'Beginner',
-              },
-              {
-                title: 'Intermediate',
-                value: 'Intermediate',
-              },
-              {
-                title: 'Advanced',
-                value: 'Advanced',
-              },
-              {
-                title: 'Expert',
-                value: 'Expert',
-              },
-            ],
-          },
-          {
-            //Heard from question
-            question: 'Where did you hear about RWA Hackathon Taiwan?',
-            required: true,
-            id: 'heardFrom',
-            name: 'heardFrom',
-            initialValue: '',
-            options: [
-              {
-                title: 'Instagram',
-                value: 'Instagram',
-              },
-              {
-                title: 'Twitter',
-                value: 'Twitter',
-              },
-              {
-                title: 'Event Site',
-                value: 'Event Site',
-              },
-              {
-                title: 'Friend',
-                value: 'Friend',
-              },
-              {
-                title: 'Other',
-                value: 'Other',
-              },
-            ],
-          },
-        ],
-      },
-    ],
+    hackathonExperienceQuestions: [],
     //Question Topic
     eventInfoQuestions: [
-      {
-        dropdownQuestions: [
-          {
-            //Shirt size question
-            question: 'Shirt Size',
-            required: true,
-            id: 'size',
-            name: 'size',
-            initialValue: '',
-            options: [
-              {
-                title: 'S',
-                value: 's',
-              },
-              {
-                title: 'M',
-                value: 'm',
-              },
-              {
-                title: 'L',
-                value: 'l',
-              },
-              {
-                title: 'XL',
-                value: 'xl',
-              },
-            ],
-          },
-        ],
-      },
-      {
-        checkboxQuestions: [
-          {
-            //Allergies question
-            question: 'Allergies / Dietary Restrictions:',
-            required: false,
-            id: 'dietary',
-            name: 'dietary',
-            initialValue: [],
-            options: [
-              {
-                title: 'Vegan',
-                value: 'Vegan',
-              },
-              {
-                title: 'Vegetarian',
-                value: 'Vegetarian',
-              },
-              {
-                title: 'Nuts',
-                value: 'Nuts',
-              },
-              {
-                title: 'Fish',
-                value: 'Fish',
-              },
-              {
-                title: 'Wheat',
-                value: 'Wheat',
-              },
-              {
-                title: 'Dairy',
-                value: 'Dairy',
-              },
-              {
-                title: 'Eggs',
-                value: 'Eggs',
-              },
-            ],
-          },
-        ],
-      },
       {
         textAreaQuestions: [
           {
@@ -434,55 +157,24 @@ export const hackPortalConfig: HackPortalConfig = {
 //add any question data that your org would like to see on the admin stats page
 export type statRecordTypes = {
   //name: Record<string || number, number>
-  age: Record<number, number>;
   companies: Record<string, number>;
-  dietary: Record<string, number>;
-  ethnicity: Record<string, number>;
-  race: Record<string, number>;
-  size: Record<string, number>;
-  softwareExperience: Record<string, number>;
-  studyLevel: Record<string, number>;
-  university: Record<string, number>;
   gender: Record<string, number>;
-  hackathonExperience: Record<number, number>;
-  heardFrom: Record<string, number>;
   timestamp: Record<string, number>;
 };
 
 //add the title for each field that will be displayed as chart titles in admin stats page
 export const fieldNames = {
   //name: title
-  age: 'Age',
-  ethnicity: 'Ethnicity',
-  race: 'Race',
-  size: 'Shirt Size',
-  softwareExperience: 'Software Experience',
-  studyLevel: 'Study Level',
-  university: 'University',
   gender: 'Gender',
-  hackathonExperience: 'Number of Hackathon attended',
-  heardFrom: 'Heard of Hackathon from',
   scans: 'Swags', //not part of registration questions, used for scanner
   companies: 'Companies',
-  dietary: 'Dietary',
   timestamp: 'Registration Time',
 };
 
 //name fields that are checkbox questions belong here
-export const arrayField = ['scans', 'companies', 'dietary'];
+export const arrayField = ['scans', 'companies'];
 //any other fields belong here
-export const singleField = [
-  'age',
-  'ethnicity',
-  'race',
-  'size',
-  'softwareExperience',
-  'studyLevel',
-  'university',
-  'gender',
-  'hackathonExperience',
-  'heardFrom',
-];
+export const singleField = ['gender'];
 
 //not to be edited ⬇︎ (unless there needs to be more question topics)
 export interface HackPortalConfig {

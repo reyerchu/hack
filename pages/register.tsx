@@ -91,7 +91,7 @@ export default function Register() {
         });
       }
       await RequestHelper.post<Registration, any>('/api/applications', {}, registrationData);
-      alert('Registered successfully');
+      alert('註冊成功！');
       updateProfile(registrationData);
       router.push('/profile');
     } catch (error) {
@@ -101,7 +101,7 @@ export default function Register() {
   };
 
   const handleResumeFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files.length !== 1) return alert('Must submit one file');
+    if (e.target.files.length !== 1) return alert('必須提交一個檔案');
 
     const file = e.target.files[0];
 
@@ -120,7 +120,7 @@ export default function Register() {
     ];
 
     if (!acceptedFileExtensions.includes(fileExtension))
-      return alert(`Accepted file types: ${acceptedFileExtensions.join(' ')}`);
+      return alert(`接受的檔案類型：${acceptedFileExtensions.join(' ')}`);
 
     setResumeFile(file);
   };
@@ -185,13 +185,13 @@ export default function Register() {
     <div className="flex flex-col flex-grow bg-white">
       <Head>
         <title>註冊 | Register</title>
-        <meta name="description" content="註冊參加 [黑客松名稱]" />
+        <meta name="description" content="註冊參加 2025 RWA 黑客松台灣" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
       <section id="jumbotron" className="p-2 px-6">
         <div className="max-w-4xl py-6 mx-auto flex flex-col items-center">
-          <div className="registrationTitle text-4xl font-bold text-center">黑客註冊</div>
+          <div className="registrationTitle text-4xl font-bold text-center">註冊</div>
           <div className="text-1xl my-4 font-bold font-small text-center">
             請填寫以下欄位。完成申請表格大約需要 5 分鐘。
           </div>
@@ -278,16 +278,6 @@ export default function Register() {
                 <DisplayQuestion key={idx} obj={obj} values={values} onChange={handleChange} />
               ))}
 
-              <div className="text-2xl py-1 border-b-2 border-black mr-auto mt-8">學校資訊</div>
-              {schoolQuestions.map((obj, idx) => (
-                <DisplayQuestion key={idx} obj={obj} values={values} onChange={handleChange} />
-              ))}
-
-              <div className="text-2xl py-1 border-b-2 border-black mr-auto mt-8">黑客松經驗</div>
-              {hackathonExperienceQuestions.map((obj, idx) => (
-                <DisplayQuestion key={idx} obj={obj} values={values} onChange={handleChange} />
-              ))}
-
               <div className="text-2xl py-1 border-b-2 border-black mr-auto mt-8">活動資訊</div>
               {eventInfoQuestions.map((obj, idx) => (
                 <DisplayQuestion key={idx} obj={obj} values={values} onChange={handleChange} />
@@ -319,10 +309,10 @@ export default function Register() {
                   className="mr-auto cursor-pointer px-4 py-2 rounded-md bg-blue-200 hover:bg-blue-300"
                   onClick={() => setFormValid(!(!isValid || !dirty))}
                 >
-                  Submit
+                  提交
                 </button>
                 {!isValid && !formValid && (
-                  <div className="text-red-600">Error: The form has invalid fields</div>
+                  <div className="text-red-600">錯誤：表單中有無效的欄位</div>
                 )}
               </div>
             </Form>
