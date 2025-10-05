@@ -98,6 +98,45 @@ export default function ProfilePage() {
                     {profile.user.permissions[0] === 'hacker' ? '黑客' : profile.user.permissions[0]}
                   </h1>
                 </div>
+                {profile.github && (
+                  <div className="profile-view-github flex flex-col gap-y-2">
+                    <div className="font-bold text-xl">Github</div>
+                    <a
+                      href={profile.github.startsWith('http') ? profile.github : `https://github.com/${profile.github}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:underline break-all"
+                    >
+                      {profile.github}
+                    </a>
+                  </div>
+                )}
+                {profile.linkedin && (
+                  <div className="profile-view-linkedin flex flex-col gap-y-2">
+                    <div className="font-bold text-xl">LinkedIn</div>
+                    <a
+                      href={profile.linkedin.startsWith('http') ? profile.linkedin : `https://linkedin.com/in/${profile.linkedin}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:underline break-all"
+                    >
+                      {profile.linkedin}
+                    </a>
+                  </div>
+                )}
+                {profile.website && (
+                  <div className="profile-view-website flex flex-col gap-y-2">
+                    <div className="font-bold text-xl">個人網站</div>
+                    <a
+                      href={profile.website.startsWith('http') ? profile.website : `https://${profile.website}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:underline break-all"
+                    >
+                      {profile.website}
+                    </a>
+                  </div>
+                )}
                 <div>
                   {!uploading ? (
                     <>
