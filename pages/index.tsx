@@ -25,21 +25,6 @@ export default function Home(props: {
   fetchedMembers: TeamMember[];
   sponsorCard: Sponsor[];
 }) {
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    // Wait for all components to render before showing page
-    setLoading(false);
-  }, []);
-
-  if (loading) {
-    return (
-      <div>
-        <h1>載入中...</h1>
-      </div>
-    );
-  }
-
   return (
     <>
       <Head>
