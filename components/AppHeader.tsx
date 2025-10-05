@@ -130,8 +130,8 @@ export default function AppHeader() {
             </button>
           )}
         </div>
-        {showProfileDialog && <ProfileDialog onDismiss={dismissDialog} />}
       </header>
+      {showProfileDialog && <ProfileDialog onDismiss={dismissDialog} />}
     </>
   );
 }
