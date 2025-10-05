@@ -229,15 +229,6 @@ export default function Register() {
               //regex matches characters before @, characters after @, and 2 or more characters after . (domain)
               errors.preferredEmail = '電子郵件地址無效';
             }
-            if ((values.age && values.age < 1) || values.age > 100) {
-              errors.age = '年齡無效';
-            }
-            if (
-              (values.hackathonExperience && values.hackathonExperience < 0) ||
-              values.hackathonExperience > 100
-            ) {
-              errors.hackathonExperience = '數字無效';
-            }
 
             return errors;
           }}
