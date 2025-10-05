@@ -76,7 +76,7 @@ export default function QuestionsPage() {
    */
   const submitQuestion = async () => {
     if (user === null) {
-      addError('You must log in to be able to ask question');
+      addError('您必須登入才能提問');
       return;
     }
     try {
@@ -94,7 +94,7 @@ export default function QuestionsPage() {
       );
       setCurrentQuestion('');
     } catch (error) {
-      addError('Failed to send question. Please try again later.');
+      addError('發送問題失敗，請稍後再試。');
       console.error(error);
     }
   };
@@ -140,22 +140,22 @@ export default function QuestionsPage() {
   if (loading)
     return (
       <div>
-        <h1>Loading...</h1>
+        <h1>載入中...</h1>
       </div>
     );
 
   if (!isSignedIn)
     return (
       <div className="text-2xl font-black text-center">
-        Please sign-in to ask organizers questions
+        請登入以向主辦方提問
       </div>
     );
 
   return (
     <div className="flex flex-col flex-grow">
       <Head>
-        <title>HackPortal - Questions</title> {/* !change */}
-        <meta name="description" content="HackPortal's Quesiton and Answer Page " /> {/* !change */}
+        <title>黑客中心 - 提問</title>
+        <meta name="description" content="黑客中心問答頁面" />
       </Head>
       <ErrorList
         errors={errors}
@@ -169,14 +169,14 @@ export default function QuestionsPage() {
         <DashboardHeader />
       </div>
       <div className="top-6 p-4 flex flex-col gap-y-3">
-        <h4 className="font-bold text-3xl">Ask the organizers a question!</h4>
+        <h4 className="font-bold text-3xl">向主辦方提問！</h4>
         <div>
           <textarea
             className="w-full rounded-xl p-4 bg-secondary"
             rows={5}
             value={currentQuestion}
             onChange={(e) => setCurrentQuestion(e.target.value)}
-            placeholder="Type your question here"
+            placeholder="在此輸入您的問題"
           ></textarea>
           <div className="flex flex-row justify-end my-4">
             <button
@@ -186,24 +186,24 @@ export default function QuestionsPage() {
                 submitQuestion();
               }}
             >
-              Submit Question
+              提交問題
             </button>
           </div>
         </div>
 
         <div>
-          <h4 className="font-bold text-2xl">My Pending Questions</h4>
+          <h4 className="font-bold text-2xl">我的待回覆問題</h4>
           {user ? (
             pendingQuestions.map(({ question }, idx) => (
               <PendingQuestion key={idx} question={question} />
             ))
           ) : (
-            <h1 className="p-3">Sign in to see your questions</h1>
+            <h1 className="p-3">請登入以查看您的問題</h1>
           )}
         </div>
 
         <div className="my-4">
-          <h4 className="font-bold text-2xl">My Answered Questions</h4>
+          <h4 className="font-bold text-2xl">我的已回覆問題</h4>
           {user ? (
             answeredQuestions.map(({ question, answer }, idx) => (
               <AnsweredQuestion
@@ -221,7 +221,7 @@ export default function QuestionsPage() {
               />
             ))
           ) : (
-            <h1 className="p-3">Sign in to see your questions</h1>
+            <h1 className="p-3">請登入以查看您的問題</h1>
           )}
         </div>
       </div>
