@@ -82,7 +82,7 @@ export default function ProfilePage() {
               <div>
                 <h1 className="text-center font-bold text-xl">{`${profile.user.firstName} ${profile.user.lastName}`}</h1>
                 <p className="text-center">
-                  {profile.user.permissions[0] === 'hacker' ? '參賽者' : profile.user.permissions[0]}
+                  {profile.user.permissions[0] === 'hacker' ? '黑客' : profile.user.permissions[0]}
                 </p>
               </div>
             </div>
@@ -95,7 +95,7 @@ export default function ProfilePage() {
                 <div className="profile-view-role flex flex-col gap-y-2">
                   <div className="font-bold text-xl">角色</div>
                   <h1 className="font-bold">
-                    {profile.user.permissions[0] === 'hacker' ? '參賽者' : profile.user.permissions[0]}
+                    {profile.user.permissions[0] === 'hacker' ? '黑客' : profile.user.permissions[0]}
                   </h1>
                 </div>
                 <div>
