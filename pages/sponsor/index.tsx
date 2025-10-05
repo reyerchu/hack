@@ -55,7 +55,7 @@ export default function SponsorPage(props: {
       <Head>
         <title>贊助商儀表板 - 黑客松台灣</title>
         <meta name="description" content="贊助商專用儀表板" />
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" href="/favicon.ico?v=2.0" />
       </Head>
 
       <div className="min-h-screen bg-gray-50">

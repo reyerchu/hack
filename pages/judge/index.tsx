@@ -52,7 +52,7 @@ export default function JudgePage(props: {
       <Head>
         <title>評審儀表板 - 黑客松台灣</title>
         <meta name="description" content="評審專用儀表板" />
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" href="/favicon.ico?v=2.0" />
       </Head>
 
       <div className="min-h-screen bg-gray-50">

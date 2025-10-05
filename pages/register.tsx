@@ -186,7 +186,7 @@ export default function Register() {
       <Head>
         <title>註冊 | Register</title>
         <meta name="description" content="註冊參加 2025 RWA 黑客松台灣" />
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" href="/favicon.ico?v=2.0" />
       </Head>
 
       <section id="jumbotron" className="p-2 px-6">

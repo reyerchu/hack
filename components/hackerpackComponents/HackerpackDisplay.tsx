@@ -148,7 +148,7 @@ export default function HackerpackDisplay(props: {
       <Head>
         <title>HackerPacks</title>
         <meta name="description" content="HackerPack Information" />
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" href="/favicon.ico?v=2.0" />
       </Head>
 
       {hackerpackSettings.sidebar && (

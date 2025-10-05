@@ -33,7 +33,7 @@ export default function Home(props: {
           name="description"
           content="台灣首屆 RWA 黑客松 - 論壇 + 研討會 + 黑客松，促成監理與金融機構、技術社群的跨域對話與 PoC 連結"
         />
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" href="/favicon.ico?v=2.0" />
       </Head>
 
       <BackgroundCarousel />
