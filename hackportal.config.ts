@@ -11,7 +11,7 @@ export const hackPortalConfig: HackPortalConfig = {
         textInputQuestions: [
           {
             //don't remove; for user account info
-            question: 'First Name',
+            question: '名字',
             id: 'firstName',
             name: 'firstName',
             required: true,
@@ -19,7 +19,7 @@ export const hackPortalConfig: HackPortalConfig = {
           },
           {
             //don't remove; for user account info
-            question: 'Last Name',
+            question: '姓氏',
             id: 'lastName',
             name: 'lastName',
             required: true,
@@ -27,7 +27,7 @@ export const hackPortalConfig: HackPortalConfig = {
           },
           {
             //don't remove; for user account info
-            question: 'Email',
+            question: '電子郵件',
             id: 'email',
             name: 'preferredEmail',
             required: true,
@@ -39,26 +39,26 @@ export const hackPortalConfig: HackPortalConfig = {
         dropdownQuestions: [
           {
             //Gender question
-            question: 'Gender',
+            question: '性別',
             required: true,
             id: 'gender',
             name: 'gender',
             initialValue: '',
             options: [
               {
-                title: 'Female',
+                title: '女性',
                 value: 'Female',
               },
               {
-                title: 'Male',
+                title: '男性',
                 value: 'Male',
               },
               {
-                title: 'Other',
+                title: '其他',
                 value: 'Other',
               },
               {
-                title: 'Prefer not to say',
+                title: '不願透露',
                 value: 'notSay',
               },
             ],
@@ -76,12 +76,12 @@ export const hackPortalConfig: HackPortalConfig = {
         textAreaQuestions: [
           {
             //Accomodations question
-            question: 'Anything else we can do to better accommodate you at our hackathon?',
+            question: '我們還能做些什麼來讓您在黑客松中更舒適？',
             id: 'accomodations',
             name: 'accomodations',
             required: false,
             initialValue: '',
-            placeholder: 'List any accessibility concerns here',
+            placeholder: '請在此列出任何無障礙需求或其他協助需求',
           },
         ],
       },
@@ -108,7 +108,7 @@ export const hackPortalConfig: HackPortalConfig = {
           },
           {
             //Website question
-            question: 'Personal Website:',
+            question: '個人網站：',
             id: 'website',
             name: 'website',
             required: false,
@@ -120,7 +120,7 @@ export const hackPortalConfig: HackPortalConfig = {
         checkboxQuestions: [
           {
             //Companies question
-            question: 'Companies to send my resume to:',
+            question: '希望將我的履歷發送給以下公司：',
             required: false,
             id: 'companies',
             name: 'companies',
