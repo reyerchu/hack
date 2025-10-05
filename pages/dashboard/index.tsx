@@ -172,17 +172,18 @@ export default function Dashboard(props: {
 }
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  const protocol = context.req.headers.referer?.split('://')[0] || 'http';
+  // Use localhost for server-side rendering to avoid circular requests
+  const baseUrl = 'http://localhost:3000';
   const { data: announcementData } = await RequestHelper.get<Announcement[]>(
-    `${protocol}://${context.req.headers.host}/api/announcements/`,
+    `${baseUrl}/api/announcements/`,
     {},
   );
   const { data: eventData } = await RequestHelper.get<ScheduleEvent[]>(
-    `${protocol}://${context.req.headers.host}/api/schedule/`,
+    `${baseUrl}/api/schedule/`,
     {},
   );
   const { data: challengeData } = await RequestHelper.get<Challenge[]>(
-    `${protocol}://${context.req.headers.host}/api/challenges/`,
+    `${baseUrl}/api/challenges/`,
     {},
   );
 

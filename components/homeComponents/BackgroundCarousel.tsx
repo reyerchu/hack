@@ -24,23 +24,17 @@ export default function BackgroundCarousel() {
       <div className="absolute inset-0 z-20 flex items-center justify-center">
         <div className="text-center text-white max-w-6xl mx-auto px-8">
           {/* Main Title */}
-          <h1 className="text-6xl md:text-8xl font-bold mb-4 leading-tight">
-            2025 RWA Hackthon
-          </h1>
-          
+          <h1 className="text-6xl md:text-8xl font-bold mb-4 leading-tight">2025 RWA Hackathon</h1>
+
           {/* Subtitle */}
-          <h2 className="text-4xl md:text-6xl font-bold mb-8 text-blue-200">
-            Taiwan
-          </h2>
-          
+          <h2 className="text-4xl md:text-6xl font-bold mb-8 text-blue-200">Taiwan</h2>
+
           {/* Tagline */}
           <p className="text-2xl md:text-3xl font-medium mb-4 text-blue-100">
             Tokenize Reality, Create the Future
           </p>
-          <p className="text-xl md:text-2xl font-medium mb-12 text-blue-200">
-            鏈接現實，創造未來
-          </p>
-          
+          <p className="text-xl md:text-2xl font-medium mb-12 text-blue-200">鏈接現實，創造未來</p>
+
           {/* Event Info */}
           <div className="flex flex-col md:flex-row justify-center items-center gap-8 mb-12 text-lg md:text-xl">
             <div className="text-center">
@@ -54,7 +48,7 @@ export default function BackgroundCarousel() {
               <div className="text-blue-300">競賽時間 & 地點</div>
             </div>
           </div>
-          
+
           {/* CTA Button */}
           <button className="bg-white text-blue-900 px-12 py-4 rounded-lg font-bold text-xl hover:bg-blue-50 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
             立即報名

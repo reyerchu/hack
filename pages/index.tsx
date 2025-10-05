@@ -65,27 +65,22 @@ export default function Home(props: {
 }
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  const protocol = context.req.headers.referer?.split('://')[0] || 'http';
+  // Use localhost for server-side rendering to avoid circular requests
+  const baseUrl = 'http://localhost:3000';
   const { data: keynoteData } = await RequestHelper.get<KeynoteSpeaker[]>(
-    `${protocol}://${context.req.headers.host}/api/keynotespeakers`,
+    `${baseUrl}/api/keynotespeakers`,
     {},
   );
   const { data: challengeData } = await RequestHelper.get<Challenge[]>(
-    `${protocol}://${context.req.headers.host}/api/challenges/`,
+    `${baseUrl}/api/challenges/`,
     {},
   );
   const { data: answeredQuestion } = await RequestHelper.get<AnsweredQuestion[]>(
-    `${protocol}://${context.req.headers.host}/api/questions/faq`,
+    `${baseUrl}/api/questions/faq`,
     {},
   );
-  const { data: memberData } = await RequestHelper.get<TeamMember[]>(
-    `${protocol}://${context.req.headers.host}/api/members`,
-    {},
-  );
-  const { data: sponsorData } = await RequestHelper.get<Sponsor[]>(
-    `${protocol}://${context.req.headers.host}/api/sponsor`,
-    {},
-  );
+  const { data: memberData } = await RequestHelper.get<TeamMember[]>(`${baseUrl}/api/members`, {});
+  const { data: sponsorData } = await RequestHelper.get<Sponsor[]>(`${baseUrl}/api/sponsor`, {});
   return {
     props: {
       keynoteSpeakers: keynoteData,
