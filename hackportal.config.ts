@@ -71,21 +71,7 @@ export const hackPortalConfig: HackPortalConfig = {
     //Question Topic
     hackathonExperienceQuestions: [],
     //Question Topic
-    eventInfoQuestions: [
-      {
-        textAreaQuestions: [
-          {
-            //Accomodations question
-            question: '我們還能做些什麼來讓您在黑客松中更舒適？',
-            id: 'accomodations',
-            name: 'accomodations',
-            required: false,
-            initialValue: '',
-            placeholder: '請在此列出任何無障礙需求或其他協助需求',
-          },
-        ],
-      },
-    ],
+    eventInfoQuestions: [],
     //Question Topic
     sponsorInfoQuestions: [
       {
@@ -116,40 +102,6 @@ export const hackPortalConfig: HackPortalConfig = {
           },
         ],
       },
-      {
-        checkboxQuestions: [
-          {
-            //Companies question
-            question: '希望將我的履歷發送給以下公司：',
-            required: false,
-            id: 'companies',
-            name: 'companies',
-            initialValue: [],
-            options: [
-              {
-                title: 'State Farm',
-                value: 'State Farm',
-              },
-              {
-                title: 'American Airlines',
-                value: 'American Airlines',
-              },
-              {
-                title: 'Capital One',
-                value: 'Capital One',
-              },
-              {
-                title: 'Ebay',
-                value: 'Ebay',
-              },
-              {
-                title: 'Facebook',
-                value: 'Facebook',
-              },
-            ],
-          },
-        ],
-      },
     ],
   },
 };
@@ -157,7 +109,6 @@ export const hackPortalConfig: HackPortalConfig = {
 //add any question data that your org would like to see on the admin stats page
 export type statRecordTypes = {
   //name: Record<string || number, number>
-  companies: Record<string, number>;
   gender: Record<string, number>;
   timestamp: Record<string, number>;
 };
@@ -167,12 +118,11 @@ export const fieldNames = {
   //name: title
   gender: 'Gender',
   scans: 'Swags', //not part of registration questions, used for scanner
-  companies: 'Companies',
   timestamp: 'Registration Time',
 };
 
 //name fields that are checkbox questions belong here
-export const arrayField = ['scans', 'companies'];
+export const arrayField = ['scans'];
 //any other fields belong here
 export const singleField = ['gender'];
 

@@ -278,12 +278,7 @@ export default function Register() {
                 <DisplayQuestion key={idx} obj={obj} values={values} onChange={handleChange} />
               ))}
 
-              <div className="text-2xl py-1 border-b-2 border-black mr-auto mt-8">活動資訊</div>
-              {eventInfoQuestions.map((obj, idx) => (
-                <DisplayQuestion key={idx} obj={obj} values={values} onChange={handleChange} />
-              ))}
-
-              <div className="text-2xl py-1 border-b-2 border-black mr-auto mt-8">贊助商資訊</div>
+              <div className="text-2xl py-1 border-b-2 border-black mr-auto mt-8">提供給贊助商資訊</div>
               {sponsorInfoQuestions.map((obj, idx) => (
                 <DisplayQuestion key={idx} obj={obj} values={values} onChange={handleChange} />
               ))}
