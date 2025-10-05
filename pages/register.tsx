@@ -184,7 +184,7 @@ export default function Register() {
   return (
     <div className="flex flex-col flex-grow bg-white">
       <Head>
-        <title>黑客註冊</title>
+        <title>註冊 | Register</title>
         <meta name="description" content="註冊參加 [黑客松名稱]" />
         <link rel="icon" href="/favicon.ico" />
       </Head>

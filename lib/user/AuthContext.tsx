@@ -159,7 +159,7 @@ function AuthProvider({ children }: React.PropsWithChildren<Record<string, any>>
   const signInWithGoogle = async () => {
     if (firebase.apps.length === 0) {
       console.warn('Firebase not initialized, cannot sign in');
-      alert('Authentication is not configured. Please contact the administrator.');
+      alert('驗證系統未配置，請聯繫管理員。');
       return Promise.resolve();
     }
 
@@ -171,13 +171,44 @@ function AuthProvider({ children }: React.PropsWithChildren<Record<string, any>>
         if (user === null) {
           // Something really went wrong
           console.warn("The signed-in user is null? That doesn't seem right.");
+          alert('登入過程中發生錯誤，請重試。');
           return;
         }
         await updateUser(user);
       })
       .catch((error) => {
         console.error('Error when signing in', error);
-        // TODO(auth): Handle error appropriately
+        const errorCode = error.code;
+        let friendlyMessage = '';
+        
+        // Convert Firebase error codes to friendly Chinese messages
+        switch (errorCode) {
+          case 'auth/popup-closed-by-user':
+            friendlyMessage = '登入視窗已關閉，請重試。';
+            break;
+          case 'auth/popup-blocked':
+            friendlyMessage = '登入彈出視窗被瀏覽器阻擋，請允許彈出視窗並重試。';
+            break;
+          case 'auth/cancelled-popup-request':
+            friendlyMessage = '登入請求已取消。';
+            break;
+          case 'auth/account-exists-with-different-credential':
+            friendlyMessage = '此電子郵件已使用其他登入方式註冊。請使用原本的登入方式。';
+            break;
+          case 'auth/operation-not-allowed':
+            friendlyMessage = 'Google 登入功能未啟用。請在 Firebase Console 中啟用 Google 登入，或聯繫管理員。';
+            break;
+          case 'auth/unauthorized-domain':
+            friendlyMessage = '此網域未授權使用 Google 登入。請聯繫管理員將網域添加到授權列表。';
+            break;
+          case 'auth/network-request-failed':
+            friendlyMessage = '網路連線失敗，請檢查您的網路連線。';
+            break;
+          default:
+            friendlyMessage = `Google 登入失敗：${error.message}`;
+        }
+        
+        alert(friendlyMessage);
       });
   };
 

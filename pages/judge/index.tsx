@@ -50,7 +50,7 @@ export default function JudgePage(props: {
   return (
     <>
       <Head>
-        <title>評審儀表板 - 黑客台灣</title>
+        <title>評審儀表板 - 黑客松台灣</title>
         <meta name="description" content="評審專用儀表板" />
         <link rel="icon" href="/favicon.ico" />
       </Head>

@@ -26,6 +26,7 @@ export default function AuthPage() {
   const router = useRouter();
   const signIn = () => {
     setSendVerification(false);
+    setErrorMsg(''); // Clear previous errors
     firebase
       .auth()
       .signInWithEmailAndPassword(currentEmail, currentPassword)
@@ -38,13 +39,57 @@ export default function AuthPage() {
         await updateUser(user);
       })
       .catch((error) => {
+        console.error('Login error:', error);
         const errorCode = error.code;
         const errorMessage = error.message;
-        setErrorMsg(errorMessage);
+        let friendlyMessage = '';
+        
+        // Check if error message contains specific patterns
+        if (errorMessage && typeof errorMessage === 'string') {
+          if (errorMessage.includes('INVALID_LOGIN_CREDENTIALS') || 
+              errorMessage.includes('invalid-login-credentials') ||
+              errorMessage.includes('invalid-credential')) {
+            friendlyMessage = '登入資訊錯誤。請檢查您的電子郵件和密碼，或先註冊帳號。';
+            setErrorMsg(friendlyMessage);
+            return;
+          }
+        }
+        
+        // Convert Firebase error codes to friendly Chinese messages
+        switch (errorCode) {
+          case 'auth/invalid-email':
+            friendlyMessage = '電子郵件格式無效，請檢查您的輸入。';
+            break;
+          case 'auth/user-disabled':
+            friendlyMessage = '此帳號已被停用，請聯繫管理員。';
+            break;
+          case 'auth/user-not-found':
+            friendlyMessage = '找不到此帳號。請先註冊或使用 Google 登入。';
+            break;
+          case 'auth/wrong-password':
+            friendlyMessage = '密碼錯誤，請重試或點擊「忘記密碼」重設。';
+            break;
+          case 'auth/invalid-login-credentials':
+          case 'auth/invalid-credential':
+            friendlyMessage = '登入資訊錯誤。請檢查您的電子郵件和密碼，或使用 Google 登入。';
+            break;
+          case 'auth/too-many-requests':
+            friendlyMessage = '登入嘗試次數過多，請稍後再試。';
+            break;
+          case 'auth/network-request-failed':
+            friendlyMessage = '網路連線失敗，請檢查您的網路連線。';
+            break;
+          default:
+            // If no specific error code matched, provide a generic message
+            friendlyMessage = '登入失敗。請檢查您的電子郵件和密碼是否正確。';
+        }
+        
+        setErrorMsg(friendlyMessage);
       });
   };
 
   const signUp = () => {
+    setErrorMsg(''); // Clear previous errors
     firebase
       .auth()
       .createUserWithEmailAndPassword(currentEmail, currentPassword)
@@ -58,28 +103,64 @@ export default function AuthPage() {
           .then(() => {
             router.push('/auth');
             alert(
-              'Account created! Check your email/spam folder to verify your account and log in.',
+              '帳號創建成功！請檢查您的電子郵件（包括垃圾郵件夾）以驗證您的帳號並登入。',
             );
           });
       })
       .catch((error) => {
         var errorCode = error.code;
-        var errorMessage = error.message;
-        setErrorMsg(errorMessage);
+        let friendlyMessage = '';
+        
+        // Convert Firebase error codes to friendly Chinese messages
+        switch (errorCode) {
+          case 'auth/email-already-in-use':
+            friendlyMessage = '此電子郵件已被註冊。請直接登入或使用「忘記密碼」功能。';
+            break;
+          case 'auth/invalid-email':
+            friendlyMessage = '電子郵件格式無效，請檢查您的輸入。';
+            break;
+          case 'auth/operation-not-allowed':
+            friendlyMessage = '註冊功能目前未啟用，請聯繫管理員。';
+            break;
+          case 'auth/weak-password':
+            friendlyMessage = '密碼強度不足。請使用至少 6 個字元的密碼。';
+            break;
+          default:
+            friendlyMessage = `註冊失敗：${error.message}`;
+        }
+        
+        setErrorMsg(friendlyMessage);
       });
   };
 
   const sendResetEmail = () => {
+    setErrorMsg(''); // Clear previous errors
     firebase
       .auth()
       .sendPasswordResetEmail(currentEmail)
       .then(() => {
-        alert('Password reset email sent');
+        alert('密碼重設郵件已發送！請檢查您的電子郵件（包括垃圾郵件夾）。');
       })
       .catch((error) => {
         var errorCode = error.code;
-        var errorMessage = error.message;
-        setErrorMsg(errorMessage);
+        let friendlyMessage = '';
+        
+        // Convert Firebase error codes to friendly Chinese messages
+        switch (errorCode) {
+          case 'auth/invalid-email':
+            friendlyMessage = '電子郵件格式無效，請檢查您的輸入。';
+            break;
+          case 'auth/user-not-found':
+            friendlyMessage = '找不到此電子郵件對應的帳號。請確認您輸入的電子郵件是否正確。';
+            break;
+          case 'auth/too-many-requests':
+            friendlyMessage = '請求過於頻繁，請稍後再試。';
+            break;
+          default:
+            friendlyMessage = `發送重設郵件失敗：${error.message}`;
+        }
+        
+        setErrorMsg(friendlyMessage);
       });
   };
 
@@ -91,11 +172,11 @@ export default function AuthPage() {
         .currentUser.sendEmailVerification()
         .then(() => {
           router.push('/auth');
-          alert('Verification email sent, check your email to verify your account and log in');
+          alert('驗證郵件已發送，請檢查您的電子郵件以驗證帳號並登入。');
         });
     } catch (error) {
       alert(
-        'There has been a problem sending a verfication email.\nWait a few minutes before sending another request.',
+        '發送驗證郵件時發生問題。\n請稍候幾分鐘再重新嘗試。',
       );
     }
   };
@@ -135,7 +216,7 @@ export default function AuthPage() {
                     {signInOption ? '登入' : '建立帳號'}
                   </h1>
                   <div className="text-center text-complementary/60 mt-4 mb-12">
-                    {signInOption ? ' 第一次使用黑客台灣？' : '已經有帳號了？'}{' '}
+                    {signInOption ? ' 第一次使用黑客松台灣？' : '已經有帳號了？'}{' '}
                     <span
                       onClick={() =>
                         signInOption ? setSignInOption(false) : setSignInOption(true)

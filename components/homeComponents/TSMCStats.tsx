@@ -46,7 +46,7 @@ export default function TSMCStats() {
             <h2 className="text-4xl md:text-5xl font-bold mb-6">活動數據</h2>
             <div className="w-24 h-1 bg-white mx-auto mb-8"></div>
             <p className="text-xl text-blue-100 max-w-3xl mx-auto leading-relaxed">
-              黑客台灣匯聚了來自全台的頂尖人才，創造了令人矚目的成果
+              黑客松台灣匯聚了來自全台的頂尖人才，創造了令人矚目的成果
             </p>
           </div>
 

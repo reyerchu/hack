@@ -75,7 +75,7 @@ export default function TSMCParticipationGuidelines() {
             <h2 className="text-5xl md:text-6xl font-black text-slate-900 mb-8">參與指南</h2>
             <div className="w-32 h-1 bg-gradient-to-r from-blue-500 to-cyan-500 mx-auto mb-8"></div>
             <p className="text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed font-light">
-              了解參與黑客台灣競賽的所有必要資訊，確保您能夠順利參加這場科技盛會
+              了解參與黑客松台灣競賽的所有必要資訊，確保您能夠順利參加這場科技盛會
             </p>
           </div>
 
