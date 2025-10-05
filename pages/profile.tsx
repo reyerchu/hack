@@ -43,8 +43,6 @@ export default function ProfilePage() {
     const formData = new FormData();
     formData.append('resume', resumeFile);
     formData.append('fileName', `${user.id}${fileExtension}`);
-    formData.append('studyLevel', profile.studyLevel);
-    formData.append('major', profile.major);
 
     fetch('/api/resume/upload', {
       method: 'post',
@@ -83,10 +81,12 @@ export default function ProfilePage() {
               </div>
               <div>
                 <h1 className="text-center font-bold text-xl">{`${profile.user.firstName} ${profile.user.lastName}`}</h1>
-                <p className="text-center">{profile.user.permissions[0]}</p>
+                <p className="text-center">
+                  {profile.user.permissions[0] === 'hacker' ? '參賽者' : profile.user.permissions[0]}
+                </p>
               </div>
             </div>
-            <div className="w-full my-5">
+              <div className="w-full my-5">
               <div className="profile-view">
                 <div className="profile-view-name flex flex-col gap-y-2">
                   <div className="font-bold text-xl">姓名</div>
@@ -94,19 +94,9 @@ export default function ProfilePage() {
                 </div>
                 <div className="profile-view-role flex flex-col gap-y-2">
                   <div className="font-bold text-xl">角色</div>
-                  <h1 className="font-bold">{profile.user.permissions[0]}</h1>
-                </div>
-                <div className="profile-view-univ flex flex-col gap-y-2">
-                  <div className="font-bold text-xl">大學</div>
-                  <h1 className="font-bold">{profile.university}</h1>
-                </div>
-                <div className="profile-view-major flex flex-col gap-y-2">
-                  <div className="font-bold text-xl">主修</div>
-                  <h1 className="font-bold">{profile.major}</h1>
-                </div>
-                <div className="profile-view-stlvl flex flex-col gap-y-2">
-                  <div className="font-bold text-xl">學習階段</div>
-                  <h1 className="font-bold">{profile.studyLevel}</h1>
+                  <h1 className="font-bold">
+                    {profile.user.permissions[0] === 'hacker' ? '參賽者' : profile.user.permissions[0]}
+                  </h1>
                 </div>
                 <div>
                   {!uploading ? (
