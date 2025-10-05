@@ -82,7 +82,7 @@ export default function Register() {
       router.push('/profile');
     } catch (error) {
       console.error(error);
-      console.log('Request creation error');
+      alert('註冊失敗，請稍後再試。如果問題持續，請聯繫管理員。');
     }
   };
 
