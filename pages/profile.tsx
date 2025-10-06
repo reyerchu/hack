@@ -135,7 +135,7 @@ export default function ProfilePage() {
     <div className="p-8 w-full">
       <div className="max-w-6xl mx-auto">
         <div className="flex justify-between items-center mb-5">
-          <h1 className="text-3xl font-bold">使用者個人檔案</h1>
+          <h1 className="text-3xl font-bold">個人檔案</h1>
           {!isEditing ? (
             <button
               onClick={handleEditClick}
@@ -176,7 +176,7 @@ export default function ProfilePage() {
 
             {/* Profile Information */}
             <div className="w-full bg-white rounded-xl border-2 border-gray-200 p-6">
-              <h2 className="text-2xl font-bold mb-6 pb-2 border-b-2 border-gray-300">個人資訊</h2>
+              <h2 className="text-2xl font-bold mb-6 pb-2 border-b-2 border-gray-300">個人資料</h2>
               <div className="flex flex-col gap-y-6">
                 {/* Name - Editable */}
                 <div className="profile-field">
@@ -387,6 +387,76 @@ export default function ProfilePage() {
                     )}
                   </div>
                 )}
+              </div>
+            </div>
+
+            {/* LINE Community Section */}
+            <div className="w-full bg-white rounded-xl border-2 border-gray-200 p-6">
+              <h2 className="text-2xl font-bold mb-6 pb-2 border-b-2 border-gray-300">
+                加入 Line 社群
+              </h2>
+              <div className="flex flex-col md:flex-row gap-6 items-start">
+                {/* QR Code */}
+                <div className="flex-shrink-0">
+                  <Image
+                    src="/assets/rwa-hackathon-2025-line.jpg"
+                    alt="RWA黑客松2025 LINE 社群 QR Code"
+                    width={200}
+                    height={200}
+                    className="rounded-lg border-2 border-gray-300"
+                  />
+                </div>
+
+                {/* Information */}
+                <div className="flex-1">
+                  <div className="mb-4">
+                    <a
+                      href="https://line.me/ti/g2/Ae5RbTZMqVF4lE8U8b0FOfs6M5uyiyQMAvu6aQ"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xl font-bold text-blue-600 hover:underline inline-flex items-center gap-2"
+                    >
+                      RWA黑客松2025
+                      <svg
+                        className="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                        />
+                      </svg>
+                    </a>
+                  </div>
+
+                  <div className="space-y-4 text-gray-700">
+                    <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded">
+                      <div className="font-bold text-lg mb-2 text-yellow-800">
+                        1. 入群考題答案：
+                      </div>
+                      <div className="text-2xl font-bold text-yellow-900">RWA</div>
+                    </div>
+
+                    <div className="bg-blue-50 border-l-4 border-blue-400 p-4 rounded">
+                      <div className="font-bold text-lg mb-2 text-blue-800">
+                        2. 名稱命名規則：
+                      </div>
+                      <div className="text-gray-800 mb-2">
+                        「稱呼/團隊名」或「稱呼/角色」
+                      </div>
+                      <div className="text-sm space-y-1 text-gray-600">
+                        <div>例如：</div>
+                        <div>• 「萊爾/南方四濺剋」</div>
+                        <div>• 「小健/個人找隊友」</div>
+                        <div>• 「Reyer/協辦方」</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

@@ -6,9 +6,9 @@ export const buttonDatas = [
 
 export const navItems = [
   { text: '首頁', path: '/' },
-  { text: '儀表板', path: '/dashboard' },
-  { text: '時程表', path: '/schedule' },
-  { text: '黑客包', path: '/hackerpacks' },
+//  { text: '儀表板', path: '/dashboard' },
+//  { text: '時程表', path: '/schedule' },
+//  { text: '黑客包', path: '/hackerpacks' },
 ];
 
 export const stats = [
