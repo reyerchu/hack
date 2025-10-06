@@ -76,6 +76,34 @@ export class RequestHelper {
 
   /**
    *
+   * Will make a PUT request to provided url with provided config and provided body
+   *
+   * @param url url to which the request will be made to
+   * @param config config that can be added into request. Usually used to add information to the headers
+   * @param body request body
+   * @returns response data
+   *
+   */
+  static async put<ReqBody, ResBody>(
+    url: string,
+    config: RequestInit,
+    body?: ReqBody,
+  ): Promise<ResponseData<ResBody>> {
+    const temp = await fetch(url, {
+      ...config,
+      method: 'PUT',
+      mode: 'cors',
+      body: JSON.stringify(body),
+    });
+    const data = await temp.json();
+    return {
+      status: temp.status,
+      data,
+    };
+  }
+
+  /**
+   *
    * Will make a DELETE request to provided url with provided config and provided body
    *
    * @param url url to which the request will be made to

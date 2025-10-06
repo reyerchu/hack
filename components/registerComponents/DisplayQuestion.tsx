@@ -41,6 +41,10 @@ function DisplayQuestion(props) {
       {props.obj.textAreaQuestions?.map((inputObj) => (
         <Question key={inputObj.id} type="textArea" question={inputObj} />
       ))}
+      {/* Display file upload input questions */}
+      {props.obj.fileUploadQuestions?.map((inputObj) => (
+        <Question key={inputObj.id} type="file" question={inputObj} onChange={props.onChange} />
+      ))}
     </Fragment>
   );
 }

@@ -139,6 +139,27 @@ function Question(props) {
         />
       </Fragment>
     );
+  } else if (props.type === 'file') {
+    return (
+      <Fragment>
+        <label htmlFor={props.question.id} className="mt-4">
+          {props.question.required ? '*' : ''}
+          {props.question.question}
+        </label>
+        <input
+          id={props.question.id}
+          name={props.question.name}
+          type="file"
+          accept={props.question.accept}
+          onChange={props.onChange}
+          className="border-2 border-gray-400 rounded-md p-1"
+        />
+        <ErrorMessage
+          name={props.question.name}
+          render={(msg) => <div className="text-red-600">{msg}</div>}
+        />
+      </Fragment>
+    );
   }
 }
 

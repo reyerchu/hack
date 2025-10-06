@@ -102,6 +102,18 @@ export const hackPortalConfig: HackPortalConfig = {
           },
         ],
       },
+      {
+        fileUploadQuestions: [
+          {
+            question: '履歷 (PDF, DOC, DOCX)',
+            id: 'resume',
+            name: 'resume',
+            required: false,
+            initialValue: '',
+            accept: '.pdf,.doc,.docx',
+          },
+        ],
+      },
     ],
   },
 };
@@ -144,6 +156,7 @@ interface QuestionTypes {
   numberInputQuestions?: NumberInputQuestion[];
   datalistQuestions?: datalistQuestion[];
   textAreaQuestions?: textAreaQuestion[];
+  fileUploadQuestions?: fileUploadQuestion[];
 }
 
 interface RegistrationQuestion {
@@ -180,6 +193,10 @@ interface datalistQuestion extends RegistrationQuestion {
 
 interface textAreaQuestion extends RegistrationQuestion {
   placeholder: string;
+}
+
+interface fileUploadQuestion extends RegistrationQuestion {
+  accept?: string; // file types accepted, e.g., ".pdf,.doc,.docx"
 }
 
 //extracting initial values
@@ -225,6 +242,10 @@ const setInitialValues = (obj) => {
     }
   if (obj.textAreaQuestions)
     for (let inputObj of obj.textAreaQuestions) {
+      InitialValues[inputObj.name] = inputObj.initialValue;
+    }
+  if (obj.fileUploadQuestions)
+    for (let inputObj of obj.fileUploadQuestions) {
       InitialValues[inputObj.name] = inputObj.initialValue;
     }
 };

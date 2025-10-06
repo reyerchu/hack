@@ -34,6 +34,7 @@ export default function Register() {
   const { user, hasProfile, updateProfile } = useAuthContext();
   const [loading, setLoading] = useState(true);
   const [formValid, setFormValid] = useState(true);
+  const [resumeFile, setResumeFile] = useState<File | null>(null);
   const checkRedirect = async () => {
     if (hasProfile) router.push('/profile');
     else setLoading(false);
@@ -76,6 +77,27 @@ export default function Register() {
 
   const handleSubmit = async (registrationData) => {
     try {
+      // Upload resume file if provided
+      if (resumeFile) {
+        const formData = new FormData();
+        formData.append('resume', resumeFile);
+        formData.append('fileName', `${user.id}_${resumeFile.name}`);
+        formData.append('studyLevel', registrationData.studyLevel || 'Unknown');
+        formData.append('major', registrationData.major || 'Unknown');
+
+        try {
+          await fetch('/api/resume/upload', {
+            method: 'POST',
+            body: formData,
+          });
+          // Store the filename in the registration data
+          registrationData.resume = `${user.id}_${resumeFile.name}`;
+        } catch (uploadError) {
+          console.error('Resume upload failed:', uploadError);
+          // Continue with registration even if resume upload fails
+        }
+      }
+
       await RequestHelper.post<Registration, any>('/api/applications', {}, registrationData);
       alert('註冊成功！');
       updateProfile(registrationData);
@@ -88,6 +110,7 @@ export default function Register() {
 
   if (!user) {
     router.push('/');
+    return <LoadIcon width={200} height={200} />;
   }
 
   if (loading) {
@@ -100,6 +123,20 @@ export default function Register() {
       keyEvent.preventDefault();
     }
   }
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      // Validate file size (max 5MB)
+      const maxSize = 5 * 1024 * 1024;
+      if (file.size > maxSize) {
+        alert('檔案大小不能超過 5MB');
+        event.target.value = '';
+        return;
+      }
+      setResumeFile(file);
+    }
+  };
 
   const setErrors = (obj, values, errors) => {
     if (obj.textInputQuestions)
@@ -136,6 +173,12 @@ export default function Register() {
       for (let inputObj of obj.textAreaQuestions) {
         if (inputObj.required) {
           if (!values[inputObj.name]) errors[inputObj.name] = '必填';
+        }
+      }
+    if (obj.fileUploadQuestions)
+      for (let inputObj of obj.fileUploadQuestions) {
+        if (inputObj.required) {
+          if (!resumeFile) errors[inputObj.name] = '必填';
         }
       }
 
@@ -217,39 +260,62 @@ export default function Register() {
             // alert(JSON.stringify(values, null, 2)); //Displays form results on submit for testing purposes
           }}
         >
-          {({ values, handleChange, isValid, dirty }) => (
-            // Field component automatically hooks input to form values. Use name attribute to match corresponding value
-            // ErrorMessage component automatically displays error based on validation above. Use name attribute to match corresponding value
-            <Form
-              onKeyDown={onKeyDown}
-              noValidate
-              className="registrationForm flex flex-col max-w-4xl px-6 w-[56rem] text-lg"
-            >
-              <div className="text-2xl py-1 border-b-2 border-black mr-auto mt-8">基本資料</div>
-              {generalQuestions.map((obj, idx) => (
-                <DisplayQuestion key={idx} obj={obj} values={values} onChange={handleChange} />
-              ))}
+          {({ values, handleChange, isValid, dirty }) => {
+            // Combined change handler for both regular inputs and file inputs
+            const combinedHandleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+              if (event.target.type === 'file') {
+                handleFileChange(event);
+              } else {
+                handleChange(event);
+              }
+            };
 
-              <div className="text-2xl py-1 border-b-2 border-black mr-auto mt-8">提供給贊助商資訊</div>
-              {sponsorInfoQuestions.map((obj, idx) => (
-                <DisplayQuestion key={idx} obj={obj} values={values} onChange={handleChange} />
-              ))}
+            return (
+              // Field component automatically hooks input to form values. Use name attribute to match corresponding value
+              // ErrorMessage component automatically displays error based on validation above. Use name attribute to match corresponding value
+              <Form
+                onKeyDown={onKeyDown}
+                noValidate
+                className="registrationForm flex flex-col max-w-4xl px-6 w-[56rem] text-lg"
+              >
+                <div className="text-2xl py-1 border-b-2 border-black mr-auto mt-8">基本資料</div>
+                {generalQuestions.map((obj, idx) => (
+                  <DisplayQuestion
+                    key={idx}
+                    obj={obj}
+                    values={values}
+                    onChange={combinedHandleChange}
+                  />
+                ))}
 
-              {/* Submit */}
-              <div className="my-8">
-                <button
-                  type="submit"
-                  className="mr-auto cursor-pointer px-4 py-2 rounded-md bg-blue-200 hover:bg-blue-300"
-                  onClick={() => setFormValid(!(!isValid || !dirty))}
-                >
-                  提交
-                </button>
-                {!isValid && !formValid && (
-                  <div className="text-red-600">錯誤：表單中有無效的欄位</div>
-                )}
-              </div>
-            </Form>
-          )}
+                <div className="text-2xl py-1 border-b-2 border-black mr-auto mt-8">
+                  額外資訊（可選填）
+                </div>
+                {sponsorInfoQuestions.map((obj, idx) => (
+                  <DisplayQuestion
+                    key={idx}
+                    obj={obj}
+                    values={values}
+                    onChange={combinedHandleChange}
+                  />
+                ))}
+
+                {/* Submit */}
+                <div className="my-8">
+                  <button
+                    type="submit"
+                    className="mr-auto cursor-pointer px-4 py-2 rounded-md bg-blue-200 hover:bg-blue-300"
+                    onClick={() => setFormValid(!(!isValid || !dirty))}
+                  >
+                    提交
+                  </button>
+                  {!isValid && !formValid && (
+                    <div className="text-red-600">錯誤：表單中有無效的欄位</div>
+                  )}
+                </div>
+              </Form>
+            );
+          }}
         </Formik>
       </section>
     </div>

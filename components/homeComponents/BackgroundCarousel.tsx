@@ -14,7 +14,7 @@ export default function BackgroundCarousel() {
       <div className="absolute inset-0 z-20 flex items-center justify-center">
         <div className="text-center text-white max-w-6xl mx-auto px-8">
           {/* Main Title */}
-          <h1 className="text-6xl md:text-8xl font-bold mb-4 leading-tight">2025 RWA Hackathon</h1>
+          <h1 className="text-6xl md:text-8xl font-bold mb-4 leading-tight">2025 RWA 黑客松</h1>
 
           {/* Subtitle */}
           <h2 className="text-4xl md:text-6xl font-bold mb-8 text-blue-200">Taiwan</h2>
