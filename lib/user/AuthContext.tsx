@@ -92,9 +92,9 @@ function AuthProvider({ children }: React.PropsWithChildren<Record<string, any>>
       permissions: ['hacker'],
       university: '',
     });
-    const query = new URL(`http://localhost:3000/api/userinfo`);
+    const query = new URL(`http://localhost:3008/api/userinfo`);
     query.searchParams.append('id', uid);
-    const data = await fetch(query.toString().replaceAll('http://localhost:3000', ''), {
+    const data = await fetch(query.toString().replaceAll('http://localhost:3008', ''), {
       mode: 'cors',
       headers: { Authorization: token },
       method: 'GET',

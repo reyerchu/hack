@@ -31,7 +31,7 @@ export default function ScheduleTest(props: { scheduleCard: any[] }) {
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const protocol = context.req.headers.referer?.split('://')[0] || 'http';
-  const host = context.req.headers.host || 'localhost:3000';
+  const host = context.req.headers.host || 'localhost:3008';
   const baseUrl = `${protocol}://${host}`;
 
   const { data: scheduleData } = await RequestHelper.get<any[]>(`${baseUrl}/api/schedule`, {});

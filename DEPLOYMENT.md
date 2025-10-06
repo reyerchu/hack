@@ -40,7 +40,7 @@ If you prefer to deploy manually:
    ```bash
    pkill -f "npm run dev"
    pkill -f "npm start"
-   lsof -ti :3000 | xargs kill -9
+   lsof -ti :3008 | xargs kill -9
    ```
 
 2. **Clean build artifacts:**
@@ -69,7 +69,7 @@ If you prefer to deploy manually:
 ### Port 3000 is in use
 ```bash
 # Find what's using port 3000
-lsof -i :3000
+lsof -i :3008
 
 # Kill the process
 kill -9 <PID>
@@ -93,7 +93,7 @@ sudo systemctl reload apache2
 ### Application not starting
 ```bash
 # Check if port 3000 is free
-lsof -i :3000
+lsof -i :3008
 
 # Check application logs
 npm run dev
@@ -104,7 +104,7 @@ npm start &
 
 ## 🌐 URLs
 
-- **Local Development:** http://localhost:3000
+- **Local Development:** http://localhost:3008
 - **Production HTTPS:** https://hackathon.com.tw
 - **Apache Config:** /etc/apache2/sites-available/hackathon.com.tw.conf
 
@@ -125,7 +125,7 @@ npm start &
    ```
 3. **Verify deployment:**
    - Check https://hackathon.com.tw
-   - Check localhost:3000
+   - Check localhost:3008
 
 ## 🚨 Emergency Commands
 
@@ -133,7 +133,7 @@ npm start &
 ```bash
 pkill -f npm
 pkill -f next
-lsof -ti :3000 | xargs kill -9
+lsof -ti :3008 | xargs kill -9
 ```
 
 ### Restart Apache
@@ -143,13 +143,13 @@ sudo systemctl restart apache2
 
 ### Check application status
 ```bash
-curl -s http://localhost:3000
+curl -s http://localhost:3008
 curl -s -k https://hackathon.com.tw
 ```
 
 ## 📝 Notes
 
 - Always use port 3000 for consistency
-- Apache proxies requests from https://hackathon.com.tw to http://localhost:3000
+- Apache proxies requests from https://hackathon.com.tw to http://localhost:3008
 - Development server auto-reloads on code changes
 - Production server requires manual restart after code changes

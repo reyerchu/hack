@@ -173,7 +173,7 @@ export default function Dashboard(props: {
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   // Use localhost for server-side rendering to avoid circular requests
-  const baseUrl = 'http://localhost:3000';
+  const baseUrl = 'http://localhost:3008';
   const { data: announcementData } = await RequestHelper.get<Announcement[]>(
     `${baseUrl}/api/announcements/`,
     {},

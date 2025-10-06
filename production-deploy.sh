@@ -32,9 +32,9 @@ pkill -f "npm start" 2>/dev/null || true
 pkill -f "next" 2>/dev/null || true
 
 # Kill anything on port 3000
-if lsof -i :3000 >/dev/null 2>&1; then
+if lsof -i :3008 >/dev/null 2>&1; then
     print_status "Freeing port 3000..."
-    lsof -ti :3000 | xargs kill -9 2>/dev/null || true
+    lsof -ti :3008 | xargs kill -9 2>/dev/null || true
 fi
 
 sleep 3
@@ -55,7 +55,7 @@ npm start &
 # Wait for startup
 print_status "Waiting for server to start..."
 for i in {1..30}; do
-    if curl -s http://localhost:3000 >/dev/null 2>&1; then
+    if curl -s http://localhost:3008 >/dev/null 2>&1; then
         print_success "Production server is running!"
         break
     fi

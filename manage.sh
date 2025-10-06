@@ -30,10 +30,10 @@ case "${1:-help}" in
         echo "📊 Application Status:"
         echo "====================="
         
-        if lsof -i :3000 > /dev/null 2>&1; then
+        if lsof -i :3008 > /dev/null 2>&1; then
             echo "✅ Application is running on port 3000"
             echo "Processes:"
-            lsof -i :3000
+            lsof -i :3008
         else
             echo "❌ Application is not running"
         fi

@@ -31,7 +31,7 @@ node scripts/set-super-admin.js reyerchu@defintek.io
 如果您已經有一個 admin 或 super_admin 帳號，可以使用 `/api/users/roles` API：
 
 ```bash
-curl -X PUT http://localhost:3000/api/users/roles \
+curl -X PUT http://localhost:3008/api/users/roles \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -d '{

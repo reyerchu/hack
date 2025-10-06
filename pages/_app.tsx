@@ -46,10 +46,12 @@ function PortalApp({ Component, pageProps }: AppProps) {
                 (process.env.NODE_ENV !== 'development' && (
                   <link rel="manifest" href="/manifest.json" />
                 ))}
+              <link rel="icon" type="image/svg+xml" href="/rwa-logo.svg" />
+              <link rel="alternate icon" href="/favicon.ico" />
               <link href="/icons/favicon-16x16.png" rel="icon" type="image/png" sizes="16x16" />
               <link href="/icons/favicon-32x32.png" rel="icon" type="image/png" sizes="32x32" />
               <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
-              <meta name="theme-color" content="#5D5FEF" />
+              <meta name="theme-color" content="#1a3a6e" />
             </Head>
             <div className="min-h-screen flex flex-col bg-white mt-5">
               <AppHeader />

@@ -2,7 +2,7 @@
 
 ## 概述
 
-RWA Hackathon 應用現在已經配置為在 `https://hackathon.com.tw` 上運行，通過 Apache 代理到本地 Next.js 應用（localhost:3000）。
+RWA Hackathon 應用現在已經配置為在 `https://hackathon.com.tw` 上運行，通過 Apache 代理到本地 Next.js 應用（localhost:3008）。
 
 ## 快速開始
 
@@ -59,7 +59,7 @@ RWA Hackathon 應用現在已經配置為在 `https://hackathon.com.tw` 上運�
 ### Apache 配置
 - 配置文件：`/etc/apache2/sites-available/hackathon.com.tw.conf`
 - SSL 證書：`/etc/letsencrypt/live/hackathon.com.tw/`
-- 代理目標：`http://localhost:3000/`
+- 代理目標：`http://localhost:3008/`
 
 ### Next.js 應用
 - 運行端口：3000
@@ -78,7 +78,7 @@ RWA Hackathon 應用現在已經配置為在 `https://hackathon.com.tw` 上運�
 
 ```bash
 # 查看占用端口的進程
-lsof -i :3000
+lsof -i :3008
 
 # 強制停止占用端口的進程
 fuser -k 3000/tcp
@@ -143,7 +143,7 @@ sudo tail -f /var/log/apache2/hackathon_error.log
 ### 檢查應用健康狀態
 ```bash
 # 本地檢查
-curl http://localhost:3000
+curl http://localhost:3008
 
 # 通過 Apache 檢查
 curl -k https://hackathon.com.tw

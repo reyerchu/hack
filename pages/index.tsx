@@ -26,7 +26,8 @@ export default function Home(props: { challenges: Challenge[]; sponsorCard: Spon
           name="description"
           content="台灣首屆 RWA 黑客松 - 論壇 + 研討會 + 黑客松，促成監理與金融機構、技術社群的跨域對話與 PoC 連結"
         />
-        <link rel="icon" href="/favicon.ico?v=2.0" />
+        <link rel="icon" type="image/svg+xml" href="/rwa-logo.svg" />
+        <link rel="alternate icon" href="/favicon.ico?v=2.0" />
       </Head>
 
       <BackgroundCarousel />
@@ -43,7 +44,7 @@ export default function Home(props: { challenges: Challenge[]; sponsorCard: Spon
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   // Use localhost for server-side rendering to avoid circular requests
-  const baseUrl = 'http://localhost:3000';
+  const baseUrl = 'http://localhost:3008';
   const { data: challengeData } = await RequestHelper.get<Challenge[]>(
     `${baseUrl}/api/challenges/`,
     {},

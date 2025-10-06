@@ -71,9 +71,9 @@ export default function Admin() {
       setSuccess(successStrings.invalidFormat);
       return;
     }
-    const query = new URL(`http://localhost:3000/api/scan`);
+    const query = new URL(`http://localhost:3008/api/scan`);
     query.searchParams.append('id', data.replaceAll('hack:', ''));
-    fetch(query.toString().replaceAll('http://localhost:3000', ''), {
+    fetch(query.toString().replaceAll('http://localhost:3008', ''), {
       mode: 'cors',
       headers: { Authorization: user.token },
       method: 'POST',
@@ -204,9 +204,9 @@ export default function Admin() {
 
   const fetchScanTypes = () => {
     if (!isSignedIn || scansFetched) return;
-    const query = new URL(`http://localhost:3000/api/scantypes`);
+    const query = new URL(`http://localhost:3008/api/scantypes`);
     query.searchParams.append('id', user.id);
-    fetch(query.toString().replaceAll('http://localhost:3000', ''), {
+    fetch(query.toString().replaceAll('http://localhost:3008', ''), {
       mode: 'cors',
       headers: { Authorization: user.token },
       method: 'GET',

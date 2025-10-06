@@ -125,8 +125,8 @@ test_deployment() {
     sleep 10
     
     # Test local connection
-    echo "Testing local connection (localhost:3000)..."
-    if curl -s http://localhost:3000 > /dev/null; then
+    echo "Testing local connection (localhost:3008)..."
+    if curl -s http://localhost:3008 > /dev/null; then
         echo "✅ Local connection successful"
     else
         echo "❌ Local connection failed"
@@ -158,7 +158,7 @@ show_status() {
     
     echo ""
     echo "Port 3000 status:"
-    lsof -i :3000 || echo "No processes on port 3000"
+    lsof -i :3008 || echo "No processes on port 3000"
     
     echo ""
     echo "Apache proxy test:"

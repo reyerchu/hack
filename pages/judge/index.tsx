@@ -171,7 +171,7 @@ export default function JudgePage(props: {
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const protocol = context.req.headers.referer?.split('://')[0] || 'http';
-  const host = context.req.headers.host || 'localhost:3000';
+  const host = context.req.headers.host || 'localhost:3008';
   const baseUrl = `${protocol}://${host}`;
 
   try {

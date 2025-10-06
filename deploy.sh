@@ -48,9 +48,9 @@ sleep 2
 
 # Step 2: Kill any process using port 3000
 print_status "Freeing up port 3000..."
-if lsof -i :3000 >/dev/null 2>&1; then
+if lsof -i :3008 >/dev/null 2>&1; then
     print_warning "Port 3000 is in use, killing processes..."
-    lsof -ti :3000 | xargs kill -9 || true
+    lsof -ti :3008 | xargs kill -9 || true
     sleep 2
 fi
 
@@ -77,7 +77,7 @@ npm start &
 # Wait for the application to start
 print_status "Waiting for application to start..."
 for i in {1..30}; do
-    if curl -s http://localhost:3000 >/dev/null 2>&1; then
+    if curl -s http://localhost:3008 >/dev/null 2>&1; then
         print_success "Application is running on port 3000!"
         break
     fi
@@ -90,7 +90,7 @@ done
 
 # Step 7: Test the application
 print_status "Testing application..."
-if curl -s http://localhost:3000 | grep -q "RWA"; then
+if curl -s http://localhost:3008 | grep -q "RWA"; then
     print_success "Application is serving content correctly!"
 else
     print_warning "Application is running but content may not be correct"
@@ -115,10 +115,10 @@ sleep 3
 if curl -s -k https://hackathon.com.tw >/dev/null 2>&1; then
     print_success "✅ Deployment completed successfully!"
     print_success "🌐 Application is available at: https://hackathon.com.tw"
-    print_success "🔧 Local development server: http://localhost:3000"
+    print_success "🔧 Local development server: http://localhost:3008"
 else
     print_warning "⚠️  Deployment completed but HTTPS may not be working"
-    print_success "🔧 Local development server: http://localhost:3000"
+    print_success "🔧 Local development server: http://localhost:3008"
 fi
 
 echo ""
@@ -127,7 +127,7 @@ echo ""
 echo "📋 Deployment Summary:"
 echo "  • Application: Running on port 3000"
 echo "  • HTTPS: https://hackathon.com.tw"
-echo "  • Local: http://localhost:3000"
+echo "  • Local: http://localhost:3008"
 echo ""
 echo "🔧 Useful commands:"
 echo "  • View logs: tail -f /var/log/apache2/hackathon_error.log"
