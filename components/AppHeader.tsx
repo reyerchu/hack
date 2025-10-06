@@ -118,7 +118,7 @@ export default function AppHeader() {
           {!user || !isSignedIn ? (
             <Link href="/auth">
               <a className="font-header font-bold bg-secondary rounded-full text-primaryDark text-sm px-10 py-1 hover:bg-primaryDark hover:text-secondary transition duration-300 ease-in-out">
-                登入
+                報名｜登入
               </a>
             </Link>
           ) : (

@@ -11,7 +11,7 @@ export default function TSMCAbout() {
     <section className="bg-white py-16 md:py-24">
       <div className="max-w-[1200px] mx-auto px-8 md:px-12">
         {/* Title - Slogan with Image on Right (TSMC Style) */}
-        <div className="mb-16 grid md:grid-cols-2 gap-8 items-center">
+        <div className="mb-12 grid md:grid-cols-2 gap-8 items-center">
           <div>
             <h1
               className="text-[32px] md:text-[48px] leading-tight font-bold mb-3"
@@ -19,10 +19,32 @@ export default function TSMCAbout() {
             >
               Tokenize Reality, Create the Future
             </h1>
-            <p className="text-[24px] md:text-[32px] leading-tight font-light text-gray-700">
+            <p className="text-[24px] md:text-[32px] leading-tight font-light text-gray-700 mb-8">
               鏈接現實，創造未來
             </p>
+
+            {/* Organizers Info - Directly after slogan */}
+            <div className="space-y-4 text-[14px] leading-relaxed text-gray-700">
+              <div>
+                <span className="font-semibold text-black">主辦單位：</span>
+                <span>國立清華大學・</span>
+                <span className="font-semibold text-black">指導單位：</span>
+                <span>台灣金管會</span>
+              </div>
+              <div>
+                <span className="font-semibold text-black">協辦院校與金融機構：</span>
+                <span>政大國際金融學院｜國泰金控｜台灣銀行｜元大投信</span>
+              </div>
+              <div>
+                <span className="font-semibold text-black">協辦團隊：</span>
+                <span>
+                  ETHTaipei｜XueDAO｜Zircuit｜Sui｜Self Protocol｜Oasis Protocol｜SparkLands｜RWA
+                  Nexus｜DeFintek｜AsiaVista
+                </span>
+              </div>
+            </div>
           </div>
+
           <div className="flex justify-center md:justify-end">
             <Image
               src="/assets/1.overview.png"
