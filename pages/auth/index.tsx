@@ -43,18 +43,20 @@ export default function AuthPage() {
         const errorCode = error.code;
         const errorMessage = error.message;
         let friendlyMessage = '';
-        
+
         // Check if error message contains specific patterns
         if (errorMessage && typeof errorMessage === 'string') {
-          if (errorMessage.includes('INVALID_LOGIN_CREDENTIALS') || 
-              errorMessage.includes('invalid-login-credentials') ||
-              errorMessage.includes('invalid-credential')) {
+          if (
+            errorMessage.includes('INVALID_LOGIN_CREDENTIALS') ||
+            errorMessage.includes('invalid-login-credentials') ||
+            errorMessage.includes('invalid-credential')
+          ) {
             friendlyMessage = '登入資訊錯誤。請檢查您的電子郵件和密碼，或先註冊帳號。';
             setErrorMsg(friendlyMessage);
             return;
           }
         }
-        
+
         // Convert Firebase error codes to friendly Chinese messages
         switch (errorCode) {
           case 'auth/invalid-email':
@@ -83,7 +85,7 @@ export default function AuthPage() {
             // If no specific error code matched, provide a generic message
             friendlyMessage = '登入失敗。請檢查您的電子郵件和密碼是否正確。';
         }
-        
+
         setErrorMsg(friendlyMessage);
       });
   };
@@ -102,15 +104,13 @@ export default function AuthPage() {
           .currentUser.sendEmailVerification()
           .then(() => {
             router.push('/auth');
-            alert(
-              '帳號創建成功！請檢查您的電子郵件（包括垃圾郵件夾）以驗證您的帳號並登入。',
-            );
+            alert('帳號創建成功！請檢查您的電子郵件（包括垃圾郵件夾）以驗證您的帳號並登入。');
           });
       })
       .catch((error) => {
         var errorCode = error.code;
         let friendlyMessage = '';
-        
+
         // Convert Firebase error codes to friendly Chinese messages
         switch (errorCode) {
           case 'auth/email-already-in-use':
@@ -128,7 +128,7 @@ export default function AuthPage() {
           default:
             friendlyMessage = `註冊失敗：${error.message}`;
         }
-        
+
         setErrorMsg(friendlyMessage);
       });
   };
@@ -144,7 +144,7 @@ export default function AuthPage() {
       .catch((error) => {
         var errorCode = error.code;
         let friendlyMessage = '';
-        
+
         // Convert Firebase error codes to friendly Chinese messages
         switch (errorCode) {
           case 'auth/invalid-email':
@@ -159,7 +159,7 @@ export default function AuthPage() {
           default:
             friendlyMessage = `發送重設郵件失敗：${error.message}`;
         }
-        
+
         setErrorMsg(friendlyMessage);
       });
   };
@@ -175,9 +175,7 @@ export default function AuthPage() {
           alert('驗證郵件已發送，請檢查您的電子郵件以驗證帳號並登入。');
         });
     } catch (error) {
-      alert(
-        '發送驗證郵件時發生問題。\n請稍候幾分鐘再重新嘗試。',
-      );
+      alert('發送驗證郵件時發生問題。\n請稍候幾分鐘再重新嘗試。');
     }
   };
 

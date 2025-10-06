@@ -13,7 +13,7 @@ const MISC_COLLECTION = '/miscellaneous';
 async function updateAllUsersDoc(userId: string, profile: any) {
   const docRef = db.collection(MISC_COLLECTION).doc('allusers');
   const userData = await docRef.get();
-  
+
   const newUser = {
     id: profile.id,
     user: {

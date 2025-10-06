@@ -145,11 +145,7 @@ export default function QuestionsPage() {
     );
 
   if (!isSignedIn)
-    return (
-      <div className="text-2xl font-black text-center">
-        請登入以向主辦方提問
-      </div>
-    );
+    return <div className="text-2xl font-black text-center">請登入以向主辦方提問</div>;
 
   return (
     <div className="flex flex-col flex-grow">

@@ -180,7 +180,7 @@ function AuthProvider({ children }: React.PropsWithChildren<Record<string, any>>
         console.error('Error when signing in', error);
         const errorCode = error.code;
         let friendlyMessage = '';
-        
+
         // Convert Firebase error codes to friendly Chinese messages
         switch (errorCode) {
           case 'auth/popup-closed-by-user':
@@ -196,7 +196,8 @@ function AuthProvider({ children }: React.PropsWithChildren<Record<string, any>>
             friendlyMessage = '此電子郵件已使用其他登入方式註冊。請使用原本的登入方式。';
             break;
           case 'auth/operation-not-allowed':
-            friendlyMessage = 'Google 登入功能未啟用。請在 Firebase Console 中啟用 Google 登入，或聯繫管理員。';
+            friendlyMessage =
+              'Google 登入功能未啟用。請在 Firebase Console 中啟用 Google 登入，或聯繫管理員。';
             break;
           case 'auth/unauthorized-domain':
             friendlyMessage = '此網域未授權使用 Google 登入。請聯繫管理員將網域添加到授權列表。';
@@ -207,7 +208,7 @@ function AuthProvider({ children }: React.PropsWithChildren<Record<string, any>>
           default:
             friendlyMessage = `Google 登入失敗：${error.message}`;
         }
-        
+
         alert(friendlyMessage);
       });
   };

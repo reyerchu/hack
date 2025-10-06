@@ -66,7 +66,9 @@ export default function ProfileDialog({ onDismiss }: ProfileDialogProps) {
             <div className="text-md text-gray-300">{role}</div>
           </div>
         )) || (
-          <div className="p-4 text-lg font-bold text-white">登入以將活動加入您的時程表、簽到等更多功能！</div>
+          <div className="p-4 text-lg font-bold text-white">
+            登入以將活動加入您的時程表、簽到等更多功能！
+          </div>
         )}
       </div>
       {(isSignedIn && (
