@@ -54,8 +54,10 @@ export default function TSMCChallengeTimeline() {
           <h2 className="text-[28px] md:text-[36px] font-normal text-black mb-2">
             CHALLENGE TIMELINE
           </h2>
-          <div className="w-16 h-[2px] bg-black"></div>
-          <p className="text-[18px] text-gray-700 mt-4">活動日程</p>
+          <div className="w-16 h-[2px]" style={{ backgroundColor: '#1a3a6e' }}></div>
+          <p className="text-[18px] mt-4 font-normal" style={{ color: '#1a3a6e' }}>
+            活動日程
+          </p>
         </div>
 
         {/* Timeline List - TSMC Style */}
@@ -80,7 +82,21 @@ export default function TSMCChallengeTimeline() {
         {/* CTA Button - TSMC Style */}
         <div className="mt-16">
           <Link href="/register">
-            <a className="inline-block border-2 border-black text-black px-8 py-3 text-[14px] font-medium uppercase tracking-wider hover:bg-black hover:text-white transition-colors duration-300">
+            <a
+              className="inline-block border-2 px-8 py-3 text-[14px] font-medium uppercase tracking-wider transition-colors duration-300"
+              style={{
+                borderColor: '#1a3a6e',
+                color: '#1a3a6e',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = '#1a3a6e';
+                e.currentTarget.style.color = 'white';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent';
+                e.currentTarget.style.color = '#1a3a6e';
+              }}
+            >
               立即報名 Apply Now
             </a>
           </Link>

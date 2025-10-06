@@ -34,14 +34,20 @@ export default function TSMCChallenges(props: { challenges: Challenge[] }) {
         {/* Section Header - TSMC Style */}
         <div className="mb-12">
           <h2 className="text-[28px] md:text-[36px] font-normal text-black mb-2">CHALLENGES</h2>
-          <div className="w-16 h-[2px] bg-black"></div>
-          <p className="text-[18px] text-gray-700 mt-4">競賽題目</p>
+          <div className="w-16 h-[2px]" style={{ backgroundColor: '#1a3a6e' }}></div>
+          <p className="text-[18px] mt-4 font-normal" style={{ color: '#1a3a6e' }}>
+            競賽題目
+          </p>
         </div>
 
         {/* Description */}
         <div className="mb-12">
           <p className="text-[16px] leading-relaxed text-gray-800">
-            圍繞 RWA 賽道六大熱門技術挑戰，題目將於 10/20 公布題庫：
+            圍繞 RWA 賽道六大熱門技術挑戰，題目將於{' '}
+            <span className="font-bold" style={{ color: '#1a3a6e' }}>
+              10/20
+            </span>{' '}
+            公布題庫：
           </p>
         </div>
 
@@ -68,7 +74,21 @@ export default function TSMCChallenges(props: { challenges: Challenge[] }) {
         {/* CTA Button - TSMC Style */}
         <div className="mt-16">
           <Link href="/register">
-            <a className="inline-block border-2 border-black text-black px-8 py-3 text-[14px] font-medium uppercase tracking-wider hover:bg-black hover:text-white transition-colors duration-300">
+            <a
+              className="inline-block border-2 px-8 py-3 text-[14px] font-medium uppercase tracking-wider transition-colors duration-300"
+              style={{
+                borderColor: '#1a3a6e',
+                color: '#1a3a6e',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = '#1a3a6e';
+                e.currentTarget.style.color = 'white';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent';
+                e.currentTarget.style.color = '#1a3a6e';
+              }}
+            >
               立即報名 Apply Now
             </a>
           </Link>

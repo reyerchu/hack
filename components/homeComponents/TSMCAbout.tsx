@@ -9,9 +9,12 @@ export default function TSMCAbout() {
   return (
     <section className="bg-white py-16 md:py-24">
       <div className="max-w-[1200px] mx-auto px-8 md:px-12">
-        {/* Title */}
+        {/* Title - Slogan in bold blue (like TSMC's red) */}
         <div className="mb-16">
-          <h1 className="text-[32px] md:text-[48px] leading-tight font-normal text-black mb-3">
+          <h1
+            className="text-[32px] md:text-[48px] leading-tight font-bold mb-3"
+            style={{ color: '#1a3a6e' }}
+          >
             Tokenize Reality, Create the Future
           </h1>
           <p className="text-[24px] md:text-[32px] leading-tight font-light text-gray-700">
@@ -23,7 +26,10 @@ export default function TSMCAbout() {
         <div className="grid md:grid-cols-2 gap-x-20 gap-y-12">
           {/* Left Column - 活動概觀 */}
           <div>
-            <h2 className="text-[20px] font-semibold text-black mb-6 border-b border-gray-300 pb-3">
+            <h2
+              className="text-[20px] font-normal mb-6 border-b border-gray-300 pb-3"
+              style={{ color: '#1a3a6e' }}
+            >
               活動概觀
             </h2>
             <div className="space-y-4 text-[16px] leading-relaxed text-gray-800">
@@ -37,7 +43,10 @@ export default function TSMCAbout() {
 
           {/* Right Column - 參賽資格 */}
           <div>
-            <h2 className="text-[20px] font-semibold text-black mb-6 border-b border-gray-300 pb-3">
+            <h2
+              className="text-[20px] font-normal mb-6 border-b border-gray-300 pb-3"
+              style={{ color: '#1a3a6e' }}
+            >
               參賽資格
             </h2>
             <div className="space-y-4 text-[16px] leading-relaxed text-gray-800">
@@ -70,7 +79,21 @@ export default function TSMCAbout() {
         {/* CTA Button - TSMC Style */}
         <div className="mt-16">
           <Link href="/register">
-            <a className="inline-block border-2 border-black text-black px-8 py-3 text-[14px] font-medium uppercase tracking-wider hover:bg-black hover:text-white transition-colors duration-300">
+            <a
+              className="inline-block border-2 px-8 py-3 text-[14px] font-medium uppercase tracking-wider transition-colors duration-300"
+              style={{
+                borderColor: '#1a3a6e',
+                color: '#1a3a6e',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = '#1a3a6e';
+                e.currentTarget.style.color = 'white';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent';
+                e.currentTarget.style.color = '#1a3a6e';
+              }}
+            >
               立即報名 Apply Now
             </a>
           </Link>
