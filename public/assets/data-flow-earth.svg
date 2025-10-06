@@ -1,0 +1,45 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Light blue background clouds -->
+  <circle cx="200" cy="200" r="180" fill="#D6E9F8" opacity="0.6"/>
+  <circle cx="824" cy="200" r="200" fill="#D6E9F8" opacity="0.6"/>
+  <circle cx="200" cy="824" r="180" fill="#D6E9F8" opacity="0.6"/>
+  <circle cx="824" cy="824" r="200" fill="#D6E9F8" opacity="0.6"/>
+  
+  <!-- Main Earth Globe -->
+  <circle cx="512" cy="512" r="300" fill="url(#earthGradient)"/>
+  
+  <!-- Continents/Land masses with organic shapes -->
+  <path d="M 400 350 Q 450 320 500 340 Q 550 360 580 350 Q 600 340 620 360 Q 640 380 630 420 Q 620 460 580 480 Q 540 500 500 490 Q 460 480 430 460 Q 400 440 390 400 Q 380 360 400 350 Z" fill="#9DCEF5" opacity="0.8"/>
+  
+  <path d="M 350 480 Q 380 460 420 470 Q 460 480 480 510 Q 500 540 490 580 Q 480 620 450 640 Q 420 660 380 650 Q 340 640 320 610 Q 300 580 310 540 Q 320 500 350 480 Z" fill="#9DCEF5" opacity="0.8"/>
+  
+  <path d="M 520 550 Q 560 540 600 560 Q 640 580 660 620 Q 680 660 670 700 Q 660 740 620 760 Q 580 780 540 770 Q 500 760 480 730 Q 460 700 470 660 Q 480 620 520 550 Z" fill="#9DCEF5" opacity="0.8"/>
+  
+  <path d="M 550 400 Q 580 390 610 410 Q 640 430 650 470 Q 660 510 640 540 Q 620 570 580 580 Q 540 590 510 570 Q 480 550 490 510 Q 500 470 530 440 Q 540 420 550 400 Z" fill="#9DCEF5" opacity="0.8"/>
+  
+  <!-- Orbital rings and nodes -->
+  <!-- Ring 1 -->
+  <ellipse cx="512" cy="512" rx="400" ry="150" fill="none" stroke="#4A90E2" stroke-width="8" opacity="0.7" transform="rotate(-30 512 512)"/>
+  <circle cx="250" cy="420" r="28" fill="#4A90E2"/>
+  <circle cx="730" cy="350" r="28" fill="#4A90E2"/>
+  
+  <!-- Ring 2 -->
+  <ellipse cx="512" cy="512" rx="420" ry="140" fill="none" stroke="#4A90E2" stroke-width="8" opacity="0.7" transform="rotate(25 512 512)"/>
+  <circle cx="180" cy="620" r="28" fill="#4A90E2"/>
+  <circle cx="780" cy="620" r="28" fill="#4A90E2"/>
+  
+  <!-- Ring 3 -->
+  <ellipse cx="512" cy="512" rx="410" ry="160" fill="none" stroke="#4A90E2" stroke-width="8" opacity="0.7" transform="rotate(80 512 512)"/>
+  <circle cx="512" cy="150" r="28" fill="#4A90E2"/>
+  <circle cx="512" cy="874" r="28" fill="#4A90E2"/>
+  
+  <!-- Gradients -->
+  <defs>
+    <radialGradient id="earthGradient">
+      <stop offset="0%" stop-color="#6BB5E8"/>
+      <stop offset="50%" stop-color="#4A9FD8"/>
+      <stop offset="100%" stop-color="#3B8AC7"/>
+    </radialGradient>
+  </defs>
+</svg>
+

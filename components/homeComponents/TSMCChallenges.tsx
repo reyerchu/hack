@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function TSMCChallenges(props: { challenges: Challenge[] }) {
   const challengeTopics = [
@@ -51,24 +52,38 @@ export default function TSMCChallenges(props: { challenges: Challenge[] }) {
           </p>
         </div>
 
-        {/* Challenge Topics - TSMC Style */}
-        <div className="space-y-0">
-          {challengeTopics.map((topic, index) => (
-            <div
-              key={index}
-              className="py-8 border-b border-gray-200 last:border-0 hover:bg-gray-50 transition-colors duration-200"
-            >
-              <div className="flex items-start space-x-6">
-                <div className="flex-shrink-0 text-[16px] font-semibold text-black w-8">
-                  {String(index + 1).padStart(2, '0')}
-                </div>
-                <div className="flex-1">
-                  <h3 className="text-[20px] font-semibold text-black mb-2">{topic.title}</h3>
-                  <p className="text-[16px] leading-relaxed text-gray-700">{topic.description}</p>
+        {/* TSMC Layout: Content Left, Image Right */}
+        <div className="grid md:grid-cols-2 gap-12 items-start mb-12">
+          {/* Left: Challenge Topics - TSMC Style */}
+          <div className="space-y-0">
+            {challengeTopics.map((topic, index) => (
+              <div
+                key={index}
+                className="py-8 border-b border-gray-200 last:border-0 hover:bg-gray-50 transition-colors duration-200"
+              >
+                <div className="flex items-start space-x-6">
+                  <div className="flex-shrink-0 text-[16px] font-semibold text-black w-8">
+                    {String(index + 1).padStart(2, '0')}
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-[20px] font-semibold text-black mb-2">{topic.title}</h3>
+                    <p className="text-[16px] leading-relaxed text-gray-700">{topic.description}</p>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
+
+          {/* Right: Image */}
+          <div className="flex justify-center md:justify-end">
+            <Image
+              src="/assets/5.challege.png"
+              alt="Challenge Topics"
+              width={360}
+              height={360}
+              className="w-[280px] h-[280px] md:w-[360px] md:h-[360px]"
+            />
+          </div>
         </div>
 
         {/* CTA Button - TSMC Style */}

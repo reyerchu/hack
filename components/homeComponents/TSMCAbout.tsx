@@ -1,5 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 /**
  * TSMC-style About/Overview Section
@@ -9,17 +10,28 @@ export default function TSMCAbout() {
   return (
     <section className="bg-white py-16 md:py-24">
       <div className="max-w-[1200px] mx-auto px-8 md:px-12">
-        {/* Title - Slogan in bold blue (like TSMC's red) */}
-        <div className="mb-16">
-          <h1
-            className="text-[32px] md:text-[48px] leading-tight font-bold mb-3"
-            style={{ color: '#1a3a6e' }}
-          >
-            Tokenize Reality, Create the Future
-          </h1>
-          <p className="text-[24px] md:text-[32px] leading-tight font-light text-gray-700">
-            鏈接現實，創造未來
-          </p>
+        {/* Title - Slogan with Image on Right (TSMC Style) */}
+        <div className="mb-16 grid md:grid-cols-2 gap-8 items-center">
+          <div>
+            <h1
+              className="text-[32px] md:text-[48px] leading-tight font-bold mb-3"
+              style={{ color: '#1a3a6e' }}
+            >
+              Tokenize Reality, Create the Future
+            </h1>
+            <p className="text-[24px] md:text-[32px] leading-tight font-light text-gray-700">
+              鏈接現實，創造未來
+            </p>
+          </div>
+          <div className="flex justify-center md:justify-end">
+            <Image
+              src="/assets/1.overview.png"
+              alt="Data Flow Earth"
+              width={360}
+              height={360}
+              className="w-[280px] h-[280px] md:w-[360px] md:h-[360px]"
+            />
+          </div>
         </div>
 
         {/* Two Column Layout */}

@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function TSMCParticipationGuidelines() {
   const guidelines = [
@@ -24,19 +25,33 @@ export default function TSMCParticipationGuidelines() {
           </p>
         </div>
 
-        {/* Guidelines List - TSMC Style */}
-        <div className="space-y-6">
-          {guidelines.map((guideline, index) => (
-            <div
-              key={index}
-              className="flex items-start space-x-4 pb-6 border-b border-gray-200 last:border-0"
-            >
-              <div className="flex-shrink-0 text-[16px] font-semibold text-black w-8">
-                {String(index + 1).padStart(2, '0')}
+        {/* TSMC Layout: Content Left, Image Right */}
+        <div className="grid md:grid-cols-2 gap-12 items-start mb-12">
+          {/* Left: Guidelines List - TSMC Style */}
+          <div className="space-y-6">
+            {guidelines.map((guideline, index) => (
+              <div
+                key={index}
+                className="flex items-start space-x-4 pb-6 border-b border-gray-200 last:border-0"
+              >
+                <div className="flex-shrink-0 text-[16px] font-semibold text-black w-8">
+                  {String(index + 1).padStart(2, '0')}
+                </div>
+                <p className="text-[16px] leading-relaxed text-gray-800 flex-1">{guideline}</p>
               </div>
-              <p className="text-[16px] leading-relaxed text-gray-800 flex-1">{guideline}</p>
-            </div>
-          ))}
+            ))}
+          </div>
+
+          {/* Right: Image */}
+          <div className="flex justify-center md:justify-end">
+            <Image
+              src="/assets/2.hacker.png"
+              alt="Hackathon Team"
+              width={360}
+              height={360}
+              className="w-[280px] h-[280px] md:w-[360px] md:h-[360px]"
+            />
+          </div>
         </div>
 
         {/* CTA Button - TSMC Style */}

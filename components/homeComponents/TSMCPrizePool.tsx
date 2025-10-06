@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function TSMCPrizePool() {
   const sponsors = [
@@ -46,24 +47,38 @@ export default function TSMCPrizePool() {
           </p>
         </div>
 
-        {/* Sponsor Tracks - TSMC Style */}
-        <div className="space-y-0">
-          {sponsors.map((sponsor, index) => (
-            <div
-              key={index}
-              className="py-8 border-b border-gray-200 last:border-0 hover:bg-gray-50 transition-colors duration-200"
-            >
-              <div className="flex items-start space-x-6">
-                <div className="flex-shrink-0 text-[16px] font-semibold text-black w-8">
-                  {String(index + 1).padStart(2, '0')}
-                </div>
-                <div className="flex-1">
-                  <h3 className="text-[20px] font-semibold text-black mb-2">{sponsor.name}</h3>
-                  <p className="text-[16px] leading-relaxed text-gray-700">{sponsor.track}</p>
+        {/* TSMC Layout: Image Left, Content Right */}
+        <div className="grid md:grid-cols-2 gap-12 items-start mb-12">
+          {/* Left: Image */}
+          <div className="flex justify-center md:justify-start">
+            <Image
+              src="/assets/4.prize.png"
+              alt="Prize Pool"
+              width={360}
+              height={360}
+              className="w-[280px] h-[280px] md:w-[360px] md:h-[360px]"
+            />
+          </div>
+
+          {/* Right: Sponsor Tracks - TSMC Style */}
+          <div className="space-y-0">
+            {sponsors.map((sponsor, index) => (
+              <div
+                key={index}
+                className="py-8 border-b border-gray-200 last:border-0 hover:bg-gray-50 transition-colors duration-200"
+              >
+                <div className="flex items-start space-x-6">
+                  <div className="flex-shrink-0 text-[16px] font-semibold text-black w-8">
+                    {String(index + 1).padStart(2, '0')}
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-[20px] font-semibold text-black mb-2">{sponsor.name}</h3>
+                    <p className="text-[16px] leading-relaxed text-gray-700">{sponsor.track}</p>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
 
         {/* CTA Button - TSMC Style */}

@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function TSMCChallengeTimeline() {
   const timelineEvents = [
@@ -60,23 +61,37 @@ export default function TSMCChallengeTimeline() {
           </p>
         </div>
 
-        {/* Timeline List - TSMC Style */}
-        <div className="space-y-0 border-l-2 border-gray-300 ml-4">
-          {timelineEvents.map((event, index) => (
-            <div key={index} className="relative pl-8 pb-12 last:pb-0">
-              {/* Timeline Dot */}
-              <div className="absolute left-[-9px] top-0 w-4 h-4 bg-black rounded-full"></div>
+        {/* TSMC Layout: Image Left, Content Right */}
+        <div className="grid md:grid-cols-2 gap-12 items-start mb-12">
+          {/* Left: Image */}
+          <div className="flex justify-center md:justify-start">
+            <Image
+              src="/assets/3.schedule.png"
+              alt="Schedule Timeline"
+              width={360}
+              height={360}
+              className="w-[280px] h-[280px] md:w-[360px] md:h-[360px]"
+            />
+          </div>
 
-              {/* Content */}
-              <div className="space-y-2">
-                <div className="text-[14px] font-medium text-gray-600 uppercase tracking-wide">
-                  {event.date}
+          {/* Right: Timeline List - TSMC Style */}
+          <div className="space-y-0 border-l-2 border-gray-300 ml-4">
+            {timelineEvents.map((event, index) => (
+              <div key={index} className="relative pl-8 pb-12 last:pb-0">
+                {/* Timeline Dot */}
+                <div className="absolute left-[-9px] top-0 w-4 h-4 bg-black rounded-full"></div>
+
+                {/* Content */}
+                <div className="space-y-2">
+                  <div className="text-[14px] font-medium text-gray-600 uppercase tracking-wide">
+                    {event.date}
+                  </div>
+                  <h3 className="text-[20px] font-semibold text-black">{event.title}</h3>
+                  <p className="text-[16px] leading-relaxed text-gray-700">{event.description}</p>
                 </div>
-                <h3 className="text-[20px] font-semibold text-black">{event.title}</h3>
-                <p className="text-[16px] leading-relaxed text-gray-700">{event.description}</p>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
 
         {/* CTA Button - TSMC Style */}
