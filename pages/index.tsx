@@ -3,12 +3,11 @@ import { GetServerSideProps } from 'next';
 import { useEffect, useState } from 'react';
 import { RequestHelper } from '../lib/request-helper';
 import BackgroundCarousel from '../components/homeComponents/BackgroundCarousel';
+import TSMCAbout from '../components/homeComponents/TSMCAbout';
 import TSMCChallengeTimeline from '../components/homeComponents/TSMCChallengeTimeline';
 import TSMCParticipationGuidelines from '../components/homeComponents/TSMCParticipationGuidelines';
 import TSMCPrizePool from '../components/homeComponents/TSMCPrizePool';
 import TSMCChallenges from '../components/homeComponents/TSMCChallenges';
-import HomeSpeakers from '../components/homeComponents/HomeSpeakers';
-import HomeTeam from '../components/homeComponents/HomeTeam';
 import HomeSponsors from '../components/homeComponents/HomeSponsors';
 import HomeFooter from '../components/homeComponents/HomeFooter';
 
@@ -18,13 +17,7 @@ import HomeFooter from '../components/homeComponents/HomeFooter';
  * Landing: /
  *
  */
-export default function Home(props: {
-  keynoteSpeakers: KeynoteSpeaker[];
-  challenges: Challenge[];
-  answeredQuestion: AnsweredQuestion[];
-  fetchedMembers: TeamMember[];
-  sponsorCard: Sponsor[];
-}) {
+export default function Home(props: { challenges: Challenge[]; sponsorCard: Sponsor[] }) {
   return (
     <>
       <Head>
@@ -37,12 +30,11 @@ export default function Home(props: {
       </Head>
 
       <BackgroundCarousel />
-      <TSMCChallenges challenges={props.challenges} />
+      <TSMCAbout />
       <TSMCChallengeTimeline />
       <TSMCParticipationGuidelines />
       <TSMCPrizePool />
-      <HomeSpeakers keynoteSpeakers={props.keynoteSpeakers} />
-      <HomeTeam members={props.fetchedMembers} />
+      <TSMCChallenges challenges={props.challenges} />
       <HomeSponsors sponsorCard={props.sponsorCard} />
       <HomeFooter />
     </>
@@ -52,26 +44,14 @@ export default function Home(props: {
 export const getServerSideProps: GetServerSideProps = async (context) => {
   // Use localhost for server-side rendering to avoid circular requests
   const baseUrl = 'http://localhost:3000';
-  const { data: keynoteData } = await RequestHelper.get<KeynoteSpeaker[]>(
-    `${baseUrl}/api/keynotespeakers`,
-    {},
-  );
   const { data: challengeData } = await RequestHelper.get<Challenge[]>(
     `${baseUrl}/api/challenges/`,
     {},
   );
-  const { data: answeredQuestion } = await RequestHelper.get<AnsweredQuestion[]>(
-    `${baseUrl}/api/questions/faq`,
-    {},
-  );
-  const { data: memberData } = await RequestHelper.get<TeamMember[]>(`${baseUrl}/api/members`, {});
   const { data: sponsorData } = await RequestHelper.get<Sponsor[]>(`${baseUrl}/api/sponsor`, {});
   return {
     props: {
-      keynoteSpeakers: keynoteData,
       challenges: challengeData,
-      answeredQuestion: answeredQuestion,
-      fetchedMembers: memberData,
       sponsorCard: sponsorData,
     },
   };

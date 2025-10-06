@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 
 export default function BackgroundCarousel() {
   return (
@@ -40,9 +41,11 @@ export default function BackgroundCarousel() {
           </div>
 
           {/* CTA Button */}
-          <button className="bg-white text-blue-900 px-12 py-4 rounded-lg font-bold text-xl hover:bg-blue-50 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
-            立即報名
-          </button>
+          <Link href="/register">
+            <a className="inline-block bg-white text-blue-900 px-12 py-4 rounded-lg font-bold text-xl hover:bg-blue-50 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
+              立即報名
+            </a>
+          </Link>
         </div>
       </div>
     </div>

@@ -1,114 +1,79 @@
+import React from 'react';
+import Link from 'next/link';
+
+/**
+ * TSMC-style About/Overview Section
+ * 活動概觀 + 參賽資格
+ */
 export default function TSMCAbout() {
   return (
-    <section className="py-20 bg-white">
-      <div className="container mx-auto px-4">
-        <div className="max-w-6xl mx-auto">
-          {/* Section Header */}
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">關於黑客松台灣</h2>
-            <div className="w-24 h-1 bg-blue-600 mx-auto mb-8"></div>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-              黑客松台灣是一個為期48小時的創新競賽，匯聚來自全台的頂尖工程師、設計師和創業家，
-              共同探索科技前沿，創造改變世界的解決方案。
-            </p>
-          </div>
+    <section className="bg-white py-16 md:py-24">
+      <div className="max-w-[1200px] mx-auto px-8 md:px-12">
+        {/* Title */}
+        <div className="mb-16">
+          <h1 className="text-[32px] md:text-[48px] leading-tight font-normal text-black mb-3">
+            Tokenize Reality, Create the Future
+          </h1>
+          <p className="text-[24px] md:text-[32px] leading-tight font-light text-gray-700">
+            鏈接現實，創造未來
+          </p>
+        </div>
 
-          {/* Features Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
-            <div className="text-center group">
-              <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-blue-600 transition-colors duration-300">
-                <svg
-                  className="w-10 h-10 text-blue-600 group-hover:text-white transition-colors duration-300"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
-                  />
-                </svg>
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-4">創新思維</h3>
-              <p className="text-gray-600 leading-relaxed">
-                培養解決複雜問題的能力，激發創意思維，探索科技創新的無限可能。
-              </p>
-            </div>
-
-            <div className="text-center group">
-              <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-green-600 transition-colors duration-300">
-                <svg
-                  className="w-10 h-10 text-green-600 group-hover:text-white transition-colors duration-300"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                  />
-                </svg>
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-4">團隊協作</h3>
-              <p className="text-gray-600 leading-relaxed">
-                與來自不同背景的優秀人才組隊，學習跨領域合作，建立長久的專業網絡。
-              </p>
-            </div>
-
-            <div className="text-center group">
-              <div className="w-20 h-20 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-purple-600 transition-colors duration-300">
-                <svg
-                  className="w-10 h-10 text-purple-600 group-hover:text-white transition-colors duration-300"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M13 10V3L4 14h7v7l9-11h-7z"
-                  />
-                </svg>
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-4">快速迭代</h3>
-              <p className="text-gray-600 leading-relaxed">
-                在48小時內從概念到原型，體驗快速開發的節奏，提升執行力和時間管理能力。
+        {/* Two Column Layout */}
+        <div className="grid md:grid-cols-2 gap-x-20 gap-y-12">
+          {/* Left Column - 活動概觀 */}
+          <div>
+            <h2 className="text-[20px] font-semibold text-black mb-6 border-b border-gray-300 pb-3">
+              活動概觀
+            </h2>
+            <div className="space-y-4 text-[16px] leading-relaxed text-gray-800">
+              <p>RWA Hackathon Taiwan 是台灣首屆專注於真實世界資產（RWA）代幣化的黑客松。</p>
+              <p>
+                我們邀請來自金融、區塊鏈、法遵與新創領域的頂尖人才，透過 2~10
+                天的激烈腦力激盪與協作，探索如何將現實資產搬上區塊鏈，創造下一波金融創新的應用場景。
               </p>
             </div>
           </div>
 
-          {/* Timeline */}
-          <div className="bg-gray-50 rounded-2xl p-8">
-            <h3 className="text-2xl font-bold text-gray-900 text-center mb-8">活動時程</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div className="text-center">
-                <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <span className="text-white font-bold text-lg">1</span>
-                </div>
-                <h4 className="font-bold text-gray-900 mb-2">開幕典禮</h4>
-                <p className="text-gray-600 text-sm">活動介紹、團隊組建、題目發布</p>
-              </div>
-              <div className="text-center">
-                <div className="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <span className="text-white font-bold text-lg">2</span>
-                </div>
-                <h4 className="font-bold text-gray-900 mb-2">開發階段</h4>
-                <p className="text-gray-600 text-sm">48小時不間斷開發，導師指導</p>
-              </div>
-              <div className="text-center">
-                <div className="w-16 h-16 bg-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <span className="text-white font-bold text-lg">3</span>
-                </div>
-                <h4 className="font-bold text-gray-900 mb-2">成果展示</h4>
-                <p className="text-gray-600 text-sm">作品展示、評審、頒獎典禮</p>
-              </div>
+          {/* Right Column - 參賽資格 */}
+          <div>
+            <h2 className="text-[20px] font-semibold text-black mb-6 border-b border-gray-300 pb-3">
+              參賽資格
+            </h2>
+            <div className="space-y-4 text-[16px] leading-relaxed text-gray-800">
+              <p className="font-medium">誰可以參加？</p>
+              <ul className="space-y-3 ml-0">
+                <li className="flex items-start">
+                  <span className="mr-2">•</span>
+                  <span>
+                    對 Web3
+                    區塊鏈、DeFi、RWA、穩定幣或金融科技有興趣的學生或社會人士（工程師、設計師、金融或法律專業人士等）皆可
+                  </span>
+                </li>
+                <li className="flex items-start">
+                  <span className="mr-2">•</span>
+                  <span>團隊需 2 ~ 5 人</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="mr-2">•</span>
+                  <span>個人可先報名，主辦方將協助組隊</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="mr-2">•</span>
+                  <span>最終 Demo Day 時，團隊需至少一位成員於現場參加活動</span>
+                </li>
+              </ul>
             </div>
           </div>
+        </div>
+
+        {/* CTA Button - TSMC Style */}
+        <div className="mt-16">
+          <Link href="/register">
+            <a className="inline-block border-2 border-black text-black px-8 py-3 text-[14px] font-medium uppercase tracking-wider hover:bg-black hover:text-white transition-colors duration-300">
+              立即報名 Apply Now
+            </a>
+          </Link>
         </div>
       </div>
     </section>

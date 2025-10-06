@@ -109,7 +109,7 @@ export default function Register() {
   };
 
   if (!user) {
-    router.push('/');
+    router.push('/auth');
     return <LoadIcon width={200} height={200} />;
   }
 
