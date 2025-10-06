@@ -13,19 +13,27 @@ const MISC_COLLECTION = '/miscellaneous';
 async function updateAllUsersDoc(userId: string, profile: any) {
   const docRef = db.collection(MISC_COLLECTION).doc('allusers');
   const userData = await docRef.get();
-  await docRef.set({
-    users: [
-      ...userData.data().users,
-      {
-        id: profile.id,
-        user: {
-          firstName: profile.user.firstName,
-          lastName: profile.user.lastName,
-          permissions: profile.user.permissions,
-        },
-      },
-    ],
-  });
+  
+  const newUser = {
+    id: profile.id,
+    user: {
+      firstName: profile.user.firstName,
+      lastName: profile.user.lastName,
+      permissions: profile.user.permissions,
+    },
+  };
+
+  if (!userData.exists) {
+    // Create the document if it doesn't exist
+    await docRef.set({
+      users: [newUser],
+    });
+  } else {
+    // Append to existing users array
+    await docRef.set({
+      users: [...(userData.data()?.users || []), newUser],
+    });
+  }
 }
 
 /**
@@ -92,28 +100,40 @@ async function handlePostApplications(req: NextApiRequest, res: NextApiResponse)
   try {
     body = JSON.parse(req.body);
   } catch (error) {
-    console.error('Could not parse request JSON body');
+    console.error('Could not parse request JSON body', error);
     return res.status(400).json({
       type: 'invalid',
-      message: '',
-    });
-  }
-  const snapshot = await db
-    .collection(APPLICATIONS_COLLECTION)
-    .where('user.id', '==', body.user.id)
-    .get();
-
-  if (!snapshot.empty) {
-    return res.status(400).json({
-      msg: 'Profile already exists',
+      message: 'Invalid JSON format',
     });
   }
 
-  await db.collection(APPLICATIONS_COLLECTION).doc(body.user.id).set(body);
-  await updateAllUsersDoc(body.user.id, body);
-  res.status(200).json({
-    msg: 'Operation completed',
-  });
+  try {
+    const snapshot = await db
+      .collection(APPLICATIONS_COLLECTION)
+      .where('user.id', '==', body.user.id)
+      .get();
+
+    if (!snapshot.empty) {
+      console.log(`Profile already exists for user: ${body.user.id}`);
+      return res.status(400).json({
+        msg: 'Profile already exists',
+      });
+    }
+
+    await db.collection(APPLICATIONS_COLLECTION).doc(body.user.id).set(body);
+    await updateAllUsersDoc(body.user.id, body);
+    console.log(`Successfully created profile for user: ${body.user.id}`);
+    res.status(200).json({
+      msg: 'Operation completed',
+    });
+  } catch (error) {
+    console.error('Error creating application:', error);
+    return res.status(500).json({
+      type: 'internal-error',
+      message: 'Failed to create application',
+      error: error.message,
+    });
+  }
 }
 
 type ApplicationsResponse = {};
