@@ -132,7 +132,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="p-8 w-full">
+    <div className="px-8 pt-20 pb-8 w-full">
       <div className="max-w-6xl mx-auto">
         <div className="flex justify-between items-center mb-5">
           <h1 className="text-3xl font-bold">個人檔案</h1>
@@ -435,12 +435,8 @@ export default function ProfilePage() {
 
                   <div className="space-y-4 text-gray-700">
                     <div className="bg-blue-50 border-l-4 border-blue-400 p-4 rounded">
-                      <div className="font-bold text-lg mb-2 text-blue-800">
-                        名稱命名規則：
-                      </div>
-                      <div className="text-gray-800 mb-2">
-                        「稱呼/團隊名」或「稱呼/角色」
-                      </div>
+                      <div className="font-bold text-lg mb-2 text-blue-800">名稱命名規則：</div>
+                      <div className="text-gray-800 mb-2">「稱呼/團隊名」或「稱呼/角色」</div>
                       <div className="text-sm space-y-1 text-gray-600">
                         <div>例如：</div>
                         <div>• 「萊爾/南方四濺剋」</div>

@@ -55,7 +55,7 @@ export default function JudgePage(props: {
         <link rel="icon" href="/favicon.ico?v=2.0" />
       </Head>
 
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50 pt-14">
         {/* 評審專用頭部 */}
         <div className="bg-blue-600 text-white py-8">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

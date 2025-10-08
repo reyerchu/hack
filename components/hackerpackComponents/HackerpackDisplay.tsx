@@ -144,7 +144,7 @@ export default function HackerpackDisplay(props: {
   }
 
   return (
-    <div className="flex flex-col md:flex-row flex-grow flex-wrap">
+    <div className="flex flex-col md:flex-row flex-grow flex-wrap pt-14">
       <Head>
         <title>HackerPacks</title>
         <meta name="description" content="HackerPack Information" />

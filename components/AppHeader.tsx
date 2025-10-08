@@ -75,8 +75,7 @@ export default function AppHeader() {
 
   return (
     <>
-      <div className="min-h-[4rem]"></div>
-      <header className="top-0 fixed justify-between flex flex-row w-full bg-white items-center h-20 z-30 p-4 drop-shadow">
+      <header className="top-0 fixed justify-between flex flex-row w-full bg-white items-center h-14 z-30 px-6 py-2 drop-shadow">
         <div className="flex flex-row order-1 md:order-none items-center">
           {/* Smartphone nav */}
           <div onClick={toggleMenu} className="md:hidden cursor-pointer text-complementary">
@@ -84,14 +83,14 @@ export default function AppHeader() {
             <ul
               className={`${
                 showMenu ? 'translate-x-0' : '-translate-x-full'
-              } transform transition-all ease-out duration-300 flex w-6/12 h-screen flex-col bg-white fixed top-0 left-0 z-[-1] mt-[80px] border-t-2 border-complementary/10`}
+              } transform transition-all ease-out duration-300 flex w-52 h-screen flex-col bg-white fixed top-0 left-0 z-[-1] mt-[56px] border-t-2 border-complementary/10`}
             >
               {dynamicNavItems
                 .filter(({ text }) => text !== 'Home')
                 .map((item) => (
                   <Link key={item.text} href={item.path}>
-                    <a className="p-9 py-6 hover:bg-primaryDark hover:text-white text-complementary">
-                      <p className="text-xl font-medium">{item.text}</p>
+                    <a className="px-5 py-3 hover:bg-primaryDark hover:text-white text-complementary border-b border-gray-100">
+                      <p className="text-sm font-medium">{item.text}</p>
                     </a>
                   </Link>
                 ))}
@@ -99,7 +98,7 @@ export default function AppHeader() {
           </div>
           <Link href="/">
             <a className="flex gap-2 ml-[6px] font-display self-center items-center md:ml-0">
-              <Image src={'/rwa-logo.svg'} width="120px" height="40px" alt="RWA Hackathon Taiwan" />
+              <Image src={'/rwa-logo.svg'} width="100px" height="32px" alt="RWA Hackathon Taiwan" />
             </a>
           </Link>
         </div>

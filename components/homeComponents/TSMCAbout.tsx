@@ -33,7 +33,7 @@ export default function TSMCAbout() {
               </div>
               <div>
                 <span className="font-semibold text-black">協辦院校與金融機構：</span>
-                <span>政大國際金融學院｜國泰金控｜台灣銀行｜元大投信</span>
+                <span>政大國際金融學院｜國泰金控｜台灣銀行</span>
               </div>
               <div>
                 <span className="font-semibold text-black">協辦團隊：</span>

@@ -186,7 +186,7 @@ export default function Register() {
   };
 
   return (
-    <div className="flex flex-col flex-grow bg-white">
+    <div className="flex flex-col flex-grow bg-white pt-14">
       <Head>
         <title>註冊 | Register</title>
         <meta name="description" content="註冊參加 2025 RWA 黑客松台灣" />

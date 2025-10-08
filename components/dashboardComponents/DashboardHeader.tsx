@@ -37,7 +37,7 @@ export default function DashboardHeader() {
           </NavLink>
         </div>
       </header>
-      <div className="my-4 md:hidden ">
+      <div className="mt-4 md:hidden ">
         <button className="accordion text-left p-2 text-sm bg-primary text-secondary">
           儀表板選單
         </button>
