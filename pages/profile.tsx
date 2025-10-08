@@ -434,16 +434,9 @@ export default function ProfilePage() {
                   </div>
 
                   <div className="space-y-4 text-gray-700">
-                    <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded">
-                      <div className="font-bold text-lg mb-2 text-yellow-800">
-                        1. 入群考題答案：
-                      </div>
-                      <div className="text-2xl font-bold text-yellow-900">RWA</div>
-                    </div>
-
                     <div className="bg-blue-50 border-l-4 border-blue-400 p-4 rounded">
                       <div className="font-bold text-lg mb-2 text-blue-800">
-                        2. 名稱命名規則：
+                        名稱命名規則：
                       </div>
                       <div className="text-gray-800 mb-2">
                         「稱呼/團隊名」或「稱呼/角色」
@@ -451,7 +444,7 @@ export default function ProfilePage() {
                       <div className="text-sm space-y-1 text-gray-600">
                         <div>例如：</div>
                         <div>• 「萊爾/南方四濺剋」</div>
-                        <div>• 「小健/個人找隊友」</div>
+                        <div>• 「小健/找隊友」</div>
                         <div>• 「Reyer/協辦方」</div>
                       </div>
                     </div>

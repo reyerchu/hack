@@ -20,13 +20,13 @@ export default function TSMCPrizePool() {
       track: '隱私保護下的自我主權金融',
     },
     {
-      name: 'Oasis ROFL 框架',
+      name: 'Oasis ROFL（Run-time Offchain Logic）框架',
       track: '鏈下隱私保護，鏈上結果驗證',
     },
   ];
 
   return (
-    <section className="bg-gray-50 py-16 md:py-24">
+    <section id="prize" className="bg-gray-50 py-16 md:py-24">
       <div className="max-w-[1200px] mx-auto px-8 md:px-12">
         {/* Section Header - TSMC Style */}
         <div className="mb-12">

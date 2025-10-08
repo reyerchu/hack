@@ -3,31 +3,37 @@ import Link from 'next/link';
 
 export default function BackgroundCarousel() {
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800">
+    <div className="relative min-h-screen h-auto landscape:min-h-[600px] bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800">
       {/* Background Display */}
-      <div className="relative z-10 min-h-screen flex items-center justify-center">
-        <div className="w-full h-screen">
+      <div className="relative z-10 min-h-screen landscape:min-h-[600px] h-auto flex items-center justify-center">
+        <div className="w-full h-screen landscape:h-[600px]">
           <DataFlowEarth />
         </div>
       </div>
 
       {/* Hero Text - TSMC CareerHack Style */}
-      <div className="absolute inset-0 z-20 flex items-center justify-center">
-        <div className="text-center text-white max-w-6xl mx-auto px-8">
+      <div className="absolute inset-0 z-20 flex items-center justify-center py-8 landscape:py-4">
+        <div className="text-center text-white max-w-6xl mx-auto px-4 md:px-8">
           {/* Main Title */}
-          <h1 className="text-6xl md:text-8xl font-bold mb-4 leading-tight">2025 RWA 黑客松</h1>
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-8xl landscape:text-4xl font-bold mb-2 landscape:mb-1 leading-tight">
+            2025 RWA 黑客松
+          </h1>
 
           {/* Subtitle */}
-          <h2 className="text-4xl md:text-6xl font-bold mb-8 text-blue-200">Taiwan</h2>
+          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl landscape:text-3xl font-bold mb-4 landscape:mb-2 text-blue-200">
+            Taiwan
+          </h2>
 
           {/* Tagline */}
-          <p className="text-2xl md:text-3xl font-medium mb-4 text-blue-100">
+          <p className="text-xl sm:text-2xl md:text-3xl landscape:text-lg font-medium mb-2 landscape:mb-1 text-blue-100">
             Tokenize Reality, Create the Future
           </p>
-          <p className="text-xl md:text-2xl font-medium mb-12 text-blue-200">鏈接現實，創造未來</p>
+          <p className="text-lg sm:text-xl md:text-2xl landscape:text-base font-medium mb-6 landscape:mb-3 text-blue-200">
+            鏈接現實，創造未來
+          </p>
 
           {/* Event Info */}
-          <div className="flex flex-col md:flex-row justify-center items-center gap-8 mb-12 text-lg md:text-xl">
+          <div className="flex flex-col md:flex-row justify-center items-center gap-4 landscape:gap-2 mb-8 landscape:mb-4 text-base sm:text-lg md:text-xl landscape:text-sm">
             <div className="text-center">
               <div className="font-bold text-blue-200">10/27 Mon.</div>
               <div className="text-blue-300">報名截止日</div>
@@ -42,7 +48,7 @@ export default function BackgroundCarousel() {
 
           {/* CTA Button */}
           <Link href="/register">
-            <a className="inline-block bg-white text-blue-900 px-12 py-4 rounded-lg font-bold text-xl hover:bg-blue-50 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
+            <a className="inline-block bg-white text-blue-900 px-8 sm:px-10 md:px-12 py-3 md:py-4 landscape:px-6 landscape:py-2 rounded-lg font-bold text-lg md:text-xl landscape:text-base hover:bg-blue-50 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
               立即報名
             </a>
           </Link>

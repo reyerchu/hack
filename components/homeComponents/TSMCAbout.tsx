@@ -39,7 +39,7 @@ export default function TSMCAbout() {
                 <span className="font-semibold text-black">協辦團隊：</span>
                 <span>
                   ETHTaipei｜XueDAO｜Zircuit｜Sui｜Self Protocol｜Oasis Protocol｜SparkLands｜RWA
-                  Nexus｜DeFintek｜AsiaVista
+                  Nexus｜DeFintek｜AsiaVista｜AWS
                 </span>
               </div>
             </div>

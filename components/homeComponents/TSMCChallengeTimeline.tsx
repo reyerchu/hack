@@ -5,8 +5,8 @@ export default function TSMCChallengeTimeline() {
   const timelineEvents = [
     {
       date: '即日起',
-      title: '開放報名',
-      description: '加入 Line 社群完成報名',
+      title: '開放個人預報名',
+      description: '完成註冊並進入 Line 社群「RWA黑客松2025」',
       icon: '📝',
     },
     {
@@ -48,7 +48,7 @@ export default function TSMCChallengeTimeline() {
   ];
 
   return (
-    <section className="bg-gray-50 py-16 md:py-24">
+    <section id="schedule" className="bg-gray-50 py-16 md:py-24">
       <div className="max-w-[1200px] mx-auto px-8 md:px-12">
         {/* Section Header - TSMC Style */}
         <div className="mb-12">
