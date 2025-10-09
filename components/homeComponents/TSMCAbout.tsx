@@ -32,15 +32,28 @@ export default function TSMCAbout() {
                 <span>台灣金管會</span>
               </div>
               <div>
-                <span className="font-semibold text-black">協辦院校與金融機構：</span>
-                <span>政大國際金融學院｜國泰金控｜台灣銀行</span>
+                <span className="font-semibold text-black">冠名贊助：</span>
+                <span>imToken</span>
+              </div>
+
+              {/* Divider Line */}
+              <div className="border-t border-gray-300 my-4"></div>
+
+              <div>
+                <span className="font-semibold text-black">場地與獎項贊助：</span>
+                <span>政大國際金融學院｜AWS</span>
               </div>
               <div>
-                <span className="font-semibold text-black">協辦團隊：</span>
-                <span>
-                  ETHTaipei｜XueDAO｜Zircuit｜Sui｜Self Protocol｜Oasis Protocol｜SparkLands｜RWA
-                  Nexus｜DeFintek｜AsiaVista｜AWS
-                </span>
+                <span className="font-semibold text-black">賽道贊助：</span>
+                <span>國泰金控｜Zircuit｜Sui｜Self Protocol｜Oasis Protocol</span>
+              </div>
+              <div>
+                <span className="font-semibold text-black">其他贊助：</span>
+                <span>RWA Nexus｜DeFintek｜SparkLands｜AsiaVista</span>
+              </div>
+              <div>
+                <span className="font-semibold text-black">其他協辦：</span>
+                <span>XueDAO｜ETHTaipei｜台灣銀行</span>
               </div>
             </div>
           </div>

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function BackgroundCarousel() {
   return (
@@ -15,7 +16,7 @@ export default function BackgroundCarousel() {
       </div>
 
       {/* Hero Text - TSMC CareerHack Style with Fluid Typography */}
-      <div className="absolute inset-0 z-20 flex items-center justify-center py-8 landscape:py-4">
+      <div className="absolute inset-0 z-20 flex items-end justify-center pb-16 landscape:pb-8">
         <div className="text-center text-white max-w-6xl mx-auto px-4 md:px-8">
           {/* Main Title - Fluid Typography */}
           <h1
@@ -76,6 +77,27 @@ export default function BackgroundCarousel() {
               立即報名
             </a>
           </Link>
+
+          {/* Co-hosted by imToken */}
+          <div className="mt-8 landscape:mt-4 flex flex-row items-center justify-center gap-3">
+            <p className="text-white" style={{ fontSize: 'clamp(0.75rem, 1.2vw, 1rem)' }}>
+              Co-hosted by
+            </p>
+            <a
+              href="https://token.im/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block hover:opacity-80 transition-opacity duration-200"
+            >
+              <Image
+                src="/sponsor-media/imToken-logo-white.svg"
+                alt="imToken"
+                width={160}
+                height={40}
+                className="h-8 landscape:h-6 w-auto"
+              />
+            </a>
+          </div>
         </div>
       </div>
     </div>

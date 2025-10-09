@@ -4,24 +4,40 @@ import Image from 'next/image';
 export default function TSMCPrizePool() {
   const sponsors = [
     {
-      name: '國泰金控',
+      name: '錢包',
+      track: '平等 × 自由 × 有意義的數位生活',
+      logo: '/sponsor-media/imToken-logo.svg',
+      url: 'https://token.im/',
+    },
+    {
+      name: '',
       track: 'RWA 與金融實務的落地應用',
+      logo: '/sponsor-media/Cathay-logo.svg',
+      url: 'https://www.cathayholdings.com/',
     },
     {
-      name: 'Zircuit',
+      name: '主鏈',
       track: '安全即信任，保護一切 DeFi 流動',
+      logo: '/sponsor-media/Zircuit-logo.svg',
+      url: 'https://www.zircuit.com/',
     },
     {
-      name: 'Sui',
+      name: '主鏈',
       track: '高速體驗，重新定義資產上鏈',
+      logo: '/sponsor-media/Sui-logo.svg',
+      url: 'https://sui.io/',
     },
     {
-      name: 'Self Protocol',
+      name: '協議',
       track: '隱私保護下的自我主權金融',
+      logo: '/sponsor-media/Self-logo.svg',
+      url: 'https://self.xyz/',
     },
     {
-      name: 'Oasis ROFL（Run-time Offchain Logic）框架',
+      name: 'ROFL（Run-time Offchain Logic）框架',
       track: '鏈下隱私保護，鏈上結果驗證',
+      logo: '/sponsor-media/Oasis-logo.svg',
+      url: 'https://oasis.net/',
     },
   ];
 
@@ -72,7 +88,26 @@ export default function TSMCPrizePool() {
                     {String(index + 1).padStart(2, '0')}
                   </div>
                   <div className="flex-1">
-                    <h3 className="text-[20px] font-semibold text-black mb-2">{sponsor.name}</h3>
+                    <div className="flex items-center gap-4 mb-3">
+                      {/* Sponsor Logo with Link */}
+                      <div className="flex-shrink-0">
+                        <a
+                          href={sponsor.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="block hover:opacity-80 transition-opacity duration-200"
+                        >
+                          <Image
+                            src={sponsor.logo}
+                            alt={`${sponsor.name} logo`}
+                            width={120}
+                            height={40}
+                            className="h-8 w-auto object-contain"
+                          />
+                        </a>
+                      </div>
+                      <h3 className="text-[20px] font-semibold text-black">{sponsor.name}</h3>
+                    </div>
                     <p className="text-[16px] leading-relaxed text-gray-700">{sponsor.track}</p>
                   </div>
                 </div>
