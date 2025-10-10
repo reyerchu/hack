@@ -439,7 +439,7 @@ export default function ProfilePage() {
                       <div className="text-gray-800 mb-2">「稱呼/團隊名」或「稱呼/角色」</div>
                       <div className="text-sm space-y-1 text-gray-600">
                         <div>例如：</div>
-                        <div>• 「萊爾/南方四濺剋」</div>
+                        <div>• 「阿福/南方四濺剋」</div>
                         <div>• 「小健/找隊友」</div>
                         <div>• 「Reyer/協辦方」</div>
                       </div>

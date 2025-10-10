@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Debug Page</title>
+    <style>
+        body { padding: 2rem; font-family: monospace; }
+        .ok { color: green; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <h1>JavaScript Loading Test</h1>
+    <div id="results">Loading...</div>
+    
+    <script>
+        const chunks = [
+            '/_next/static/chunks/webpack-f1a85fcf73152eef.js',
+            '/_next/static/chunks/framework-79bce4a3a540b080.js',
+            '/_next/static/chunks/main-466de4e08e3318b6.js',
+            '/_next/static/chunks/pages/_app-317949ccecd77a8d.js',
+            '/_next/static/chunks/111-8c61390627f77c55.js',
+            '/_next/static/chunks/pages/index-d0b903bbeaa5023f.js'
+        ];
+        
+        const results = [];
+        let loaded = 0;
+        
+        chunks.forEach(chunk => {
+            fetch(chunk)
+                .then(r => {
+                    results.push(`<div class="ok">✅ ${chunk}: ${r.status} OK</div>`);
+                    loaded++;
+                    if (loaded === chunks.length) showResults();
+                })
+                .catch(e => {
+                    results.push(`<div class="error">❌ ${chunk}: ${e.message}</div>`);
+                    loaded++;
+                    if (loaded === chunks.length) showResults();
+                });
+        });
+        
+        function showResults() {
+            document.getElementById('results').innerHTML = results.join('\n');
+        }
+        
+        // Also check if React is loaded on main page
+        setTimeout(() => {
+            const iframe = document.createElement('iframe');
+            iframe.src = '/';
+            iframe.style.display = 'none';
+            document.body.appendChild(iframe);
+            
+            setTimeout(() => {
+                try {
+                    const iframeDoc = iframe.contentDocument;
+                    const nextDiv = iframeDoc.getElementById('__next');
+                    const hasContent = nextDiv && nextDiv.innerHTML.length > 0;
+                    
+                    document.getElementById('results').innerHTML += `
+                        <hr>
+                        <h2>Main Page Check:</h2>
+                        <div class="${hasContent ? 'ok' : 'error'}">
+                            __next div has content: ${hasContent ? '✅ YES' : '❌ NO (JavaScript not executing!)'}
+                        </div>
+                        <div>__next innerHTML length: ${nextDiv ? nextDiv.innerHTML.length : 0}</div>
+                    `;
+                } catch(e) {
+                    document.getElementById('results').innerHTML += `<div class="error">Error: ${e.message}</div>`;
+                }
+            }, 3000);
+        }, 1000);
+    </script>
+</body>
+</html>
+

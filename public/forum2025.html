@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>台灣首屆 RWA 黑客松｜論壇・研討會・黑客松</title>
+  <meta name="description" content="清華大學主辦 RWA 黑客松活動，論壇×研討會×黑客松，2025/10/30–11/01。" />
+  <meta name="format-detection" content="telephone=no" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="清華大學 RWA 活動｜2025/10/30–11/01" />
+  <meta property="og:description" content="論壇・研討會・黑客松：監理 × 金融 × 技術跨域對話與 PoC 連結。" />
+  <meta property="og:image" content="/assets/og-rwa-tldr-2025.png" />
+  <meta property="og:locale" content="zh_TW" />
+  <meta name="theme-color" content="#F9FAFB" />
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#F9FAFB',
+              100: '#F3F4F6',
+              200: '#E5E7EB',
+              500: '#3366FF',  /* 強調藍色 */
+              600: '#2563EB',
+              700: '#1E40AF',
+              900: '#1F2937'   /* 黑 / 深文字色 */
+            },
+            accent: {
+              DEFAULT: '#3366FF',
+              light: '#60A5FA'
+            },
+            cyan: {
+              400: '#60CFFF'
+            }
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    :root {
+      --text-main: #1F2937;
+      --text-muted: #6B7280;
+      --bg-page: #F9FAFB;
+      --card-bg: #FFFFFF;
+      --accent: #3366FF;
+      --accent-light: #60A5FA;
+    }
+    html, body {
+      margin: 0;
+      padding: 0;
+      background-color: var(--bg-page);
+      color: var(--text-main);
+      font-family: "Microsoft JhengHei", TaipeiSansTCBeta, system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans TC", "PingFang TC", Arial, sans-serif;
+    }
+    .glass {
+      backdrop-filter: saturate(180%) blur(10px);
+      background: rgba(255, 255, 255, 0.8);
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    }
+    header, section, footer {
+      background-color: var(--bg-page);
+      color: var(--text-main);
+    }
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover {
+      color: var(--accent-light);
+    }
+    .text-muted {
+      color: var(--text-muted);
+    }
+    .btn-primary {
+      background-color: var(--accent);
+      color: #fff;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.375rem;
+      font-weight: 600;
+      transition: background-color 0.3s ease;
+    }
+    .btn-primary:hover {
+      background-color: var(--accent-light);
+    }
+  </style>
+<!-- 在 <head> 的 CSS 裡加上這些變數與樣式 -->
+<style>
+  :root {
+    --nav-bg: #1f2937;        /* 深色底 */
+    --nav-text: #f9fafb;      /* 淡色字 */
+    --nav-hover: #60a5fa;     /* 滑過字色 */
+  }
+  header.nav-dark {
+    background-color: var(--nav-bg);
+    color: var(--nav-text);
+  }
+  header.nav-dark nav a {
+    color: var(--nav-text);
+  }
+  header.nav-dark nav a:hover {
+    color: var(--nav-hover);
+  }
+</style>
+</head>
+<body class="bg-brand-950 text-[var(--text)] antialiased">
+  <!-- Header -->
+<!-- 在 body 裡 header 那段改成 -->
+<header class="sticky top-0 z-50 nav-dark border-b border-gray-700">
+  <div class="mx-auto container-narrow px-4 py-3 flex items-center justify-between">
+    <nav class="hidden md:flex items-center gap-6 text-sm">
+      <a href="#about">關於活動</a>
+      <a href="#events">三大活動</a>
+      <a href="#schedule">議程時程</a>
+      <a href="#venue">場地資訊</a>
+      <a href="#sponsors">贊助夥伴</a>
+      <a href="#faq">FAQ</a>
+      <a href="#contact">聯絡</a>
+    </nav>
+  </div>
+</header>  <!-- Hero -->
+  <section id="top" class="relative overflow-hidden">
+    <div class="absolute inset-0" aria-hidden="true">
+      <div class="absolute -top-24 -right-24 w-[42rem] h-[42rem] bg-gradient-to-br from-accent/30 via-cyan-400/20 to-transparent rounded-full blur-3xl"></div>
+      <div class="absolute -bottom-24 -left-24 w-[36rem] h-[36rem] bg-gradient-to-tr from-white/10 to-transparent rounded-full blur-3xl"></div>
+    </div>
+    <div class="mx-auto container-narrow px-4 py-20 md:py-28 relative">
+      <p class="uppercase tracking-[.25em] text-xs text-[var(--muted)]">國立清華大學 NTHU</p>
+      <h1 class="mt-3 text-3xl md:text-5xl font-extrabold leading-tight">台灣首屆 RWA 黑客松<br class="hidden md:block"/>論壇 + 研討會 + 黑客松</h1>
+<p class="mt-4 text-[15px] md:text-base text-[var(--muted)]">主辦單位：國立清華大學</p>
+<p class="mt-4 text-[15px] md:text-base text-[var(--muted)]">冠名贊助：imToken</p>
+<p class="mt-4 text-[15px] md:text-base text-[var(--muted)]">場地與獎項贊助：政大國際金融學院｜AWS</p>
+<p class="mt-4 text-[15px] md:text-base text-[var(--muted)]">賽道贊助：國泰金控｜Zircuit｜Sui｜Self Protocol｜Oasis Protocol</p>
+<p class="mt-4 text-[15px] md:text-base text-[var(--muted)]">其他贊助：RWA Nexus｜DeFintek｜SparkLands｜AsiaVista</p>
+<p class="mt-4 text-[15px] md:text-base text-[var(--muted)]">其他協辦：XueDAO｜ETHTaipei｜台灣銀行</p>
+      <p class="mt-4 text-[15px] md:text-base text-[var(--muted)]">2025/10/30（四）– 11/01（六）｜政大公企中心</p>
+      <div class="mt-8 flex flex-wrap gap-3">
+        <a id="register" href="#registration" class="inline-flex items-center rounded-2xl px-5 py-3 bg-accent text-white font-semibold shadow hover:opacity-90">報名（論壇/研討會/黑客松）</a>
+        <a href="https://rwa.nexus/bootcamp" target="_blank" class="inline-flex items-center rounded-2xl px-5 py-3 glass">黑客松特訓營</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- About -->
+  <section id="about" class="py-12 md:py-16 bg-[var(--indigo-900)]/40 border-t border-white/10">
+    <div class="mx-auto container-narrow px-4 grid md:grid-cols-2 gap-10 items-start">
+      <div>
+        <h2 class="text-2xl md:text-3xl font-bold">活動宗旨</h2>
+        <p class="mt-4 text-[var(--muted)] leading-relaxed">促成監理與金融機構、技術社群的跨域對話與 PoC 連結，打造「監管可行 × 技術可行」的 RWA 代幣化落地路徑。論壇與研討會聚焦監理觀點、託管與資安、交易與合規等核心議題；黑客松以題庫與導師制，兩日衝刺產出可演示的應用原型。</p>
+        <ul class="mt-6 space-y-2 text-sm text-[var(--muted)]">
+          <li>• 對象：監理/金控/投信/銀行、技術開發者、Web3 業者</li>
+          <li>• 語言：以中文為主</li>
+        </ul>
+      </div>
+      <div class="glass rounded-2xl p-6 border border-white/10">
+        <h3 class="font-semibold">關鍵日期</h3>
+        <ul class="mt-4 grid grid-cols-1 gap-3 text-sm">
+          <li class="flex items-center justify-between"><span class="text-[var(--muted)]">報名開放</span><span>2025/10/6（預定）</span></li>
+          <li class="flex items-center justify-between"><span class="text-[var(--muted)]">議程公布</span><span>2025/9/30</span></li>
+          <li class="flex items-center justify-between"><span class="text-[var(--muted)]">論壇＋研討會</span><span>2025/10/30（四）</span></li>
+          <li class="flex items-center justify-between"><span class="text-[var(--muted)]">黑客松</span><span>2025/10/31（五） – 11/01（六）</span></li>
+        </ul>
+        <a href="#faq" class="mt-5 inline-flex text-sm underline underline-offset-2">查看常見問題</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Three events -->
+  <section id="events" class="py-12 md:py-16">
+    <div class="mx-auto container-narrow px-4">
+      <h2 class="text-2xl md:text-3xl font-bold">三大活動</h2>
+      <div class="mt-8 grid md:grid-cols-3 gap-6">
+        <article class="glass rounded-2xl p-6">
+          <h3 class="text-xl font-bold">RWA 代幣化論壇</h3>
+          <p class="mt-2 text-sm text-[var(--muted)]">監理觀點 × 金融實務 × 關鍵挑戰（合規、託管、資安、技術）。主題演講＋圓桌座談。</p>
+          <ul class="mt-4 text-sm text-[var(--muted)] space-y-1">
+            <li>• 時間：10/30（四）09:30–12:20</li>
+            <li>• 對象：監理、金融機構、Web3 產業技術提供方</li>
+          </ul>
+        </article>
+        <article class="glass rounded-2xl p-6">
+          <h3 class="text-xl font-bold">RWA 技術應用與產業發展研討會</h3>
+          <p class="mt-2 text-sm text-[var(--muted)]">案例與法遵、核心技術與標準，金融與開發者共用語言。</p>
+          <ul class="mt-4 text-sm text-[var(--muted)] space-y-1">
+            <li>• 時間：10/30（四）13:30–16:30</li>
+            <li>• 形式：產業界研討會（實務/法遵/技術/標準）</li>
+          </ul>
+        </article>
+        <article class="glass rounded-2xl p-6">
+          <h3 class="text-xl font-bold">RWA 技術應用黑客松</h3>
+          <p class="mt-2 text-sm text-[var(--muted)]">題庫 × 導師制，36 小時完成可演示原型，設評審與特別獎。</p>
+          <ul class="mt-4 text-sm text-[var(--muted)] space-y-1">
+            <li>• 時間：10/31（五）– 11/01（六）</li>
+            <li>• 形式：工作坊、簡報、Demo、程式碼（可公開/私下提交）</li>
+          </ul>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- Schedule -->
+  <section id="schedule" class="py-12 md:py-16 bg-[var(--indigo-900)]/40 border-y border-white/10">
+    <div class="mx-auto container-narrow px-4">
+      <h2 class="text-2xl md:text-3xl font-bold">議程時程</h2>
+
+        <div class="glass rounded-2xl p-6">
+          <h3 class="font-semibold">10/30（四）論壇＋研討會</h3>
+          <ul class="mt-3 text-sm text-[var(--muted)] space-y-1">
+            <li>09:30–12:20 論壇：主題演講×6 ＋ Panel</li>
+            <li>13:30–16:30 研討會x6</li>
+          </ul>
+        </div>
+        <div class="glass rounded-2xl p-6 md:col-span-2">
+          <h3 class="font-semibold">10/31（五）— 11/01（六）黑客松</h3>
+          <ul class="mt-3 text-sm text-[var(--muted)] space-y-1">
+            <li>Day 1：09:00 開場/工作坊/題庫說明/組隊 → 全日開發 → 22:00 Checkpoint＆Demo 排練</li>
+            <li>Day 2：09:00 最終整合 → 12:00 Demo（5–7 分＋Q&A）→ 15:30 評審議分 → 16:00 頒獎/閉幕</li>
+          </ul>
+        </div>
+      </div>
+      <p class="mt-4 text-xs text-[var(--muted)]">＊ 詳細議程與講者名單將隨報名頁與社群公告同步更新。</p>
+    </div>
+  </section>
+
+  <!-- Venue -->
+  <section id="venue" class="py-12 md:py-16">
+    <div class="mx-auto container-narrow px-4 grid md:grid-cols-2 gap-8 items-start">
+      <div>
+        <h2 class="text-2xl md:text-3xl font-bold">場地資訊</h2>
+        <p class="mt-3 text-[var(--muted)]">政大公企中心 A747 及 A645（11/1 下午）</p>
+        <ul class="mt-3 text-sm text-[var(--muted)] space-y-1">
+          <li>• 交通便利、可提供分會場與長時段使用</li>
+          <li>• 支援直播、同傳與備援網路</li>
+        </ul>
+      </div>
+      <div class="glass rounded-2xl p-6 border border-white/10">
+        <h3 class="font-semibold">會場配置</h3>
+        <ul class="mt-3 text-sm text-[var(--muted)] space-y-1">
+          <li>• 主舞台 ×1（論壇/研討會）</li>
+          <li>• 教室 ×1（黑客松分組/工作坊）</li>
+          <li>• 評審及業師室 ×1</li>
+        </ul>
+        <p class="mt-3 text-xs text-[var(--muted)]">＊ 實際以現場公告為準。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Registration & Tickets -->
+  <section id="registration" class="py-12 md:py-16 bg-[var(--indigo-900)]/40 border-y border-white/10">
+    <div class="mx-auto container-narrow px-4 grid md:grid-cols-3 gap-6">
+      <div class="glass rounded-2xl p-6">
+        <h3 class="text-lg font-bold">論壇票</h3>
+        <p class="mt-2 text-sm text-[var(--muted)]">對象：監理/金融/Web3 企業</p>
+        <a class="mt-4 inline-flex rounded-xl px-4 py-2 bg-accent text-white font-semibold" href="#" aria-disabled="true">即將開放</a>
+      </div>
+      <div class="glass rounded-2xl p-6">
+        <h3 class="text-lg font-bold">研討會票</h3>
+        <p class="mt-2 text-sm text-[var(--muted)]">對象：金融/Web3 企業</p>
+        <a class="mt-4 inline-flex rounded-xl px-4 py-2 bg-accent text-white font-semibold" href="#" aria-disabled="true">即將開放</a>
+      </div>
+      <div class="glass rounded-2xl p-6">
+        <h3 class="text-lg font-bold">黑客松報名</h3>
+        <p class="mt-2 text-sm text-[var(--muted)]">2–5 人隊伍；獎項與規章將於 10/1 公布</p>
+        <a class="mt-4 inline-flex rounded-xl px-4 py-2 bg-accent text-white font-semibold" href="https://hackathon.com.tw/" aria-disabled="true" target="_blank" >立即報名</a>
+      </div>
+    </div>
+    <p class="mt-4 text-center text-xs text-[var(--muted)]">＊ 報名平台（KKTIX/Accupass）連結將更新於此區。</p>
+  </section>
+
+  <!-- Sponsors -->
+  <section id="sponsors" class="py-12 md:py-16">
+    <div class="mx-auto container-narrow px-4">
+      <h2 class="text-2xl md:text-3xl font-bold">合作與贊助</h2>
+      <p class="mt-3 text-[var(--muted)]">歡迎冠名贊助與社群夥伴共同參與。完成簽約後將於此區展示 Logo 與連結。</p>
+      <div class="mt-6 grid grid-cols-2 md:grid-cols-4 gap-6 opacity-70">
+        <div class="aspect-[3/1] rounded-xl glass"></div>
+        <div class="aspect-[3/1] rounded-xl glass"></div>
+        <div class="aspect-[3/1] rounded-xl glass"></div>
+        <div class="aspect-[3/1] rounded-xl glass"></div>
+      </div>
+      <a href="#contact" class="mt-6 inline-flex rounded-2xl px-5 py-3 glass">取得贊助方案</a>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq" class="py-12 md:py-16 bg-[var(--indigo-900)]/40 border-y border-white/10">
+    <div class="mx-auto container-narrow px-4">
+      <h2 class="text-2xl md:text-3xl font-bold">常見問題</h2>
+      <div class="mt-6 grid md:grid-cols-2 gap-6">
+        <div class="glass rounded-2xl p-6">
+          <h3 class="font-semibold">是否提供直播與回放？</h3>
+          <p class="mt-2 text-sm text-[var(--muted)]">黑客松 Demo Day 開放線上觀摩。實際以活動公告為準。</p>
+        </div>
+
+        <div class="glass rounded-2xl p-6">
+          <h3 class="font-semibold">黑客松評分與智慧財產權規範？</h3>
+          <p class="mt-2 text-sm text-[var(--muted)]">評分：由賽道贊助商或專業人士平評審。智慧財產權：參賽團隊可保留，但需以 MIT 授權方式公開。</p>
+        </div>
+        <div class="glass rounded-2xl p-6">
+          <h3 class="font-semibold">是否提供餐飲？</h3>
+          <p class="mt-2 text-sm text-[var(--muted)]">10/30 論壇及工作坊提供基本茶點。10/31 及 11/1 黑客松實體活動期間將提供餐點。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact -->
+  <section id="contact" class="py-12 md:py-16">
+    <div class="mx-auto container-narrow px-4 grid md:grid-cols-2 gap-8">
+      <div>
+        <h2 class="text-2xl md:text-3xl font-bold">聯絡我們</h2>
+        <p class="mt-3 text-[var(--muted)]">合作、贊助與媒體採訪，請來信：<a class="underline" href="mailto:reyer.chu@rwa.nexus">reyer.chu@rwa.nexus</a></p>
+        <p class="mt-2 text-[var(--muted)]">一般諮詢亦可透過 <a class="underline" href="https://rwa.nexus/%E8%81%AF%E7%B5%A1%E6%88%91%E5%80%91/" target="_blank" rel="noopener">睿亦富官網聯絡頁</a> 留言。</p>
+      </div>
+</div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="py-10 border-t border-white/10 bg-[var(--indigo-900)]/60">
+    <div class="mx-auto container-narrow px-4 text-sm flex flex-col md:flex-row items-center justify-between gap-3">
+      <p class="text-[var(--muted)]">Your Trustworthy Partner to Tokenize RWA</p>
+      <p class="text-[var(--muted)]">© 2025 睿亦富 RWA Nexus</p>
+    </div>
+  </footer>
+</body>
+</html>

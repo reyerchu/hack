@@ -5,6 +5,7 @@ import Image from 'next/image';
 /**
  * TSMC-style About/Overview Section
  * 活動概觀 + 參賽資格
+ * Updated: 2025-10-09 with Forum button
  */
 export default function TSMCAbout() {
   return (
@@ -27,9 +28,7 @@ export default function TSMCAbout() {
             <div className="space-y-4 text-[14px] leading-relaxed text-gray-700">
               <div>
                 <span className="font-semibold text-black">主辦單位：</span>
-                <span>國立清華大學・</span>
-                <span className="font-semibold text-black">指導單位：</span>
-                <span>台灣金管會</span>
+                <span>國立清華大學</span>
               </div>
               <div>
                 <span className="font-semibold text-black">冠名贊助：</span>
@@ -97,7 +96,6 @@ export default function TSMCAbout() {
               參賽資格
             </h2>
             <div className="space-y-4 text-[16px] leading-relaxed text-gray-800">
-              <p className="font-medium">誰可以參加？</p>
               <ul className="space-y-3 ml-0">
                 <li className="flex items-start">
                   <span className="mr-2">•</span>
@@ -116,15 +114,15 @@ export default function TSMCAbout() {
                 </li>
                 <li className="flex items-start">
                   <span className="mr-2">•</span>
-                  <span>最終 Demo Day 時，團隊需至少一位成員於現場參加活動</span>
+                  <span>11/1 下午 Demo Day 時，團隊需至少一位成員於現場參加活動</span>
                 </li>
               </ul>
             </div>
           </div>
         </div>
 
-        {/* CTA Button - TSMC Style */}
-        <div className="mt-16">
+        {/* CTA Buttons - TSMC Style */}
+        <div className="mt-16 flex flex-wrap gap-4">
           <Link href="/register">
             <a
               className="inline-block border-2 px-8 py-3 text-[14px] font-medium uppercase tracking-wider transition-colors duration-300"

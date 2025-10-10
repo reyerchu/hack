@@ -4,6 +4,10 @@ import Image from 'next/image';
 export default function TSMCChallenges(props: { challenges: Challenge[] }) {
   const challengeTopics = [
     {
+      title: 'UIUX 友善錢包',
+      description: '友善錢包與新型態交互設計，降低使用門檻與風險。',
+    },
+    {
       title: 'RegTech 監管科技',
       description: '以合規自動化、監控與報告為核心，建立可審計、可追溯的鏈上合規框架。',
     },
@@ -22,10 +26,6 @@ export default function TSMCChallenges(props: { challenges: Challenge[] }) {
     {
       title: 'Privacy 隱私',
       description: '以 ZKP／MPC 等技術確保資料最小揭露，符合法規要求。',
-    },
-    {
-      title: 'UIUX 友善錢包',
-      description: '友善錢包與新型態交互設計，降低使用門檻與風險。',
     },
   ];
 

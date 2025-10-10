@@ -30,7 +30,7 @@ export default function TSMCChallengeTimeline() {
     {
       date: '10/31 - 11/1 上午',
       title: '黑客松',
-      description: '2天密集開發與創新',
+      description: '2 天最後衝刺與創新',
       icon: '💻',
     },
     {

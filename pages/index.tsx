@@ -9,6 +9,8 @@ import TSMCParticipationGuidelines from '../components/homeComponents/TSMCPartic
 import TSMCPrizePool from '../components/homeComponents/TSMCPrizePool';
 import TSMCChallenges from '../components/homeComponents/TSMCChallenges';
 import HomeSponsors from '../components/homeComponents/HomeSponsors';
+import HomeFaqSection from '../components/homeComponents/HomeFaqSection';
+import HomeLineGroup from '../components/homeComponents/HomeLineGroup';
 import HomeFooter from '../components/homeComponents/HomeFooter';
 
 /**
@@ -37,6 +39,8 @@ export default function Home(props: { challenges: Challenge[]; sponsorCard: Spon
       <TSMCPrizePool />
       <TSMCChallenges challenges={props.challenges} />
       <HomeSponsors sponsorCard={props.sponsorCard} />
+      <HomeFaqSection />
+      <HomeLineGroup />
       <HomeFooter />
     </>
   );
