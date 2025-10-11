@@ -206,7 +206,7 @@ export default function EditTeamNeed({ needId }: EditTeamNeedProps) {
             <h1 className="text-3xl md:text-4xl font-bold mb-2" style={{ color: '#1a3a6e' }}>
               編輯找隊友需求
             </h1>
-            <p className="text-gray-600 text-lg">更新您的專案資訊和需要的隊友角色</p>
+            <p className="text-gray-600 text-lg">更新您的專案或個人資訊和需要的隊友角色</p>
           </div>
 
           {/* 表單卡片 */}

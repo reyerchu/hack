@@ -103,7 +103,7 @@ export default function CreateTeamNeed() {
               發布找隊友需求
             </h1>
             <p className="text-gray-600 text-lg">
-              填寫您的專案資訊和需要的隊友角色，吸引志同道合的夥伴加入
+              填寫您的專案或個人資訊和需要的隊友角色，吸引志同道合的夥伴加入
             </p>
           </div>
 
