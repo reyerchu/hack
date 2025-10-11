@@ -16,9 +16,16 @@ interface MyNeedsListProps {
     };
   })[];
   onRefresh?: () => void;
+  onToggleNeed?: (needId: string, currentIsOpen: boolean) => Promise<void>;
+  toggleLoading?: { [key: string]: boolean };
 }
 
-export default function MyNeedsList({ needs, onRefresh }: MyNeedsListProps) {
+export default function MyNeedsList({
+  needs,
+  onRefresh,
+  onToggleNeed,
+  toggleLoading = {},
+}: MyNeedsListProps) {
   const router = useRouter();
 
   if (needs.length === 0) {
@@ -131,15 +138,33 @@ export default function MyNeedsList({ needs, onRefresh }: MyNeedsListProps) {
 
             {/* 操作按鈕 */}
             <div className="flex flex-col gap-2 ml-4">
+              {/* Toggle 開關 */}
+              {onToggleNeed && (
+                <button
+                  onClick={() => onToggleNeed(need.id, need.isOpen)}
+                  disabled={toggleLoading[need.id]}
+                  className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                    need.isOpen ? 'bg-green-500' : 'bg-gray-300'
+                  } ${toggleLoading[need.id] ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  title={need.isOpen ? '關閉應徵' : '開放應徵'}
+                >
+                  <span
+                    className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
+                      need.isOpen ? 'translate-x-7' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
+              )}
+
               <button
                 onClick={() => router.push(`/team-up/${need.id}`)}
-                className="px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                className="px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors whitespace-nowrap"
               >
                 查看
               </button>
               <button
                 onClick={() => router.push(`/team-up/edit/${need.id}`)}
-                className="px-4 py-2 text-sm text-white rounded-lg transition-colors"
+                className="px-4 py-2 text-sm text-white rounded-lg transition-colors whitespace-nowrap"
                 style={{ backgroundColor: '#1a3a6e' }}
               >
                 編輯
@@ -147,7 +172,7 @@ export default function MyNeedsList({ needs, onRefresh }: MyNeedsListProps) {
               {need.stats && need.stats.totalApplications > 0 && (
                 <button
                   onClick={() => router.push(`/dashboard/team-up/applications/${need.id}`)}
-                  className="px-4 py-2 text-sm text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors relative"
+                  className="px-4 py-2 text-sm text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors relative whitespace-nowrap"
                 >
                   管理申請
                   {need.stats.unreadApplications > 0 && (

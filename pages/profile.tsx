@@ -618,128 +618,6 @@ export default function ProfilePage() {
                 </div>
               </div>
 
-              {/* My Team-Up Needs Section */}
-              <div className="w-full bg-white rounded-xl border-2 border-gray-200 p-6">
-                <div className="flex justify-between items-center mb-6 pb-2 border-b-2 border-gray-300">
-                  <h2 className="text-2xl font-bold">我發布的找隊友需求</h2>
-                  <button
-                    onClick={() => router.push('/team-up/create')}
-                    className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm font-medium"
-                  >
-                    + 發布新需求
-                  </button>
-                </div>
-
-                {isLoadingNeeds ? (
-                  <div className="text-center py-8 text-gray-500">載入中...</div>
-                ) : myNeeds.length === 0 ? (
-                  <div className="text-center py-8">
-                    <p className="text-gray-500 mb-4">您還沒有發布任何找隊友需求</p>
-                    <button
-                      onClick={() => router.push('/team-up/create')}
-                      className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-medium"
-                    >
-                      立即發布需求
-                    </button>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {myNeeds.map((need) => (
-                      <div
-                        key={need.id}
-                        className="border-2 border-gray-200 rounded-lg p-5 hover:border-blue-300 transition-colors"
-                      >
-                        <div className="flex justify-between items-start gap-4">
-                          <div className="flex-1">
-                            {/* 標題和狀態 */}
-                            <div className="flex items-center gap-3 mb-3">
-                              <h3 className="text-xl font-bold text-gray-800">{need.title}</h3>
-                              <span
-                                className={`px-3 py-1 rounded-full text-sm font-medium ${
-                                  need.isOpen
-                                    ? 'bg-green-100 text-green-800'
-                                    : 'bg-gray-100 text-gray-600'
-                                }`}
-                              >
-                                {need.isOpen ? '✓ 開放中' : '✕ 已關閉'}
-                              </span>
-                            </div>
-
-                            {/* 描述 */}
-                            <p className="text-gray-600 mb-3 line-clamp-2">{need.brief}</p>
-
-                            {/* 元數據 */}
-                            <div className="flex flex-wrap gap-4 text-sm text-gray-500">
-                              <span>👀 {need.viewCount || 0} 瀏覽</span>
-                              <span>
-                                ✉️{' '}
-                                {(need as any).stats?.totalApplications ||
-                                  need.applicationCount ||
-                                  0}{' '}
-                                應徵
-                              </span>
-                              <span>
-                                📅 發布於{' '}
-                                {(() => {
-                                  const timestamp = need.createdAt;
-                                  if (!timestamp) return '未知';
-
-                                  let date: Date;
-                                  if (typeof timestamp === 'object' && 'seconds' in timestamp) {
-                                    date = new Date(timestamp.seconds * 1000);
-                                  } else if (typeof timestamp === 'number') {
-                                    date = new Date(timestamp);
-                                  } else {
-                                    date = new Date(timestamp as any);
-                                  }
-
-                                  return date.toLocaleDateString('zh-TW');
-                                })()}
-                              </span>
-                            </div>
-                          </div>
-
-                          {/* 操作按鈕 */}
-                          <div className="flex flex-col gap-2">
-                            {/* Toggle 開關 */}
-                            <button
-                              onClick={() => handleToggleNeed(need.id, need.isOpen)}
-                              disabled={toggleLoading[need.id]}
-                              className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-                                need.isOpen ? 'bg-green-500' : 'bg-gray-300'
-                              } ${toggleLoading[need.id] ? 'opacity-50 cursor-not-allowed' : ''}`}
-                              title={need.isOpen ? '關閉應徵' : '開放應徵'}
-                            >
-                              <span
-                                className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
-                                  need.isOpen ? 'translate-x-7' : 'translate-x-1'
-                                }`}
-                              />
-                            </button>
-
-                            {/* 查看詳情按鈕 */}
-                            <button
-                              onClick={() => router.push(`/team-up/${need.id}`)}
-                              className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm font-medium whitespace-nowrap"
-                            >
-                              查看詳情
-                            </button>
-
-                            {/* 編輯按鈕 */}
-                            <button
-                              onClick={() => router.push(`/team-up/edit/${need.id}`)}
-                              className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors text-sm font-medium whitespace-nowrap"
-                            >
-                              編輯需求
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
               {/* LINE Community Section */}
               <div className="w-full bg-white rounded-xl border-2 border-gray-200 p-6">
                 <h2 className="text-2xl font-bold mb-6 pb-2 border-b-2 border-gray-300">
@@ -907,7 +785,12 @@ export default function ProfilePage() {
                 <p className="mt-4 text-gray-600">載入中...</p>
               </div>
             ) : (
-              <MyNeedsList needs={myNeeds} onRefresh={fetchMyNeeds} />
+              <MyNeedsList
+                needs={myNeeds}
+                onRefresh={fetchMyNeeds}
+                onToggleNeed={handleToggleNeed}
+                toggleLoading={toggleLoading}
+              />
             )}
           </section>
         )}
