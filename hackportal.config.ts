@@ -33,6 +33,14 @@ export const hackPortalConfig: HackPortalConfig = {
             required: true,
             initialValue: '',
           },
+          {
+            //稱呼 - 用於找隊友功能
+            question: '稱呼 / 暱稱（例如：小明、Alex、阿福）',
+            id: 'nickname',
+            name: 'nickname',
+            required: true,
+            initialValue: '',
+          },
         ],
       },
       {
@@ -60,6 +68,28 @@ export const hackPortalConfig: HackPortalConfig = {
               {
                 title: '不願透露',
                 value: 'notSay',
+              },
+            ],
+          },
+          {
+            //Team Status question
+            question: '組隊狀態',
+            required: true,
+            id: 'teamStatus',
+            name: 'teamStatus',
+            initialValue: 'individual',
+            options: [
+              {
+                title: '個人',
+                value: 'individual',
+              },
+              {
+                title: '有隊伍但缺隊友',
+                value: 'needTeammates',
+              },
+              {
+                title: '有完整隊伍',
+                value: 'fullTeam',
               },
             ],
           },

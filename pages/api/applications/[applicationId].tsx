@@ -110,7 +110,14 @@ async function handlePutApplication(req: NextApiRequest, res: NextApiResponse) {
 
   let body: Registration;
   try {
-    body = JSON.parse(req.body);
+    // req.body 可能已經被 Next.js 解析過了
+    body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
+
+    // 記錄收到的資料（用於調試）
+    console.log('PUT /api/applications - User:', userId);
+    console.log('Received data keys:', Object.keys(body));
+    console.log('Nickname:', body.nickname);
+    console.log('TeamStatus:', body.teamStatus);
   } catch (error) {
     console.error('Could not parse request JSON body', error);
     return res.status(400).json({
@@ -130,19 +137,30 @@ async function handlePutApplication(req: NextApiRequest, res: NextApiResponse) {
       });
     }
 
+    // 記錄更新前的資料
+    const currentData = snapshot.data();
+    console.log('Current nickname:', currentData?.nickname);
+    console.log('Current teamStatus:', currentData?.teamStatus);
+
     // Update the application
     await db.collection(APPLICATIONS_COLLECTION).doc(userId).update(body);
+
+    // 驗證更新後的資料
+    const updatedSnapshot = await db.collection(APPLICATIONS_COLLECTION).doc(userId).get();
+    const updatedData = updatedSnapshot.data();
+    console.log('Updated nickname:', updatedData?.nickname);
+    console.log('Updated teamStatus:', updatedData?.teamStatus);
 
     // Update the allusers doc
     await updateAllUsersDoc(userId, body);
 
-    console.log(`Successfully updated profile for user: ${userId}`);
+    console.log(`✅ Successfully updated profile for user: ${userId}`);
     res.status(200).json({
       msg: 'Profile updated successfully',
-      data: body,
+      data: updatedData, // 返回實際保存的資料
     });
   } catch (error) {
-    console.error('Error updating application:', error);
+    console.error('❌ Error updating application:', error);
     return res.status(500).json({
       type: 'internal-error',
       message: 'Failed to update application',

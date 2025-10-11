@@ -1,9 +1,10 @@
 import { useRouter } from 'next/router';
 import Image from 'next/image';
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuthContext } from '../lib/user/AuthContext';
 import QRCode from '../components/dashboardComponents/QRCode';
 import { RequestHelper } from '../lib/request-helper';
+import type { TeamNeed } from '../lib/teamUp/types';
 
 /**
  * A page that allows a user to modify app or profile settings and see their data.
@@ -18,15 +19,22 @@ export default function ProfilePage() {
   const [editData, setEditData] = useState({
     firstName: '',
     lastName: '',
+    nickname: '',
+    teamStatus: '',
     github: '',
     linkedin: '',
     website: '',
   });
+  const [myNeeds, setMyNeeds] = useState<TeamNeed[]>([]);
+  const [isLoadingNeeds, setIsLoadingNeeds] = useState(false);
+  const [toggleLoading, setToggleLoading] = useState<{ [key: string]: boolean }>({});
 
   const handleEditClick = () => {
     setEditData({
       firstName: profile.user.firstName || '',
       lastName: profile.user.lastName || '',
+      nickname: profile.nickname || '',
+      teamStatus: profile.teamStatus || '',
       github: profile.github || '',
       linkedin: profile.linkedin || '',
       website: profile.website || '',
@@ -92,6 +100,8 @@ export default function ProfilePage() {
           firstName: editData.firstName,
           lastName: editData.lastName,
         },
+        nickname: editData.nickname,
+        teamStatus: editData.teamStatus,
         github: editData.github,
         linkedin: editData.linkedin,
         website: editData.website,
@@ -108,7 +118,27 @@ export default function ProfilePage() {
         updatedProfile,
       );
 
-      updateProfile(updatedProfile);
+      // 保存成功後，重新從服務器獲取最新資料
+      try {
+        const response = await fetch(`/api/applications/${user.id}`, {
+          headers: {
+            Authorization: user.token,
+          },
+        });
+        if (response.ok) {
+          const latestProfile = await response.json();
+          updateProfile(latestProfile);
+          console.log('✅ Profile updated with latest data:', latestProfile);
+        } else {
+          // 如果獲取失敗，仍使用本地更新的資料
+          updateProfile(updatedProfile);
+        }
+      } catch (fetchError) {
+        console.error('Failed to fetch latest profile:', fetchError);
+        // 回退到本地更新
+        updateProfile(updatedProfile);
+      }
+
       setIsEditing(false);
       setResumeFile(null);
       alert('個人資料更新成功！');
@@ -121,6 +151,75 @@ export default function ProfilePage() {
   const handleInputChange = (field: string, value: string) => {
     setEditData({ ...editData, [field]: value });
   };
+
+  // 獲取用戶發布的找隊友需求
+  const fetchMyNeeds = useCallback(async () => {
+    if (!user?.token) return;
+
+    setIsLoadingNeeds(true);
+    try {
+      // 包含所有需求（包括隱藏和已關閉的）
+      const response = await fetch('/api/team-up/my-needs?includeHidden=true&includeClosed=true', {
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+        },
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log('Fetched my needs response:', result);
+        // API 返回結構是 { success, data: { needs, total } }
+        const needs = result.data?.needs || result.needs || [];
+        console.log('Parsed needs:', needs);
+        setMyNeeds(needs);
+      } else {
+        console.error('Failed to fetch my needs:', response.status);
+      }
+    } catch (error) {
+      console.error('Error fetching my needs:', error);
+    } finally {
+      setIsLoadingNeeds(false);
+    }
+  }, [user?.token]);
+
+  // Toggle 需求開關狀態
+  const handleToggleNeed = async (needId: string, currentStatus: boolean) => {
+    if (!user?.token) return;
+
+    setToggleLoading({ ...toggleLoading, [needId]: true });
+    try {
+      const response = await fetch(`/api/team-up/needs/${needId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${user.token}`,
+        },
+        body: JSON.stringify({ isOpen: !currentStatus }),
+      });
+
+      if (response.ok) {
+        // 更新本地狀態
+        setMyNeeds(
+          myNeeds.map((need) => (need.id === needId ? { ...need, isOpen: !currentStatus } : need)),
+        );
+      } else {
+        const errorData = await response.json();
+        alert(errorData.message || '更新失敗');
+      }
+    } catch (error) {
+      console.error('Error toggling need:', error);
+      alert('更新失敗，請稍後再試');
+    } finally {
+      setToggleLoading({ ...toggleLoading, [needId]: false });
+    }
+  };
+
+  // 組件掛載時獲取需求列表
+  useEffect(() => {
+    if (isSignedIn && hasProfile && user?.token) {
+      fetchMyNeeds();
+    }
+  }, [isSignedIn, hasProfile, user?.token, fetchMyNeeds]);
 
   if (!isSignedIn) {
     return <div className="p-4 flex-grow text-center">請登入以查看您的個人檔案！</div>;
@@ -217,6 +316,46 @@ export default function ProfilePage() {
                 <div className="profile-field">
                   <div className="font-bold text-lg mb-2">電子郵件</div>
                   <div className="text-gray-700">{profile.user.preferredEmail}</div>
+                </div>
+
+                {/* Nickname - Editable */}
+                <div className="profile-field">
+                  <div className="font-bold text-lg mb-2">稱呼 / 暱稱</div>
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      value={editData.nickname}
+                      onChange={(e) => handleInputChange('nickname', e.target.value)}
+                      placeholder="例如：小明、Alex、阿福"
+                      className="border-2 border-gray-400 rounded p-2 w-full"
+                    />
+                  ) : (
+                    <div className="text-gray-700">{profile.nickname || '未設置'}</div>
+                  )}
+                </div>
+
+                {/* Team Status - Editable */}
+                <div className="profile-field">
+                  <div className="font-bold text-lg mb-2">組隊狀態</div>
+                  {isEditing ? (
+                    <select
+                      value={editData.teamStatus}
+                      onChange={(e) => handleInputChange('teamStatus', e.target.value)}
+                      className="border-2 border-gray-400 rounded p-2 w-full"
+                    >
+                      <option value="">請選擇</option>
+                      <option value="individual">個人</option>
+                      <option value="needTeammates">有隊伍但缺隊友</option>
+                      <option value="fullTeam">有完整隊伍</option>
+                    </select>
+                  ) : (
+                    <div className="text-gray-700">
+                      {profile.teamStatus === 'individual' && '個人'}
+                      {profile.teamStatus === 'needTeammates' && '有隊伍但缺隊友'}
+                      {profile.teamStatus === 'fullTeam' && '有完整隊伍'}
+                      {!profile.teamStatus && '未設置'}
+                    </div>
+                  )}
                 </div>
 
                 {/* GitHub - Editable */}
@@ -388,6 +527,126 @@ export default function ProfilePage() {
                   </div>
                 )}
               </div>
+            </div>
+
+            {/* My Team-Up Needs Section */}
+            <div className="w-full bg-white rounded-xl border-2 border-gray-200 p-6">
+              <div className="flex justify-between items-center mb-6 pb-2 border-b-2 border-gray-300">
+                <h2 className="text-2xl font-bold">我發布的找隊友需求</h2>
+                <button
+                  onClick={() => router.push('/team-up/create')}
+                  className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm font-medium"
+                >
+                  + 發布新需求
+                </button>
+              </div>
+
+              {isLoadingNeeds ? (
+                <div className="text-center py-8 text-gray-500">載入中...</div>
+              ) : myNeeds.length === 0 ? (
+                <div className="text-center py-8">
+                  <p className="text-gray-500 mb-4">您還沒有發布任何找隊友需求</p>
+                  <button
+                    onClick={() => router.push('/team-up/create')}
+                    className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-medium"
+                  >
+                    立即發布需求
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {myNeeds.map((need) => (
+                    <div
+                      key={need.id}
+                      className="border-2 border-gray-200 rounded-lg p-5 hover:border-blue-300 transition-colors"
+                    >
+                      <div className="flex justify-between items-start gap-4">
+                        <div className="flex-1">
+                          {/* 標題和狀態 */}
+                          <div className="flex items-center gap-3 mb-3">
+                            <h3 className="text-xl font-bold text-gray-800">{need.title}</h3>
+                            <span
+                              className={`px-3 py-1 rounded-full text-sm font-medium ${
+                                need.isOpen
+                                  ? 'bg-green-100 text-green-800'
+                                  : 'bg-gray-100 text-gray-600'
+                              }`}
+                            >
+                              {need.isOpen ? '✓ 開放中' : '✕ 已關閉'}
+                            </span>
+                          </div>
+
+                          {/* 描述 */}
+                          <p className="text-gray-600 mb-3 line-clamp-2">{need.brief}</p>
+
+                          {/* 元數據 */}
+                          <div className="flex flex-wrap gap-4 text-sm text-gray-500">
+                            <span>👀 {need.viewCount || 0} 瀏覽</span>
+                            <span>
+                              ✉️{' '}
+                              {(need as any).stats?.totalApplications || need.applicationCount || 0}{' '}
+                              應徵
+                            </span>
+                            <span>
+                              📅 發布於{' '}
+                              {(() => {
+                                const timestamp = need.createdAt;
+                                if (!timestamp) return '未知';
+
+                                let date: Date;
+                                if (typeof timestamp === 'object' && 'seconds' in timestamp) {
+                                  date = new Date(timestamp.seconds * 1000);
+                                } else if (typeof timestamp === 'number') {
+                                  date = new Date(timestamp);
+                                } else {
+                                  date = new Date(timestamp as any);
+                                }
+
+                                return date.toLocaleDateString('zh-TW');
+                              })()}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* 操作按鈕 */}
+                        <div className="flex flex-col gap-2">
+                          {/* Toggle 開關 */}
+                          <button
+                            onClick={() => handleToggleNeed(need.id, need.isOpen)}
+                            disabled={toggleLoading[need.id]}
+                            className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                              need.isOpen ? 'bg-green-500' : 'bg-gray-300'
+                            } ${toggleLoading[need.id] ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            title={need.isOpen ? '關閉應徵' : '開放應徵'}
+                          >
+                            <span
+                              className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
+                                need.isOpen ? 'translate-x-7' : 'translate-x-1'
+                              }`}
+                            />
+                          </button>
+
+                          {/* 查看詳情按鈕 */}
+                          <button
+                            onClick={() => router.push(`/team-up/${need.id}`)}
+                            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm font-medium whitespace-nowrap"
+                          >
+                            查看詳情
+                          </button>
+
+                          {/* 編輯按鈕 */}
+                          <button
+                            onClick={() => router.push(`/team-up/edit/${need.id}`)}
+                            className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors text-sm font-medium whitespace-nowrap"
+                          >
+                            編輯需求
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* LINE Community Section */}
