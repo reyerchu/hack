@@ -42,7 +42,7 @@ export function validatePublicField(text: string): PIIValidationResult {
       const typeKey = type as keyof typeof PII_TYPE_LABELS;
       return {
         valid: false,
-        error: `公開欄位不可包含${PII_TYPE_LABELS[typeKey]}`,
+        error: `公開欄位建議勿包含${PII_TYPE_LABELS[typeKey]}等個資`,
         detectedType: typeKey,
       };
     }
@@ -229,11 +229,11 @@ export function validateApplicationForm(data: ApplicationFormData): FormValidati
     errors.contactForOwner = `聯繫方式不可超過 ${FIELD_LIMITS.CONTACT_FOR_OWNER_MAX} 字`;
   }
 
-  // 3. PII 檢測 (自我介紹不可包含聯繫方式)
+  // 3. PII 檢測 (自我介紹建議勿包含聯繫方式等個資)
   if (data.message) {
     const piiResult = validatePublicField(data.message);
     if (!piiResult.valid) {
-      errors.message = '自我介紹不可包含聯繫方式，請填寫在「聯繫方式」欄位';
+      errors.message = '自我介紹建議勿包含聯繫方式等個資，請填寫在「聯繫方式」欄位';
     }
   }
 

@@ -11,7 +11,7 @@ import {
   FIELD_LIMITS,
   DETAILED_TEAM_ROLES,
 } from '../../lib/teamUp/constants';
-import { validateTeamNeedForm, validatePublicField } from '../../lib/teamUp/validation';
+import { validateTeamNeedForm } from '../../lib/teamUp/validation';
 import RoleSelector from './RoleSelector';
 
 interface NeedFormProps {
@@ -31,6 +31,11 @@ export default function NeedForm({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<FormValidationErrors>({});
 
+  // 判斷初始是否有專案（如果是編輯模式，檢查標題是否為「尋找題目中」）
+  const initialHasProject = isEdit ? initialData?.title !== '尋找題目中' : true;
+
+  const [hasProject, setHasProject] = useState<boolean>(initialHasProject);
+
   const [formData, setFormData] = useState<TeamNeedFormData>({
     title: initialData?.title || '',
     projectTrack: initialData?.projectTrack || '',
@@ -43,18 +48,48 @@ export default function NeedForm({
     isOpen: initialData?.isOpen !== undefined ? initialData.isOpen : true,
   });
 
+  // 當「有專案/沒有專案」切換時，自動填充或清空相關字段
+  useEffect(() => {
+    if (!hasProject) {
+      setFormData((prev) => ({
+        ...prev,
+        title: '尋找題目中',
+        projectTrack: '其他',
+        projectStage: '還沒有想法',
+      }));
+      // 清除這些字段的錯誤訊息（因為已自動填入有效值）
+      setErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors.title;
+        delete newErrors.projectTrack;
+        delete newErrors.projectStage;
+        return newErrors;
+      });
+    } else {
+      // 如果切換回「有專案」
+      if (!isEdit) {
+        // 創建模式：清空這些字段
+        setFormData((prev) => ({
+          ...prev,
+          title: '',
+          projectTrack: '',
+          projectStage: '',
+        }));
+      } else if (initialData?.title === '尋找題目中') {
+        // 編輯模式：如果原本是「沒有專案」，現在改為「有專案」，清空這些字段
+        setFormData((prev) => ({
+          ...prev,
+          title: '',
+          projectTrack: '',
+          projectStage: '',
+        }));
+      }
+      // 如果原本就是「有專案」，保持原有數據不變
+    }
+  }, [hasProject, isEdit, initialData?.title]);
+
   // 實時驗證
   const validateField = (field: keyof TeamNeedFormData, value: any) => {
-    // PII 檢測（公開字段）
-    const publicFields = ['title', 'brief', 'otherNeeds'];
-    if (publicFields.includes(field) && typeof value === 'string') {
-      const result = validatePublicField(value);
-      if (!result.valid) {
-        setErrors((prev) => ({ ...prev, [field]: result.error! }));
-        return;
-      }
-    }
-
     // 清除該字段的錯誤
     setErrors((prev) => {
       const newErrors = { ...prev };
@@ -100,10 +135,46 @@ export default function NeedForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      {/* 有專案/沒有專案 選擇 */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-3">
+          您目前的狀態 <span className="text-red-500">*</span>
+        </label>
+        <div className="grid grid-cols-2 gap-4">
+          <button
+            type="button"
+            onClick={() => setHasProject(true)}
+            className={`p-4 border-2 rounded-lg text-center transition-all ${
+              hasProject
+                ? 'border-blue-600 bg-blue-50 text-blue-600 font-medium'
+                : 'border-gray-300 hover:border-blue-400'
+            }`}
+          >
+            <div className="text-lg mb-1">💡</div>
+            <div className="font-medium">有專案</div>
+            <div className="text-xs mt-1 text-gray-600">已有明確的專案方向</div>
+          </button>
+          <button
+            type="button"
+            onClick={() => setHasProject(false)}
+            className={`p-4 border-2 rounded-lg text-center transition-all ${
+              !hasProject
+                ? 'border-blue-600 bg-blue-50 text-blue-600 font-medium'
+                : 'border-gray-300 hover:border-blue-400'
+            }`}
+          >
+            <div className="text-lg mb-1">🔍</div>
+            <div className="font-medium">沒有專案</div>
+            <div className="text-xs mt-1 text-gray-600">正在尋找題目和團隊</div>
+          </button>
+        </div>
+      </div>
+
       {/* 項目名稱 */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
           專案名稱 <span className="text-red-500">*</span>
+          {!hasProject && <span className="ml-2 text-sm text-gray-500">(自動填入)</span>}
         </label>
         <input
           type="text"
@@ -116,9 +187,10 @@ export default function NeedForm({
             errors.title
               ? 'border-red-500 focus:ring-red-500'
               : 'border-gray-300 focus:ring-blue-500'
-          }`}
+          } ${!hasProject ? 'bg-gray-100 cursor-not-allowed' : ''}`}
           placeholder="請輸入專案名稱"
-          disabled={submitting}
+          disabled={submitting || !hasProject}
+          readOnly={!hasProject}
         />
         <div className="flex justify-between mt-1">
           {errors.title && <span className="text-red-500 text-sm">{errors.title}</span>}
@@ -132,6 +204,7 @@ export default function NeedForm({
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
           目標賽道 <span className="text-red-500">*</span>
+          {!hasProject && <span className="ml-2 text-sm text-gray-500">(自動填入)</span>}
         </label>
         <select
           name="projectTrack"
@@ -141,8 +214,8 @@ export default function NeedForm({
             errors.projectTrack
               ? 'border-red-500 focus:ring-red-500'
               : 'border-gray-300 focus:ring-blue-500'
-          }`}
-          disabled={submitting}
+          } ${!hasProject ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+          disabled={submitting || !hasProject}
         >
           <option value="">請選擇</option>
           {PROJECT_TRACKS.map((track) => (
@@ -160,6 +233,7 @@ export default function NeedForm({
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
           專案階段 <span className="text-red-500">*</span>
+          {!hasProject && <span className="ml-2 text-sm text-gray-500">(自動填入)</span>}
         </label>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {PROJECT_STAGES.map((stage) => (
@@ -171,8 +245,8 @@ export default function NeedForm({
                 formData.projectStage === stage
                   ? 'border-blue-600 bg-blue-50 text-blue-600'
                   : 'border-gray-300 hover:border-blue-400'
-              }`}
-              disabled={submitting}
+              } ${!hasProject ? 'opacity-50 cursor-not-allowed' : ''}`}
+              disabled={submitting || !hasProject}
             >
               {stage}
             </button>
@@ -183,10 +257,10 @@ export default function NeedForm({
         )}
       </div>
 
-      {/* 專案簡介 */}
+      {/* 專案或個人簡介 */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
-          專案簡介 <span className="text-red-500">*</span>
+          專案或個人簡介 <span className="text-red-500">*</span>
         </label>
         <textarea
           name="brief"
@@ -200,7 +274,11 @@ export default function NeedForm({
               ? 'border-red-500 focus:ring-red-500'
               : 'border-gray-300 focus:ring-blue-500'
           }`}
-          placeholder="請描述專案方向、目前進度等（不可包含聯繫方式）"
+          placeholder={
+            hasProject
+              ? '請描述您的專案：專案方向、目前進度、技術堆疊、團隊現況等（建議勿包含聯繫方式等個資）'
+              : '請簡單介紹您自己：技能專長、想學習的方向、對哪些賽道有興趣等（建議勿包含聯繫方式等個資）'
+          }
           disabled={submitting}
         />
         <div className="flex justify-between mt-1">
@@ -257,7 +335,7 @@ export default function NeedForm({
               ? 'border-red-500 focus:ring-red-500'
               : 'border-gray-300 focus:ring-blue-500'
           }`}
-          placeholder="例如：希望有使用過 Solidity 的經驗（不可包含聯繫方式）"
+          placeholder="例如：希望有使用過 Solidity 的經驗（建議勿包含聯繫方式等個資）"
           disabled={submitting}
         />
         <div className="flex justify-between mt-1">
@@ -274,7 +352,7 @@ export default function NeedForm({
           聯繫提示 <span className="text-red-500">*</span>
         </label>
         <p className="text-sm text-gray-700 mb-3">
-          當有人應徵時，這段提示會私下提供給對方，引導他們如何聯繫你。
+          當有人應徵時，這段提示會私下提供給對方，引導他們如何聯繫您。
         </p>
         <input
           type="text"
@@ -295,48 +373,6 @@ export default function NeedForm({
           <span className="text-gray-500 text-sm ml-auto">
             {formData.contactHint.length}/{FIELD_LIMITS.CONTACT_HINT_MAX}
           </span>
-        </div>
-      </div>
-
-      {/* 開放應徵狀態（僅編輯模式顯示） */}
-      {isEdit && (
-        <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-          <label className="flex items-center cursor-pointer">
-            <input
-              type="checkbox"
-              checked={formData.isOpen}
-              onChange={(e) => handleChange('isOpen', e.target.checked)}
-              className="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-              disabled={submitting}
-            />
-            <span className="ml-3 text-sm font-medium text-gray-900">開放應徵</span>
-          </label>
-          <p className="mt-2 text-sm text-gray-600 ml-8">
-            {formData.isOpen
-              ? '✓ 此需求正在開放應徵，其他用戶可以看到並應徵'
-              : '✗ 此需求已關閉，不接受新的應徵（您仍可查看已有的應徵）'}
-          </p>
-        </div>
-      )}
-
-      {/* 提示訊息 */}
-      <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-lg">
-        <div className="flex">
-          <div className="flex-shrink-0">
-            <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
-              <path
-                fillRule="evenodd"
-                d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                clipRule="evenodd"
-              />
-            </svg>
-          </div>
-          <div className="ml-3">
-            <p className="text-sm text-yellow-800">
-              ⚠️ 請勿在專案簡介和其他需求中留下任何聯繫方式（Email、電話、社交帳號等），
-              系統會自動檢測並阻止提交。請使用「聯繫提示」欄位。
-            </p>
-          </div>
         </div>
       </div>
 

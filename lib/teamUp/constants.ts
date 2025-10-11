@@ -25,6 +25,7 @@ export const PROJECT_TRACKS: ProjectTrack[] = [
  * 專案階段
  */
 export const PROJECT_STAGES: ProjectStage[] = [
+  '還沒有想法',
   '有想法，還沒動工',
   '已開始，需要隊友',
   '有 MVP，持續優化',
@@ -276,6 +277,7 @@ export const TRACK_COLORS: Record<ProjectTrack, string> = {
  * 階段圖標
  */
 export const STAGE_ICONS: Record<ProjectStage, string> = {
+  還沒有想法: '🔍',
   '有想法，還沒動工': '💡',
   '已開始，需要隊友': '🚀',
   '有 MVP，持續優化': '🔧',
@@ -365,7 +367,7 @@ export const ERROR_MESSAGES = {
   [ERROR_CODES.METHOD_NOT_ALLOWED]: 'HTTP 方法不允許',
   [ERROR_CODES.NOT_FOUND]: '資源不存在',
   [ERROR_CODES.VALIDATION_ERROR]: '資料驗證失敗',
-  [ERROR_CODES.PII_DETECTED]: '公開欄位不可包含個人聯繫資訊',
+  [ERROR_CODES.PII_DETECTED]: '公開欄位建議勿包含個人聯繫資訊等個資',
   [ERROR_CODES.INVALID_ENUM]: '選項不在允許範圍內',
   [ERROR_CODES.FIELD_TOO_LONG]: '字數超過限制',
   [ERROR_CODES.FIELD_REQUIRED]: '此欄位為必填',

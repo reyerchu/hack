@@ -18,6 +18,7 @@ export type ProjectTrack =
   | '其他';
 
 export type ProjectStage =
+  | '還沒有想法'
   | '有想法，還沒動工'
   | '已開始，需要隊友'
   | '有 MVP，持續優化'
