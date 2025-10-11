@@ -288,6 +288,117 @@ ${BASE_URL}
 }
 
 /**
+ * 通知需求發布者需求已成功創建
+ */
+export async function notifyNeedCreated(need: TeamNeed): Promise<boolean> {
+  const authorEmail = await getUserEmail(need.ownerUserId);
+  if (!authorEmail) {
+    console.error('[Email] Cannot send notification: author email not found');
+    return false;
+  }
+
+  const subject = '[RWA Hackathon] 找隊友需求已發布成功';
+  const detailUrl = `${BASE_URL}/team-up/${need.id}`;
+  const editUrl = `${BASE_URL}/team-up/edit/${need.id}`;
+  const profileUrl = `${BASE_URL}/profile`;
+
+  const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; line-height: 1.6; color: #333; }
+    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+    .header { background: #1a3a6e; color: white; padding: 20px; text-align: center; }
+    .content { background: #f9fafb; padding: 30px; }
+    .button { display: inline-block; padding: 12px 24px; background: #1a3a6e; color: white; text-decoration: none; border-radius: 6px; margin: 10px 5px; }
+    .footer { text-align: center; padding: 20px; color: #666; font-size: 14px; }
+    .highlight { background: #fff; padding: 15px; border-left: 4px solid #1a3a6e; margin: 15px 0; }
+    .tip { background: #eff6ff; padding: 12px; border-radius: 6px; margin: 15px 0; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🎉 找隊友需求發布成功</h1>
+    </div>
+    <div class="content">
+      <p>您好，</p>
+      <p>您的找隊友需求已成功發布！</p>
+      
+      <div class="highlight">
+        <strong>需求標題：</strong>${need.title}<br>
+        <strong>專案方向：</strong>${need.projectTrack} - ${need.projectStage}<br>
+        <strong>需要角色：</strong>${need.rolesNeeded.join('、')}
+      </div>
+      
+      <div class="tip">
+        <strong>💡 接下來會發生什麼？</strong>
+        <ul style="margin: 10px 0; padding-left: 20px;">
+          <li>您的需求已在找隊友列表中公開顯示</li>
+          <li>其他黑客可以瀏覽並應徵您的需求</li>
+          <li>收到應徵時，您會收到 Email 通知</li>
+          <li>您可以在個人中心管理所有應徵</li>
+        </ul>
+      </div>
+      
+      <div style="text-align: center; margin: 20px 0;">
+        <a href="${detailUrl}" class="button">查看需求</a>
+        <a href="${editUrl}" class="button" style="background: #6b7280;">編輯需求</a>
+      </div>
+      
+      <div class="highlight">
+        <strong>📋 管理您的需求：</strong><br>
+        <ul style="margin: 10px 0; padding-left: 20px;">
+          <li>在<a href="${profileUrl}">個人中心</a>查看所有應徵記錄</li>
+          <li>隨時編輯需求內容</li>
+          <li>找到隊友後可以關閉需求</li>
+        </ul>
+      </div>
+      
+      <p style="color: #666; font-size: 14px; margin-top: 20px;">
+        祝您找到理想的隊友，黑客松順利！🚀
+      </p>
+    </div>
+    <div class="footer">
+      <p>RWA Hackathon Taiwan 找隊友平台</p>
+      <p><a href="${BASE_URL}">https://hackathon.com.tw</a></p>
+    </div>
+  </div>
+</body>
+</html>
+  `;
+
+  const text = `
+您好，
+
+您的找隊友需求已成功發布！
+
+需求標題：${need.title}
+專案方向：${need.projectTrack} - ${need.projectStage}
+需要角色：${need.rolesNeeded.join('、')}
+
+接下來會發生什麼？
+• 您的需求已在找隊友列表中公開顯示
+• 其他黑客可以瀏覽並應徵您的需求
+• 收到應徵時，您會收到 Email 通知
+• 您可以在個人中心管理所有應徵
+
+查看需求：${detailUrl}
+編輯需求：${editUrl}
+個人中心：${profileUrl}
+
+祝您找到理想的隊友，黑客松順利！
+
+RWA Hackathon Taiwan 找隊友平台
+${BASE_URL}
+  `;
+
+  return sendEmail(authorEmail, subject, html, text);
+}
+
+/**
  * 通知申请者申请状态已更新（接受/拒绝）
  */
 export async function notifyApplicantStatusUpdate(

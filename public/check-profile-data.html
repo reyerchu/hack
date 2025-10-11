@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>個人資料診斷工具</title>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #1a3a6e;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 20px;
+        }
+        .instruction {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border-left: 4px solid #2196f3;
+        }
+        .button-group {
+            margin: 20px 0;
+        }
+        button {
+            background: #1a3a6e;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        button:hover {
+            background: #2d5a9e;
+        }
+        button.fix {
+            background: #4caf50;
+        }
+        button.fix:hover {
+            background: #45a049;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            white-space: pre-wrap;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        .success {
+            color: #4caf50;
+            font-weight: bold;
+        }
+        .error {
+            color: #f44336;
+            font-weight: bold;
+        }
+        .warning {
+            color: #ff9800;
+            font-weight: bold;
+        }
+        .fix-form {
+            background: #fff3e0;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+            border: 2px solid #ff9800;
+            display: none;
+        }
+        .fix-form input, .fix-form select {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .fix-form label {
+            display: block;
+            margin-top: 10px;
+            font-weight: bold;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 個人資料診斷工具</h1>
+        <p class="subtitle">檢查您的稱呼和組隊狀態是否正確保存</p>
+        
+        <div class="instruction">
+            <strong>📋 使用步驟：</strong>
+            <ol>
+                <li>確保您已登入 hackathon.com.tw</li>
+                <li>點擊「檢查資料」按鈕</li>
+                <li>查看診斷結果</li>
+                <li>如果有問題，使用「一鍵修復」功能</li>
+            </ol>
+        </div>
+
+        <div class="button-group">
+            <button onclick="checkProfileData()">🔍 檢查資料</button>
+            <button onclick="showFixForm()">🔧 一鍵修復</button>
+            <button onclick="location.reload()">🔄 刷新頁面</button>
+            <button onclick="clearCache()">🧹 清除快取</button>
+        </div>
+
+        <!-- 修復表單 -->
+        <div id="fixForm" class="fix-form">
+            <h3>🔧 手動設置稱呼和組隊狀態</h3>
+            <p>如果自動保存失敗，可以在這裡直接設置：</p>
+            
+            <label for="nickname">稱呼 / 暱稱：</label>
+            <input type="text" id="nickname" placeholder="例如：阿福、小明、Alex">
+            
+            <label for="teamStatus">組隊狀態：</label>
+            <select id="teamStatus">
+                <option value="">請選擇</option>
+                <option value="individual">個人</option>
+                <option value="needTeammates">有隊伍但缺隊友</option>
+                <option value="fullTeam">有完整隊伍</option>
+            </select>
+            
+            <div style="margin-top: 20px;">
+                <button class="fix" onclick="manualSave()">💾 立即保存</button>
+                <button onclick="hideFixForm()">取消</button>
+            </div>
+        </div>
+
+        <div id="result"></div>
+    </div>
+
+    <script>
+        let currentUserId = null;
+        let currentUserToken = null;
+
+        async function checkProfileData() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '⏳ 檢查中，請稍候...\n';
+
+            try {
+                // 1. 檢查是否有登入用戶
+                const userCheck = await fetch('/api/userinfo');
+                if (!userCheck.ok) {
+                    resultDiv.innerHTML = '<span class="error">❌ 錯誤：無法獲取用戶資訊。請確保您已登入。</span>\n';
+                    resultDiv.innerHTML += '\n💡 建議：\n';
+                    resultDiv.innerHTML += '1. 重新登入 hackathon.com.tw\n';
+                    resultDiv.innerHTML += '2. 確保沒有使用無痕模式\n';
+                    return;
+                }
+
+                const userInfo = await userCheck.json();
+                currentUserId = userInfo.id;
+
+                // 嘗試從 window 對象獲取 token（如果在 profile 頁面）
+                try {
+                    currentUserToken = window.user?.token;
+                } catch (e) {}
+
+                resultDiv.innerHTML = '╔════════════════════════════════════════════════╗\n';
+                resultDiv.innerHTML += '║     個人資料診斷結果                           ║\n';
+                resultDiv.innerHTML += '╚════════════════════════════════════════════════╝\n\n';
+
+                resultDiv.innerHTML += '<strong>👤 用戶資訊</strong>\n';
+                resultDiv.innerHTML += `   ID: ${currentUserId}\n`;
+                resultDiv.innerHTML += `   姓名: ${userInfo.user?.firstName} ${userInfo.user?.lastName}\n`;
+                resultDiv.innerHTML += `   Email: ${userInfo.user?.preferredEmail}\n\n`;
+
+                // 2. 檢查註冊資料
+                resultDiv.innerHTML += '<strong>📊 資料檢查</strong>\n';
+                resultDiv.innerHTML += '─'.repeat(50) + '\n\n';
+
+                // 檢查 nickname
+                if (userInfo.nickname) {
+                    resultDiv.innerHTML += '<span class="success">✅ 稱呼/暱稱</span>\n';
+                    resultDiv.innerHTML += `   ${userInfo.nickname}\n\n`;
+                } else {
+                    resultDiv.innerHTML += '<span class="error">❌ 稱呼/暱稱</span>\n';
+                    resultDiv.innerHTML += '   未設置\n\n';
+                }
+
+                // 檢查 teamStatus
+                if (userInfo.teamStatus) {
+                    const statusMap = {
+                        'individual': '個人',
+                        'needTeammates': '有隊伍但缺隊友',
+                        'fullTeam': '有完整隊伍'
+                    };
+                    const statusText = statusMap[userInfo.teamStatus] || userInfo.teamStatus;
+                    resultDiv.innerHTML += '<span class="success">✅ 組隊狀態</span>\n';
+                    resultDiv.innerHTML += `   ${statusText}\n\n`;
+                } else {
+                    resultDiv.innerHTML += '<span class="error">❌ 組隊狀態</span>\n';
+                    resultDiv.innerHTML += '   未設置\n\n';
+                }
+
+                // 3. 診斷建議
+                resultDiv.innerHTML += '─'.repeat(50) + '\n';
+                resultDiv.innerHTML += '<strong>💡 診斷建議</strong>\n\n';
+
+                if (!userInfo.nickname || !userInfo.teamStatus) {
+                    resultDiv.innerHTML += '<span class="warning">⚠️  偵測到資料不完整！</span>\n\n';
+                    resultDiv.innerHTML += '建議操作：\n';
+                    resultDiv.innerHTML += '1. 點擊上方「🔧 一鍵修復」按鈕\n';
+                    resultDiv.innerHTML += '2. 填寫稱呼和組隊狀態\n';
+                    resultDiv.innerHTML += '3. 點擊「立即保存」\n';
+                    resultDiv.innerHTML += '4. 等待頁面自動刷新\n';
+                } else {
+                    resultDiv.innerHTML += '<span class="success">✅ 所有資料正常！</span>\n\n';
+                    resultDiv.innerHTML += '您的個人資料已完整設置：\n';
+                    resultDiv.innerHTML += `• 稱呼：${userInfo.nickname}\n`;
+                    resultDiv.innerHTML += `• 組隊狀態：${userInfo.teamStatus}\n`;
+                }
+
+            } catch (error) {
+                resultDiv.innerHTML = '<span class="error">❌ 檢查過程發生錯誤</span>\n\n';
+                resultDiv.innerHTML += `錯誤訊息: ${error.message}\n\n`;
+                resultDiv.innerHTML += '請檢查：\n';
+                resultDiv.innerHTML += '1. 網絡連接是否正常\n';
+                resultDiv.innerHTML += '2. 是否已正確登入\n';
+                resultDiv.innerHTML += '3. 瀏覽器控制台(F12)是否有其他錯誤\n';
+                console.error('檢查錯誤:', error);
+            }
+        }
+
+        function showFixForm() {
+            document.getElementById('fixForm').style.display = 'block';
+        }
+
+        function hideFixForm() {
+            document.getElementById('fixForm').style.display = 'none';
+        }
+
+        async function manualSave() {
+            const nickname = document.getElementById('nickname').value.trim();
+            const teamStatus = document.getElementById('teamStatus').value;
+            const resultDiv = document.getElementById('result');
+
+            if (!nickname) {
+                alert('請輸入稱呼/暱稱');
+                return;
+            }
+
+            if (!teamStatus) {
+                alert('請選擇組隊狀態');
+                return;
+            }
+
+            if (!currentUserId) {
+                alert('請先點擊「檢查資料」按鈕');
+                return;
+            }
+
+            try {
+                resultDiv.innerHTML = '⏳ 正在保存，請稍候...\n';
+
+                // 獲取當前完整資料
+                const getResponse = await fetch(`/api/applications/${currentUserId}`);
+                if (!getResponse.ok) {
+                    throw new Error('無法獲取當前資料');
+                }
+                const currentData = await getResponse.json();
+
+                // 更新資料
+                const updatedData = {
+                    ...currentData,
+                    nickname: nickname,
+                    teamStatus: teamStatus
+                };
+
+                // 保存
+                const saveResponse = await fetch(`/api/applications/${currentUserId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(updatedData)
+                });
+
+                const result = await saveResponse.json();
+
+                if (saveResponse.ok) {
+                    resultDiv.innerHTML = '<span class="success">✅ 保存成功！</span>\n\n';
+                    resultDiv.innerHTML += '已更新：\n';
+                    resultDiv.innerHTML += `• 稱呼：${nickname}\n`;
+                    resultDiv.innerHTML += `• 組隊狀態：${teamStatus}\n\n`;
+                    resultDiv.innerHTML += '⏳ 頁面將在 2 秒後自動刷新...\n';
+
+                    setTimeout(() => {
+                        location.reload();
+                    }, 2000);
+                } else {
+                    throw new Error(result.message || '保存失敗');
+                }
+
+            } catch (error) {
+                resultDiv.innerHTML = '<span class="error">❌ 保存失敗</span>\n\n';
+                resultDiv.innerHTML += `錯誤訊息: ${error.message}\n\n`;
+                resultDiv.innerHTML += '請嘗試：\n';
+                resultDiv.innerHTML += '1. 重新登入\n';
+                resultDiv.innerHTML += '2. 清除瀏覽器快取\n';
+                resultDiv.innerHTML += '3. 使用最新版本的瀏覽器\n';
+                console.error('保存錯誤:', error);
+            }
+        }
+
+        function clearCache() {
+            if (confirm('確定要清除快取嗎？這將清除您的瀏覽資料並重新載入頁面。')) {
+                // 清除 localStorage 和 sessionStorage
+                localStorage.clear();
+                sessionStorage.clear();
+                
+                // 重新載入頁面（強制刷新）
+                location.reload(true);
+            }
+        }
+
+        // 頁面載入時自動檢查
+        window.addEventListener('load', () => {
+            // 自動執行檢查
+            setTimeout(checkProfileData, 500);
+        });
+    </script>
+</body>
+</html>
+

@@ -156,6 +156,13 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
     // 5. 創建需求
     const needId = await createTeamNeed(needData);
 
+    // 6. 發送確認郵件（非阻塞）
+    const createdNeed = { ...needData, id: needId };
+    const { notifyNeedCreated } = await import('../../../../lib/teamUp/email');
+    notifyNeedCreated(createdNeed as any).catch((err) => {
+      console.error('Failed to send need created notification:', err);
+    });
+
     return res.status(201).json({
       success: true,
       data: {
