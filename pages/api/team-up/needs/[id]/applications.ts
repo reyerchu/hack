@@ -91,12 +91,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     }
 
     // 5. 獲取申請列表
+    console.log(
+      '[API /needs/[id]/applications] Fetching applications for needId:',
+      id,
+      'by user:',
+      currentUser.uid,
+    );
     const applications = await getNeedApplications(id);
+    console.log('[API /needs/[id]/applications] Found', applications.length, 'applications');
 
     return res.status(200).json({
       success: true,
       data: {
         needId: id,
+        need: {
+          id: need.id,
+          title: need.title,
+          ownerUserId: need.ownerUserId,
+        },
         applications,
         total: applications.length,
       },

@@ -416,6 +416,13 @@ export async function getNeedApplications(
   status?: ApplicationStatus,
 ): Promise<TeamApplication[]> {
   try {
+    console.log(
+      '[getNeedApplications] Fetching applications for needId:',
+      needId,
+      'status:',
+      status,
+    );
+
     let query: firestore.Query = db
       .collection(COLLECTIONS.TEAM_APPLICATIONS)
       .where('teamNeedId', '==', needId);
@@ -424,9 +431,23 @@ export async function getNeedApplications(
       query = query.where('status', '==', status);
     }
 
-    query = query.orderBy('createdAt', 'desc');
-
-    const snapshot = await query.get();
+    // 嘗試先不排序，避免索引問題
+    let snapshot;
+    try {
+      query = query.orderBy('createdAt', 'desc');
+      snapshot = await query.get();
+    } catch (orderError: any) {
+      console.warn(
+        '[getNeedApplications] OrderBy failed, trying without sorting:',
+        orderError.message,
+      );
+      // 如果排序失敗（可能是索引問題），重試不排序
+      query = db.collection(COLLECTIONS.TEAM_APPLICATIONS).where('teamNeedId', '==', needId);
+      if (status) {
+        query = query.where('status', '==', status);
+      }
+      snapshot = await query.get();
+    }
 
     const applications: TeamApplication[] = [];
     snapshot.forEach((doc) => {
@@ -436,9 +457,18 @@ export async function getNeedApplications(
       } as TeamApplication);
     });
 
+    console.log('[getNeedApplications] Found', applications.length, 'applications');
+
+    // 手動在內存中排序
+    applications.sort((a, b) => {
+      const aTime = (a.createdAt as any)?.seconds || 0;
+      const bTime = (b.createdAt as any)?.seconds || 0;
+      return bTime - aTime;
+    });
+
     return applications;
   } catch (error) {
-    console.error('Error getting need applications:', error);
+    console.error('[getNeedApplications] Error getting need applications:', error);
     return [];
   }
 }

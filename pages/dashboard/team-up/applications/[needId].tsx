@@ -42,15 +42,30 @@ export default function ApplicationsManager({ needId }: ApplicationsManagerProps
       }
 
       // 獲取申請列表
+      console.log('[Applications Manager] Fetching applications for needId:', needId);
       const appsResponse = await fetch(`/api/team-up/needs/${needId}/applications`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
 
+      console.log('[Applications Manager] Response status:', appsResponse.status);
+
       if (appsResponse.ok) {
         const appsResult = await appsResponse.json();
-        setApplications(appsResult.data.applications || []);
+        console.log('[Applications Manager] API result:', appsResult);
+        console.log('[Applications Manager] Applications data:', appsResult.data?.applications);
+        console.log(
+          '[Applications Manager] Applications count:',
+          appsResult.data?.applications?.length || 0,
+        );
+
+        const apps = appsResult.data?.applications || [];
+        setApplications(apps);
+        console.log('[Applications Manager] Set applications state with', apps.length, 'items');
+      } else {
+        const errorData = await appsResponse.json();
+        console.error('[Applications Manager] API error:', errorData);
       }
     } catch (error) {
       console.error('Error fetching data:', error);
