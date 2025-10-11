@@ -1,11 +1,14 @@
 /**
  * Email 通知服务
- * 使用 SendGrid 发送邮件（如果配置了 API Key）
- * 否则只记录日志（用于开发环境）
+ * 支持兩種發送方式：
+ * 1. SendGrid API（配置 SENDGRID_API_KEY）
+ * 2. Gmail SMTP（配置 SMTP_* 環境變量）
+ * 否則只記錄日志（用於開發環境）
  */
 
 import { TeamNeed, TeamApplication } from './types';
 import { EMAIL_SUBJECT_TEMPLATES } from './constants';
+import nodemailer from 'nodemailer';
 
 /**
  * Email 配置
@@ -13,6 +16,12 @@ import { EMAIL_SUBJECT_TEMPLATES } from './constants';
 const SENDGRID_API_KEY = process.env.SENDGRID_API_KEY;
 const EMAIL_FROM = process.env.EMAIL_FROM || 'noreply@hackathon.com.tw';
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://hackathon.com.tw';
+
+// SMTP 配置（用於 Gmail 或其他 SMTP 服務）
+const SMTP_HOST = process.env.SMTP_HOST; // 例如：smtp.gmail.com
+const SMTP_PORT = parseInt(process.env.SMTP_PORT || '587');
+const SMTP_USER = process.env.SMTP_USER; // Gmail 郵箱
+const SMTP_PASS = process.env.SMTP_PASS; // Gmail App Password
 
 /**
  * 检查是否配置了 SendGrid
@@ -22,25 +31,65 @@ function isSendGridConfigured(): boolean {
 }
 
 /**
- * 发送邮件的通用函数
+ * 檢查是否配置了 SMTP
  */
-async function sendEmail(
+function isSMTPConfigured(): boolean {
+  return !!(SMTP_HOST && SMTP_USER && SMTP_PASS);
+}
+
+/**
+ * 創建 SMTP 傳輸器（用於 nodemailer）
+ */
+function createSMTPTransporter() {
+  return nodemailer.createTransport({
+    host: SMTP_HOST,
+    port: SMTP_PORT,
+    secure: SMTP_PORT === 465, // true for 465, false for other ports
+    auth: {
+      user: SMTP_USER,
+      pass: SMTP_PASS,
+    },
+  });
+}
+
+/**
+ * 使用 SMTP 發送郵件
+ */
+async function sendEmailViaSMTP(
   to: string,
   subject: string,
   html: string,
   text?: string,
 ): Promise<boolean> {
-  // 如果没有配置 SendGrid，只记录日志
-  if (!isSendGridConfigured()) {
-    console.log('[Email] SendGrid not configured. Email would be sent:');
-    console.log(`  To: ${to}`);
-    console.log(`  Subject: ${subject}`);
-    console.log(`  Text: ${text || '(see HTML)'}`);
-    return true; // 假装发送成功
-  }
-
   try {
-    // 使用 SendGrid API 发送邮件
+    const transporter = createSMTPTransporter();
+
+    const info = await transporter.sendMail({
+      from: `"RWA Hackathon" <${SMTP_USER}>`, // 使用 SMTP_USER 作為發件人
+      to,
+      subject,
+      text: text || subject,
+      html,
+    });
+
+    console.log('[Email] SMTP email sent successfully:', info.messageId);
+    return true;
+  } catch (error) {
+    console.error('[Email] SMTP send failed:', error);
+    return false;
+  }
+}
+
+/**
+ * 使用 SendGrid API 發送郵件
+ */
+async function sendEmailViaSendGrid(
+  to: string,
+  subject: string,
+  html: string,
+  text?: string,
+): Promise<boolean> {
+  try {
     const response = await fetch('https://api.sendgrid.com/v3/mail/send', {
       method: 'POST',
       headers: {
@@ -63,11 +112,41 @@ async function sendEmail(
       throw new Error(`SendGrid API error: ${error}`);
     }
 
+    console.log('[Email] SendGrid email sent successfully');
     return true;
   } catch (error) {
-    console.error('[Email] Failed to send email:', error);
+    console.error('[Email] SendGrid send failed:', error);
     return false;
   }
+}
+
+/**
+ * 发送邮件的通用函数（自動選擇發送方式）
+ */
+async function sendEmail(
+  to: string,
+  subject: string,
+  html: string,
+  text?: string,
+): Promise<boolean> {
+  // 優先使用 SMTP（如果配置了）
+  if (isSMTPConfigured()) {
+    console.log('[Email] Using SMTP to send email');
+    return sendEmailViaSMTP(to, subject, html, text);
+  }
+
+  // 次選使用 SendGrid
+  if (isSendGridConfigured()) {
+    console.log('[Email] Using SendGrid to send email');
+    return sendEmailViaSendGrid(to, subject, html, text);
+  }
+
+  // 如果都沒配置，只記錄日誌
+  console.log('[Email] No email service configured. Email would be sent:');
+  console.log(`  To: ${to}`);
+  console.log(`  Subject: ${subject}`);
+  console.log(`  Text: ${text || '(see HTML)'}`);
+  return true; // 假裝發送成功
 }
 
 /**
