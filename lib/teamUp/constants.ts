@@ -32,9 +32,25 @@ export const PROJECT_STAGES: ProjectStage[] = [
 ];
 
 /**
- * 團隊角色（簡化版本 - 5 大類）
+ * 團隊角色（簡化版本 - 5 大類，用於列表頁面篩選）
  */
 export const TEAM_ROLES: TeamRole[] = ['工程師', '設計師', '產品經理', '市場行銷', '其他'];
+
+/**
+ * 詳細團隊角色（用於創建/編輯需求）
+ */
+export const DETAILED_TEAM_ROLES = [
+  '工程師',
+  '全端工程師',
+  '前端工程師',
+  '後端工程師',
+  '智能合約工程師',
+  'UI/UX 設計師',
+  '產品經理',
+  '市場行銷',
+  '商業分析',
+  '其他',
+] as const;
 
 /**
  * 應徵狀態
@@ -274,6 +290,22 @@ export const ROLE_ICONS: Record<TeamRole, string> = {
   設計師: '🎨',
   產品經理: '📊',
   市場行銷: '📣',
+  其他: '🔧',
+};
+
+/**
+ * 詳細角色圖標
+ */
+export const DETAILED_ROLE_ICONS: Record<string, string> = {
+  工程師: '👨‍💻',
+  全端工程師: '💻',
+  前端工程師: '🖥️',
+  後端工程師: '⚙️',
+  智能合約工程師: '⛓️',
+  'UI/UX 設計師': '🎨',
+  產品經理: '📊',
+  市場行銷: '📣',
+  商業分析: '📈',
   其他: '🔧',
 };
 

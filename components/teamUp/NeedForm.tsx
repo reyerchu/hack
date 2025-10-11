@@ -5,7 +5,12 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { TeamNeedFormData, FormValidationErrors } from '../../lib/teamUp/types';
-import { PROJECT_TRACKS, PROJECT_STAGES, FIELD_LIMITS } from '../../lib/teamUp/constants';
+import {
+  PROJECT_TRACKS,
+  PROJECT_STAGES,
+  FIELD_LIMITS,
+  DETAILED_TEAM_ROLES,
+} from '../../lib/teamUp/constants';
 import { validateTeamNeedForm, validatePublicField } from '../../lib/teamUp/validation';
 import RoleSelector from './RoleSelector';
 
@@ -215,6 +220,7 @@ export default function NeedForm({
           onChange={(roles) => handleChange('rolesNeeded', roles)}
           placeholder="請至少選擇一個角色"
           maxSelection={10}
+          availableRoles={Array.from(DETAILED_TEAM_ROLES)}
         />
         {errors.rolesNeeded && (
           <span className="text-red-500 text-sm mt-1 block">{errors.rolesNeeded}</span>
@@ -229,6 +235,7 @@ export default function NeedForm({
           onChange={(roles) => handleChange('haveRoles', roles)}
           placeholder="選擇現有成員的角色"
           maxSelection={10}
+          availableRoles={Array.from(DETAILED_TEAM_ROLES)}
         />
         {errors.haveRoles && (
           <span className="text-red-500 text-sm mt-1 block">{errors.haveRoles}</span>
