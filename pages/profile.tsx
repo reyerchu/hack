@@ -233,6 +233,7 @@ export default function ProfilePage() {
   const fetchMyApplications = useCallback(async () => {
     if (!user?.token) return;
 
+    console.log('[fetchMyApplications] Starting to fetch applications for user');
     setIsLoadingApplications(true);
     try {
       const response = await fetch('/api/team-up/my-applications', {
@@ -241,15 +242,32 @@ export default function ProfilePage() {
         },
       });
 
+      console.log('[fetchMyApplications] Response status:', response.status);
+
       if (response.ok) {
         const result = await response.json();
-        setMyApplications(result.data?.applications || []);
+        console.log('[fetchMyApplications] API result:', result);
+        console.log('[fetchMyApplications] Applications data:', result.data?.applications);
+        console.log(
+          '[fetchMyApplications] Applications count:',
+          result.data?.applications?.length || 0,
+        );
+        console.log('[fetchMyApplications] Stats:', result.data?.stats);
+
+        const apps = result.data?.applications || [];
+        setMyApplications(apps);
         setStats(result.data?.stats);
+        console.log('[fetchMyApplications] Set applications state with', apps.length, 'items');
       } else {
-        console.error('Failed to fetch my applications:', response.status);
+        const errorData = await response.json();
+        console.error(
+          '[fetchMyApplications] Failed to fetch my applications:',
+          response.status,
+          errorData,
+        );
       }
     } catch (error) {
-      console.error('Error fetching my applications:', error);
+      console.error('[fetchMyApplications] Error fetching my applications:', error);
     } finally {
       setIsLoadingApplications(false);
     }
