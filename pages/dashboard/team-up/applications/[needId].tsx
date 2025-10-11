@@ -9,6 +9,7 @@ import { useRouter } from 'next/router';
 import AppHeader from '../../../../components/AppHeader';
 import { useAuthContext } from '../../../../lib/user/AuthContext';
 import { TeamApplication, TeamNeed } from '../../../../lib/teamUp/types';
+import { timestampToDate } from '../../../../lib/teamUp/dateUtils';
 
 interface ApplicationsManagerProps {
   needId: string;
@@ -324,9 +325,13 @@ export default function ApplicationsManager({ needId }: ApplicationsManagerProps
                     </div>
                     <span className="text-sm text-gray-500">
                       {application.createdAt
-                        ? new Date((application.createdAt as any).seconds * 1000).toLocaleString(
-                            'zh-TW',
-                          )
+                        ? timestampToDate(application.createdAt).toLocaleString('zh-TW', {
+                            year: 'numeric',
+                            month: '2-digit',
+                            day: '2-digit',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })
                         : ''}
                     </span>
                   </div>
