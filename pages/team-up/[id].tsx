@@ -23,12 +23,32 @@ export default function TeamUpDetail({ need, isOwner: ssrIsOwner, error }: TeamU
   const router = useRouter();
   const { user, isSignedIn } = useAuthContext();
   const [isApplicationModalOpen, setIsApplicationModalOpen] = useState(false);
+  const [isToggling, setIsToggling] = useState(false);
+  const [currentNeed, setCurrentNeed] = useState<TeamNeed | null>(need);
+  const [successMessage, setSuccessMessage] = useState<string>('');
 
   // 客戶端重新計算 isOwner（SSR 階段可能沒有用戶認證信息）
   const isOwner = React.useMemo(() => {
-    if (!user || !need) return false;
-    return need.ownerUserId === user.id;
-  }, [user, need]);
+    if (!user || !currentNeed) return false;
+    return currentNeed.ownerUserId === user.id;
+  }, [user, currentNeed]);
+
+  // 同步 props 到 state
+  useEffect(() => {
+    if (need) {
+      setCurrentNeed(need);
+    }
+  }, [need]);
+
+  // 自動清除成功消息
+  useEffect(() => {
+    if (successMessage) {
+      const timer = setTimeout(() => {
+        setSuccessMessage('');
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [successMessage]);
 
   // 記錄瀏覽
   useEffect(() => {
@@ -37,11 +57,58 @@ export default function TeamUpDetail({ need, isOwner: ssrIsOwner, error }: TeamU
     }
   }, [need]);
 
+  // 切換需求開關狀態
+  const handleToggleOpen = async () => {
+    if (!user?.token || !currentNeed) {
+      setSuccessMessage('請先登入');
+      return;
+    }
+
+    const action = currentNeed.isOpen ? '關閉' : '重新開放';
+    if (!confirm(`確定要${action}此需求嗎？`)) {
+      return;
+    }
+
+    setIsToggling(true);
+
+    try {
+      const response = await fetch(`/api/team-up/needs/${currentNeed.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${user.token}`,
+        },
+        body: JSON.stringify({
+          isOpen: !currentNeed.isOpen,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.error?.message || `${action}失敗`);
+      }
+
+      // 更新本地狀態 - 確保數據存在
+      if (data.data) {
+        setCurrentNeed(data.data);
+        setSuccessMessage(`✅ 已成功${action}需求`);
+      } else {
+        throw new Error('服務器返回的數據無效');
+      }
+    } catch (error: any) {
+      console.error('切換需求狀態失败:', error);
+      setSuccessMessage(`❌ ${error.message || `${action}失敗，請稍後再試`}`);
+    } finally {
+      setIsToggling(false);
+    }
+  };
+
   // 提交應徵
   const handleApply = async (data: { message: string; contactForOwner: string }) => {
     if (!user) {
       alert('請先登入');
-      router.push(`/auth?redirect=/team-up/${need!.id}`);
+      router.push(`/auth?redirect=/team-up/${currentNeed!.id}`);
       return;
     }
 
@@ -53,7 +120,7 @@ export default function TeamUpDetail({ need, isOwner: ssrIsOwner, error }: TeamU
           Authorization: `Bearer ${user.token}`,
         },
         body: JSON.stringify({
-          needId: need!.id,
+          needId: currentNeed!.id,
           message: data.message,
           contactInfo: data.contactForOwner,
         }),
@@ -146,11 +213,41 @@ export default function TeamUpDetail({ need, isOwner: ssrIsOwner, error }: TeamU
   return (
     <>
       <Head>
-        <title>{need.title} | 找隊友 | RWA Hackathon Taiwan</title>
-        <meta name="description" content={need.brief} />
+        <title>{currentNeed?.title || '找隊友'} | RWA Hackathon Taiwan</title>
+        <meta name="description" content={currentNeed?.brief || ''} />
+        <style>{`
+          @keyframes fadeIn {
+            from {
+              opacity: 0;
+              transform: translateY(-10px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+          .animate-fade-in {
+            animation: fadeIn 0.3s ease-out;
+          }
+        `}</style>
       </Head>
 
       <AppHeader />
+
+      {/* 成功消息提示 */}
+      {successMessage && (
+        <div
+          className="fixed top-20 left-1/2 z-50"
+          style={{
+            transform: 'translateX(-50%)',
+            animation: 'fadeIn 0.3s ease-out',
+          }}
+        >
+          <div className="bg-white border-2 border-blue-500 rounded-lg shadow-lg px-6 py-4 max-w-md">
+            <p className="text-gray-900 font-medium text-center">{successMessage}</p>
+          </div>
+        </div>
+      )}
 
       <div className="min-h-screen bg-white pt-24 pb-8">
         <div className="max-w-4xl mx-auto px-4 md:px-8">
@@ -173,7 +270,7 @@ export default function TeamUpDetail({ need, isOwner: ssrIsOwner, error }: TeamU
 
             {isOwner && (
               <button
-                onClick={() => router.push(`/team-up/edit/${need.id}`)}
+                onClick={() => router.push(`/team-up/edit/${currentNeed.id}`)}
                 className="px-4 py-2 text-white rounded-lg transition-colors flex items-center gap-2"
                 style={{ backgroundColor: '#1a3a6e' }}
               >
@@ -196,14 +293,16 @@ export default function TeamUpDetail({ need, isOwner: ssrIsOwner, error }: TeamU
             <div className="p-6 md:p-8 border-b border-gray-200">
               {/* 狀態標籤 */}
               <div className="flex flex-wrap gap-2 mb-4">
-                <span className={`px-3 py-1 text-sm rounded ${TRACK_COLORS[need.projectTrack]}`}>
-                  {need.projectTrack}
+                <span
+                  className={`px-3 py-1 text-sm rounded ${TRACK_COLORS[currentNeed.projectTrack]}`}
+                >
+                  {currentNeed.projectTrack}
                 </span>
                 <span className="px-3 py-1 bg-green-100 text-green-800 text-sm rounded flex items-center gap-1">
-                  <span>{STAGE_ICONS[need.projectStage]}</span>
-                  <span>{need.projectStage}</span>
+                  <span>{STAGE_ICONS[currentNeed.projectStage]}</span>
+                  <span>{currentNeed.projectStage}</span>
                 </span>
-                {!need.isOpen && (
+                {!currentNeed.isOpen && (
                   <span className="px-3 py-1 bg-gray-200 text-gray-700 text-sm rounded">
                     已結束
                   </span>
@@ -217,35 +316,37 @@ export default function TeamUpDetail({ need, isOwner: ssrIsOwner, error }: TeamU
 
               {/* 標題 */}
               <h1 className="text-2xl md:text-3xl font-bold mb-4" style={{ color: '#1a3a6e' }}>
-                {need.title}
+                {currentNeed.title}
               </h1>
 
               {/* 元數據 */}
               <div className="flex flex-wrap gap-4 text-sm text-gray-600">
                 <span className="text-gray-800 font-medium">
-                  👤 發布人：{need.ownerNickname || need.ownerName || '匿名用戶'}
+                  👤 發布人：{currentNeed.ownerNickname || currentNeed.ownerName || '匿名用戶'}
                 </span>
-                <span>👀 {need.viewCount} 瀏覽</span>
-                <span>✉️ {need.applicationCount} 應徵</span>
-                <span>📅 {formatDate(need.createdAt)}</span>
+                <span>👀 {currentNeed.viewCount} 瀏覽</span>
+                <span>✉️ {currentNeed.applicationCount} 應徵</span>
+                <span>📅 {formatDate(currentNeed.createdAt)}</span>
               </div>
 
               {/* Owner 操作按鈕 */}
               {isOwner && (
                 <div className="mt-6 flex flex-wrap gap-3">
-                  <Link href={`/team-up/edit/${need.id}`}>
+                  <Link href={`/team-up/edit/${currentNeed.id}`}>
                     <a className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors">
                       編輯需求
                     </a>
                   </Link>
                   <button
-                    onClick={() => {
-                      // TODO: 實現關閉/開放功能
-                      alert(need.isOpen ? '關閉需求功能將在 M5 實現' : '重新開放功能將在 M5 實現');
-                    }}
-                    className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors"
+                    onClick={handleToggleOpen}
+                    disabled={isToggling}
+                    className={`px-4 py-2 rounded transition-colors ${
+                      isToggling
+                        ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
+                        : 'bg-gray-600 text-white hover:bg-gray-700'
+                    }`}
                   >
-                    {need.isOpen ? '關閉需求' : '重新開放'}
+                    {isToggling ? '處理中...' : currentNeed?.isOpen ? '關閉需求' : '重新開放'}
                   </button>
                 </div>
               )}
@@ -256,16 +357,18 @@ export default function TeamUpDetail({ need, isOwner: ssrIsOwner, error }: TeamU
               {/* 專案簡介 */}
               <section>
                 <h2 className="text-xl font-bold text-gray-900 mb-3">專案簡介</h2>
-                <p className="text-gray-700 whitespace-pre-line leading-relaxed">{need.brief}</p>
+                <p className="text-gray-700 whitespace-pre-line leading-relaxed">
+                  {currentNeed.brief}
+                </p>
               </section>
 
               {/* 需要角色 */}
               <section>
                 <h2 className="text-xl font-bold text-gray-900 mb-3">
-                  需要角色 ({need.rolesNeeded.length})
+                  需要角色 ({currentNeed.rolesNeeded.length})
                 </h2>
                 <div className="flex flex-wrap gap-2">
-                  {need.rolesNeeded.map((role, index) => (
+                  {currentNeed.rolesNeeded.map((role, index) => (
                     <span
                       key={index}
                       className="px-3 py-2 bg-blue-50 text-blue-800 rounded-lg font-medium"
@@ -277,13 +380,13 @@ export default function TeamUpDetail({ need, isOwner: ssrIsOwner, error }: TeamU
               </section>
 
               {/* 現有成員 */}
-              {need.haveRoles.length > 0 && (
+              {currentNeed.haveRoles.length > 0 && (
                 <section>
                   <h2 className="text-xl font-bold text-gray-900 mb-3">
-                    現有成員 ({need.haveRoles.length})
+                    現有成員 ({currentNeed.haveRoles.length})
                   </h2>
                   <div className="flex flex-wrap gap-2">
-                    {need.haveRoles.map((role, index) => (
+                    {currentNeed.haveRoles.map((role, index) => (
                       <span key={index} className="px-3 py-2 bg-gray-100 text-gray-700 rounded-lg">
                         {role}
                       </span>
@@ -293,23 +396,23 @@ export default function TeamUpDetail({ need, isOwner: ssrIsOwner, error }: TeamU
               )}
 
               {/* 其他需求 */}
-              {need.otherNeeds && (
+              {currentNeed.otherNeeds && (
                 <section>
                   <h2 className="text-xl font-bold text-gray-900 mb-3">其他需求</h2>
                   <p className="text-gray-700 whitespace-pre-line leading-relaxed">
-                    {need.otherNeeds}
+                    {currentNeed.otherNeeds}
                   </p>
                 </section>
               )}
 
               {/* 應徵按鈕（非 Owner） */}
-              {!isOwner && need.isOpen && (
+              {!isOwner && currentNeed.isOpen && (
                 <section className="pt-6 border-t border-gray-200">
                   <button
                     onClick={() => {
                       if (!isSignedIn) {
                         alert('請先登入才能應徵');
-                        router.push(`/auth?redirect=/team-up/${need.id}`);
+                        router.push(`/auth?redirect=/team-up/${currentNeed.id}`);
                         return;
                       }
                       setIsApplicationModalOpen(true);
@@ -328,16 +431,16 @@ export default function TeamUpDetail({ need, isOwner: ssrIsOwner, error }: TeamU
               {/* Owner 查看應徵列表按鈕 */}
               {isOwner && (
                 <section className="pt-6 border-t border-gray-200">
-                  <Link href={`/dashboard/team-up?needId=${need.id}`}>
+                  <Link href={`/dashboard/team-up?needId=${currentNeed.id}`}>
                     <a className="block w-full py-4 bg-green-600 text-white text-lg font-semibold rounded-lg hover:bg-green-700 transition-colors text-center">
-                      查看應徵列表 ({need.applicationCount})
+                      查看應徵列表 ({currentNeed.applicationCount})
                     </a>
                   </Link>
                 </section>
               )}
 
               {/* 已關閉提示 */}
-              {!need.isOpen && !isOwner && (
+              {!currentNeed.isOpen && !isOwner && (
                 <section className="pt-6 border-t border-gray-200">
                   <div className="bg-gray-100 rounded-lg p-6 text-center">
                     <p className="text-gray-700 font-medium">此需求已關閉，無法應徵</p>
@@ -365,7 +468,7 @@ export default function TeamUpDetail({ need, isOwner: ssrIsOwner, error }: TeamU
         isOpen={isApplicationModalOpen}
         onClose={() => setIsApplicationModalOpen(false)}
         onSubmit={handleApply}
-        needTitle={need.title}
+        needTitle={currentNeed.title}
       />
     </>
   );

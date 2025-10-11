@@ -178,9 +178,22 @@ async function handlePatch(req: NextApiRequest, res: NextApiResponse) {
       });
     }
 
+    // 7. 重新獲取更新後的數據
+    const updatedNeed = await getTeamNeed(id as string);
+    if (!updatedNeed) {
+      return res.status(500).json({
+        success: false,
+        error: {
+          code: ERROR_CODES.DATABASE_ERROR,
+          message: '無法獲取更新後的數據',
+        },
+      });
+    }
+
     return res.status(200).json({
       success: true,
       message: '更新成功！',
+      data: updatedNeed,
     });
   } catch (error) {
     console.error('Error in PATCH /api/team-up/needs/:id:', error);

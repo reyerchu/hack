@@ -190,7 +190,7 @@ export async function notifyAuthorNewApplication(
     .container { max-width: 600px; margin: 0 auto; padding: 20px; }
     .header { background: #1a3a6e; color: white; padding: 20px; text-align: center; }
     .content { background: #f9fafb; padding: 30px; }
-    .button { display: inline-block; padding: 12px 24px; background: #1a3a6e; color: white; text-decoration: none; border-radius: 6px; margin: 20px 0; }
+    .button { display: inline-block; padding: 12px 24px; background: #1a3a6e; color: white !important; text-decoration: none; border-radius: 6px; margin: 20px 0; }
     .footer { text-align: center; padding: 20px; color: #666; font-size: 14px; }
     .highlight { background: #fff; padding: 15px; border-left: 4px solid #1a3a6e; margin: 15px 0; }
   </style>
@@ -221,7 +221,7 @@ export async function notifyAuthorNewApplication(
       
       <p>請點擊下方按鈕查看完整資訊並管理應徵：</p>
       
-      <a href="${detailUrl}" class="button">查看應徵詳情</a>
+      <a href="${detailUrl}" class="button" style="color: white !important;">查看應徵詳情</a>
       
       <p style="color: #666; font-size: 14px;">
         💡 提示：您也可以登入網站後，在「我的儀表板」中管理所有應徵。
@@ -287,7 +287,7 @@ export async function notifyApplicantSubmitted(
     .container { max-width: 600px; margin: 0 auto; padding: 20px; }
     .header { background: #1a3a6e; color: white; padding: 20px; text-align: center; }
     .content { background: #f9fafb; padding: 30px; }
-    .button { display: inline-block; padding: 12px 24px; background: #1a3a6e; color: white; text-decoration: none; border-radius: 6px; margin: 20px 0; }
+    .button { display: inline-block; padding: 12px 24px; background: #1a3a6e; color: white !important; text-decoration: none; border-radius: 6px; margin: 20px 0; }
     .footer { text-align: center; padding: 20px; color: #666; font-size: 14px; }
     .highlight { background: #fff; padding: 15px; border-left: 4px solid #1a3a6e; margin: 15px 0; }
   </style>
@@ -323,7 +323,7 @@ export async function notifyApplicantSubmitted(
       
       <p>需求作者會收到您的應徵通知。如果他們感興趣，會透過您提供的聯繫方式與您聯繫。</p>
       
-      <a href="${detailUrl}" class="button">查看需求詳情</a>
+      <a href="${detailUrl}" class="button" style="color: white !important;">查看需求詳情</a>
       
       <p style="color: #666; font-size: 14px;">
         💡 提示：您可以在「我的儀表板」中查看所有應徵記錄和狀態。
@@ -391,7 +391,7 @@ export async function notifyNeedCreated(need: TeamNeed): Promise<boolean> {
     .container { max-width: 600px; margin: 0 auto; padding: 20px; }
     .header { background: #1a3a6e; color: white; padding: 20px; text-align: center; }
     .content { background: #f9fafb; padding: 30px; }
-    .button { display: inline-block; padding: 12px 24px; background: #1a3a6e; color: white; text-decoration: none; border-radius: 6px; margin: 10px 5px; }
+    .button { display: inline-block; padding: 12px 24px; background: #1a3a6e; color: white !important; text-decoration: none; border-radius: 6px; margin: 10px 5px; }
     .footer { text-align: center; padding: 20px; color: #666; font-size: 14px; }
     .highlight { background: #fff; padding: 15px; border-left: 4px solid #1a3a6e; margin: 15px 0; }
     .tip { background: #eff6ff; padding: 12px; border-radius: 6px; margin: 15px 0; }
@@ -423,8 +423,8 @@ export async function notifyNeedCreated(need: TeamNeed): Promise<boolean> {
       </div>
       
       <div style="text-align: center; margin: 20px 0;">
-        <a href="${detailUrl}" class="button">查看需求</a>
-        <a href="${editUrl}" class="button" style="background: #6b7280;">編輯需求</a>
+        <a href="${detailUrl}" class="button" style="color: white !important;">查看需求</a>
+        <a href="${editUrl}" class="button" style="background: #6b7280; color: white !important;">編輯需求</a>
       </div>
       
       <div class="highlight">
@@ -513,7 +513,7 @@ export async function notifyApplicantStatusUpdate(
       newStatus === 'accepted' ? '#10b981' : '#ef4444'
     }; color: white; padding: 20px; text-align: center; }
     .content { background: #f9fafb; padding: 30px; }
-    .button { display: inline-block; padding: 12px 24px; background: #1a3a6e; color: white; text-decoration: none; border-radius: 6px; margin: 20px 0; }
+    .button { display: inline-block; padding: 12px 24px; background: #1a3a6e; color: white !important; text-decoration: none; border-radius: 6px; margin: 20px 0; }
     .footer { text-align: center; padding: 20px; color: #666; font-size: 14px; }
     .highlight { background: #fff; padding: 15px; border-left: 4px solid #1a3a6e; margin: 15px 0; }
   </style>
@@ -560,7 +560,7 @@ export async function notifyApplicantStatusUpdate(
       `
       }
       
-      <a href="${BASE_URL}/team-up" class="button">查看更多機會</a>
+      <a href="${BASE_URL}/team-up" class="button" style="color: white !important;">查看更多機會</a>
     </div>
     <div class="footer">
       <p>RWA Hackathon Taiwan 找隊友平台</p>

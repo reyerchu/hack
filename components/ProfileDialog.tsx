@@ -77,7 +77,7 @@ export default function ProfileDialog({ onDismiss }: ProfileDialogProps) {
             <Link href="/profile">
               <a className="block p-4 hover:bg-gray-700 text-white">
                 <NotesIcon />
-                <span className="ml-4">{hasProfile ? '您的個人檔案' : '註冊'}</span>
+                <span className="ml-4">{hasProfile ? '您的個人中心' : '註冊'}</span>
               </a>
             </Link>
           </div>

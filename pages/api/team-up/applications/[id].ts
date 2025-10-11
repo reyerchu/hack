@@ -105,18 +105,32 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
         data: application,
       });
     } else if (req.method === 'PATCH') {
-      // 只有需求作者可以更新申請
-      if (need.ownerUserId !== currentUser.uid) {
-        return res.status(403).json({
-          success: false,
-          error: {
-            code: ERROR_CODES.FORBIDDEN,
-            message: '您沒有權限管理此申請',
-          },
-        });
-      }
-
       const { status, markAsRead } = req.body;
+
+      // 權限檢查：撤回申請只能由申請者本人操作，其他操作只能由需求作者操作
+      if (status === 'withdrawn') {
+        // 撤回申請：只有申請者本人可以操作
+        if (application.applicantUserId !== currentUser.uid) {
+          return res.status(403).json({
+            success: false,
+            error: {
+              code: ERROR_CODES.FORBIDDEN,
+              message: '您只能撤回自己的申請',
+            },
+          });
+        }
+      } else {
+        // 接受/拒绝申請：只有需求作者可以操作
+        if (need.ownerUserId !== currentUser.uid) {
+          return res.status(403).json({
+            success: false,
+            error: {
+              code: ERROR_CODES.FORBIDDEN,
+              message: '您沒有權限管理此申請',
+            },
+          });
+        }
+      }
 
       // 标记为已读
       if (markAsRead === true) {

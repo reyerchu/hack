@@ -282,7 +282,7 @@ export default function ProfilePage() {
   }, [isSignedIn, hasProfile, user?.token, fetchMyNeeds, fetchMyApplications]);
 
   if (!isSignedIn) {
-    return <div className="p-4 flex-grow text-center">請登入以查看您的個人檔案！</div>;
+    return <div className="p-4 flex-grow text-center">請登入以查看您的個人中心！</div>;
   }
 
   if (!hasProfile) {

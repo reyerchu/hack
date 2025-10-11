@@ -2,10 +2,11 @@
  * 我的申请记录组件
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/router';
 import { TeamApplication, TeamNeed } from '../../../lib/teamUp/types';
 import { TRACK_COLORS, STAGE_ICONS } from '../../../lib/teamUp/constants';
+import { useAuthContext } from '../../../lib/user/AuthContext';
 
 interface MyApplicationsListProps {
   applications: (TeamApplication & { need: TeamNeed | null })[];
@@ -14,6 +15,8 @@ interface MyApplicationsListProps {
 
 export default function MyApplicationsList({ applications, onRefresh }: MyApplicationsListProps) {
   const router = useRouter();
+  const { user } = useAuthContext();
+  const [withdrawing, setWithdrawing] = useState<{ [key: string]: boolean }>({});
 
   const getStatusStyle = (status: string) => {
     switch (status) {
@@ -42,6 +45,48 @@ export default function MyApplicationsList({ applications, onRefresh }: MyApplic
         return '已撤回';
       default:
         return status;
+    }
+  };
+
+  const handleWithdraw = async (applicationId: string) => {
+    if (!confirm('確定要撤回此申請嗎？撤回後將無法復原。')) return;
+
+    if (!user?.token) {
+      alert('請先登入');
+      return;
+    }
+
+    setWithdrawing({ ...withdrawing, [applicationId]: true });
+
+    try {
+      const response = await fetch(`/api/team-up/applications/${applicationId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${user.token}`,
+        },
+        body: JSON.stringify({
+          status: 'withdrawn',
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.error?.message || '撤回失敗');
+      }
+
+      alert('已成功撤回申請');
+
+      // 刷新列表
+      if (onRefresh) {
+        onRefresh();
+      }
+    } catch (error: any) {
+      console.error('撤回申請失败:', error);
+      alert(error.message || '撤回失敗，請稍後再試');
+    } finally {
+      setWithdrawing({ ...withdrawing, [applicationId]: false });
     }
   };
 
@@ -152,18 +197,15 @@ export default function MyApplicationsList({ applications, onRefresh }: MyApplic
                 </button>
                 {application.status === 'pending' && (
                   <button
-                    onClick={async () => {
-                      if (!confirm('確定要撤回此申請嗎？')) return;
-                      try {
-                        // TODO: 實現撤回申請的 API
-                        alert('撤回功能即將推出');
-                      } catch (error) {
-                        alert('撤回失敗，請稍後再試');
-                      }
-                    }}
-                    className="px-4 py-2 text-sm text-red-600 border border-red-600 rounded-lg hover:bg-red-50 transition-colors"
+                    onClick={() => handleWithdraw(application.id)}
+                    disabled={withdrawing[application.id]}
+                    className={`px-4 py-2 text-sm whitespace-nowrap rounded-lg transition-colors ${
+                      withdrawing[application.id]
+                        ? 'text-gray-400 border border-gray-300 cursor-not-allowed'
+                        : 'text-red-600 border border-red-600 hover:bg-red-50'
+                    }`}
                   >
-                    撤回申請
+                    {withdrawing[application.id] ? '撤回中...' : '撤回申請'}
                   </button>
                 )}
               </div>

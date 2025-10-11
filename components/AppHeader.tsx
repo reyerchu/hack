@@ -125,7 +125,7 @@ export default function AppHeader() {
               className="font-header font-bold bg-secondary rounded-full text-primaryDark text-sm px-10 py-1 hover:bg-primaryDark hover:text-secondary transition duration-300 ease-in-out"
               onClick={toggleDialog}
             >
-              {hasProfile ? '個人檔案' : '註冊'}
+              {hasProfile ? '個人中心' : '註冊'}
             </button>
           )}
         </div>
