@@ -18,10 +18,19 @@ const MISC_COLLECTION = '/miscellaneous';
 export interface UserData {
   id: string;
   scans?: string[];
+  timestamp?: number;
   user: {
     firstName: string;
     lastName: string;
     permissions: string[];
+    preferredEmail?: string;
+    nickname?: string;
+    gender?: string;
+    teamStatus?: string;
+    github?: string;
+    linkedin?: string;
+    website?: string;
+    resume?: string;
   };
 }
 
@@ -46,9 +55,49 @@ async function getAllUsers(req: NextApiRequest, res: NextApiResponse) {
     });
   }
 
-  const doc = await db.collection(MISC_COLLECTION).doc('allusers').get();
+  // Fetch all users from the registrations collection
+  const usersSnapshot = await db.collection(USERS_COLLECTION).get();
 
-  return res.json(doc.data().users);
+  const users: UserData[] = [];
+
+  usersSnapshot.forEach((doc) => {
+    const data = doc.data();
+
+    // Convert Firestore Timestamp to number (milliseconds)
+    let timestamp = null;
+    const rawTimestamp = data.timestamp || data.user?.timestamp;
+    if (rawTimestamp) {
+      if (typeof rawTimestamp === 'object' && rawTimestamp._seconds) {
+        // Firestore Timestamp object
+        timestamp = rawTimestamp._seconds * 1000 + Math.floor(rawTimestamp._nanoseconds / 1000000);
+      } else if (typeof rawTimestamp === 'number') {
+        // Already a number
+        timestamp = rawTimestamp;
+      }
+    }
+
+    // Map the document data to our UserData structure
+    users.push({
+      id: doc.id,
+      scans: data.scans || [],
+      timestamp: timestamp,
+      user: {
+        firstName: data.user?.firstName || data.firstName || '',
+        lastName: data.user?.lastName || data.lastName || '',
+        permissions: data.user?.permissions || [],
+        preferredEmail: data.preferredEmail || data.user?.preferredEmail || '',
+        nickname: data.nickname || data.user?.nickname || '',
+        gender: data.gender || data.user?.gender || '',
+        teamStatus: data.teamStatus || data.user?.teamStatus || '',
+        github: data.github || data.user?.github || '',
+        linkedin: data.linkedin || data.user?.linkedin || '',
+        website: data.website || data.user?.website || '',
+        resume: data.resume || data.user?.resume || '',
+      },
+    });
+  });
+
+  return res.json(users);
 }
 
 function handleGetRequest(req: NextApiRequest, res: NextApiResponse) {

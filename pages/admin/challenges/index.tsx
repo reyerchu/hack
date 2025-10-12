@@ -102,7 +102,7 @@ export default function ChallengePage({ challenges_ }: ChallengePageProps) {
   const orderChanged = challenges.filter((obj, idx) => obj.rank !== idx).length !== 0;
 
   return (
-    <div className="p-3">
+    <div className="p-3 pt-24">
       {currentChallengeEditIndex !== -1 ? (
         <div>
           <ChallengeForm

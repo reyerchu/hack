@@ -161,12 +161,28 @@ export const fieldNames = {
   gender: 'Gender',
   scans: 'Swags', //not part of registration questions, used for scanner
   timestamp: 'Registration Time',
+  nickname: '暱稱 / 稱呼',
+  teamStatus: '組隊狀態',
+  github: 'Github',
+  linkedin: 'LinkedIn',
+  website: '個人網站',
+  resume: '履歷',
+  preferredEmail: '電子郵件',
 };
 
 //name fields that are checkbox questions belong here
 export const arrayField = ['scans'];
 //any other fields belong here
-export const singleField = ['gender'];
+export const singleField = [
+  'gender',
+  'nickname',
+  'teamStatus',
+  'github',
+  'linkedin',
+  'website',
+  'resume',
+  'preferredEmail',
+];
 
 //not to be edited ⬇︎ (unless there needs to be more question topics)
 export interface HackPortalConfig {

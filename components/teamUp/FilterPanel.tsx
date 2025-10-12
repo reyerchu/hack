@@ -120,54 +120,57 @@ export default function FilterPanel({ filters, onChange, onReset }: FilterPanelP
         {/* 分隔線 */}
         <div className="border-t border-gray-200"></div>
 
-        {/* 排序方式 */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">排序方式</label>
-          <select
-            value={filters.sort || 'latest'}
-            onChange={(e) => handleFilterChange('sort', e.target.value as any)}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            {SORT_OPTIONS.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </div>
+        {/* 排序方式、目標賽道、專案階段 - 同一行 */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* 排序方式 */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">排序方式</label>
+            <select
+              value={filters.sort || 'latest'}
+              onChange={(e) => handleFilterChange('sort', e.target.value as any)}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              {SORT_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
 
-        {/* 目標賽道 */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">目標賽道</label>
-          <select
-            value={filters.track || ''}
-            onChange={(e) => handleFilterChange('track', e.target.value || undefined)}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="">全部賽道</option>
-            {PROJECT_TRACKS.map((track) => (
-              <option key={track} value={track}>
-                {track}
-              </option>
-            ))}
-          </select>
-        </div>
+          {/* 目標賽道 */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">目標賽道</label>
+            <select
+              value={filters.track || ''}
+              onChange={(e) => handleFilterChange('track', e.target.value || undefined)}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">全部賽道</option>
+              {PROJECT_TRACKS.map((track) => (
+                <option key={track} value={track}>
+                  {track}
+                </option>
+              ))}
+            </select>
+          </div>
 
-        {/* 專案階段 */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">專案階段</label>
-          <select
-            value={filters.stage || ''}
-            onChange={(e) => handleFilterChange('stage', e.target.value || undefined)}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="">全部階段</option>
-            {PROJECT_STAGES.map((stage) => (
-              <option key={stage} value={stage}>
-                {stage}
-              </option>
-            ))}
-          </select>
+          {/* 專案階段 */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">專案階段</label>
+            <select
+              value={filters.stage || ''}
+              onChange={(e) => handleFilterChange('stage', e.target.value || undefined)}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">全部階段</option>
+              {PROJECT_STAGES.map((stage) => (
+                <option key={stage} value={stage}>
+                  {stage}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
       </div>
     </div>

@@ -48,7 +48,7 @@ export default function TSMCAbout() {
               </div>
               <div>
                 <span className="font-semibold text-black">其他贊助：</span>
-                <span>RWA Nexus｜DeFintek｜SparkLands｜AsiaVista</span>
+                <span>RWA Nexus｜DeFintek｜AsiaVista｜SparkLands｜StockFeel</span>
               </div>
               <div>
                 <span className="font-semibold text-black">其他協辦：</span>

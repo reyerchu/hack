@@ -26,12 +26,12 @@ export default function HomeSponsors(props: { sponsorCard: Sponsor[] }) {
             {/* !change */}
             If you would like to sponsor RWA Hackathon Taiwan, please reach out to us at&nbsp;
             <a
-              href="mailto:email@organization.com"
+              href="mailto:reyerchu@defintek.io"
               rel="noopener noreferrer"
               target="_blank"
               className="underline"
             >
-              email@organization.com
+              reyerchu@defintek.io
             </a>
           </h2>
         </div>

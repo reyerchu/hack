@@ -39,7 +39,7 @@ export default function AddChallengePage() {
     return <div className="text-2xl font-black text-center">Unauthorized</div>;
 
   return (
-    <div className="p-3">
+    <div className="p-3 pt-24">
       <div>
         <ChallengeForm
           onSubmitClick={async (challenge) => {

@@ -354,9 +354,9 @@ export default function TeamUpDetail({ need, isOwner: ssrIsOwner, error }: TeamU
 
             {/* 內容區域 */}
             <div className="p-6 md:p-8 space-y-6">
-              {/* 專案簡介 */}
+              {/* 專案或個人簡介 */}
               <section>
-                <h2 className="text-xl font-bold text-gray-900 mb-3">專案簡介</h2>
+                <h2 className="text-xl font-bold text-gray-900 mb-3">專案或個人簡介</h2>
                 <p className="text-gray-700 whitespace-pre-line leading-relaxed">
                   {currentNeed.brief}
                 </p>

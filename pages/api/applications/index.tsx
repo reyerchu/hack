@@ -120,9 +120,17 @@ async function handlePostApplications(req: NextApiRequest, res: NextApiResponse)
       });
     }
 
-    await db.collection(APPLICATIONS_COLLECTION).doc(body.user.id).set(body);
+    // Add timestamp when creating registration
+    const registrationData = {
+      ...body,
+      timestamp: Date.now(), // Add current timestamp in milliseconds
+    };
+
+    await db.collection(APPLICATIONS_COLLECTION).doc(body.user.id).set(registrationData);
     await updateAllUsersDoc(body.user.id, body);
-    console.log(`Successfully created profile for user: ${body.user.id}`);
+    console.log(
+      `Successfully created profile for user: ${body.user.id} with timestamp: ${registrationData.timestamp}`,
+    );
     res.status(200).json({
       msg: 'Operation completed',
     });

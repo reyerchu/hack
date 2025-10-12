@@ -352,7 +352,7 @@ export default function NeedForm({
           聯繫提示 <span className="text-red-500">*</span>
         </label>
         <p className="text-sm text-gray-700 mb-3">
-          當有人應徵時，這段提示會私下提供給對方，引導他們如何聯繫您。
+          當有人應徵後被您接受時，這段提示會私下提供給對方，引導他們如何聯繫您。
         </p>
         <input
           type="text"

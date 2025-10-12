@@ -6,7 +6,7 @@ export const buttonDatas = [
 
 export const navItems = [
   { text: '首頁', path: '/' },
-  { text: '競賽題目', path: '/#challenges' },
+  { text: '活動獎項', path: '/#prize' },
   { text: '常見問題', path: '/#faq' },
   { text: '找隊友', path: '/team-up' },
   //  { text: '儀表板', path: '/dashboard' },
