@@ -46,8 +46,26 @@ export default function FilterPanel({ filters, onChange, onReset }: FilterPanelP
     handleFilterChange('roles', newRoles.length > 0 ? newRoles : undefined);
   };
 
+  // 處理專案狀態篩選（已有專案/尋找題目中）
+  const handleProjectStatusToggle = (status: 'hasProject' | 'seekingTopic') => {
+    const currentStatuses = (filters as any).projectStatuses || ['hasProject', 'seekingTopic'];
+    const newStatuses = currentStatuses.includes(status)
+      ? currentStatuses.filter((s: string) => s !== status)
+      : [...currentStatuses, status];
+
+    // 如果兩個都沒選，默認顯示全部（兩個都選中）
+    const finalStatuses = newStatuses.length === 0 ? ['hasProject', 'seekingTopic'] : newStatuses;
+    handleFilterChange('projectStatuses' as any, finalStatuses);
+  };
+
   const hasActiveFilters =
-    (filters.roles && filters.roles.length > 0) || filters.track || filters.stage;
+    (filters.roles && filters.roles.length > 0) ||
+    filters.track ||
+    filters.stage ||
+    // 檢查專案狀態是否不是默認值（默認是兩個都選中）
+    ((filters as any).projectStatuses &&
+      (filters as any).projectStatuses.length > 0 &&
+      (filters as any).projectStatuses.length < 2);
 
   return (
     <div className="bg-white border border-gray-200 rounded-lg p-4 mb-6">
@@ -79,7 +97,36 @@ export default function FilterPanel({ filters, onChange, onReset }: FilterPanelP
 
       {/* 篩選內容 */}
       <div className={`space-y-4 ${isExpanded ? 'block' : 'hidden md:block'}`}>
-        {/* 需要角色 - 最重要的選項，放最上面 */}
+        {/* 專案狀態篩選 - 放最上面，默認全選 */}
+        <div>
+          <div className="flex flex-wrap gap-2">
+            {/* 已有專案按鈕 */}
+            <button
+              onClick={() => handleProjectStatusToggle('hasProject')}
+              className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                (filters as any).projectStatuses?.includes('hasProject')
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              已有專案
+            </button>
+
+            {/* 尋找題目中按鈕 */}
+            <button
+              onClick={() => handleProjectStatusToggle('seekingTopic')}
+              className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                (filters as any).projectStatuses?.includes('seekingTopic')
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              尋找題目中
+            </button>
+          </div>
+        </div>
+
+        {/* 需要角色 */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             需要角色 {filters.roles && filters.roles.length > 0 && `(已選 ${filters.roles.length})`}

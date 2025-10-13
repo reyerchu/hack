@@ -44,6 +44,11 @@ export default function ProfilePage() {
   const [toggleLoading, setToggleLoading] = useState<{ [key: string]: boolean }>({});
   const [stats, setStats] = useState<any>(null);
 
+  // 多文件履历状态
+  const [resumeFiles, setResumeFiles] = useState<any[]>([]);
+  const [isLoadingResumes, setIsLoadingResumes] = useState(false);
+  const [uploadingFile, setUploadingFile] = useState(false);
+
   const handleEditClick = () => {
     setEditData({
       firstName: profile.user.firstName || '',
@@ -167,6 +172,100 @@ export default function ProfilePage() {
     setEditData({ ...editData, [field]: value });
   };
 
+  // 获取履历列表
+  const fetchResumeList = useCallback(async () => {
+    if (!user?.id) return;
+
+    setIsLoadingResumes(true);
+    try {
+      const response = await fetch(`/api/resume/list?userId=${user.id}`);
+      const data = await response.json();
+      if (data.success) {
+        setResumeFiles(data.files);
+      }
+    } catch (error) {
+      console.error('Failed to fetch resume list:', error);
+    } finally {
+      setIsLoadingResumes(false);
+    }
+  }, [user?.id]);
+
+  // 上传新文件
+  const handleUploadResume = async (file: File) => {
+    if (!user?.id) return;
+
+    // 验证文件大小 (max 5MB)
+    const maxSize = 5 * 1024 * 1024;
+    if (file.size > maxSize) {
+      alert('檔案大小不能超過 5MB');
+      return;
+    }
+
+    // 验证文件类型
+    const allowedTypes = ['.pdf', '.doc', '.docx'];
+    const fileExtension = '.' + file.name.split('.').pop()?.toLowerCase();
+    if (!allowedTypes.includes(fileExtension)) {
+      alert('只接受 PDF、DOC 或 DOCX 格式的檔案');
+      return;
+    }
+
+    setUploadingFile(true);
+    const formData = new FormData();
+    formData.append('resume', file);
+    formData.append('fileName', `${user.id}_${file.name}`);
+    formData.append('userId', user.id);
+    formData.append('studyLevel', profile?.studyLevel || 'Unknown');
+    formData.append('major', profile?.major || 'Unknown');
+
+    try {
+      const response = await fetch('/api/resume/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (response.ok) {
+        alert('上傳成功！');
+        fetchResumeList(); // 刷新列表
+      } else {
+        alert('上傳失敗');
+      }
+    } catch (error) {
+      console.error('Upload error:', error);
+      alert('上傳失敗');
+    } finally {
+      setUploadingFile(false);
+    }
+  };
+
+  // 删除文件
+  const handleDeleteResume = async (fileName: string) => {
+    if (!user?.id || !user?.token) return;
+
+    if (!confirm(`確定要刪除 ${fileName}？`)) return;
+
+    try {
+      const response = await fetch('/api/resume/delete', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${user.token}`,
+        },
+        body: JSON.stringify({ fileName }),
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        alert('刪除成功');
+        fetchResumeList(); // 刷新列表
+      } else {
+        alert('刪除失敗：' + data.message);
+      }
+    } catch (error) {
+      console.error('Delete error:', error);
+      alert('刪除失敗');
+    }
+  };
+
   // 獲取用戶發布的找隊友需求
   const fetchMyNeeds = useCallback(async () => {
     if (!user?.token) return;
@@ -273,13 +372,14 @@ export default function ProfilePage() {
     }
   }, [user?.token]);
 
-  // 組件掛載時獲取需求列表和申請記錄
+  // 組件掛載時獲取需求列表、申請記錄和履歷列表
   useEffect(() => {
     if (isSignedIn && hasProfile && user?.token) {
       fetchMyNeeds();
       fetchMyApplications();
+      fetchResumeList();
     }
-  }, [isSignedIn, hasProfile, user?.token, fetchMyNeeds, fetchMyApplications]);
+  }, [isSignedIn, hasProfile, user?.token, fetchMyNeeds, fetchMyApplications, fetchResumeList]);
 
   if (!isSignedIn) {
     return <div className="p-4 flex-grow text-center">請登入以查看您的個人中心！</div>;
@@ -552,87 +652,117 @@ export default function ProfilePage() {
                     </div>
                   )}
 
-                  {/* Resume File - Editable */}
-                  {(isEditing || profile.resume) && (
-                    <div className="profile-field">
-                      <div className="font-bold text-lg mb-2">履歷</div>
-                      {isEditing ? (
-                        <div className="flex flex-col gap-2">
-                          {profile.resume && (
-                            <div className="text-gray-700 flex items-center gap-2 text-sm bg-gray-50 p-2 rounded">
-                              <svg
-                                className="w-4 h-4"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
+                  {/* Resume Files - Multiple Files Support */}
+                  <div className="profile-field">
+                    <div className="font-bold text-lg mb-2">履歷文件</div>
+
+                    {isLoadingResumes ? (
+                      <div className="text-gray-500">載入中...</div>
+                    ) : (
+                      <div className="space-y-4">
+                        {/* 已上传的文件列表 */}
+                        {resumeFiles.length > 0 ? (
+                          <div className="space-y-2">
+                            <div className="text-sm text-gray-600 font-medium mb-2">
+                              已上傳的文件（{resumeFiles.length}）
+                            </div>
+                            {resumeFiles.map((file, index) => (
+                              <div
+                                key={index}
+                                className="flex items-center justify-between bg-gray-50 p-3 rounded border border-gray-200"
                               >
+                                <div className="flex items-center gap-2 flex-1 min-w-0">
+                                  <svg
+                                    className={`w-5 h-5 flex-shrink-0 ${
+                                      file.exists ? 'text-blue-500' : 'text-red-500'
+                                    }`}
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth={2}
+                                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                                    />
+                                  </svg>
+                                  <div className="flex-1 min-w-0">
+                                    <div className="font-medium text-sm truncate">
+                                      {file.fileName}
+                                    </div>
+                                    {file.exists ? (
+                                      <div className="text-xs text-gray-500">
+                                        {file.size
+                                          ? `${(file.size / 1024).toFixed(2)} KB`
+                                          : '檔案存在'}
+                                      </div>
+                                    ) : (
+                                      <div className="text-xs text-red-500">文件不存在</div>
+                                    )}
+                                  </div>
+                                </div>
+                                <button
+                                  onClick={() => handleDeleteResume(file.fileName)}
+                                  className="px-3 py-1 bg-red-500 text-white text-sm rounded hover:bg-red-600 transition-colors flex-shrink-0 ml-2"
+                                >
+                                  刪除
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="text-gray-500 text-sm bg-gray-50 p-3 rounded">
+                            尚未上傳履歷
+                          </div>
+                        )}
+
+                        {/* 上传新文件 */}
+                        <div className="border-t border-gray-200 pt-4">
+                          <label className="block mb-2 text-sm font-medium text-gray-700">
+                            上傳新履歷
+                          </label>
+                          <input
+                            type="file"
+                            accept=".pdf,.doc,.docx"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                handleUploadResume(file);
+                                e.target.value = ''; // 重置 input
+                              }
+                            }}
+                            disabled={uploadingFile}
+                            className="border-2 border-gray-400 rounded p-2 text-sm w-full disabled:bg-gray-100 disabled:cursor-not-allowed"
+                          />
+                          {uploadingFile && (
+                            <div className="text-blue-500 text-sm mt-2 flex items-center gap-2">
+                              <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                                <circle
+                                  className="opacity-25"
+                                  cx="12"
+                                  cy="12"
+                                  r="10"
+                                  stroke="currentColor"
+                                  strokeWidth="4"
+                                  fill="none"
+                                />
                                 <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                                  className="opacity-75"
+                                  fill="currentColor"
+                                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                                 />
                               </svg>
-                              <span>目前檔案：{profile.resume}</span>
+                              <span>上傳中...</span>
                             </div>
                           )}
-                          <div className="flex flex-col gap-2">
-                            <label
-                              htmlFor="resume-upload"
-                              className="text-sm text-gray-600 font-medium"
-                            >
-                              {profile.resume ? '上傳新履歷（可選）' : '上傳履歷'}
-                            </label>
-                            <input
-                              id="resume-upload"
-                              type="file"
-                              accept=".pdf,.doc,.docx"
-                              onChange={handleFileChange}
-                              className="border-2 border-gray-400 rounded p-2 text-sm w-full"
-                            />
-                            {resumeFile && (
-                              <div className="text-green-600 text-sm flex items-center gap-2 bg-green-50 p-2 rounded">
-                                <svg
-                                  className="w-4 h-4"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  viewBox="0 0 24 24"
-                                >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M5 13l4 4L19 7"
-                                  />
-                                </svg>
-                                <span>已選擇：{resumeFile.name}</span>
-                              </div>
-                            )}
-                            <p className="text-xs text-gray-500">
-                              接受 PDF、DOC、DOCX 格式，檔案大小限制 5MB
-                            </p>
-                          </div>
+                          <p className="text-xs text-gray-500 mt-2">
+                            接受 PDF、DOC、DOCX 格式，檔案大小限制 5MB
+                          </p>
                         </div>
-                      ) : (
-                        <div className="text-gray-700 flex items-center gap-2">
-                          <svg
-                            className="w-5 h-5"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                            />
-                          </svg>
-                          <span>{profile.resume}</span>
-                        </div>
-                      )}
-                    </div>
-                  )}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
 

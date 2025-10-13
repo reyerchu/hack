@@ -43,14 +43,22 @@ function initializeFirebase() {
         return;
       }
 
+      const storageBucketValue =
+        process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET ||
+        'hackathon-rwa-nexus.firebasestorage.app';
+
       admin.initializeApp({
         credential: admin.credential.cert({
           projectId: process.env.SERVICE_ACCOUNT_PROJECT_ID,
           clientEmail: process.env.SERVICE_ACCOUNT_CLIENT_EMAIL,
           privateKey: process.env.SERVICE_ACCOUNT_PRIVATE_KEY.replace(/\\n/g, '\n'),
         }),
+        storageBucket: storageBucketValue,
       });
-      console.log('Firebase Admin SDK initialized successfully');
+      console.log(
+        'Firebase Admin SDK initialized successfully with storage bucket:',
+        storageBucketValue,
+      );
     } catch (error) {
       console.error('Firebase Admin SDK initialization failed:', error);
     }

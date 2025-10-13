@@ -85,16 +85,35 @@ export default function Register() {
         formData.append('studyLevel', registrationData.studyLevel || 'Unknown');
         formData.append('major', registrationData.major || 'Unknown');
 
+        console.log('[Register] 開始上傳履歷...');
+
         try {
-          await fetch('/api/resume/upload', {
+          const uploadResponse = await fetch('/api/resume/upload', {
             method: 'POST',
             body: formData,
           });
-          // Store the filename in the registration data
+
+          const uploadResult = await uploadResponse.json();
+
+          if (uploadResult.success) {
+            console.log('[Register] ✅ 履歷上傳成功');
+            // Store the filename in the registration data
+            registrationData.resume = `${user.id}_${resumeFile.name}`;
+          } else {
+            console.error('[Register] ❌ 履歷上傳失敗:', uploadResult.message);
+            alert(
+              `履歷上傳失敗：${uploadResult.message}\n\n註冊將繼續，但您需要稍後在個人資料頁面重新上傳履歷。`,
+            );
+            // Store filename anyway so user knows they tried to upload
+            registrationData.resume = `${user.id}_${resumeFile.name}`;
+          }
+        } catch (uploadError: any) {
+          console.error('[Register] ❌ 履歷上傳錯誤:', uploadError);
+          alert(
+            `履歷上傳發生錯誤：${uploadError.message}\n\n註冊將繼續，但您需要稍後在個人資料頁面重新上傳履歷。`,
+          );
+          // Store filename anyway
           registrationData.resume = `${user.id}_${resumeFile.name}`;
-        } catch (uploadError) {
-          console.error('Resume upload failed:', uploadError);
-          // Continue with registration even if resume upload fails
         }
       }
 

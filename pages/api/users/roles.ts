@@ -8,22 +8,24 @@ const db = firestore();
 const USERS_COLLECTION = '/registrations';
 const MISC_COLLECTION = '/miscellaneous';
 
-async function updateAllUserDoc(userId: string, newRole: string) {
+async function updateAllUserDoc(userId: string, permissions: string[]) {
   const docRef = db.collection(MISC_COLLECTION).doc('allusers');
   const data = await docRef.get();
 
-  const userData = data.data().users.map((obj) => {
-    if (obj.id === userId) return { ...obj, user: { ...obj.user, permissions: [newRole] } };
-    return obj;
-  });
-  await docRef.set({
-    users: userData,
-  });
+  if (data.exists && data.data().users) {
+    const userData = data.data().users.map((obj) => {
+      if (obj.id === userId) return { ...obj, user: { ...obj.user, permissions } };
+      return obj;
+    });
+    await docRef.set({
+      users: userData,
+    });
+  }
 }
 
 async function updateUserRole(
   userId: string,
-  newRole: string,
+  permissions: string[],
 ): Promise<{ statusCode: number; msg: string }> {
   const docRef = db.collection(USERS_COLLECTION).doc(userId);
   const data = await docRef.get();
@@ -38,10 +40,10 @@ async function updateUserRole(
     ...userData,
     user: {
       ...userData.user,
-      permissions: [newRole],
+      permissions,
     },
   });
-  await updateAllUserDoc(userId, newRole);
+  await updateAllUserDoc(userId, permissions);
   return {
     statusCode: 200,
     msg: 'Update completed',
@@ -60,9 +62,20 @@ async function handlePostRequest(req: NextApiRequest, res: NextApiResponse) {
     });
   }
 
-  const { userId, newRole } = JSON.parse(req.body);
+  const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
+  const { userId, permissions, newRole } = body;
 
-  const updateResult = await updateUserRole(userId, newRole);
+  // 支持舊的 API（newRole）和新的 API（permissions）
+  const rolesToUpdate = permissions || (newRole ? [newRole] : []);
+
+  if (!rolesToUpdate || rolesToUpdate.length === 0) {
+    return res.status(400).json({
+      statusCode: 400,
+      msg: 'At least one role is required',
+    });
+  }
+
+  const updateResult = await updateUserRole(userId, rolesToUpdate);
   res.json(updateResult);
 }
 

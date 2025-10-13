@@ -228,13 +228,13 @@ export default function UserPage() {
         `${u.firstName} ${u.lastName}`,
         registeredDate,
         u.preferredEmail || '',
-        u.gender === 'Male'
-          ? '男性'
-          : u.gender === 'Female'
-          ? '女性'
-          : u.gender === 'Other'
+        (u.gender || '').toLowerCase() === 'male'
+          ? '男'
+          : (u.gender || '').toLowerCase() === 'female'
+          ? '女'
+          : (u.gender || '').toLowerCase() === 'other'
           ? '其他'
-          : u.gender === 'notSay'
+          : (u.gender || '').toLowerCase() === 'notsay'
           ? '不願透露'
           : '',
         u.teamStatus === 'individual'

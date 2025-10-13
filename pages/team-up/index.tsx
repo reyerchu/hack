@@ -77,6 +77,20 @@ export default function TeamUpIndex({
           );
         }
 
+        // 按專案狀態過濾
+        if ((filters as any).projectStatuses && (filters as any).projectStatuses.length > 0) {
+          filteredNeeds = filteredNeeds.filter((need: TeamNeed) => {
+            const statuses = (filters as any).projectStatuses;
+            // 如果選擇了「已有專案」，顯示 title !== '尋找題目中'
+            const matchesHasProject =
+              statuses.includes('hasProject') && need.title !== '尋找題目中';
+            // 如果選擇了「尋找題目中」，顯示 title === '尋找題目中'
+            const matchesSeekingTopic =
+              statuses.includes('seekingTopic') && need.title === '尋找題目中';
+            return matchesHasProject || matchesSeekingTopic;
+          });
+        }
+
         // 客戶端排序
         const sortField = filters.sort || 'latest';
         if (sortField === 'popular') {
@@ -125,6 +139,8 @@ export default function TeamUpIndex({
       limit: PAGINATION_DEFAULTS.LIMIT,
       offset: 0,
     };
+    // 添加默認的專案狀態
+    (defaultFilters as any).projectStatuses = ['hasProject', 'seekingTopic'];
     setFilters(defaultFilters);
     setSearchInput('');
     router.push('/team-up', undefined, { shallow: true });
@@ -257,11 +273,15 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     limit: Number(query.limit) || PAGINATION_DEFAULTS.LIMIT,
     offset: Number(query.offset) || 0,
     isOpen: true, // 默認只顯示開放中的需求
+    projectStatuses: ['hasProject', 'seekingTopic'], // 默認顯示所有專案狀態
   };
 
   // 只添加有值的篩選條件
   if (query.roles) initialFilters.roles = (query.roles as string).split(',');
   if (query.search) initialFilters.search = query.search as string;
+  // 如果 URL 有指定專案狀態，覆蓋默認值
+  if (query.projectStatuses)
+    initialFilters.projectStatuses = (query.projectStatuses as string).split(',');
 
   try {
     // 構建 API URL
