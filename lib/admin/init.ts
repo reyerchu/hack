@@ -47,11 +47,23 @@ function initializeFirebase() {
         process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET ||
         'hackathon-rwa-nexus.firebasestorage.app';
 
+      // 處理私鑰格式：移除引號並替換轉義的換行符
+      let privateKey = process.env.SERVICE_ACCOUNT_PRIVATE_KEY;
+      // 如果私鑰被引號包圍，移除引號
+      if (
+        (privateKey.startsWith('"') && privateKey.endsWith('"')) ||
+        (privateKey.startsWith("'") && privateKey.endsWith("'"))
+      ) {
+        privateKey = privateKey.slice(1, -1);
+      }
+      // 替換轉義的換行符為實際的換行符
+      privateKey = privateKey.replace(/\\n/g, '\n');
+
       admin.initializeApp({
         credential: admin.credential.cert({
           projectId: process.env.SERVICE_ACCOUNT_PROJECT_ID,
           clientEmail: process.env.SERVICE_ACCOUNT_CLIENT_EMAIL,
-          privateKey: process.env.SERVICE_ACCOUNT_PRIVATE_KEY.replace(/\\n/g, '\n'),
+          privateKey: privateKey,
         }),
         storageBucket: storageBucketValue,
       });
