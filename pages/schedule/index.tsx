@@ -115,6 +115,8 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
         return 'bg-purple-500 text-white';
       case '組隊社交':
         return 'bg-green-500 text-white';
+      case '贊助商':
+        return 'bg-orange-500 text-white';
       default:
         return 'bg-gray-500 text-white';
     }
@@ -535,19 +537,37 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold mb-1" style={{ color: '#1a3a6e' }}>
-                  標籤（用「、」分隔）
+                <label className="block text-sm font-semibold mb-2" style={{ color: '#1a3a6e' }}>
+                  類型（可多選）
                 </label>
-                <input
-                  type="text"
-                  value={editForm.tags}
-                  onChange={(e) => setEditForm({ ...editForm, tags: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="例如：熱門賽道、技術、組隊社交"
-                />
-                <p className="text-xs text-gray-500 mt-1">
-                  可選標籤：熱門賽道、技術、黑客松、組隊社交
-                </p>
+                <div className="space-y-2">
+                  {['熱門賽道', '技術', '黑客松', '組隊社交', '贊助商'].map((tag) => {
+                    const tagsArray = editForm.tags ? editForm.tags.split('、').filter(t => t.trim()) : [];
+                    const isChecked = tagsArray.includes(tag);
+                    
+                    return (
+                      <label key={tag} className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={isChecked}
+                          onChange={(e) => {
+                            let newTags: string[];
+                            if (e.target.checked) {
+                              newTags = [...tagsArray, tag];
+                            } else {
+                              newTags = tagsArray.filter(t => t !== tag);
+                            }
+                            setEditForm({ ...editForm, tags: newTags.join('、') });
+                          }}
+                          className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                        />
+                        <span className={`inline-block px-2 py-0.5 rounded text-xs font-semibold ${getTagColor(tag)}`}>
+                          {tag}
+                        </span>
+                      </label>
+                    );
+                  })}
+                </div>
               </div>
 
               <div>
@@ -562,37 +582,18 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-semibold mb-1" style={{ color: '#1a3a6e' }}>
-                    活動類型
-                  </label>
-                  <select
-                    value={editForm.Event}
-                    onChange={(e) => setEditForm({ ...editForm, Event: parseInt(e.target.value) })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value={1}>活動</option>
-                    <option value={2}>贊助商</option>
-                    <option value={3}>技術演講</option>
-                    <option value={4}>工作坊</option>
-                    <option value={5}>社交</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-semibold mb-1" style={{ color: '#1a3a6e' }}>
-                    活動狀態
-                  </label>
-                  <select
-                    value={editForm.status}
-                    onChange={(e) => setEditForm({ ...editForm, status: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="confirmed">已確認</option>
-                    <option value="unconfirmed">未確認</option>
-                  </select>
-                </div>
+              <div>
+                <label className="block text-sm font-semibold mb-1" style={{ color: '#1a3a6e' }}>
+                  活動狀態
+                </label>
+                <select
+                  value={editForm.status}
+                  onChange={(e) => setEditForm({ ...editForm, status: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="confirmed">已確認</option>
+                  <option value="unconfirmed">未確認</option>
+                </select>
               </div>
 
               <div className="flex gap-3 pt-4">
