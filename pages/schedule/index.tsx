@@ -212,19 +212,19 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
     e.preventDefault();
     
     if (isEventAdded(event)) {
-      const confirmAdd = window.confirm(
+      // 如果已添加，點擊後移除「已添加」狀態
+      const confirmRemove = window.confirm(
         `「${event.title}」已標記為已添加。\n\n` +
-        `如果您已在 Google Calendar 中刪除此活動，\n` +
-        `點擊「確定」將重新添加。\n\n` +
-        `點擊「取消」則不做任何操作。`
+        `點擊「確定」將移除已添加標記。\n` +
+        `之後您可以重新加入日曆。`
       );
-      if (!confirmAdd) {
-        return;
+      if (confirmRemove) {
+        removeEventFromAdded(getEventId(event));
       }
-      // 清除已添加狀態，這樣就可以重新添加
-      removeEventFromAdded(getEventId(event));
+      return;
     }
 
+    // 未添加的情況，正常添加
     markEventAsAdded(getEventId(event));
     window.open(generateGoogleCalendarLink(event), '_blank');
   };
