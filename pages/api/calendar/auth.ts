@@ -10,6 +10,17 @@ import { google } from 'googleapis';
  * 3. 交換授權碼獲取 access token
  */
 
+// Polyfills for Node.js 16 compatibility
+if (typeof global.Blob === 'undefined') {
+  const { Blob } = require('buffer');
+  (global as any).Blob = Blob;
+}
+
+if (typeof global.FormData === 'undefined') {
+  const FormData = require('form-data');
+  (global as any).FormData = FormData;
+}
+
 // OAuth 2.0 配置
 const getOAuth2Client = () => {
   const clientId = process.env.GOOGLE_CLIENT_ID;
