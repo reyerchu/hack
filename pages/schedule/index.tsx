@@ -19,6 +19,7 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
   const [editForm, setEditForm] = useState<any>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [addedEvents, setAddedEvents] = useState<Set<string>>(new Set());
+  const [conflictingEvents, setConflictingEvents] = useState<Set<string>>(new Set());
 
   // Check if user is admin - must be signed in AND have admin permissions
   const isAdmin =
@@ -182,6 +183,11 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
     return addedEvents.has(getEventId(event));
   };
 
+  // Function to check if event has conflicts
+  const hasConflict = (event: any) => {
+    return conflictingEvents.has(getEventId(event));
+  };
+
   // Function to generate Google Calendar link
   const generateGoogleCalendarLink = (event: any) => {
     const formatDateForGoogle = (date: Date) => {
@@ -229,78 +235,43 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
     window.open(generateGoogleCalendarLink(event), '_blank');
   };
 
-  // Function to add all events to Google Calendar
-  const addAllToCalendar = () => {
-    // Filter out unconfirmed and already added events
-    const eventsToAdd = sortedEvents.filter(
-      (event) => event.status !== 'unconfirmed' && !isEventAdded(event),
-    );
-
-    if (eventsToAdd.length === 0) {
-      alert('所有已確認的活動都已經添加到日曆了！');
-      return;
-    }
-
-    const confirmAdd = window.confirm(
-      `準備添加 ${eventsToAdd.length} 個活動到 Google Calendar。\n\n` +
-      `注意：每次只會打開一個分頁。\n` +
-      `請在每個分頁中確認添加後，點擊「確定」繼續下一個。\n\n` +
-      `確定開始嗎？`,
-    );
-
-    if (!confirmAdd) {
-      return;
-    }
-
-    // 先標記所有活動為已添加
-    const newSet = new Set(addedEvents);
-    eventsToAdd.forEach((event) => {
-      newSet.add(getEventId(event));
+  // Function to check for time conflicts
+  const checkConflicts = () => {
+    const newConflicts = new Set<string>();
+    
+    // 檢查每個已確認的活動
+    sortedEvents.forEach((event, index) => {
+      if (event.status === 'unconfirmed') return;
+      
+      // 與其他活動比較
+      sortedEvents.forEach((otherEvent, otherIndex) => {
+        if (index === otherIndex || otherEvent.status === 'unconfirmed') return;
+        
+        // 檢查時間是否重疊
+        const event1Start = event.startDate.getTime();
+        const event1End = event.endDate.getTime();
+        const event2Start = otherEvent.startDate.getTime();
+        const event2End = otherEvent.endDate.getTime();
+        
+        // 時間重疊邏輯：event1開始時間 < event2結束時間 且 event1結束時間 > event2開始時間
+        if (event1Start < event2End && event1End > event2Start) {
+          newConflicts.add(getEventId(event));
+        }
+      });
     });
-    setAddedEvents(newSet);
-    localStorage.setItem('addedCalendarEvents', JSON.stringify(Array.from(newSet)));
-
-    // 使用遞歸方式，一個一個打開
-    let currentIndex = 0;
     
-    const openNext = () => {
-      if (currentIndex >= eventsToAdd.length) {
-        alert(`完成！已打開全部 ${eventsToAdd.length} 個活動的 Google Calendar 頁面。`);
-        return;
-      }
-
-      const event = eventsToAdd[currentIndex];
-      const remaining = eventsToAdd.length - currentIndex;
-      
-      window.open(generateGoogleCalendarLink(event), '_blank');
-      
-      currentIndex++;
-      
-      if (currentIndex < eventsToAdd.length) {
-        // 顯示進度並詢問是否繼續
-        setTimeout(() => {
-          const continueNext = window.confirm(
-            `已打開：${event.title}\n\n` +
-            `進度：${currentIndex}/${eventsToAdd.length}\n` +
-            `剩餘：${remaining - 1} 個活動\n\n` +
-            `點擊「確定」繼續下一個活動。`
-          );
-          
-          if (continueNext) {
-            openNext();
-          } else {
-            alert(`已停止。您可以稍後再點擊個別活動的「+ 加入日曆」按鈕。`);
-          }
-        }, 500);
-      } else {
-        // 最後一個
-        setTimeout(() => {
-          alert(`完成！已打開全部 ${eventsToAdd.length} 個活動。`);
-        }, 500);
-      }
-    };
+    setConflictingEvents(newConflicts);
     
-    openNext();
+    if (newConflicts.size > 0) {
+      alert(
+        `檢查完成！\n\n` +
+        `發現 ${newConflicts.size} 個活動有時間衝突。\n` +
+        `衝突的活動已標記為紅色邊框。\n\n` +
+        `請注意檢查並調整時間。`
+      );
+    } else {
+      alert(`檢查完成！\n\n沒有發現時間衝突。✓`);
+    }
   };
 
   // Function to handle edit button click
@@ -455,7 +426,7 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
               )}
               {sortedEvents.length > 0 && (
                 <button
-                  onClick={addAllToCalendar}
+                  onClick={checkConflicts}
                   className="border-2 px-6 py-2.5 text-sm font-medium tracking-wide transition-colors duration-300 whitespace-nowrap"
                   style={{
                     borderColor: '#1a3a6e',
@@ -471,7 +442,7 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
                     e.currentTarget.style.color = '#1a3a6e';
                   }}
                 >
-                  + 全部加入日曆
+                  檢查衝突
                 </button>
               )}
             </div>
@@ -590,6 +561,30 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
                   title="已添加到日曆"
                 >
                   ✓ 已添加
+                </button>
+              ) : hasConflict(event) ? (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleAddToCalendar(event, e);
+                  }}
+                  className="border-2 px-3 py-1.5 text-xs font-medium tracking-wide transition-colors duration-300 whitespace-nowrap"
+                  style={{
+                    borderColor: '#8B4049',
+                    color: '#8B4049',
+                    backgroundColor: 'transparent',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#8B4049';
+                    e.currentTarget.style.color = 'white';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                    e.currentTarget.style.color = '#8B4049';
+                  }}
+                  title="有時間衝突"
+                >
+                  + 加入日曆（有衝突）
                 </button>
               ) : (
                 <button
