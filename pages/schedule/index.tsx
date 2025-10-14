@@ -21,6 +21,7 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
   const [editingEvent, setEditingEvent] = useState<any>(null);
   const [editForm, setEditForm] = useState<any>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [addedEvents, setAddedEvents] = useState<Set<string>>(new Set());
 
   // Check if user is admin - must be signed in AND have admin permissions
   const isAdmin =
@@ -28,6 +29,18 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
     profile?.user?.permissions &&
     (profile.user.permissions.includes('admin') ||
       profile.user.permissions.includes('super_admin'));
+
+  // Load added events from localStorage on mount
+  React.useEffect(() => {
+    const stored = localStorage.getItem('addedCalendarEvents');
+    if (stored) {
+      try {
+        setAddedEvents(new Set(JSON.parse(stored)));
+      } catch (e) {
+        console.error('Failed to load added events:', e);
+      }
+    }
+  }, []);
 
   // Parse and normalize schedule data from server
   const events = Array.isArray(scheduleCard)
@@ -92,6 +105,24 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
     }
   };
 
+  // Function to generate unique event ID
+  const getEventId = (event: any) => {
+    return `${event.title}-${event.startDate.getTime()}`;
+  };
+
+  // Function to mark event as added
+  const markEventAsAdded = (eventId: string) => {
+    const newSet = new Set(addedEvents);
+    newSet.add(eventId);
+    setAddedEvents(newSet);
+    localStorage.setItem('addedCalendarEvents', JSON.stringify(Array.from(newSet)));
+  };
+
+  // Function to check if event was added
+  const isEventAdded = (event: any) => {
+    return addedEvents.has(getEventId(event));
+  };
+
   // Function to generate Google Calendar link
   const generateGoogleCalendarLink = (event: any) => {
     const formatDateForGoogle = (date: Date) => {
@@ -109,10 +140,46 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
     return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${startTime}/${endTime}&details=${details}&location=${location}`;
   };
 
+  // Function to handle single event calendar add with duplicate check
+  const handleAddToCalendar = (event: any, e: React.MouseEvent) => {
+    e.preventDefault();
+    
+    if (isEventAdded(event)) {
+      const confirmAdd = window.confirm(
+        `您已經將「${event.title}」添加到日曆過了。\n確定要再次添加嗎？`,
+      );
+      if (!confirmAdd) {
+        return;
+      }
+    }
+
+    markEventAsAdded(getEventId(event));
+    window.open(generateGoogleCalendarLink(event), '_blank');
+  };
+
   // Function to add all events to Google Calendar
   const addAllToCalendar = () => {
-    sortedEvents.forEach((event, index) => {
+    // Filter out unconfirmed and already added events
+    const eventsToAdd = sortedEvents.filter(
+      (event) => event.status !== 'unconfirmed' && !isEventAdded(event),
+    );
+
+    if (eventsToAdd.length === 0) {
+      alert('所有已確認的活動都已經添加到日曆了！');
+      return;
+    }
+
+    const confirmAdd = window.confirm(
+      `準備添加 ${eventsToAdd.length} 個活動到 Google Calendar。\n（已跳過未確認及已添加的活動）\n\n確定繼續嗎？`,
+    );
+
+    if (!confirmAdd) {
+      return;
+    }
+
+    eventsToAdd.forEach((event, index) => {
       setTimeout(() => {
+        markEventAsAdded(getEventId(event));
         window.open(generateGoogleCalendarLink(event), '_blank');
       }, index * 500);
     });
@@ -318,18 +385,26 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
                         <div className="text-xs opacity-90">{event.startDate.getMonth() + 1}月</div>
                       </div>
                       {event.status !== 'unconfirmed' && (
-                        <a
-                          href={generateGoogleCalendarLink(event)}
-                          target="_blank"
-                          rel="noopener noreferrer"
+                        <button
+                          onClick={(e) => handleAddToCalendar(event, e)}
                           className="flex items-center justify-center gap-1 px-3 py-1.5 text-xs font-semibold text-white rounded-md transition-all duration-200 shadow-sm hover:shadow-md hover:opacity-90"
                           style={{
-                            backgroundColor: '#4285F4',
+                            backgroundColor: isEventAdded(event) ? '#34A853' : '#4285F4',
                           }}
+                          title={isEventAdded(event) ? '已添加到日曆' : '加入日曆'}
                         >
-                          <AddIcon style={{ fontSize: '16px' }} />
-                          加入日曆
-                        </a>
+                          {isEventAdded(event) ? (
+                            <>
+                              <EventAvailableIcon style={{ fontSize: '16px' }} />
+                              已添加
+                            </>
+                          ) : (
+                            <>
+                              <AddIcon style={{ fontSize: '16px' }} />
+                              加入日曆
+                            </>
+                          )}
+                        </button>
                       )}
                       {isAdmin && (
                         <button
