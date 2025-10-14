@@ -113,6 +113,8 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
         return 'bg-blue-500 text-white';
       case '黑客松':
         return 'bg-purple-500 text-white';
+      case '組隊社交':
+        return 'bg-green-500 text-white';
       default:
         return 'bg-gray-500 text-white';
     }
@@ -339,14 +341,6 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
                     {/* Left side - Main info */}
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2 flex-wrap">
-                        <span
-                          className={`inline-block px-2 py-0.5 rounded text-xs font-semibold text-white ${getEventTypeColor(
-                            event.Event,
-                          )}`}
-                        >
-                          {getEventTypeLabel(event.Event)}
-                        </span>
-
                         {event.tags && event.tags.length > 0 && event.tags.map((tag: string, tagIndex: number) => (
                           <span
                             key={tagIndex}
@@ -547,10 +541,10 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
                   value={editForm.tags}
                   onChange={(e) => setEditForm({ ...editForm, tags: e.target.value })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="例如：熱門賽道、技術、黑客松"
+                  placeholder="例如：熱門賽道、技術、組隊社交"
                 />
                 <p className="text-xs text-gray-500 mt-1">
-                  可選標籤：熱門賽道、技術、黑客松
+                  可選標籤：熱門賽道、技術、黑客松、組隊社交
                 </p>
               </div>
 
