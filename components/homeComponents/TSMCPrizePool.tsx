@@ -12,7 +12,7 @@ export default function TSMCPrizePool() {
     {
       name: '',
       track: 'RWA 與金融實務的落地應用',
-      logo: '/sponsor-media/Cathay-logo.svg',
+      logo: '/sponsor-media/Cathay-logo.png',
       url: 'https://www.cathayholdings.com/',
     },
     {
@@ -100,9 +100,9 @@ export default function TSMCPrizePool() {
                           <Image
                             src={sponsor.logo}
                             alt={`${sponsor.name} logo`}
-                            width={120}
-                            height={40}
-                            className="h-8 w-auto object-contain"
+                            width={sponsor.logo.includes('Cathay') ? 220 : 120}
+                            height={sponsor.logo.includes('Cathay') ? 50 : 40}
+                            className={sponsor.logo.includes('Cathay') ? "h-10 w-auto object-contain max-w-[220px]" : "h-8 w-auto object-contain max-w-[120px]"}
                           />
                         </a>
                       </div>
