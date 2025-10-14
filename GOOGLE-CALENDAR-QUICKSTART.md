@@ -29,7 +29,7 @@
 在專案根目錄創建 `.env.local` 文件（如果沒有的話）：
 
 ```bash
-# Google Calendar API
+# Google Calendar API (Dev Branch - Port 3009)
 GOOGLE_CLIENT_ID=你的_client_id_這裡.apps.googleusercontent.com
 GOOGLE_CLIENT_SECRET=你的_client_secret_這裡
 GOOGLE_REDIRECT_URI=http://localhost:3009/api/calendar/callback
@@ -54,7 +54,7 @@ npm run dev
 
 ### 1️⃣ 連接 Google Calendar
 
-1. 訪問時程表頁面：`http://localhost:3009/schedule`
+1. 訪問時程表頁面：`http://localhost:3009/schedule` (Dev Branch)
 2. 點擊頁面頂部的 **「連接 Google Calendar」** 按鈕（藍色）
 3. 在 Google 授權頁面點擊「允許」
 4. 自動返回時程表頁面，連接完成！

@@ -51,7 +51,7 @@
 在專案根目錄的 `.env` 或 `.env.local` 文件中添加以下變數：
 
 ```bash
-# Google Calendar API
+# Google Calendar API (Dev Branch - Port 3009)
 GOOGLE_CLIENT_ID=your_client_id_here.apps.googleusercontent.com
 GOOGLE_CLIENT_SECRET=your_client_secret_here
 GOOGLE_REDIRECT_URI=http://localhost:3009/api/calendar/callback
