@@ -43,6 +43,13 @@ async function getScheduleEvents(req: NextApiRequest, res: NextApiResponse) {
         endDate: currentEvent.endDate.toDate(),
       });
     });
+    
+    // 如果數據庫為空，返回 mock 數據
+    if (data.length === 0) {
+      console.log('No events in database, returning mock data for schedule events');
+      return res.json(getMockScheduleEvents());
+    }
+    
     res.json(data);
   } catch (error) {
     console.error('Error fetching schedule events:', error);
