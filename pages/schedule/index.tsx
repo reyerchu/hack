@@ -1,18 +1,32 @@
 import * as React from 'react';
+import { useState } from 'react';
 import { GetServerSideProps } from 'next';
 import { RequestHelper } from '../../lib/request-helper';
+import { useAuthContext } from '../../lib/user/AuthContext';
 import CalendarIcon from '@material-ui/icons/CalendarToday';
 import PinDrop from '@material-ui/icons/PinDrop';
 import ClockIcon from '@material-ui/icons/AccessTime';
 import PersonIcon from '@material-ui/icons/Person';
 import AddIcon from '@material-ui/icons/Add';
 import EventAvailableIcon from '@material-ui/icons/EventAvailable';
+import EditIcon from '@material-ui/icons/Edit';
+import CloseIcon from '@material-ui/icons/Close';
 
 interface SchedulePageProps {
   scheduleCard: ScheduleEvent[];
 }
 
 export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
+  const { profile } = useAuthContext();
+  const [editingEvent, setEditingEvent] = useState<any>(null);
+  const [editForm, setEditForm] = useState<any>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Check if user is admin
+  const isAdmin =
+    profile?.user?.permissions?.includes('admin') ||
+    profile?.user?.permissions?.includes('super_admin');
+
   // Parse and normalize schedule data from server
   const events = Array.isArray(scheduleCard)
     ? scheduleCard.map((event) => ({
@@ -98,18 +112,71 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
     sortedEvents.forEach((event, index) => {
       setTimeout(() => {
         window.open(generateGoogleCalendarLink(event), '_blank');
-      }, index * 500); // Delay each window by 500ms to avoid popup blocking
+      }, index * 500);
     });
+  };
+
+  // Function to handle edit button click
+  const handleEditClick = (event: any) => {
+    setEditingEvent(event);
+    setEditForm({
+      title: event.title,
+      description: event.description,
+      location: event.location,
+      speakers: event.speakers?.join('、') || '',
+      startDate: event.startDate.toISOString().slice(0, 16),
+      endDate: event.endDate.toISOString().slice(0, 16),
+      Event: event.Event,
+      track: event.track,
+      page: event.page,
+    });
+  };
+
+  // Function to handle form submission
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    try {
+      // Get Firebase auth token
+      const user = await (window as any).firebase?.auth()?.currentUser;
+      const token = user ? await user.getIdToken() : '';
+
+      const response = await fetch('/api/schedule', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': token,
+        },
+        body: JSON.stringify({
+          ...editForm,
+          speakers: editForm.speakers.split('、').filter((s: string) => s.trim()),
+          startDate: new Date(editForm.startDate).toISOString(),
+          endDate: new Date(editForm.endDate).toISOString(),
+        }),
+      });
+
+      if (response.ok) {
+        alert('活動更新成功！請刷新頁面查看更改。');
+        setEditingEvent(null);
+        window.location.reload();
+      } else {
+        alert('更新失敗，請稍後再試。');
+      }
+    } catch (error) {
+      console.error('Error updating event:', error);
+      alert('更新時發生錯誤。');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   // Function to render description with clickable links
   const renderDescription = (description: string) => {
     if (!description) return null;
 
-    // Split by lines and check for URLs
     const lines = description.split('\n');
     return lines.map((line, index) => {
-      // Check if line contains a URL
       const urlMatch = line.match(/(https?:\/\/[^\s]+)/g);
       if (urlMatch) {
         const parts = line.split(/(https?:\/\/[^\s]+)/g);
@@ -156,8 +223,10 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
             {sortedEvents.length > 0 && (
               <button
                 onClick={addAllToCalendar}
-                className="flex items-center gap-2 px-6 py-2.5 text-white rounded-md hover:opacity-90 transition-opacity duration-200 font-semibold text-sm whitespace-nowrap"
-                style={{ backgroundColor: '#1a3a6e' }}
+                className="flex items-center gap-2 px-6 py-2.5 text-white rounded-md transition-all duration-200 font-semibold text-sm whitespace-nowrap shadow-md hover:shadow-lg hover:opacity-90"
+                style={{
+                  backgroundColor: '#4285F4',
+                }}
               >
                 <EventAvailableIcon style={{ fontSize: '20px' }} />
                 全部加入日曆
@@ -183,7 +252,6 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
                     {/* Left side - Main info */}
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
-                        {/* Event type badge */}
                         <span
                           className={`inline-block px-2 py-0.5 rounded text-xs font-semibold text-white ${getEventTypeColor(
                             event.Event,
@@ -192,7 +260,6 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
                           {getEventTypeLabel(event.Event)}
                         </span>
 
-                        {/* Date and time in one line */}
                         <div className="flex items-center gap-3 text-xs text-gray-600">
                           <div className="flex items-center gap-1">
                             <CalendarIcon style={{ fontSize: '14px' }} />
@@ -205,12 +272,10 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
                         </div>
                       </div>
 
-                      {/* Title */}
                       <h2 className="text-lg font-bold mb-2" style={{ color: '#1a3a6e' }}>
                         {event.title}
                       </h2>
 
-                      {/* Location and speakers in one line */}
                       <div className="flex flex-wrap items-center gap-3 text-sm text-gray-700 mb-2">
                         <div className="flex items-center gap-1">
                           <PinDrop style={{ fontSize: '16px' }} className="text-gray-500" />
@@ -225,7 +290,6 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
                         )}
                       </div>
 
-                      {/* Description */}
                       {event.description && (
                         <div className="text-sm text-gray-600">
                           {renderDescription(event.description)}
@@ -233,7 +297,7 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
                       )}
                     </div>
 
-                    {/* Right side - Compact date display */}
+                    {/* Right side - Compact date display and buttons */}
                     <div className="md:text-right flex-shrink-0 flex flex-col gap-2">
                       <div
                         className="rounded-md px-4 py-2 text-white text-center"
@@ -246,12 +310,27 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
                         href={generateGoogleCalendarLink(event)}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center justify-center gap-1 px-3 py-1.5 text-xs font-semibold text-white rounded-md hover:opacity-90 transition-opacity duration-200"
-                        style={{ backgroundColor: '#1a3a6e' }}
+                        className="flex items-center justify-center gap-1 px-3 py-1.5 text-xs font-semibold text-white rounded-md transition-all duration-200 shadow-sm hover:shadow-md hover:opacity-90"
+                        style={{
+                          backgroundColor: '#4285F4',
+                        }}
                       >
                         <AddIcon style={{ fontSize: '16px' }} />
                         加入日曆
                       </a>
+                      {isAdmin && (
+                        <button
+                          onClick={() => handleEditClick(event)}
+                          className="flex items-center justify-center gap-1 px-3 py-1.5 text-xs font-semibold rounded-md transition-all duration-200 shadow-sm hover:shadow-md"
+                          style={{
+                            backgroundColor: '#f59e0b',
+                            color: 'white',
+                          }}
+                        >
+                          <EditIcon style={{ fontSize: '16px' }} />
+                          編輯
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -260,6 +339,143 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
           </div>
         )}
       </div>
+
+      {/* Edit Modal */}
+      {editingEvent && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div
+              className="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center"
+              style={{ borderBottomColor: '#1a3a6e' }}
+            >
+              <h2 className="text-2xl font-bold" style={{ color: '#1a3a6e' }}>
+                編輯活動
+              </h2>
+              <button
+                onClick={() => setEditingEvent(null)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <CloseIcon />
+              </button>
+            </div>
+
+            <form onSubmit={handleEditSubmit} className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-semibold mb-1" style={{ color: '#1a3a6e' }}>
+                  活動標題
+                </label>
+                <input
+                  type="text"
+                  value={editForm.title}
+                  onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold mb-1" style={{ color: '#1a3a6e' }}>
+                    開始時間
+                  </label>
+                  <input
+                    type="datetime-local"
+                    value={editForm.startDate}
+                    onChange={(e) => setEditForm({ ...editForm, startDate: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold mb-1" style={{ color: '#1a3a6e' }}>
+                    結束時間
+                  </label>
+                  <input
+                    type="datetime-local"
+                    value={editForm.endDate}
+                    onChange={(e) => setEditForm({ ...editForm, endDate: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold mb-1" style={{ color: '#1a3a6e' }}>
+                  地點
+                </label>
+                <input
+                  type="text"
+                  value={editForm.location}
+                  onChange={(e) => setEditForm({ ...editForm, location: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold mb-1" style={{ color: '#1a3a6e' }}>
+                  講者（用「、」分隔）
+                </label>
+                <input
+                  type="text"
+                  value={editForm.speakers}
+                  onChange={(e) => setEditForm({ ...editForm, speakers: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="例如：Reyer、Ping"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold mb-1" style={{ color: '#1a3a6e' }}>
+                  活動描述
+                </label>
+                <textarea
+                  value={editForm.description}
+                  onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  rows={4}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold mb-1" style={{ color: '#1a3a6e' }}>
+                  活動類型
+                </label>
+                <select
+                  value={editForm.Event}
+                  onChange={(e) => setEditForm({ ...editForm, Event: parseInt(e.target.value) })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value={1}>活動</option>
+                  <option value={2}>贊助商</option>
+                  <option value={3}>技術演講</option>
+                  <option value={4}>工作坊</option>
+                  <option value={5}>社交</option>
+                </select>
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="flex-1 px-6 py-2.5 text-white rounded-md font-semibold transition-opacity duration-200 disabled:opacity-50"
+                  style={{ backgroundColor: '#1a3a6e' }}
+                >
+                  {isSubmitting ? '儲存中...' : '儲存變更'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setEditingEvent(null)}
+                  className="px-6 py-2.5 bg-gray-300 text-gray-700 rounded-md font-semibold hover:bg-gray-400 transition-colors duration-200"
+                >
+                  取消
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

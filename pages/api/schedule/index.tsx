@@ -183,7 +183,7 @@ async function updateEventDatabase(req: NextApiRequest, res: NextApiResponse) {
   const { startTimestamp, endTimestamp, ...eventData } = JSON.parse(req.body);
 
   const userToken = req.headers['authorization'] as string;
-  const isAuthorized = await userIsAuthorized(userToken, ['super_admin']);
+  const isAuthorized = await userIsAuthorized(userToken, ['super_admin', 'admin']);
   if (!isAuthorized) {
     return res.status(403).json({
       statusCode: 403,
