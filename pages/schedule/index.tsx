@@ -243,10 +243,9 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
 
     const confirmAdd = window.confirm(
       `準備添加 ${eventsToAdd.length} 個活動到 Google Calendar。\n\n` +
-      `（已跳過未確認及已添加的活動）\n\n` +
-      `⚠️ 注意：將會依序打開 ${eventsToAdd.length} 個分頁\n` +
-      `如果瀏覽器攔截彈出視窗，請點擊「允許」。\n\n` +
-      `確定繼續嗎？`,
+      `注意：每次只會打開一個分頁。\n` +
+      `請在每個分頁中確認添加後，點擊「確定」繼續下一個。\n\n` +
+      `確定開始嗎？`,
     );
 
     if (!confirmAdd) {
@@ -261,25 +260,47 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
     setAddedEvents(newSet);
     localStorage.setItem('addedCalendarEvents', JSON.stringify(Array.from(newSet)));
 
-    // 立即打開第一個，避免被攔截
-    if (eventsToAdd.length > 0) {
-      window.open(generateGoogleCalendarLink(eventsToAdd[0]), '_blank');
-      
-      // 然後依序打開其餘的 Google Calendar 連結，增加延遲時間
-      for (let i = 1; i < eventsToAdd.length; i++) {
-        setTimeout(() => {
-          const opened = window.open(generateGoogleCalendarLink(eventsToAdd[i]), '_blank');
-          if (!opened) {
-            console.warn('彈出視窗可能被攔截:', eventsToAdd[i].title);
-          }
-        }, i * 1000); // 增加到 1000ms (1秒) 延遲
+    // 使用遞歸方式，一個一個打開
+    let currentIndex = 0;
+    
+    const openNext = () => {
+      if (currentIndex >= eventsToAdd.length) {
+        alert(`完成！已打開全部 ${eventsToAdd.length} 個活動的 Google Calendar 頁面。`);
+        return;
       }
+
+      const event = eventsToAdd[currentIndex];
+      const remaining = eventsToAdd.length - currentIndex;
       
-      // 提示用戶
-      setTimeout(() => {
-        alert(`正在依序打開 ${eventsToAdd.length} 個 Google Calendar 分頁...\n\n如果部分分頁沒有打開，請檢查瀏覽器的彈出視窗設定。`);
-      }, 500);
-    }
+      window.open(generateGoogleCalendarLink(event), '_blank');
+      
+      currentIndex++;
+      
+      if (currentIndex < eventsToAdd.length) {
+        // 顯示進度並詢問是否繼續
+        setTimeout(() => {
+          const continueNext = window.confirm(
+            `已打開：${event.title}\n\n` +
+            `進度：${currentIndex}/${eventsToAdd.length}\n` +
+            `剩餘：${remaining - 1} 個活動\n\n` +
+            `點擊「確定」繼續下一個活動。`
+          );
+          
+          if (continueNext) {
+            openNext();
+          } else {
+            alert(`已停止。您可以稍後再點擊個別活動的「+ 加入日曆」按鈕。`);
+          }
+        }, 500);
+      } else {
+        // 最後一個
+        setTimeout(() => {
+          alert(`完成！已打開全部 ${eventsToAdd.length} 個活動。`);
+        }, 500);
+      }
+    };
+    
+    openNext();
   };
 
   // Function to handle edit button click
