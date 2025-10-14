@@ -94,7 +94,7 @@ type AppointmentProps = Appointments.AppointmentProps & WithStyles<typeof styles
 type AppointmentContentProps = Appointments.AppointmentContentProps & WithStyles<typeof styles>;
 
 const isWeekEnd = (date: Date): boolean => date.getDay() === 0 || date.getDay() === 6;
-const defaultCurrentDate = new Date(2021, 10, 13, 9, 0);
+const defaultCurrentDate = new Date(2025, 9, 16, 9, 0); // 2025年10月16日
 {
   /* !!!change */
 }
@@ -366,7 +366,7 @@ export default function Calendar(props: { scheduleCard: ScheduleEvent[] }) {
             </div>
           </section>
 
-          <div className="text-right">*所有活動時間均以 CST 為準</div>
+          <div className="text-right">*所有活動時間均以台灣時間（GMT+8）為準</div>
         </div>
       </div>
     </>
