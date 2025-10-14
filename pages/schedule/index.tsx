@@ -428,9 +428,9 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
             {sortedEvents.map((event, index) => (
               <div
                 key={index}
-                className={`bg-white rounded-md shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden border-l-4 ${
+                className={`bg-white rounded-md shadow-sm hover:shadow-lg transition-all duration-200 overflow-hidden border-l-4 ${
                   event.status === 'unconfirmed' ? 'opacity-60 grayscale' : ''
-                } ${isAdmin ? 'cursor-pointer hover:bg-gray-50' : 'hover:bg-gray-50'}`}
+                } ${isAdmin ? 'cursor-pointer hover:bg-blue-50' : 'hover:bg-blue-50'}`}
                 style={{ borderLeftColor: '#1a3a6e' }}
                 onClick={() => isAdmin && handleEditClick(event)}
               >
