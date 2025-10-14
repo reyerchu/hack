@@ -5,6 +5,8 @@ import CalendarIcon from '@material-ui/icons/CalendarToday';
 import PinDrop from '@material-ui/icons/PinDrop';
 import ClockIcon from '@material-ui/icons/AccessTime';
 import PersonIcon from '@material-ui/icons/Person';
+import AddIcon from '@material-ui/icons/Add';
+import EventAvailableIcon from '@material-ui/icons/EventAvailable';
 
 interface SchedulePageProps {
   scheduleCard: ScheduleEvent[];
@@ -74,6 +76,32 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
     }
   };
 
+  // Function to generate Google Calendar link
+  const generateGoogleCalendarLink = (event: any) => {
+    const formatDateForGoogle = (date: Date) => {
+      return date.toISOString().replace(/-|:|\.\d\d\d/g, '');
+    };
+
+    const title = encodeURIComponent(event.title);
+    const startTime = formatDateForGoogle(event.startDate);
+    const endTime = formatDateForGoogle(event.endDate);
+    const details = encodeURIComponent(
+      event.description || '' + (event.speakers?.length ? `\n講者: ${event.speakers.join('、')}` : ''),
+    );
+    const location = encodeURIComponent(event.location || '');
+
+    return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${startTime}/${endTime}&details=${details}&location=${location}`;
+  };
+
+  // Function to add all events to Google Calendar
+  const addAllToCalendar = () => {
+    sortedEvents.forEach((event, index) => {
+      setTimeout(() => {
+        window.open(generateGoogleCalendarLink(event), '_blank');
+      }, index * 500); // Delay each window by 500ms to avoid popup blocking
+    });
+  };
+
   // Function to render description with clickable links
   const renderDescription = (description: string) => {
     if (!description) return null;
@@ -118,10 +146,24 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-5xl mx-auto px-4 py-20">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2" style={{ color: '#1a3a6e' }}>
-            時程表
-          </h1>
-          <p className="text-sm text-gray-600">*所有活動時間均以台灣時間（GMT+8）為準</p>
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
+            <div>
+              <h1 className="text-4xl font-bold mb-2" style={{ color: '#1a3a6e' }}>
+                時程表
+              </h1>
+              <p className="text-sm text-gray-600">*所有活動時間均以台灣時間（GMT+8）為準</p>
+            </div>
+            {sortedEvents.length > 0 && (
+              <button
+                onClick={addAllToCalendar}
+                className="flex items-center gap-2 px-6 py-2.5 text-white rounded-md hover:opacity-90 transition-opacity duration-200 font-semibold text-sm whitespace-nowrap"
+                style={{ backgroundColor: '#1a3a6e' }}
+              >
+                <EventAvailableIcon style={{ fontSize: '20px' }} />
+                全部加入日曆
+              </button>
+            )}
+          </div>
         </div>
 
         {sortedEvents.length === 0 ? (
@@ -192,7 +234,7 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
                     </div>
 
                     {/* Right side - Compact date display */}
-                    <div className="md:text-right flex-shrink-0">
+                    <div className="md:text-right flex-shrink-0 flex flex-col gap-2">
                       <div
                         className="rounded-md px-4 py-2 text-white text-center"
                         style={{ backgroundColor: '#1a3a6e' }}
@@ -200,6 +242,16 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
                         <div className="text-2xl font-bold">{event.startDate.getDate()}</div>
                         <div className="text-xs opacity-90">{event.startDate.getMonth() + 1}月</div>
                       </div>
+                      <a
+                        href={generateGoogleCalendarLink(event)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-center gap-1 px-3 py-1.5 text-xs font-semibold text-white rounded-md hover:opacity-90 transition-opacity duration-200"
+                        style={{ backgroundColor: '#1a3a6e' }}
+                      >
+                        <AddIcon style={{ fontSize: '16px' }} />
+                        加入日曆
+                      </a>
                     </div>
                   </div>
                 </div>
