@@ -168,7 +168,7 @@ function getMockScheduleEvents() {
       title: 'DeFi Chit-chat + RWA 現場組隊',
       Event: 5,
       track: 'Social',
-      location: '線下',
+      location: 'Cozy Cowork Cafe',
       speakers: ['XueDAO'],
       description: 'DeFi 主題聊天與 RWA 現場組隊活動\n報名連結：https://luma.com/cmy4qjmz?tk=0FYhD',
       page: 'RWA 黑客松',

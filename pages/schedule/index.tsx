@@ -145,6 +145,8 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
       return 'https://meet.google.com/xqk-afqm-sfw';
     } else if (location === '台北市中正區羅斯福路二段 9 號 9 樓' || location.includes('imToken')) {
       return 'https://www.google.com/maps/search/?api=1&query=台北市中正區羅斯福路二段9號9樓';
+    } else if (location.includes('Cozy Cowork Cafe')) {
+      return 'https://www.google.com/maps/search/?api=1&query=Cozy+Cowork+Cafe+台北';
     } else if (location.includes('A747')) {
       return 'https://cpbae.nccu.edu.tw/cpbae-page/space/detail?id=157&date=2025-10-31';
     } else if (location.includes('A645')) {
@@ -156,9 +158,11 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
   // Function to get location display name
   const getLocationDisplay = (location: string) => {
     if (location === '線上') {
-      return 'Google Meet';
+      return '線上 Google Meet';
     } else if (location.includes('imToken')) {
-      return '台北市中正區羅斯福路二段 9 號 9 樓';
+      return 'imToken 台北市中正區羅斯福路二段 9 號 9 樓';
+    } else if (location.includes('政大公企') && !location.includes('中心')) {
+      return location.replace('政大公企', '政大公企中心');
     }
     return location;
   };
@@ -271,8 +275,12 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
       const user = await (window as any).firebase?.auth()?.currentUser;
       const token = user ? await user.getIdToken() : '';
 
+      const isNewEvent = !editingEvent.title;
+      const method = isNewEvent ? 'POST' : 'PUT';
+      const successMessage = isNewEvent ? '活動新增成功！' : '活動更新成功！';
+
       const response = await fetch('/api/schedule', {
-        method: 'POST',
+        method,
         headers: {
           'Content-Type': 'application/json',
           'Authorization': token,
@@ -287,15 +295,15 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
       });
 
       if (response.ok) {
-        alert('活動更新成功！請刷新頁面查看更改。');
+        alert(successMessage + '請刷新頁面查看更改。');
         setEditingEvent(null);
         window.location.reload();
       } else {
-        alert('更新失敗，請稍後再試。');
+        alert(isNewEvent ? '新增失敗，請稍後再試。' : '更新失敗，請稍後再試。');
       }
     } catch (error) {
-      console.error('Error updating event:', error);
-      alert('更新時發生錯誤。');
+      console.error('Error submitting event:', error);
+      alert('操作時發生錯誤。');
     } finally {
       setIsSubmitting(false);
     }
@@ -344,18 +352,47 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
       <div className="max-w-5xl mx-auto px-4 py-20">
         <div className="mb-8">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
-            <div>
-              <h1 className="text-4xl font-bold mb-2" style={{ color: '#1a3a6e' }}>
-                時程表
-              </h1>
-              <p className="text-sm text-gray-600">*所有活動時間均以台灣時間（GMT+8）為準</p>
+            <div className="flex items-center gap-4">
+              <div>
+                <h1 className="text-4xl font-bold mb-2" style={{ color: '#1a3a6e' }}>
+                  時程表
+                </h1>
+                <p className="text-sm text-gray-600">*所有活動時間均以台灣時間（GMT+8）為準</p>
+              </div>
+              {isAdmin && (
+                <button
+                  onClick={() => {
+                    const now = new Date();
+                    const startDate = new Date(now.getTime() + 24 * 60 * 60 * 1000); // 明天
+                    const endDate = new Date(startDate.getTime() + 2 * 60 * 60 * 1000); // 2小時後
+                    
+                    setEditForm({
+                      title: '',
+                      startDate: startDate.toISOString().slice(0, 16),
+                      endDate: endDate.toISOString().slice(0, 16),
+                      location: '線上',
+                      speakers: '',
+                      description: '',
+                      Event: 3,
+                      status: 'confirmed',
+                      tags: '',
+                    });
+                    setEditingEvent({} as any); // 空物件表示新增
+                  }}
+                  className="flex items-center gap-2 px-4 py-2 rounded-md text-white font-semibold transition-all duration-200 shadow-sm hover:shadow-md hover:opacity-90"
+                  style={{ backgroundColor: '#1a3a6e' }}
+                >
+                  <AddIcon style={{ fontSize: '18px' }} />
+                  新增活動
+                </button>
+              )}
             </div>
             {sortedEvents.length > 0 && (
               <button
                 onClick={addAllToCalendar}
                 className="flex items-center gap-2 px-6 py-2.5 text-white rounded-md transition-all duration-200 font-semibold text-sm whitespace-nowrap shadow-md hover:shadow-lg hover:opacity-90"
                 style={{
-                  backgroundColor: '#4285F4',
+                  backgroundColor: '#1a3a6e',
                 }}
               >
                 <EventAvailableIcon style={{ fontSize: '20px' }} />
@@ -460,41 +497,41 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
                         <div className="text-2xl font-bold">{event.startDate.getDate()}</div>
                         <div className="text-xs opacity-90">{event.startDate.getMonth() + 1}月</div>
                       </div>
-                      {event.status !== 'unconfirmed' && (
-                        <button
-                          onClick={(e) => handleAddToCalendar(event, e)}
-                          className="flex items-center justify-center gap-1 px-3 py-1.5 text-xs font-semibold text-white rounded-md transition-all duration-200 shadow-sm hover:shadow-md hover:opacity-90"
-                          style={{
-                            backgroundColor: isEventAdded(event) ? '#34A853' : '#4285F4',
-                          }}
-                          title={isEventAdded(event) ? '已添加到日曆' : '加入日曆'}
-                        >
-                          {isEventAdded(event) ? (
-                            <>
-                              <EventAvailableIcon style={{ fontSize: '16px' }} />
-                              已添加
-                            </>
-                          ) : (
-                            <>
-                              <AddIcon style={{ fontSize: '16px' }} />
-                              加入日曆
-                            </>
-                          )}
-                        </button>
-                      )}
-                      {isAdmin && (
-                        <button
-                          onClick={() => handleEditClick(event)}
-                          className="flex items-center justify-center gap-1 px-3 py-1.5 text-xs font-semibold rounded-md transition-all duration-200 shadow-sm hover:shadow-md"
-                          style={{
-                            backgroundColor: '#f59e0b',
-                            color: 'white',
-                          }}
-                        >
-                          <EditIcon style={{ fontSize: '16px' }} />
-                          編輯
-                        </button>
-                      )}
+            {event.status !== 'unconfirmed' && (
+              <button
+                onClick={(e) => handleAddToCalendar(event, e)}
+                className="flex items-center justify-center gap-1 px-3 py-1.5 text-xs font-semibold text-white rounded-md transition-all duration-200 shadow-sm hover:shadow-md hover:opacity-90"
+                style={{
+                  backgroundColor: isEventAdded(event) ? '#3D6B5C' : '#1a3a6e',
+                }}
+                title={isEventAdded(event) ? '已添加到日曆' : '加入日曆'}
+              >
+                {isEventAdded(event) ? (
+                  <>
+                    <EventAvailableIcon style={{ fontSize: '16px' }} />
+                    已添加
+                  </>
+                ) : (
+                  <>
+                    <AddIcon style={{ fontSize: '16px' }} />
+                    加入日曆
+                  </>
+                )}
+              </button>
+            )}
+            {isAdmin && (
+              <button
+                onClick={() => handleEditClick(event)}
+                className="flex items-center justify-center gap-1 px-3 py-1.5 text-xs font-semibold rounded-md transition-all duration-200 shadow-sm hover:shadow-md"
+                style={{
+                  backgroundColor: '#8B6239',
+                  color: 'white',
+                }}
+              >
+                <EditIcon style={{ fontSize: '16px' }} />
+                編輯
+              </button>
+            )}
                     </div>
                   </div>
                 </div>
@@ -513,7 +550,7 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
               style={{ borderBottomColor: '#1a3a6e' }}
             >
               <h2 className="text-2xl font-bold" style={{ color: '#1a3a6e' }}>
-                編輯活動
+                {editingEvent.title ? '編輯活動' : '新增活動'}
               </h2>
               <button
                 onClick={() => setEditingEvent(null)}
