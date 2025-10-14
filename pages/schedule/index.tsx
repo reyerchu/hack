@@ -17,15 +17,17 @@ interface SchedulePageProps {
 }
 
 export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
-  const { profile } = useAuthContext();
+  const { profile, isSignedIn } = useAuthContext();
   const [editingEvent, setEditingEvent] = useState<any>(null);
   const [editForm, setEditForm] = useState<any>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Check if user is admin
+  // Check if user is admin - must be signed in AND have admin permissions
   const isAdmin =
-    profile?.user?.permissions?.includes('admin') ||
-    profile?.user?.permissions?.includes('super_admin');
+    isSignedIn &&
+    profile?.user?.permissions &&
+    (profile.user.permissions.includes('admin') ||
+      profile.user.permissions.includes('super_admin'));
 
   // Parse and normalize schedule data from server
   const events = Array.isArray(scheduleCard)
