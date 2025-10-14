@@ -33,6 +33,6 @@ echo "Starting server..."
 echo ""
 
 # Start the dev server on port 3009
-PORT=3009 npm start
+npx next start -p 3009
 
 
