@@ -350,12 +350,6 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
                           </span>
                         ))}
 
-                        {event.status === 'unconfirmed' && (
-                          <span className="inline-block px-2 py-0.5 rounded text-xs font-semibold bg-gray-400 text-white">
-                            未確認
-                          </span>
-                        )}
-
                         <div className="flex items-center gap-3 text-xs text-gray-600">
                           <div className="flex items-center gap-1">
                             <CalendarIcon style={{ fontSize: '14px' }} />
@@ -368,9 +362,17 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
                         </div>
                       </div>
 
-                      <h2 className="text-lg font-bold mb-2" style={{ color: '#1a3a6e' }}>
-                        {event.title}
-                      </h2>
+                      {/* Title with Status */}
+                      <div className="flex items-center gap-2 mb-2">
+                        <h2 className="text-lg font-bold" style={{ color: '#1a3a6e' }}>
+                          {event.title}
+                        </h2>
+                        {event.status === 'unconfirmed' && (
+                          <span className="inline-block px-2 py-0.5 rounded text-xs font-semibold bg-gray-400 text-white">
+                            未確認
+                          </span>
+                        )}
+                      </div>
 
                       <div className="flex flex-wrap items-center gap-3 text-sm text-gray-700 mb-2">
                         <div className="flex items-center gap-1">
