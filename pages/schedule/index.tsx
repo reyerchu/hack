@@ -108,18 +108,59 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
   const getTagColor = (tag: string) => {
     switch (tag) {
       case '熱門賽道':
-        return 'bg-red-500 text-white';
+        return 'text-white';
       case '技術':
-        return 'bg-blue-500 text-white';
+        return 'text-white';
       case '黑客松':
-        return 'bg-purple-500 text-white';
+        return 'text-white';
       case '組隊社交':
-        return 'bg-green-500 text-white';
+        return 'text-white';
       case '贊助商':
-        return 'bg-orange-500 text-white';
+        return 'text-white';
       default:
-        return 'bg-gray-500 text-white';
+        return 'bg-gray-700 text-white';
     }
+  };
+
+  const getTagStyle = (tag: string) => {
+    switch (tag) {
+      case '熱門賽道':
+        return { backgroundColor: '#8B4049' }; // 暗紅
+      case '技術':
+        return { backgroundColor: '#1a3a6e' }; // 暗藍（與 Home page 一致）
+      case '黑客松':
+        return { backgroundColor: '#5B4B8A' }; // 暗紫
+      case '組隊社交':
+        return { backgroundColor: '#3D6B5C' }; // 暗綠
+      case '贊助商':
+        return { backgroundColor: '#8B6239' }; // 暗橙
+      default:
+        return { backgroundColor: '#4B5563' }; // 暗灰
+    }
+  };
+
+  // Function to get location link
+  const getLocationLink = (location: string) => {
+    if (location === 'Google Meet' || location === '線上') {
+      return 'https://meet.google.com/xqk-afqm-sfw';
+    } else if (location === '台北市中正區羅斯福路二段 9 號 9 樓' || location.includes('imToken')) {
+      return 'https://www.google.com/maps/search/?api=1&query=台北市中正區羅斯福路二段9號9樓';
+    } else if (location.includes('A747')) {
+      return 'https://cpbae.nccu.edu.tw/cpbae-page/space/detail?id=157&date=2025-10-31';
+    } else if (location.includes('A645')) {
+      return 'https://cpbae.nccu.edu.tw/cpbae-page/space/detail?id=18&date=2025-11-01';
+    }
+    return null;
+  };
+
+  // Function to get location display name
+  const getLocationDisplay = (location: string) => {
+    if (location === '線上') {
+      return 'Google Meet';
+    } else if (location.includes('imToken')) {
+      return '台北市中正區羅斯福路二段 9 號 9 樓';
+    }
+    return location;
   };
 
   // Function to generate unique event ID
@@ -347,6 +388,7 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
                           <span
                             key={tagIndex}
                             className={`inline-block px-2 py-0.5 rounded text-xs font-semibold ${getTagColor(tag)}`}
+                            style={getTagStyle(tag)}
                           >
                             {tag}
                           </span>
@@ -379,7 +421,19 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
                       <div className="flex flex-wrap items-center gap-3 text-sm text-gray-700 mb-2">
                         <div className="flex items-center gap-1">
                           <PinDrop style={{ fontSize: '16px' }} className="text-gray-500" />
-                          <span>{event.location || '待定'}</span>
+                          {getLocationLink(event.location) ? (
+                            <a
+                              href={getLocationLink(event.location)}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="hover:underline"
+                              style={{ color: '#1a3a6e' }}
+                            >
+                              {getLocationDisplay(event.location) || '待定'}
+                            </a>
+                          ) : (
+                            <span>{getLocationDisplay(event.location) || '待定'}</span>
+                          )}
                         </div>
 
                         {event.speakers && event.speakers.length > 0 && (
@@ -561,7 +615,10 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
                           }}
                           className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                         />
-                        <span className={`inline-block px-2 py-0.5 rounded text-xs font-semibold ${getTagColor(tag)}`}>
+                        <span 
+                          className={`inline-block px-2 py-0.5 rounded text-xs font-semibold ${getTagColor(tag)}`}
+                          style={getTagStyle(tag)}
+                        >
                           {tag}
                         </span>
                       </label>
