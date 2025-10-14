@@ -200,16 +200,29 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
   };
 
   // Function to handle single event calendar add with duplicate check
+  // Function to remove event from added list
+  const removeEventFromAdded = (eventId: string) => {
+    const newSet = new Set(addedEvents);
+    newSet.delete(eventId);
+    setAddedEvents(newSet);
+    localStorage.setItem('addedCalendarEvents', JSON.stringify(Array.from(newSet)));
+  };
+
   const handleAddToCalendar = (event: any, e: React.MouseEvent) => {
     e.preventDefault();
     
     if (isEventAdded(event)) {
       const confirmAdd = window.confirm(
-        `您已經將「${event.title}」添加到日曆過了。\n確定要再次添加嗎？`,
+        `「${event.title}」已標記為已添加。\n\n` +
+        `如果您已在 Google Calendar 中刪除此活動，\n` +
+        `點擊「確定」將重新添加。\n\n` +
+        `點擊「取消」則不做任何操作。`
       );
       if (!confirmAdd) {
         return;
       }
+      // 清除已添加狀態，這樣就可以重新添加
+      removeEventFromAdded(getEventId(event));
     }
 
     markEventAsAdded(getEventId(event));
