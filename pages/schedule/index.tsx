@@ -118,7 +118,7 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-5xl mx-auto px-4 py-20">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2" style={{ color: '#05149C' }}>
+          <h1 className="text-4xl font-bold mb-2" style={{ color: '#1a3a6e' }}>
             時程表
           </h1>
           <p className="text-sm text-gray-600">*所有活動時間均以台灣時間（GMT+8）為準</p>
@@ -134,7 +134,7 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
               <div
                 key={index}
                 className="bg-white rounded-md shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden border-l-4"
-                style={{ borderLeftColor: '#05149C' }}
+                style={{ borderLeftColor: '#1a3a6e' }}
               >
                 <div className="p-4">
                   <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
@@ -164,7 +164,7 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
                       </div>
 
                       {/* Title */}
-                      <h2 className="text-lg font-bold mb-2" style={{ color: '#05149C' }}>
+                      <h2 className="text-lg font-bold mb-2" style={{ color: '#1a3a6e' }}>
                         {event.title}
                       </h2>
 
@@ -195,7 +195,7 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
                     <div className="md:text-right flex-shrink-0">
                       <div
                         className="rounded-md px-4 py-2 text-white text-center"
-                        style={{ backgroundColor: '#05149C' }}
+                        style={{ backgroundColor: '#1a3a6e' }}
                       >
                         <div className="text-2xl font-bold">{event.startDate.getDate()}</div>
                         <div className="text-xs opacity-90">{event.startDate.getMonth() + 1}月</div>
