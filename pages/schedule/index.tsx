@@ -131,6 +131,7 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
       Event: event.Event,
       track: event.track,
       page: event.page,
+      status: event.status || 'confirmed',
     });
   };
 
@@ -246,14 +247,16 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
             {sortedEvents.map((event, index) => (
               <div
                 key={index}
-                className="bg-white rounded-md shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden border-l-4"
+                className={`bg-white rounded-md shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden border-l-4 ${
+                  event.status === 'unconfirmed' ? 'opacity-60 grayscale' : ''
+                }`}
                 style={{ borderLeftColor: '#1a3a6e' }}
               >
                 <div className="p-4">
                   <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                     {/* Left side - Main info */}
                     <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
+                      <div className="flex items-center gap-3 mb-2 flex-wrap">
                         <span
                           className={`inline-block px-2 py-0.5 rounded text-xs font-semibold text-white ${getEventTypeColor(
                             event.Event,
@@ -261,6 +264,12 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
                         >
                           {getEventTypeLabel(event.Event)}
                         </span>
+
+                        {event.status === 'unconfirmed' && (
+                          <span className="inline-block px-2 py-0.5 rounded text-xs font-semibold bg-gray-400 text-white">
+                            未確認
+                          </span>
+                        )}
 
                         <div className="flex items-center gap-3 text-xs text-gray-600">
                           <div className="flex items-center gap-1">
@@ -308,18 +317,20 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
                         <div className="text-2xl font-bold">{event.startDate.getDate()}</div>
                         <div className="text-xs opacity-90">{event.startDate.getMonth() + 1}月</div>
                       </div>
-                      <a
-                        href={generateGoogleCalendarLink(event)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center justify-center gap-1 px-3 py-1.5 text-xs font-semibold text-white rounded-md transition-all duration-200 shadow-sm hover:shadow-md hover:opacity-90"
-                        style={{
-                          backgroundColor: '#4285F4',
-                        }}
-                      >
-                        <AddIcon style={{ fontSize: '16px' }} />
-                        加入日曆
-                      </a>
+                      {event.status !== 'unconfirmed' && (
+                        <a
+                          href={generateGoogleCalendarLink(event)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center justify-center gap-1 px-3 py-1.5 text-xs font-semibold text-white rounded-md transition-all duration-200 shadow-sm hover:shadow-md hover:opacity-90"
+                          style={{
+                            backgroundColor: '#4285F4',
+                          }}
+                        >
+                          <AddIcon style={{ fontSize: '16px' }} />
+                          加入日曆
+                        </a>
+                      )}
                       {isAdmin && (
                         <button
                           onClick={() => handleEditClick(event)}
@@ -440,21 +451,37 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-semibold mb-1" style={{ color: '#1a3a6e' }}>
-                  活動類型
-                </label>
-                <select
-                  value={editForm.Event}
-                  onChange={(e) => setEditForm({ ...editForm, Event: parseInt(e.target.value) })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value={1}>活動</option>
-                  <option value={2}>贊助商</option>
-                  <option value={3}>技術演講</option>
-                  <option value={4}>工作坊</option>
-                  <option value={5}>社交</option>
-                </select>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold mb-1" style={{ color: '#1a3a6e' }}>
+                    活動類型
+                  </label>
+                  <select
+                    value={editForm.Event}
+                    onChange={(e) => setEditForm({ ...editForm, Event: parseInt(e.target.value) })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value={1}>活動</option>
+                    <option value={2}>贊助商</option>
+                    <option value={3}>技術演講</option>
+                    <option value={4}>工作坊</option>
+                    <option value={5}>社交</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold mb-1" style={{ color: '#1a3a6e' }}>
+                    活動狀態
+                  </label>
+                  <select
+                    value={editForm.status}
+                    onChange={(e) => setEditForm({ ...editForm, status: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="confirmed">已確認</option>
+                    <option value="unconfirmed">未確認</option>
+                  </select>
+                </div>
               </div>
 
               <div className="flex gap-3 pt-4">
