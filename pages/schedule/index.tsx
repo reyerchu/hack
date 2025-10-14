@@ -242,7 +242,11 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
     }
 
     const confirmAdd = window.confirm(
-      `準備添加 ${eventsToAdd.length} 個活動到 Google Calendar。\n（已跳過未確認及已添加的活動）\n\n確定繼續嗎？`,
+      `準備添加 ${eventsToAdd.length} 個活動到 Google Calendar。\n\n` +
+      `（已跳過未確認及已添加的活動）\n\n` +
+      `⚠️ 注意：將會依序打開 ${eventsToAdd.length} 個分頁\n` +
+      `如果瀏覽器攔截彈出視窗，請點擊「允許」。\n\n` +
+      `確定繼續嗎？`,
     );
 
     if (!confirmAdd) {
@@ -257,12 +261,25 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
     setAddedEvents(newSet);
     localStorage.setItem('addedCalendarEvents', JSON.stringify(Array.from(newSet)));
 
-    // 然後依序打開 Google Calendar 連結
-    eventsToAdd.forEach((event, index) => {
+    // 立即打開第一個，避免被攔截
+    if (eventsToAdd.length > 0) {
+      window.open(generateGoogleCalendarLink(eventsToAdd[0]), '_blank');
+      
+      // 然後依序打開其餘的 Google Calendar 連結，增加延遲時間
+      for (let i = 1; i < eventsToAdd.length; i++) {
+        setTimeout(() => {
+          const opened = window.open(generateGoogleCalendarLink(eventsToAdd[i]), '_blank');
+          if (!opened) {
+            console.warn('彈出視窗可能被攔截:', eventsToAdd[i].title);
+          }
+        }, i * 1000); // 增加到 1000ms (1秒) 延遲
+      }
+      
+      // 提示用戶
       setTimeout(() => {
-        window.open(generateGoogleCalendarLink(event), '_blank');
-      }, index * 500);
-    });
+        alert(`正在依序打開 ${eventsToAdd.length} 個 Google Calendar 分頁...\n\n如果部分分頁沒有打開，請檢查瀏覽器的彈出視窗設定。`);
+      }, 500);
+    }
   };
 
   // Function to handle edit button click
