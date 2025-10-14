@@ -105,6 +105,19 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
     }
   };
 
+  const getTagColor = (tag: string) => {
+    switch (tag) {
+      case '熱門賽道':
+        return 'bg-red-500 text-white';
+      case '技術':
+        return 'bg-blue-500 text-white';
+      case '黑客松':
+        return 'bg-purple-500 text-white';
+      default:
+        return 'bg-gray-500 text-white';
+    }
+  };
+
   // Function to generate unique event ID
   const getEventId = (event: any) => {
     return `${event.title}-${event.startDate.getTime()}`;
@@ -193,6 +206,7 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
       description: event.description,
       location: event.location,
       speakers: event.speakers?.join('、') || '',
+      tags: event.tags?.join('、') || '',
       startDate: event.startDate.toISOString().slice(0, 16),
       endDate: event.endDate.toISOString().slice(0, 16),
       Event: event.Event,
@@ -221,6 +235,7 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
         body: JSON.stringify({
           ...editForm,
           speakers: editForm.speakers.split('、').filter((s: string) => s.trim()),
+          tags: editForm.tags ? editForm.tags.split('、').filter((t: string) => t.trim()) : [],
           startDate: new Date(editForm.startDate).toISOString(),
           endDate: new Date(editForm.endDate).toISOString(),
         }),
@@ -323,7 +338,7 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
                   <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                     {/* Left side - Main info */}
                     <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2 flex-wrap">
+                      <div className="flex items-center gap-2 mb-2 flex-wrap">
                         <span
                           className={`inline-block px-2 py-0.5 rounded text-xs font-semibold text-white ${getEventTypeColor(
                             event.Event,
@@ -331,6 +346,15 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
                         >
                           {getEventTypeLabel(event.Event)}
                         </span>
+
+                        {event.tags && event.tags.length > 0 && event.tags.map((tag: string, tagIndex: number) => (
+                          <span
+                            key={tagIndex}
+                            className={`inline-block px-2 py-0.5 rounded text-xs font-semibold ${getTagColor(tag)}`}
+                          >
+                            {tag}
+                          </span>
+                        ))}
 
                         {event.status === 'unconfirmed' && (
                           <span className="inline-block px-2 py-0.5 rounded text-xs font-semibold bg-gray-400 text-white">
@@ -512,6 +536,22 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="例如：Reyer、Ping"
                 />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold mb-1" style={{ color: '#1a3a6e' }}>
+                  標籤（用「、」分隔）
+                </label>
+                <input
+                  type="text"
+                  value={editForm.tags}
+                  onChange={(e) => setEditForm({ ...editForm, tags: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="例如：熱門賽道、技術、黑客松"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  可選標籤：熱門賽道、技術、黑客松
+                </p>
               </div>
 
               <div>
