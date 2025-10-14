@@ -351,14 +351,26 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-5xl mx-auto px-4 py-20">
         <div className="mb-8">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
-            <div className="flex items-center gap-4">
-              <div>
-                <h1 className="text-4xl font-bold mb-2" style={{ color: '#1a3a6e' }}>
-                  時程表
-                </h1>
-                <p className="text-sm text-gray-600">*所有活動時間均以台灣時間（GMT+8）為準</p>
-              </div>
+          <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-4">
+            <div>
+              <h1 className="text-4xl font-bold mb-2" style={{ color: '#1a3a6e' }}>
+                時程表
+              </h1>
+              <p className="text-sm text-gray-600">*所有活動時間均以台灣時間（GMT+8）為準</p>
+            </div>
+            <div className="flex flex-col gap-2">
+              {sortedEvents.length > 0 && (
+                <button
+                  onClick={addAllToCalendar}
+                  className="flex items-center justify-center gap-2 px-6 py-2.5 text-white rounded-md transition-all duration-200 font-semibold text-sm whitespace-nowrap shadow-md hover:shadow-lg hover:opacity-90"
+                  style={{
+                    backgroundColor: '#5B4B8A',
+                  }}
+                >
+                  <EventAvailableIcon style={{ fontSize: '20px' }} />
+                  全部加入日曆
+                </button>
+              )}
               {isAdmin && (
                 <button
                   onClick={() => {
@@ -379,7 +391,7 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
                     });
                     setEditingEvent({} as any); // 空物件表示新增
                   }}
-                  className="flex items-center gap-2 px-4 py-2 rounded-md text-white font-semibold transition-all duration-200 shadow-sm hover:shadow-md hover:opacity-90"
+                  className="flex items-center justify-center gap-2 px-6 py-2.5 rounded-md text-white font-semibold transition-all duration-200 shadow-sm hover:shadow-md hover:opacity-90"
                   style={{ backgroundColor: '#1a3a6e' }}
                 >
                   <AddIcon style={{ fontSize: '18px' }} />
@@ -387,18 +399,6 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
                 </button>
               )}
             </div>
-            {sortedEvents.length > 0 && (
-              <button
-                onClick={addAllToCalendar}
-                className="flex items-center gap-2 px-6 py-2.5 text-white rounded-md transition-all duration-200 font-semibold text-sm whitespace-nowrap shadow-md hover:shadow-lg hover:opacity-90"
-                style={{
-                  backgroundColor: '#1a3a6e',
-                }}
-              >
-                <EventAvailableIcon style={{ fontSize: '20px' }} />
-                全部加入日曆
-              </button>
-            )}
           </div>
         </div>
 
@@ -413,8 +413,9 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
                 key={index}
                 className={`bg-white rounded-md shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden border-l-4 ${
                   event.status === 'unconfirmed' ? 'opacity-60 grayscale' : ''
-                }`}
+                } ${isAdmin ? 'cursor-pointer' : ''}`}
                 style={{ borderLeftColor: '#1a3a6e' }}
+                onClick={() => isAdmin && handleEditClick(event)}
               >
                 <div className="p-4">
                   <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
@@ -499,10 +500,13 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
                       </div>
             {event.status !== 'unconfirmed' && (
               <button
-                onClick={(e) => handleAddToCalendar(event, e)}
+                onClick={(e) => {
+                  e.stopPropagation(); // 防止觸發卡片點擊
+                  handleAddToCalendar(event, e);
+                }}
                 className="flex items-center justify-center gap-1 px-3 py-1.5 text-xs font-semibold text-white rounded-md transition-all duration-200 shadow-sm hover:shadow-md hover:opacity-90"
                 style={{
-                  backgroundColor: isEventAdded(event) ? '#3D6B5C' : '#1a3a6e',
+                  backgroundColor: isEventAdded(event) ? '#3D6B5C' : '#5B4B8A',
                 }}
                 title={isEventAdded(event) ? '已添加到日曆' : '加入日曆'}
               >
@@ -517,19 +521,6 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
                     加入日曆
                   </>
                 )}
-              </button>
-            )}
-            {isAdmin && (
-              <button
-                onClick={() => handleEditClick(event)}
-                className="flex items-center justify-center gap-1 px-3 py-1.5 text-xs font-semibold rounded-md transition-all duration-200 shadow-sm hover:shadow-md"
-                style={{
-                  backgroundColor: '#8B6239',
-                  color: 'white',
-                }}
-              >
-                <EditIcon style={{ fontSize: '16px' }} />
-                編輯
               </button>
             )}
                     </div>
