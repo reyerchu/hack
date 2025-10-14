@@ -60,93 +60,145 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
   const getEventTypeColor = (eventType: number) => {
     switch (eventType) {
       case 1:
-        return 'bg-red-100 text-red-700 border-red-300';
+        return 'bg-red-500';
       case 2:
-        return 'bg-orange-100 text-orange-700 border-orange-300';
+        return 'bg-orange-500';
       case 3:
-        return 'bg-indigo-100 text-indigo-700 border-indigo-300';
+        return 'bg-blue-600';
       case 4:
-        return 'bg-purple-100 text-purple-700 border-purple-300';
+        return 'bg-purple-600';
       case 5:
-        return 'bg-blue-100 text-blue-700 border-blue-300';
+        return 'bg-green-600';
       default:
-        return 'bg-gray-100 text-gray-700 border-gray-300';
+        return 'bg-gray-500';
     }
+  };
+
+  // Function to render description with clickable links
+  const renderDescription = (description: string) => {
+    if (!description) return null;
+
+    // Split by lines and check for URLs
+    const lines = description.split('\n');
+    return lines.map((line, index) => {
+      // Check if line contains a URL
+      const urlMatch = line.match(/(https?:\/\/[^\s]+)/g);
+      if (urlMatch) {
+        const parts = line.split(/(https?:\/\/[^\s]+)/g);
+        return (
+          <p key={index} className="mb-1">
+            {parts.map((part, i) => {
+              if (part.match(/^https?:\/\//)) {
+                return (
+                  <a
+                    key={i}
+                    href={part}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:text-blue-800 underline"
+                  >
+                    {part}
+                  </a>
+                );
+              }
+              return <span key={i}>{part}</span>;
+            })}
+          </p>
+        );
+      }
+      return (
+        <p key={index} className="mb-1">
+          {line}
+        </p>
+      );
+    });
   };
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-6xl mx-auto px-4 py-20">
-        <h1 className="text-5xl font-black mb-3 text-gray-900">時程表</h1>
-        <p className="text-gray-600 mb-8">*所有活動時間均以台灣時間（GMT+8）為準</p>
+      <div className="max-w-5xl mx-auto px-4 py-20">
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold mb-2" style={{ color: '#05149C' }}>
+            時程表
+          </h1>
+          <p className="text-sm text-gray-600">*所有活動時間均以台灣時間（GMT+8）為準</p>
+        </div>
 
         {sortedEvents.length === 0 ? (
           <div className="bg-white rounded-lg shadow-sm p-12 text-center">
-            <p className="text-xl text-gray-500">目前沒有安排的活動</p>
+            <p className="text-lg text-gray-500">目前沒有安排的活動</p>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-3">
             {sortedEvents.map((event, index) => (
               <div
                 key={index}
-                className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden border border-gray-200"
+                className="bg-white rounded-md shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden border-l-4"
+                style={{ borderLeftColor: '#05149C' }}
               >
-                <div className="p-6">
-                  <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+                <div className="p-4">
+                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                     {/* Left side - Main info */}
                     <div className="flex-1">
-                      <div className="flex items-start gap-3 mb-3">
+                      <div className="flex items-center gap-3 mb-2">
+                        {/* Event type badge */}
                         <span
-                          className={`inline-block px-3 py-1 rounded-full text-xs font-semibold border ${getEventTypeColor(
+                          className={`inline-block px-2 py-0.5 rounded text-xs font-semibold text-white ${getEventTypeColor(
                             event.Event,
                           )}`}
                         >
                           {getEventTypeLabel(event.Event)}
                         </span>
+
+                        {/* Date and time in one line */}
+                        <div className="flex items-center gap-3 text-xs text-gray-600">
+                          <div className="flex items-center gap-1">
+                            <CalendarIcon style={{ fontSize: '14px' }} />
+                            <span>{formatDate(event.startDate)}</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <ClockIcon style={{ fontSize: '14px' }} />
+                            <span>{formatTime(event.startDate, event.endDate)}</span>
+                          </div>
+                        </div>
                       </div>
 
-                      <h2 className="text-2xl font-bold text-gray-900 mb-3">{event.title}</h2>
+                      {/* Title */}
+                      <h2 className="text-lg font-bold mb-2" style={{ color: '#05149C' }}>
+                        {event.title}
+                      </h2>
 
-                      {event.description && (
-                        <p className="text-gray-600 mb-4 whitespace-pre-line">{event.description}</p>
-                      )}
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-                        <div className="flex items-center gap-2 text-gray-700">
-                          <CalendarIcon className="text-gray-400" style={{ fontSize: '18px' }} />
-                          <span className="font-medium">{formatDate(event.startDate)}</span>
-                        </div>
-
-                        <div className="flex items-center gap-2 text-gray-700">
-                          <ClockIcon className="text-gray-400" style={{ fontSize: '18px' }} />
-                          <span className="font-medium">
-                            {formatTime(event.startDate, event.endDate)}
-                          </span>
-                        </div>
-
-                        <div className="flex items-center gap-2 text-gray-700">
-                          <PinDrop className="text-gray-400" style={{ fontSize: '18px' }} />
-                          <span className="font-medium">{event.location || '待定'}</span>
+                      {/* Location and speakers in one line */}
+                      <div className="flex flex-wrap items-center gap-3 text-sm text-gray-700 mb-2">
+                        <div className="flex items-center gap-1">
+                          <PinDrop style={{ fontSize: '16px' }} className="text-gray-500" />
+                          <span>{event.location || '待定'}</span>
                         </div>
 
                         {event.speakers && event.speakers.length > 0 && (
-                          <div className="flex items-center gap-2 text-gray-700">
-                            <PersonIcon className="text-gray-400" style={{ fontSize: '18px' }} />
-                            <span className="font-medium">{event.speakers.join('、')}</span>
+                          <div className="flex items-center gap-1">
+                            <PersonIcon style={{ fontSize: '16px' }} className="text-gray-500" />
+                            <span>{event.speakers.join('、')}</span>
                           </div>
                         )}
                       </div>
+
+                      {/* Description */}
+                      {event.description && (
+                        <div className="text-sm text-gray-600">
+                          {renderDescription(event.description)}
+                        </div>
+                      )}
                     </div>
 
-                    {/* Right side - Date display */}
+                    {/* Right side - Compact date display */}
                     <div className="md:text-right flex-shrink-0">
-                      <div className="bg-gradient-to-br from-primaryDark to-primary text-white rounded-lg p-4 min-w-[100px] text-center">
-                        <div className="text-3xl font-bold">
-                          {event.startDate.getDate()}
-                        </div>
-                        <div className="text-sm opacity-90">
-                          {event.startDate.getMonth() + 1}月
-                        </div>
+                      <div
+                        className="rounded-md px-4 py-2 text-white text-center"
+                        style={{ backgroundColor: '#05149C' }}
+                      >
+                        <div className="text-2xl font-bold">{event.startDate.getDate()}</div>
+                        <div className="text-xs opacity-90">{event.startDate.getMonth() + 1}月</div>
                       </div>
                     </div>
                   </div>
