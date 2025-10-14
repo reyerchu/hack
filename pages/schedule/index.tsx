@@ -236,9 +236,17 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
       return;
     }
 
+    // 先標記所有活動為已添加
+    const newSet = new Set(addedEvents);
+    eventsToAdd.forEach((event) => {
+      newSet.add(getEventId(event));
+    });
+    setAddedEvents(newSet);
+    localStorage.setItem('addedCalendarEvents', JSON.stringify(Array.from(newSet)));
+
+    // 然後依序打開 Google Calendar 連結
     eventsToAdd.forEach((event, index) => {
       setTimeout(() => {
-        markEventAsAdded(getEventId(event));
         window.open(generateGoogleCalendarLink(event), '_blank');
       }, index * 500);
     });
@@ -516,33 +524,47 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
                         <div className="text-xs opacity-90">{event.startDate.getMonth() + 1}月</div>
                       </div>
             {event.status !== 'unconfirmed' && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation(); // 防止觸發卡片點擊
-                  handleAddToCalendar(event, e);
-                }}
-                className="border-2 px-3 py-1.5 text-xs font-medium tracking-wide transition-colors duration-300 whitespace-nowrap"
-                style={{
-                  borderColor: isEventAdded(event) ? '#3D6B5C' : '#1a3a6e',
-                  color: isEventAdded(event) ? '#3D6B5C' : '#1a3a6e',
-                  backgroundColor: 'transparent',
-                }}
-                onMouseEnter={(e) => {
-                  if (!isEventAdded(event)) {
+              isEventAdded(event) ? (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleAddToCalendar(event, e);
+                  }}
+                  className="border-2 px-3 py-1.5 text-xs font-medium tracking-wide whitespace-nowrap"
+                  style={{
+                    borderColor: '#3D6B5C',
+                    color: '#3D6B5C',
+                    backgroundColor: 'transparent',
+                  }}
+                  title="已添加到日曆"
+                >
+                  ✓ 已添加
+                </button>
+              ) : (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleAddToCalendar(event, e);
+                  }}
+                  className="border-2 px-3 py-1.5 text-xs font-medium tracking-wide transition-colors duration-300 whitespace-nowrap"
+                  style={{
+                    borderColor: '#1a3a6e',
+                    color: '#1a3a6e',
+                    backgroundColor: 'transparent',
+                  }}
+                  onMouseEnter={(e) => {
                     e.currentTarget.style.backgroundColor = '#1a3a6e';
                     e.currentTarget.style.color = 'white';
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (!isEventAdded(event)) {
+                  }}
+                  onMouseLeave={(e) => {
                     e.currentTarget.style.backgroundColor = 'transparent';
                     e.currentTarget.style.color = '#1a3a6e';
-                  }
-                }}
-                title={isEventAdded(event) ? '已添加到日曆' : '加入日曆'}
-              >
-                {isEventAdded(event) ? '✓ 已添加' : '+ 加入日曆'}
-              </button>
+                  }}
+                  title="加入日曆"
+                >
+                  + 加入日曆
+                </button>
+              )
             )}
                     </div>
                   </div>
