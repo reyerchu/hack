@@ -20,6 +20,9 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [addedEvents, setAddedEvents] = useState<Set<string>>(new Set());
   const [conflictingEvents, setConflictingEvents] = useState<Set<string>>(new Set());
+  const [googleAccessToken, setGoogleAccessToken] = useState<string | null>(null);
+  const [isCheckingCalendar, setIsCheckingCalendar] = useState(false);
+  const [calendarStatus, setCalendarStatus] = useState<'disconnected' | 'connected' | 'checking'>('disconnected');
 
   // Check if user is admin - must be signed in AND have admin permissions
   const isAdmin =
@@ -38,6 +41,70 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
         console.error('Failed to load added events:', e);
       }
     }
+  }, []);
+
+  // Load Google Calendar token from localStorage
+  React.useEffect(() => {
+    const storedToken = localStorage.getItem('googleCalendarToken');
+    if (storedToken) {
+      setGoogleAccessToken(storedToken);
+      setCalendarStatus('connected');
+    }
+  }, []);
+
+  // Handle OAuth callback
+  React.useEffect(() => {
+    const handleOAuthCallback = async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const authCode = urlParams.get('auth_code');
+      const authError = urlParams.get('auth_error');
+
+      if (authError) {
+        alert(`授權失敗：${authError}`);
+        // 清除 URL 參數
+        window.history.replaceState({}, document.title, window.location.pathname);
+        return;
+      }
+
+      if (authCode) {
+        try {
+          // 交換授權碼獲取 token
+          const response = await fetch('/api/calendar/auth', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ code: authCode }),
+          });
+
+          const data = await response.json();
+
+          if (response.ok && data.tokens?.access_token) {
+            // 存儲 token
+            setGoogleAccessToken(data.tokens.access_token);
+            setCalendarStatus('connected');
+            localStorage.setItem('googleCalendarToken', data.tokens.access_token);
+            
+            // 如果有 refresh_token，也存儲（用於長期訪問）
+            if (data.tokens.refresh_token) {
+              localStorage.setItem('googleCalendarRefreshToken', data.tokens.refresh_token);
+            }
+
+            alert('Google Calendar 連接成功！\n現在可以檢查日曆了。');
+          } else {
+            throw new Error(data.error || '獲取 token 失敗');
+          }
+        } catch (error: any) {
+          console.error('處理授權回調失敗:', error);
+          alert(`連接失敗：${error.message}`);
+        }
+
+        // 清除 URL 參數
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    };
+
+    handleOAuthCallback();
   }, []);
 
   // Parse and normalize schedule data from server
@@ -235,42 +302,179 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
     window.open(generateGoogleCalendarLink(event), '_blank');
   };
 
-  // Function to check for time conflicts
-  const checkConflicts = () => {
-    const newConflicts = new Set<string>();
-    
-    // 檢查每個已確認的活動
-    sortedEvents.forEach((event, index) => {
-      if (event.status === 'unconfirmed') return;
+  // Function to connect to Google Calendar
+  const connectGoogleCalendar = async () => {
+    try {
+      const response = await fetch('/api/calendar/auth');
+      const data = await response.json();
+
+      if (response.ok && data.authUrl) {
+        // 重定向到 Google 授權頁面
+        window.location.href = data.authUrl;
+      } else {
+        throw new Error(data.error || '獲取授權 URL 失敗');
+      }
+    } catch (error: any) {
+      console.error('連接 Google Calendar 失敗:', error);
+      alert(`連接失敗：${error.message}\n\n請確認後端已設置 GOOGLE_CLIENT_ID 和 GOOGLE_CLIENT_SECRET 環境變數。`);
+    }
+  };
+
+  // Function to disconnect Google Calendar
+  const disconnectGoogleCalendar = () => {
+    const confirmDisconnect = window.confirm(
+      '確定要斷開 Google Calendar 連接嗎？\n\n' +
+      '斷開後需要重新授權才能檢查日曆。'
+    );
+
+    if (confirmDisconnect) {
+      setGoogleAccessToken(null);
+      setCalendarStatus('disconnected');
+      setAddedEvents(new Set());
+      setConflictingEvents(new Set());
+      localStorage.removeItem('googleCalendarToken');
+      localStorage.removeItem('googleCalendarRefreshToken');
+      localStorage.removeItem('addedCalendarEvents');
+      alert('已斷開 Google Calendar 連接。');
+    }
+  };
+
+  // Function to check Google Calendar for added events and conflicts
+  const checkGoogleCalendar = async () => {
+    if (!googleAccessToken) {
+      const confirmConnect = window.confirm(
+        '需要連接 Google Calendar 才能檢查日曆。\n\n' +
+        '點擊「確定」連接 Google Calendar。'
+      );
+      if (confirmConnect) {
+        connectGoogleCalendar();
+      }
+      return;
+    }
+
+    setIsCheckingCalendar(true);
+    setCalendarStatus('checking');
+
+    try {
+      // 獲取時間範圍（從最早的活動到最晚的活動）
+      const earliestEvent = sortedEvents[0];
+      const latestEvent = sortedEvents[sortedEvents.length - 1];
       
-      // 與其他活動比較
-      sortedEvents.forEach((otherEvent, otherIndex) => {
-        if (index === otherIndex || otherEvent.status === 'unconfirmed') return;
-        
-        // 檢查時間是否重疊
-        const event1Start = event.startDate.getTime();
-        const event1End = event.endDate.getTime();
-        const event2Start = otherEvent.startDate.getTime();
-        const event2End = otherEvent.endDate.getTime();
-        
-        // 時間重疊邏輯：event1開始時間 < event2結束時間 且 event1結束時間 > event2開始時間
-        if (event1Start < event2End && event1End > event2Start) {
-          newConflicts.add(getEventId(event));
+      if (!earliestEvent || !latestEvent) {
+        alert('沒有活動需要檢查。');
+        return;
+      }
+
+      const timeMin = earliestEvent.startDate.toISOString();
+      const timeMax = latestEvent.endDate.toISOString();
+
+      // 調用 API 獲取 Google Calendar 事件
+      const response = await fetch(
+        `/api/calendar/events?timeMin=${encodeURIComponent(timeMin)}&timeMax=${encodeURIComponent(timeMax)}`,
+        {
+          headers: {
+            Authorization: `Bearer ${googleAccessToken}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          throw new Error('授權已失效，請重新連接 Google Calendar');
+        }
+        const data = await response.json();
+        throw new Error(data.error || '獲取日曆事件失敗');
+      }
+
+      const data = await response.json();
+      const calendarEvents = data.events || [];
+
+      // 比對活動
+      const newAddedEvents = new Set<string>();
+      const newConflicts = new Set<string>();
+
+      sortedEvents.forEach((localEvent) => {
+        if (localEvent.status === 'unconfirmed') return;
+
+        const localStart = localEvent.startDate.getTime();
+        const localEnd = localEvent.endDate.getTime();
+        let foundExactMatch = false;
+        let hasConflict = false;
+
+        calendarEvents.forEach((calEvent: any) => {
+          const calStart = new Date(calEvent.start?.dateTime || calEvent.start?.date).getTime();
+          const calEnd = new Date(calEvent.end?.dateTime || calEvent.end?.date).getTime();
+
+          // 檢查是否完全匹配（標題相同且時間重疊超過80%）
+          const titleMatch =
+            calEvent.summary?.includes(localEvent.title) ||
+            localEvent.title.includes(calEvent.summary || '');
+
+          const overlapStart = Math.max(localStart, calStart);
+          const overlapEnd = Math.min(localEnd, calEnd);
+          const overlapDuration = Math.max(0, overlapEnd - overlapStart);
+          const localDuration = localEnd - localStart;
+          const overlapPercentage = overlapDuration / localDuration;
+
+          if (titleMatch && overlapPercentage > 0.8) {
+            foundExactMatch = true;
+          } else if (overlapDuration > 0) {
+            // 有時間重疊但不是同一個活動
+            hasConflict = true;
+          }
+        });
+
+        if (foundExactMatch) {
+          newAddedEvents.add(getEventId(localEvent));
+        } else if (hasConflict) {
+          newConflicts.add(getEventId(localEvent));
         }
       });
-    });
-    
-    setConflictingEvents(newConflicts);
-    
-    if (newConflicts.size > 0) {
+
+      // 更新狀態
+      setAddedEvents(newAddedEvents);
+      setConflictingEvents(newConflicts);
+      setCalendarStatus('connected');
+
+      // 保存到 localStorage
+      localStorage.setItem('addedCalendarEvents', JSON.stringify(Array.from(newAddedEvents)));
+
+      // 顯示結果
       alert(
         `檢查完成！\n\n` +
-        `發現 ${newConflicts.size} 個活動有時間衝突。\n` +
-        `衝突的活動已標記為紅色邊框。\n\n` +
-        `請注意檢查並調整時間。`
+        `已添加：${newAddedEvents.size} 個活動\n` +
+        `時間衝突：${newConflicts.size} 個活動\n` +
+        `未添加：${sortedEvents.filter(e => e.status !== 'unconfirmed').length - newAddedEvents.size - newConflicts.size} 個活動\n\n` +
+        `按鈕顏色說明：\n` +
+        `🟢 綠色 = 已添加\n` +
+        `🔴 紅色 = 有衝突\n` +
+        `🔵 藍色 = 可添加`
       );
-    } else {
-      alert(`檢查完成！\n\n沒有發現時間衝突。✓`);
+    } catch (error: any) {
+      console.error('檢查日曆失敗:', error);
+      
+      if (error.message.includes('授權已失效')) {
+        // 清除舊的 token
+        setGoogleAccessToken(null);
+        setCalendarStatus('disconnected');
+        localStorage.removeItem('googleCalendarToken');
+        
+        const confirmReconnect = window.confirm(
+          `${error.message}\n\n` +
+          '點擊「確定」重新連接。'
+        );
+        
+        if (confirmReconnect) {
+          connectGoogleCalendar();
+        }
+      } else {
+        alert(`檢查失敗：${error.message}`);
+      }
+    } finally {
+      setIsCheckingCalendar(false);
+      if (calendarStatus === 'checking') {
+        setCalendarStatus('connected');
+      }
     }
   };
 
@@ -425,25 +629,84 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
                 </button>
               )}
               {sortedEvents.length > 0 && (
-                <button
-                  onClick={checkConflicts}
-                  className="border-2 px-6 py-2.5 text-sm font-medium tracking-wide transition-colors duration-300 whitespace-nowrap"
-                  style={{
-                    borderColor: '#1a3a6e',
-                    color: '#1a3a6e',
-                    backgroundColor: 'transparent',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = '#1a3a6e';
-                    e.currentTarget.style.color = 'white';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = 'transparent';
-                    e.currentTarget.style.color = '#1a3a6e';
-                  }}
-                >
-                  檢查衝突
-                </button>
+                <>
+                  {calendarStatus === 'disconnected' ? (
+                    <button
+                      onClick={connectGoogleCalendar}
+                      className="border-2 px-6 py-2.5 text-sm font-medium tracking-wide transition-colors duration-300 whitespace-nowrap"
+                      style={{
+                        borderColor: '#1a3a6e',
+                        color: '#1a3a6e',
+                        backgroundColor: 'transparent',
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = '#1a3a6e';
+                        e.currentTarget.style.color = 'white';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = 'transparent';
+                        e.currentTarget.style.color = '#1a3a6e';
+                      }}
+                    >
+                      連接 Google Calendar
+                    </button>
+                  ) : calendarStatus === 'checking' ? (
+                    <button
+                      disabled
+                      className="border-2 px-6 py-2.5 text-sm font-medium tracking-wide whitespace-nowrap opacity-60"
+                      style={{
+                        borderColor: '#1a3a6e',
+                        color: '#1a3a6e',
+                        backgroundColor: 'transparent',
+                      }}
+                    >
+                      檢查中...
+                    </button>
+                  ) : (
+                    <>
+                      <button
+                        onClick={checkGoogleCalendar}
+                        className="border-2 px-6 py-2.5 text-sm font-medium tracking-wide transition-colors duration-300 whitespace-nowrap"
+                        style={{
+                          borderColor: '#3D6B5C',
+                          color: '#3D6B5C',
+                          backgroundColor: 'transparent',
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.backgroundColor = '#3D6B5C';
+                          e.currentTarget.style.color = 'white';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = 'transparent';
+                          e.currentTarget.style.color = '#3D6B5C';
+                        }}
+                        disabled={isCheckingCalendar}
+                      >
+                        {isCheckingCalendar ? '檢查中...' : '檢查日曆'}
+                      </button>
+                      <button
+                        onClick={disconnectGoogleCalendar}
+                        className="border-2 px-4 py-2.5 text-xs font-medium tracking-wide transition-colors duration-300 whitespace-nowrap"
+                        style={{
+                          borderColor: '#8B4049',
+                          color: '#8B4049',
+                          backgroundColor: 'transparent',
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.backgroundColor = '#8B4049';
+                          e.currentTarget.style.color = 'white';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = 'transparent';
+                          e.currentTarget.style.color = '#8B4049';
+                        }}
+                        title="斷開 Google Calendar 連接"
+                      >
+                        斷開連接
+                      </button>
+                    </>
+                  )}
+                </>
               )}
             </div>
           </div>
