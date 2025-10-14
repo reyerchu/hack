@@ -49,6 +49,12 @@ function initializeFirebase() {
 
       // 處理私鑰格式：移除引號並替換轉義的換行符
       let privateKey = process.env.SERVICE_ACCOUNT_PRIVATE_KEY;
+
+      if (!privateKey) {
+        console.error('SERVICE_ACCOUNT_PRIVATE_KEY is missing or empty');
+        return;
+      }
+
       // 如果私鑰被引號包圍，移除引號
       if (
         (privateKey.startsWith('"') && privateKey.endsWith('"')) ||
