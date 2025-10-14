@@ -33,6 +33,6 @@ echo "Starting server..."
 echo ""
 
 # Start the dev server on port 3009
-npx next start -p 3009
+npx next dev -p 3009
 
 
