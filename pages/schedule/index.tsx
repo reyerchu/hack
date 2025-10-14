@@ -7,9 +7,6 @@ import CalendarIcon from '@material-ui/icons/CalendarToday';
 import PinDrop from '@material-ui/icons/PinDrop';
 import ClockIcon from '@material-ui/icons/AccessTime';
 import PersonIcon from '@material-ui/icons/Person';
-import AddIcon from '@material-ui/icons/Add';
-import EventAvailableIcon from '@material-ui/icons/EventAvailable';
-import EditIcon from '@material-ui/icons/Edit';
 import CloseIcon from '@material-ui/icons/Close';
 
 interface SchedulePageProps {
@@ -358,19 +355,7 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
               </h1>
               <p className="text-sm text-gray-600">*所有活動時間均以台灣時間（GMT+8）為準</p>
             </div>
-            <div className="flex flex-col gap-2">
-              {sortedEvents.length > 0 && (
-                <button
-                  onClick={addAllToCalendar}
-                  className="flex items-center justify-center gap-2 px-6 py-2.5 text-white rounded-md transition-all duration-200 font-semibold text-sm whitespace-nowrap shadow-md hover:shadow-lg hover:opacity-90"
-                  style={{
-                    backgroundColor: '#5B4B8A',
-                  }}
-                >
-                  <EventAvailableIcon style={{ fontSize: '20px' }} />
-                  全部加入日曆
-                </button>
-              )}
+            <div className="flex flex-col gap-3">
               {isAdmin && (
                 <button
                   onClick={() => {
@@ -391,11 +376,43 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
                     });
                     setEditingEvent({} as any); // 空物件表示新增
                   }}
-                  className="flex items-center justify-center gap-2 px-6 py-2.5 rounded-md text-white font-semibold transition-all duration-200 shadow-sm hover:shadow-md hover:opacity-90"
-                  style={{ backgroundColor: '#1a3a6e' }}
+                  className="border-2 px-6 py-2.5 text-sm font-medium tracking-wide transition-colors duration-300 whitespace-nowrap"
+                  style={{
+                    borderColor: '#1a3a6e',
+                    color: '#1a3a6e',
+                    backgroundColor: 'transparent',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#1a3a6e';
+                    e.currentTarget.style.color = 'white';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                    e.currentTarget.style.color = '#1a3a6e';
+                  }}
                 >
-                  <AddIcon style={{ fontSize: '18px' }} />
-                  新增活動
+                  + 新增活動
+                </button>
+              )}
+              {sortedEvents.length > 0 && (
+                <button
+                  onClick={addAllToCalendar}
+                  className="border-2 px-6 py-2.5 text-sm font-medium tracking-wide transition-colors duration-300 whitespace-nowrap"
+                  style={{
+                    borderColor: '#1a3a6e',
+                    color: '#1a3a6e',
+                    backgroundColor: 'transparent',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#1a3a6e';
+                    e.currentTarget.style.color = 'white';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                    e.currentTarget.style.color = '#1a3a6e';
+                  }}
+                >
+                  + 全部加入日曆
                 </button>
               )}
             </div>
@@ -411,9 +428,9 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
             {sortedEvents.map((event, index) => (
               <div
                 key={index}
-                className={`bg-white rounded-md shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden border-l-4 ${
+                className={`bg-white rounded-md shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden border-l-4 ${
                   event.status === 'unconfirmed' ? 'opacity-60 grayscale' : ''
-                } ${isAdmin ? 'cursor-pointer' : ''}`}
+                } ${isAdmin ? 'cursor-pointer hover:bg-gray-50' : 'hover:bg-gray-50'}`}
                 style={{ borderLeftColor: '#1a3a6e' }}
                 onClick={() => isAdmin && handleEditClick(event)}
               >
@@ -504,23 +521,27 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
                   e.stopPropagation(); // 防止觸發卡片點擊
                   handleAddToCalendar(event, e);
                 }}
-                className="flex items-center justify-center gap-1 px-3 py-1.5 text-xs font-semibold text-white rounded-md transition-all duration-200 shadow-sm hover:shadow-md hover:opacity-90"
+                className="border-2 px-3 py-1.5 text-xs font-medium tracking-wide transition-colors duration-300 whitespace-nowrap"
                 style={{
-                  backgroundColor: isEventAdded(event) ? '#3D6B5C' : '#5B4B8A',
+                  borderColor: isEventAdded(event) ? '#3D6B5C' : '#1a3a6e',
+                  color: isEventAdded(event) ? '#3D6B5C' : '#1a3a6e',
+                  backgroundColor: 'transparent',
+                }}
+                onMouseEnter={(e) => {
+                  if (!isEventAdded(event)) {
+                    e.currentTarget.style.backgroundColor = '#1a3a6e';
+                    e.currentTarget.style.color = 'white';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!isEventAdded(event)) {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                    e.currentTarget.style.color = '#1a3a6e';
+                  }
                 }}
                 title={isEventAdded(event) ? '已添加到日曆' : '加入日曆'}
               >
-                {isEventAdded(event) ? (
-                  <>
-                    <EventAvailableIcon style={{ fontSize: '16px' }} />
-                    已添加
-                  </>
-                ) : (
-                  <>
-                    <AddIcon style={{ fontSize: '16px' }} />
-                    加入日曆
-                  </>
-                )}
+                {isEventAdded(event) ? '✓ 已添加' : '+ 加入日曆'}
               </button>
             )}
                     </div>
@@ -679,7 +700,7 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
                   <option value="confirmed">已確認</option>
                   <option value="unconfirmed">未確認</option>
                 </select>
-              </div>
+            </div>
 
               <div className="flex gap-3 pt-4">
                 <button
@@ -702,7 +723,7 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
           </div>
         </div>
       )}
-    </div>
+      </div>
   );
 }
 
@@ -712,12 +733,12 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   const baseUrl = `${protocol}://${host}`;
 
   try {
-    const { data: scheduleData } = await RequestHelper.get<ScheduleEvent[]>(
-      `${baseUrl}/api/schedule`,
-      {},
-    );
-    return {
-      props: {
+  const { data: scheduleData } = await RequestHelper.get<ScheduleEvent[]>(
+    `${baseUrl}/api/schedule`,
+    {},
+  );
+  return {
+    props: {
         scheduleCard: scheduleData || [],
       },
     };
