@@ -74,7 +74,12 @@ export default function FilterPanel({ filters, onChange, onReset }: FilterPanelP
         <div className="flex items-center gap-3">
           <h3 className="text-lg font-semibold text-gray-900">篩選條件</h3>
           {hasActiveFilters && (
-            <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">已篩選</span>
+            <span
+              className="px-2 py-1 text-xs rounded"
+              style={{ backgroundColor: '#e8eef5', color: '#1a3a6e' }}
+            >
+              已篩選
+            </span>
           )}
         </div>
         <div className="flex items-center gap-2">
@@ -103,11 +108,22 @@ export default function FilterPanel({ filters, onChange, onReset }: FilterPanelP
             {/* 已有專案按鈕 */}
             <button
               onClick={() => handleProjectStatusToggle('hasProject')}
-              className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+              className="px-3 py-2 rounded-lg text-sm font-medium transition-colors"
+              style={
                 (filters as any).projectStatuses?.includes('hasProject')
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
+                  ? { backgroundColor: '#1a3a6e', color: 'white' }
+                  : { backgroundColor: '#f3f4f6', color: '#374151' }
+              }
+              onMouseEnter={(e) => {
+                if (!(filters as any).projectStatuses?.includes('hasProject')) {
+                  e.currentTarget.style.backgroundColor = '#e5e7eb';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!(filters as any).projectStatuses?.includes('hasProject')) {
+                  e.currentTarget.style.backgroundColor = '#f3f4f6';
+                }
+              }}
             >
               已有專案
             </button>
@@ -115,11 +131,22 @@ export default function FilterPanel({ filters, onChange, onReset }: FilterPanelP
             {/* 尋找題目中按鈕 */}
             <button
               onClick={() => handleProjectStatusToggle('seekingTopic')}
-              className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+              className="px-3 py-2 rounded-lg text-sm font-medium transition-colors"
+              style={
                 (filters as any).projectStatuses?.includes('seekingTopic')
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
+                  ? { backgroundColor: '#1a3a6e', color: 'white' }
+                  : { backgroundColor: '#f3f4f6', color: '#374151' }
+              }
+              onMouseEnter={(e) => {
+                if (!(filters as any).projectStatuses?.includes('seekingTopic')) {
+                  e.currentTarget.style.backgroundColor = '#e5e7eb';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!(filters as any).projectStatuses?.includes('seekingTopic')) {
+                  e.currentTarget.style.backgroundColor = '#f3f4f6';
+                }
+              }}
             >
               尋找題目中
             </button>
@@ -135,11 +162,22 @@ export default function FilterPanel({ filters, onChange, onReset }: FilterPanelP
             {/* 「所有」按鈕 - 預設選中 */}
             <button
               onClick={() => handleRoleToggle('所有')}
-              className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+              className="px-3 py-2 rounded-lg text-sm font-medium transition-colors"
+              style={
                 !filters.roles || filters.roles.length === 0
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
+                  ? { backgroundColor: '#1a3a6e', color: 'white' }
+                  : { backgroundColor: '#f3f4f6', color: '#374151' }
+              }
+              onMouseEnter={(e) => {
+                if (filters.roles && filters.roles.length > 0) {
+                  e.currentTarget.style.backgroundColor = '#e5e7eb';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (filters.roles && filters.roles.length > 0) {
+                  e.currentTarget.style.backgroundColor = '#f3f4f6';
+                }
+              }}
             >
               所有
             </button>
@@ -151,11 +189,22 @@ export default function FilterPanel({ filters, onChange, onReset }: FilterPanelP
                 <button
                   key={role}
                   onClick={() => handleRoleToggle(role)}
-                  className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  className="px-3 py-2 rounded-lg text-sm font-medium transition-colors"
+                  style={
                     isSelected
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
+                      ? { backgroundColor: '#1a3a6e', color: 'white' }
+                      : { backgroundColor: '#f3f4f6', color: '#374151' }
+                  }
+                  onMouseEnter={(e) => {
+                    if (!isSelected) {
+                      e.currentTarget.style.backgroundColor = '#e5e7eb';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isSelected) {
+                      e.currentTarget.style.backgroundColor = '#f3f4f6';
+                    }
+                  }}
                 >
                   {role}
                 </button>
@@ -175,7 +224,8 @@ export default function FilterPanel({ filters, onChange, onReset }: FilterPanelP
             <select
               value={filters.sort || 'latest'}
               onChange={(e) => handleFilterChange('sort', e.target.value as any)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2"
+              style={{ '--tw-ring-color': '#1a3a6e' } as React.CSSProperties}
             >
               {SORT_OPTIONS.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -191,7 +241,8 @@ export default function FilterPanel({ filters, onChange, onReset }: FilterPanelP
             <select
               value={filters.track || ''}
               onChange={(e) => handleFilterChange('track', e.target.value || undefined)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2"
+              style={{ '--tw-ring-color': '#1a3a6e' } as React.CSSProperties}
             >
               <option value="">全部賽道</option>
               {PROJECT_TRACKS.map((track) => (
@@ -208,7 +259,8 @@ export default function FilterPanel({ filters, onChange, onReset }: FilterPanelP
             <select
               value={filters.stage || ''}
               onChange={(e) => handleFilterChange('stage', e.target.value || undefined)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2"
+              style={{ '--tw-ring-color': '#1a3a6e' } as React.CSSProperties}
             >
               <option value="">全部階段</option>
               {PROJECT_STAGES.map((stage) => (

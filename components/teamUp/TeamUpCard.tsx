@@ -103,7 +103,9 @@ export default function TeamUpCard({ need, onClick, showStatus = true }: TeamUpC
           </span>
           <span>👀 {need.viewCount}</span>
           {need.applicationCount > 0 && (
-            <span className="text-blue-600 font-medium">✉️ {need.applicationCount}</span>
+            <span className="font-medium" style={{ color: '#1a3a6e' }}>
+              ✉️ {need.applicationCount}
+            </span>
           )}
         </div>
         <span>{formatRelativeTime(need.updatedAt)}</span>
