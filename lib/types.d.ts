@@ -240,6 +240,8 @@ type ScheduleEvent = {
   location: string;
   page: string;
   description: string;
+  status?: string;
+  tags?: string[];
 };
 
 type Sponsor = {
