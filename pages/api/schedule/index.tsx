@@ -18,46 +18,44 @@ const SCHEDULE_EVENTS = '/schedule-events';
  */
 async function getScheduleEvents(req: NextApiRequest, res: NextApiResponse) {
   try {
-    // 检查 Firebase 是否已初始化
-    try {
-      const db = firestore();
-      if (!db) {
-        console.warn('Firebase not initialized, returning mock data for schedule events');
-        return res.json(getMockScheduleEvents());
-      }
-    } catch (error) {
-      console.warn('Firebase not initialized, returning mock data for schedule events');
-      return res.json(getMockScheduleEvents());
+    const db = firestore();
+    if (!db) {
+      console.error('Firebase not initialized');
+      return res.status(500).json({ error: 'Database not available' });
     }
 
-    const db = firestore();
+    // 只從數據庫獲取活動，並包含 Firestore document ID
     const snapshot = await db.collection(SCHEDULE_EVENTS).get();
-    let data = [];
+
+    if (snapshot.empty) {
+      console.log('No events in database');
+      return res.json([]);
+    }
+
+    const events = [];
     snapshot.forEach((doc) => {
       const currentEvent = doc.data();
-      data.push({
+      const formattedEvent = {
         ...currentEvent,
+        id: doc.id, // 添加 Firestore document ID 作為唯一標識符
         startTimestamp: currentEvent.startDate,
         endTimestamp: currentEvent.endDate,
         startDate: currentEvent.startDate.toDate(),
         endDate: currentEvent.endDate.toDate(),
-      });
+      };
+      events.push(formattedEvent);
     });
-    
-    // 如果數據庫為空，返回 mock 數據
-    if (data.length === 0) {
-      console.log('No events in database, returning mock data for schedule events');
-      return res.json(getMockScheduleEvents());
-    }
-    
-    res.json(data);
+
+    console.log(`Returning ${events.length} events from database`);
+    return res.json(events);
   } catch (error) {
     console.error('Error fetching schedule events:', error);
-    return res.json(getMockScheduleEvents());
+    return res.status(500).json({ error: 'Failed to fetch events' });
   }
 }
 
-function getMockScheduleEvents() {
+// 不再需要 Mock data - 所有活動都在數據庫中
+function getMockScheduleEvents_DEPRECATED() {
   return [
     {
       title: '流動性質押/再質押/流動性再質押',
@@ -273,64 +271,111 @@ function getMockScheduleEvents() {
 }
 
 async function updateEventDatabase(req: NextApiRequest, res: NextApiResponse) {
-  const { startTimestamp, endTimestamp, ...eventData } = JSON.parse(req.body);
+  try {
+    console.log('[Schedule API] Update request received');
+    console.log('[Schedule API] Method:', req.method);
+    console.log('[Schedule API] Body:', JSON.stringify(req.body, null, 2));
 
-  const userToken = req.headers['authorization'] as string;
-  const isAuthorized = await userIsAuthorized(userToken, ['super_admin', 'admin']);
-  if (!isAuthorized) {
-    return res.status(403).json({
-      statusCode: 403,
-      msg: 'Request is not authorized to perform admin functionality',
-    });
-  }
-  const db = firestore();
-  const event = await db.collection(SCHEDULE_EVENTS).where('Event', '==', eventData.Event).get();
-  if (event.empty) {
+    // Next.js 自动解析 JSON body，所以直接使用 req.body
+    const { startTimestamp, endTimestamp, id, ...eventData } = req.body;
+
+    const userToken = req.headers['authorization'] as string;
+    console.log('[Schedule API] Authorization token present:', !!userToken);
+
+    const isAuthorized = await userIsAuthorized(userToken, ['super_admin', 'admin']);
+    console.log('[Schedule API] User authorized:', isAuthorized);
+
+    if (!isAuthorized) {
+      console.log('[Schedule API] Authorization failed - returning 403');
+      return res.status(403).json({
+        statusCode: 403,
+        msg: 'Request is not authorized to perform admin functionality',
+      });
+    }
+
+    const db = firestore();
+
+    // 如果有 id，這是更新現有活動
+    if (id) {
+      console.log('[Schedule API] Updating event with document ID:', id);
+      await db
+        .collection(SCHEDULE_EVENTS)
+        .doc(id)
+        .update({
+          ...eventData,
+          startDate: new Date(eventData.startDate),
+          endDate: new Date(eventData.endDate),
+        });
+      console.log('[Schedule API] Event updated successfully');
+      return res.status(200).json({
+        msg: 'Event updated',
+      });
+    }
+
+    // 如果沒有 id，這是創建新活動
+    console.log('[Schedule API] Creating new event');
     await db.collection(SCHEDULE_EVENTS).add({
       ...eventData,
       startDate: new Date(eventData.startDate),
       endDate: new Date(eventData.endDate),
     });
+    console.log('[Schedule API] Event created successfully');
     return res.status(201).json({
       msg: 'Event created',
     });
+  } catch (error) {
+    console.error('[Schedule API] Error updating event:', error);
+    console.error('[Schedule API] Error stack:', error.stack);
+    return res.status(500).json({
+      statusCode: 500,
+      msg: 'Failed to update event',
+      error: error.message,
+    });
   }
-  event.forEach(async (doc) => {
-    await db
-      .collection(SCHEDULE_EVENTS)
-      .doc(doc.id)
-      .update({
-        ...eventData,
-        startDate: new Date(eventData.startDate),
-        endDate: new Date(eventData.endDate),
-      });
-  });
-
-  return res.status(200).json({
-    msg: 'Event updated',
-  });
 }
 
 async function deleteEvent(req: NextApiRequest, res: NextApiResponse) {
-  const userToken = req.headers['authorization'] as string;
-  const isAuthorized = await userIsAuthorized(userToken, ['super_admin']);
+  try {
+    const userToken = req.headers['authorization'] as string;
+    const isAuthorized = await userIsAuthorized(userToken, ['super_admin']);
 
-  if (!isAuthorized) {
-    return res.status(403).json({
-      statusCode: 403,
-      msg: 'Request is not authorized to perform admin functionality',
+    if (!isAuthorized) {
+      return res.status(403).json({
+        statusCode: 403,
+        msg: 'Request is not authorized to perform admin functionality',
+      });
+    }
+
+    // Next.js 自动解析 JSON body，所以直接使用 req.body
+    const eventData = req.body;
+
+    if (!eventData.id) {
+      return res.status(400).json({
+        statusCode: 400,
+        msg: 'Missing event document ID',
+      });
+    }
+
+    const db = firestore();
+
+    console.log(`[Schedule API] Attempting to delete event with ID: "${eventData.id}"`);
+
+    // 使用 document ID 直接刪除
+    await db.collection(SCHEDULE_EVENTS).doc(eventData.id).delete();
+
+    console.log(`[Schedule API] Successfully deleted event ${eventData.id}`);
+
+    return res.json({
+      msg: 'Event deleted',
+    });
+  } catch (error) {
+    console.error('[Schedule API] Error deleting event:', error);
+    return res.status(500).json({
+      statusCode: 500,
+      msg: 'Failed to delete event',
+      error: error.message,
     });
   }
-
-  const eventData = JSON.parse(req.body);
-  const db = firestore();
-  const eventDoc = await db.collection(SCHEDULE_EVENTS).where('Event', '==', eventData.Event).get();
-  eventDoc.forEach(async (doc) => {
-    await db.collection(SCHEDULE_EVENTS).doc(doc.id).delete();
-  });
-  return res.json({
-    msg: 'Event deleted',
-  });
 }
 
 function handleGetRequest(req: NextApiRequest, res: NextApiResponse) {
@@ -338,6 +383,10 @@ function handleGetRequest(req: NextApiRequest, res: NextApiResponse) {
 }
 
 function handlePostRequest(req: NextApiRequest, res: NextApiResponse) {
+  return updateEventDatabase(req, res);
+}
+
+function handlePutRequest(req: NextApiRequest, res: NextApiResponse) {
   return updateEventDatabase(req, res);
 }
 
@@ -353,6 +402,9 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     }
     case 'POST': {
       return handlePostRequest(req, res);
+    }
+    case 'PUT': {
+      return handlePutRequest(req, res);
     }
     case 'DELETE': {
       return handleDeleteRequest(req, res);

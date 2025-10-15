@@ -14,7 +14,7 @@ interface SchedulePageProps {
 }
 
 export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
-  const { profile, isSignedIn } = useAuthContext();
+  const { profile, isSignedIn, user } = useAuthContext();
   const [editingEvent, setEditingEvent] = useState<any>(null);
   const [editForm, setEditForm] = useState<any>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -287,77 +287,17 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
   const handleAddToCalendar = async (event: any, e: React.MouseEvent) => {
     e.preventDefault();
 
-    // 檢查是否已連接 Google Calendar（直接連接）
-    if (!googleAccessToken) {
-      connectGoogleCalendar();
-      return;
-    }
-
+    // 檢查是否已經添加過
     if (isEventAdded(event)) {
-      // 如果已添加，靜默返回
+      alert('此活動已經添加到您的日曆中');
       return;
     }
 
-    // 使用 API 自動添加事件
-    try {
-      const response = await fetch('/api/calendar/events', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${googleAccessToken}`,
-        },
-        body: JSON.stringify({
-          title: event.title,
-          description:
-            event.description ||
-            '' + (event.speakers?.length ? `\n講者: ${event.speakers.join('、')}` : ''),
-          location: event.location || '',
-          startTime: event.startDate.toISOString(),
-          endTime: event.endDate.toISOString(),
-        }),
-      });
+    // 使用傳統方式打開 Google Calendar
+    window.open(generateGoogleCalendarLink(event), '_blank');
 
-      if (!response.ok) {
-        if (response.status === 401) {
-          // Token 失效
-          throw new Error('授權已失效，請重新連接 Google Calendar');
-        }
-        const data = await response.json();
-        throw new Error(data.error || '添加失敗');
-      }
-
-      const data = await response.json();
-
-      // 標記為已添加
-      markEventAsAdded(getEventId(event));
-
-      // 靜默添加，不顯示通知
-    } catch (error: any) {
-      console.error('添加事件失敗:', error);
-
-      if (error.message.includes('授權已失效')) {
-        // 清除舊的 token
-        setGoogleAccessToken(null);
-        setCalendarStatus('disconnected');
-        localStorage.removeItem('googleCalendarToken');
-
-        const confirmReconnect = window.confirm(`${error.message}\n\n` + '點擊「確定」重新連接。');
-
-        if (confirmReconnect) {
-          connectGoogleCalendar();
-        }
-      } else {
-        // 添加失敗，詢問是否使用傳統方式
-        const useFallback = window.confirm(
-          `自動添加失敗：${error.message}\n\n` + '是否改用傳統方式（開新視窗）添加？',
-        );
-
-        if (useFallback) {
-          markEventAsAdded(getEventId(event));
-          window.open(generateGoogleCalendarLink(event), '_blank');
-        }
-      }
-    }
+    // 標記為已添加
+    markEventAsAdded(getEventId(event));
   };
 
   // Function to remove event from calendar
@@ -575,6 +515,16 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
     }
   };
 
+  // Function to convert Date to local datetime-local format (YYYY-MM-DDTHH:mm)
+  const toLocalDateTimeString = (date: Date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  };
+
   // Function to handle edit button click
   const handleEditClick = (event: any) => {
     setEditingEvent(event);
@@ -584,8 +534,8 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
       location: event.location,
       speakers: event.speakers?.join('、') || '',
       tags: event.tags?.join('、') || '',
-      startDate: event.startDate.toISOString().slice(0, 16),
-      endDate: event.endDate.toISOString().slice(0, 16),
+      startDate: toLocalDateTimeString(event.startDate),
+      endDate: toLocalDateTimeString(event.endDate),
       Event: event.Event,
       track: event.track,
       page: event.page,
@@ -598,14 +548,111 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
     e.preventDefault();
     setIsSubmitting(true);
 
+    // 立即输出所有认证状态信息
+    console.clear();
+    console.log('========================================');
+    console.log('🔍 开始保存活动 - 认证状态检查');
+    console.log('========================================');
+    console.log('AuthContext 状态:');
+    console.log('  - isSignedIn:', isSignedIn);
+    console.log('  - user exists:', !!user);
+    console.log('  - user.token exists:', !!user?.token);
+    console.log('  - user.id:', user?.id || 'N/A');
+    console.log('  - profile exists:', !!profile);
+    console.log('');
+    console.log('Firebase 状态:');
+    console.log('  - firebase available:', !!(window as any).firebase);
+    console.log('  - firebase.auth available:', !!(window as any).firebase?.auth);
+
     try {
-      // Get Firebase auth token
-      const user = await (window as any).firebase?.auth()?.currentUser;
-      const token = user ? await user.getIdToken() : '';
+      // Get fresh Firebase auth token (force refresh to avoid expiration)
+      let token = '';
+      let firebaseUser = null;
+
+      try {
+        // Wait for Firebase to be initialized
+        if ((window as any).firebase?.auth) {
+          firebaseUser = (window as any).firebase.auth().currentUser;
+          console.log(
+            '  - firebase.auth().currentUser (1st try):',
+            firebaseUser ? `Found (${firebaseUser.email})` : 'null',
+          );
+
+          if (!firebaseUser) {
+            // Wait a bit for auth state to load
+            console.log('  - Waiting 500ms for auth state...');
+            await new Promise((resolve) => setTimeout(resolve, 500));
+            firebaseUser = (window as any).firebase.auth().currentUser;
+            console.log(
+              '  - firebase.auth().currentUser (2nd try):',
+              firebaseUser ? `Found (${firebaseUser.email})` : 'null',
+            );
+          }
+
+          if (firebaseUser) {
+            console.log('');
+            console.log('🔑 尝试获取 Firebase token...');
+            try {
+              // Force token refresh to get a fresh token (true = force refresh)
+              token = await firebaseUser.getIdToken(true);
+              console.log('✅ Token 获取成功！');
+              console.log('   Token (前30字符):', token.substring(0, 30) + '...');
+            } catch (tokenError) {
+              console.error('❌ 获取 token 失败:', tokenError);
+            }
+          } else {
+            console.log('');
+            console.log('⚠️ Firebase user not found, 尝试 AuthContext token...');
+            // Fallback: try to get from AuthContext
+            token = user?.token || '';
+            if (token) {
+              console.log('✅ 从 AuthContext 获取到 token');
+              console.log('   Token (前30字符):', token.substring(0, 30) + '...');
+            } else {
+              console.log('❌ AuthContext 也没有 token');
+            }
+          }
+        } else {
+          console.log('  - Firebase not available, using AuthContext token');
+          token = user?.token || '';
+          if (token) {
+            console.log('✅ 从 AuthContext 获取到 token');
+          }
+        }
+      } catch (error) {
+        console.error('❌ Error in token retrieval process:', error);
+        // Fallback to AuthContext token
+        token = user?.token || '';
+        if (token) {
+          console.log('✅ 使用 AuthContext fallback token');
+        }
+      }
+
+      if (!token) {
+        const errorMsg =
+          '無法獲取授權 token，請重新登入。\n\n請檢查：\n1. 您是否已登入？\n2. 請嘗試刷新頁面後重新登入。';
+        console.error('========================================');
+        console.error('❌ 保存失敗：無法獲取授權 token');
+        console.error('========================================');
+        console.error('詳細信息：');
+        console.error('- Firebase user:', firebaseUser ? 'Found' : 'Not found');
+        console.error('- User email:', firebaseUser?.email || 'N/A');
+        console.error('- AuthContext user:', user ? 'Exists' : 'Not exists');
+        console.error('- AuthContext token:', user?.token ? 'Exists' : 'Not exists');
+        console.error('- isSignedIn:', isSignedIn);
+        console.error('========================================');
+        console.error('💡 請將此信息截圖或複製給開發者');
+        console.error('========================================');
+        alert(errorMsg);
+        setIsSubmitting(false);
+        return;
+      }
 
       const isNewEvent = !editingEvent.title;
       const method = isNewEvent ? 'POST' : 'PUT';
       const successMessage = isNewEvent ? '活動新增成功！' : '活動更新成功！';
+
+      console.log('Submitting event with token:', token ? '✓ Fresh token obtained' : '✗ No token');
 
       const response = await fetch('/api/schedule', {
         method,
@@ -615,6 +662,7 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
         },
         body: JSON.stringify({
           ...editForm,
+          id: editingEvent.id, // 傳遞 Firestore document ID
           speakers: editForm.speakers.split('、').filter((s: string) => s.trim()),
           tags: editForm.tags ? editForm.tags.split('、').filter((t: string) => t.trim()) : [],
           startDate: new Date(editForm.startDate).toISOString(),
@@ -627,11 +675,167 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
         setEditingEvent(null);
         window.location.reload();
       } else {
-        alert(isNewEvent ? '新增失敗，請稍後再試。' : '更新失敗，請稍後再試。');
+        // 獲取詳細錯誤信息
+        const errorData = await response.json().catch(() => ({ msg: '未知錯誤' }));
+        const errorMessage = isNewEvent ? '新增失敗' : '更新失敗';
+
+        // 輸出詳細錯誤到控制台（可複製）
+        console.error('========================================');
+        console.error(`❌ ${errorMessage}`);
+        console.error('========================================');
+        console.error('狀態碼:', response.status);
+        console.error('錯誤訊息:', errorData.msg || errorData.error || '未知錯誤');
+        console.error('完整錯誤數據:', JSON.stringify(errorData, null, 2));
+        console.error(
+          '請求數據:',
+          JSON.stringify(
+            {
+              title: editForm.title,
+              Event: editForm.Event,
+              startDate: editForm.startDate,
+              endDate: editForm.endDate,
+            },
+            null,
+            2,
+          ),
+        );
+        console.error('========================================');
+        console.error('💡 請複製以上信息並提供給開發者');
+        console.error('========================================');
+
+        alert(
+          `${errorMessage}\n\n` +
+            `狀態碼: ${response.status}\n` +
+            `錯誤訊息: ${errorData.msg || errorData.error || '請稍後再試'}\n\n` +
+            `詳細信息已輸出到瀏覽器控制台（按 F12 查看），\n` +
+            `您可以從控制台複製錯誤信息。\n\n` +
+            `請檢查：\n` +
+            `1. 您是否有管理員權限？\n` +
+            `2. 網路連接是否正常？\n` +
+            `3. 所有必填欄位是否已填寫？`,
+        );
       }
     } catch (error) {
-      console.error('Error submitting event:', error);
-      alert('操作時發生錯誤。');
+      console.error('========================================');
+      console.error('❌ 操作時發生錯誤');
+      console.error('========================================');
+      console.error('錯誤類型:', error.constructor.name);
+      console.error('錯誤訊息:', error.message || error);
+      console.error('完整錯誤:', error);
+      console.error('Stack trace:', error.stack);
+      console.error('========================================');
+      console.error('💡 請複製以上信息並提供給開發者');
+      console.error('========================================');
+
+      alert(
+        `操作時發生錯誤：\n\n${
+          error.message || error
+        }\n\n詳細錯誤信息已輸出到控制台（按 F12），您可以複製這些信息。`,
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // Function to handle event deletion
+  const handleDeleteEvent = async () => {
+    if (!editingEvent?.title) {
+      alert('無法刪除：這是新活動');
+      return;
+    }
+
+    const confirmDelete = window.confirm(
+      `確定要刪除此活動嗎？\n\n活動：${editingEvent.title}\n\n此操作無法撤銷！`,
+    );
+
+    if (!confirmDelete) {
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      console.clear();
+      console.log('========================================');
+      console.log('🗑️  開始刪除活動...');
+      console.log('========================================');
+
+      // Get fresh token
+      let token = '';
+      let firebaseUser = null;
+
+      try {
+        if ((window as any).firebase?.auth) {
+          firebaseUser = (window as any).firebase.auth().currentUser;
+
+          if (!firebaseUser) {
+            await new Promise((resolve) => setTimeout(resolve, 500));
+            firebaseUser = (window as any).firebase.auth().currentUser;
+          }
+
+          if (firebaseUser) {
+            token = await firebaseUser.getIdToken(true);
+            console.log('✅ Firebase token 獲取成功');
+          } else {
+            token = user?.token || '';
+            console.log('⚠️  使用 AuthContext token');
+          }
+        } else {
+          token = user?.token || '';
+          console.log('⚠️  使用 AuthContext token (Firebase 不可用)');
+        }
+      } catch (error) {
+        console.error('❌ Error in token retrieval process:', error);
+        token = user?.token || '';
+      }
+
+      if (!token) {
+        const errorMsg = '無法獲取授權 token，請重新登入。';
+        console.error('❌', errorMsg);
+        alert(errorMsg);
+        setIsSubmitting(false);
+        return;
+      }
+
+      console.log('Deleting event:', {
+        title: editingEvent.title,
+      });
+
+      const response = await fetch('/api/schedule', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: token,
+        },
+        body: JSON.stringify({
+          id: editingEvent.id, // 使用 document ID 删除
+        }),
+      });
+
+      if (response.ok) {
+        alert('活動已刪除！請刷新頁面查看更改。');
+        setEditingEvent(null);
+        window.location.reload();
+      } else {
+        const errorData = await response.json().catch(() => ({ msg: '未知錯誤' }));
+
+        console.error('========================================');
+        console.error('❌ 刪除失敗');
+        console.error('========================================');
+        console.error('狀態碼:', response.status);
+        console.error('錯誤訊息:', errorData.msg || errorData.error || '未知錯誤');
+        console.error('完整錯誤數據:', JSON.stringify(errorData, null, 2));
+        console.error('========================================');
+
+        alert(
+          `刪除失敗：${
+            errorData.msg || errorData.error || '未知錯誤'
+          }\n\n詳細錯誤信息已輸出到瀏覽器控制台（F12）。`,
+        );
+      }
+    } catch (error: any) {
+      console.error('刪除失敗:', error);
+      alert(`刪除失敗：${error.message}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -696,8 +900,8 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
 
                     setEditForm({
                       title: '',
-                      startDate: startDate.toISOString().slice(0, 16),
-                      endDate: endDate.toISOString().slice(0, 16),
+                      startDate: toLocalDateTimeString(startDate),
+                      endDate: toLocalDateTimeString(endDate),
                       location: '線上',
                       speakers: '',
                       description: '',
@@ -727,350 +931,6 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
               )}
             </div>
           </div>
-
-          {/* Google Calendar 連接卡片 */}
-          {sortedEvents.length > 0 && (
-            <div
-              className="rounded-xl shadow-md p-6 mb-6"
-              style={{ backgroundColor: '#f8f9fa', border: '1px solid #e1e4e8' }}
-            >
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                {/* Left side - Google Calendar info */}
-                <div className="flex items-center gap-4">
-                  {/* Google Calendar Icon */}
-                  <div className="flex-shrink-0">
-                    <div
-                      className="w-14 h-14 rounded-lg flex items-center justify-center shadow-sm"
-                      style={{ background: 'linear-gradient(135deg, #5a6c7d 0%, #415261 100%)' }}
-                    >
-                      <svg className="w-8 h-8 text-white" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zM9 14H7v-2h2v2zm4 0h-2v-2h2v2zm4 0h-2v-2h2v2zm-8 4H7v-2h2v2zm4 0h-2v-2h2v2zm4 0h-2v-2h2v2z" />
-                      </svg>
-                    </div>
-                  </div>
-
-                  {/* Status Info */}
-                  <div className="flex-1">
-                    {calendarStatus === 'disconnected' ? (
-                      <>
-                        <h3 className="text-lg font-bold mb-1" style={{ color: '#2c3e50' }}>
-                          連接 Google Calendar
-                        </h3>
-                        <p className="text-sm" style={{ color: '#5a6c7d' }}>
-                          自動添加活動到您的 Google Calendar，無需手動複製
-                        </p>
-                      </>
-                    ) : calendarStatus === 'checking' ? (
-                      <>
-                        <h3
-                          className="text-lg font-bold mb-1 flex items-center gap-2"
-                          style={{ color: '#4a7ba7' }}
-                        >
-                          <svg
-                            className="animate-spin h-5 w-5"
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                          >
-                            <circle
-                              className="opacity-25"
-                              cx="12"
-                              cy="12"
-                              r="10"
-                              stroke="currentColor"
-                              strokeWidth="4"
-                            ></circle>
-                            <path
-                              className="opacity-75"
-                              fill="currentColor"
-                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                            ></path>
-                          </svg>
-                          正在檢查日曆...
-                        </h3>
-                        <p className="text-sm" style={{ color: '#5a6c7d' }}>
-                          正在比對您的 Google Calendar
-                        </p>
-                      </>
-                    ) : (
-                      <>
-                        <h3
-                          className="text-lg font-bold mb-1 flex items-center gap-2"
-                          style={{ color: '#2d5a47' }}
-                        >
-                          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                            <path
-                              fillRule="evenodd"
-                              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
-                          已連接 Google Calendar
-                        </h3>
-                        <p className="text-sm" style={{ color: '#5a6c7d' }}>
-                          已添加 {addedEvents.size} 個活動
-                          {conflictingEvents.size > 0 && ` • ${conflictingEvents.size} 個衝突`}
-                        </p>
-                      </>
-                    )}
-                  </div>
-                </div>
-
-                {/* Right side - Action buttons */}
-                <div className="flex flex-wrap gap-2">
-                  {/* 一鍵全加按鈕 - 始終顯示 */}
-                  <button
-                    onClick={async () => {
-                      // 一鍵全加功能
-                      if (!googleAccessToken) {
-                        connectGoogleCalendar();
-                        return;
-                      }
-
-                      const eventsToAdd = sortedEvents.filter(
-                        (e) => e.status !== 'unconfirmed' && !isEventAdded(e),
-                      );
-
-                      if (eventsToAdd.length === 0) {
-                        return; // 靜默處理，不顯示通知
-                      }
-
-                      const confirmAdd = window.confirm(
-                        `確定要一次添加 ${eventsToAdd.length} 個活動到 Google Calendar 嗎？`,
-                      );
-
-                      if (!confirmAdd) return;
-
-                      let successCount = 0;
-                      let failCount = 0;
-
-                      for (const event of eventsToAdd) {
-                        try {
-                          const response = await fetch('/api/calendar/events', {
-                            method: 'POST',
-                            headers: {
-                              'Content-Type': 'application/json',
-                              Authorization: `Bearer ${googleAccessToken}`,
-                            },
-                            body: JSON.stringify({
-                              title: event.title,
-                              description:
-                                event.description ||
-                                '' +
-                                  (event.speakers?.length
-                                    ? `\n講者: ${event.speakers.join('、')}`
-                                    : ''),
-                              location: event.location || '',
-                              startTime: event.startDate.toISOString(),
-                              endTime: event.endDate.toISOString(),
-                            }),
-                          });
-
-                          if (response.ok) {
-                            markEventAsAdded(getEventId(event));
-                            successCount++;
-                          } else {
-                            failCount++;
-                          }
-                        } catch (error) {
-                          failCount++;
-                        }
-                      }
-
-                      // 只在有失敗時才顯示提示
-                      if (failCount > 0) {
-                        alert(
-                          `添加完成\n\n` + `成功：${successCount} 個\n` + `失敗：${failCount} 個`,
-                        );
-                      }
-                    }}
-                    className="border-2 px-3 py-1.5 text-xs font-medium tracking-wide transition-colors duration-300 whitespace-nowrap"
-                    style={{
-                      borderColor: '#1a3a6e',
-                      color: '#1a3a6e',
-                      backgroundColor: 'transparent',
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = '#1a3a6e';
-                      e.currentTarget.style.color = 'white';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = 'transparent';
-                      e.currentTarget.style.color = '#1a3a6e';
-                    }}
-                  >
-                    一鍵全加
-                  </button>
-
-                  {/* 根據狀態顯示不同的按鈕 */}
-                  {calendarStatus === 'disconnected' ? (
-                    <button
-                      onClick={connectGoogleCalendar}
-                      className="flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-all duration-200 shadow-sm hover:shadow-md"
-                      style={{
-                        backgroundColor: '#5a6c7d',
-                        color: 'white',
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = '#4a5a6a';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = '#5a6c7d';
-                      }}
-                    >
-                      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                        <path
-                          d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                          fill="#4285F4"
-                        />
-                        <path
-                          d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                          fill="#34A853"
-                        />
-                        <path
-                          d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                          fill="#FBBC05"
-                        />
-                        <path
-                          d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                          fill="#EA4335"
-                        />
-                      </svg>
-                      連接 Google
-                    </button>
-                  ) : calendarStatus === 'checking' ? (
-                    <button
-                      disabled
-                      className="flex items-center gap-2 px-6 py-3 rounded-lg font-semibold cursor-not-allowed"
-                      style={{
-                        backgroundColor: '#e1e4e8',
-                        color: '#9ca3af',
-                      }}
-                    >
-                      <svg
-                        className="animate-spin h-5 w-5"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                      >
-                        <circle
-                          className="opacity-25"
-                          cx="12"
-                          cy="12"
-                          r="10"
-                          stroke="currentColor"
-                          strokeWidth="4"
-                        ></circle>
-                        <path
-                          className="opacity-75"
-                          fill="currentColor"
-                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                        ></path>
-                      </svg>
-                      檢查中...
-                    </button>
-                  ) : (
-                    <>
-                      <button
-                        onClick={checkGoogleCalendar}
-                        disabled={isCheckingCalendar}
-                        className="flex items-center gap-2 px-5 py-2.5 rounded-lg font-semibold transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
-                        style={{
-                          backgroundColor: '#4a7ba7',
-                          color: 'white',
-                        }}
-                        onMouseEnter={(e) => {
-                          if (!isCheckingCalendar) {
-                            e.currentTarget.style.backgroundColor = '#3a6b97';
-                          }
-                        }}
-                        onMouseLeave={(e) => {
-                          if (!isCheckingCalendar) {
-                            e.currentTarget.style.backgroundColor = '#4a7ba7';
-                          }
-                        }}
-                      >
-                        <svg
-                          className="w-4 h-4"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                          />
-                        </svg>
-                        {isCheckingCalendar ? '檢查中...' : '檢查日曆'}
-                      </button>
-                      <button
-                        onClick={disconnectGoogleCalendar}
-                        className="flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium transition-all duration-200"
-                        style={{
-                          backgroundColor: 'white',
-                          color: '#5a6c7d',
-                          border: '1px solid #d1d5db',
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.backgroundColor = '#f8f9fa';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.backgroundColor = 'white';
-                        }}
-                        title="斷開 Google Calendar 連接"
-                      >
-                        <svg
-                          className="w-4 h-4"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M6 18L18 6M6 6l12 12"
-                          />
-                        </svg>
-                        斷開
-                      </button>
-                    </>
-                  )}
-                </div>
-              </div>
-
-              {/* Connection Tips */}
-              {calendarStatus === 'connected' && (
-                <div className="mt-4 pt-4" style={{ borderTop: '1px solid #d1d5db' }}>
-                  <div className="flex flex-wrap gap-4 text-sm">
-                    <div className="flex items-center gap-2" style={{ color: '#5a6c7d' }}>
-                      <span
-                        className="w-3 h-3 rounded-full"
-                        style={{ backgroundColor: '#1a3a6e' }}
-                      ></span>
-                      <span>藍色 = 可添加</span>
-                    </div>
-                    <div className="flex items-center gap-2" style={{ color: '#5a6c7d' }}>
-                      <span
-                        className="w-3 h-3 rounded-full"
-                        style={{ backgroundColor: '#2d5a47' }}
-                      ></span>
-                      <span>綠色 = 已添加</span>
-                    </div>
-                    <div className="flex items-center gap-2" style={{ color: '#5a6c7d' }}>
-                      <span
-                        className="w-3 h-3 rounded-full"
-                        style={{ backgroundColor: '#8B4049' }}
-                      ></span>
-                      <span>紅色 = 有衝突</span>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
         </div>
 
         {sortedEvents.length === 0 ? (
@@ -1186,31 +1046,7 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
                         <div className="text-xs opacity-90">{event.startDate.getMonth() + 1}月</div>
                       </div>
                       {event.status !== 'unconfirmed' &&
-                        (isEventAdded(event) ? (
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleRemoveFromCalendar(event, e);
-                            }}
-                            className="border-2 px-3 py-1.5 text-xs font-medium tracking-wide transition-colors duration-300 whitespace-nowrap"
-                            style={{
-                              borderColor: '#8B4049',
-                              color: '#8B4049',
-                              backgroundColor: 'transparent',
-                            }}
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.backgroundColor = '#8B4049';
-                              e.currentTarget.style.color = 'white';
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.backgroundColor = 'transparent';
-                              e.currentTarget.style.color = '#8B4049';
-                            }}
-                            title="從日曆移除"
-                          >
-                            − 移除
-                          </button>
-                        ) : hasConflict(event) ? (
+                        (hasConflict(event) ? (
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
@@ -1430,6 +1266,16 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
                 >
                   {isSubmitting ? '儲存中...' : '儲存變更'}
                 </button>
+                {editingEvent?.title && (
+                  <button
+                    type="button"
+                    onClick={handleDeleteEvent}
+                    disabled={isSubmitting}
+                    className="px-6 py-2.5 bg-red-600 text-white rounded-md font-semibold hover:bg-red-700 transition-colors duration-200 disabled:opacity-50"
+                  >
+                    {isSubmitting ? '刪除中...' : '刪除'}
+                  </button>
+                )}
                 <button
                   type="button"
                   onClick={() => setEditingEvent(null)}
