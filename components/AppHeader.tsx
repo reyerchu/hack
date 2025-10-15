@@ -49,6 +49,19 @@ export default function AppHeader() {
       }
       return dynamicNavItems;
     });
+
+    // Handle click outside profile dialog
+    const handleClickOutside = (event: MouseEvent) => {
+      const targetComponent = document.querySelector('.profileDialog');
+      if (targetComponent !== null && !targetComponent.contains(event.target as Node)) {
+        dismissDialog();
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
   }, []);
 
   const toggleMenu = () => {
@@ -62,16 +75,6 @@ export default function AppHeader() {
   const toggleDialog = () => {
     setShowProfileDialog(!showProfileDialog);
   };
-
-  document.addEventListener('mousedown', (event) => {
-    const targetComponent = document.querySelector('.profileDialog');
-    if (
-      targetComponent !== null &&
-      !document.querySelector('.profileDialog').contains(event.target as Node)
-    ) {
-      dismissDialog();
-    }
-  });
 
   return (
     <>
