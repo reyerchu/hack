@@ -25,6 +25,8 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
   const [calendarStatus, setCalendarStatus] = useState<'disconnected' | 'connected' | 'checking'>(
     'disconnected',
   );
+  const [selectedTagFilters, setSelectedTagFilters] = useState<Set<string>>(new Set());
+  const [includeHistoryEvents, setIncludeHistoryEvents] = useState(false);
 
   // Check if user is admin - must be signed in AND have admin permissions
   const isAdmin =
@@ -121,6 +123,35 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
   // Sort events by start date
   const sortedEvents = events.sort((a, b) => a.startDate.getTime() - b.startDate.getTime());
 
+  // Filter events by date (hide past events unless includeHistoryEvents is true)
+  const currentTime = new Date();
+  const eventsByTime = includeHistoryEvents
+    ? sortedEvents
+    : sortedEvents.filter((event) => {
+        const isPast = event.endDate < currentTime;
+        if (isPast) {
+          console.log(
+            `Filtering out past event: ${event.title}, endDate: ${event.endDate}, current: ${currentTime}`,
+          );
+        }
+        return event.endDate >= currentTime;
+      });
+
+  // Filter events by selected tags
+  const filteredEvents =
+    selectedTagFilters.size === 0
+      ? eventsByTime
+      : eventsByTime.filter((event) => {
+          if (!event.tags || event.tags.length === 0) return false;
+          return event.tags.some((tag: string) => selectedTagFilters.has(tag));
+        });
+
+  // Event type order for filtering
+  const eventTypeOrder = ['黑客松', '贊助商', '組隊社交', '技術', '熱門賽道'];
+
+  // Check if event is past
+  const isPastEvent = (event: any) => event.endDate < currentTime;
+
   const formatDate = (date: Date) => {
     const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
     const month = date.getMonth() + 1;
@@ -129,13 +160,46 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
     return `${month}/${day}（${weekday}）`;
   };
 
-  const formatTime = (startDate: Date, endDate: Date) => {
-    const formatHourMinute = (date: Date) => {
-      const hours = date.getHours();
-      const minutes = date.getMinutes();
-      return `${hours}:${minutes.toString().padStart(2, '0')}`;
-    };
-    return `${formatHourMinute(startDate)} - ${formatHourMinute(endDate)}`;
+  // Check if two dates are on the same day
+  const isSameDay = (date1: Date, date2: Date) => {
+    return (
+      date1.getFullYear() === date2.getFullYear() &&
+      date1.getMonth() === date2.getMonth() &&
+      date1.getDate() === date2.getDate()
+    );
+  };
+
+  // Format time in HH:mm format
+  const formatTime = (date: Date) => {
+    const hours = date.getHours();
+    const minutes = date.getMinutes();
+    return `${hours}:${minutes.toString().padStart(2, '0')}`;
+  };
+
+  // Format date with time in compact format: MM/DD（X）HH:mm
+  const formatDateWithTime = (date: Date) => {
+    return `${formatDate(date)} ${formatTime(date)}`;
+  };
+
+  // Smart datetime formatting for all cases
+  const formatDateTime = (startDate: Date, endDate: Date) => {
+    if (isSameDay(startDate, endDate)) {
+      // Case 1: Same day event
+      // Display: "10/31（四）" and "14:00 - 16:00"
+      return {
+        dateInfo: formatDate(startDate),
+        timeInfo: `${formatTime(startDate)} - ${formatTime(endDate)}`,
+        isMultiDay: false,
+      };
+    } else {
+      // Case 2: Multi-day or overnight event
+      // Display full datetime range: "10/31（四）22:00 - 11/1（五）02:00"
+      return {
+        dateInfo: '',
+        timeInfo: `${formatDateWithTime(startDate)} - ${formatDateWithTime(endDate)}`,
+        isMultiDay: true,
+      };
+    }
   };
 
   const getEventTypeLabel = (eventType: number) => {
@@ -899,11 +963,85 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
       <div className="max-w-5xl mx-auto px-4 py-20">
         <div className="mb-8">
           <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-4">
-            <div>
+            <div className="flex-1">
               <h1 className="text-4xl font-bold mb-2" style={{ color: '#1a3a6e' }}>
                 時程表
               </h1>
-              <p className="text-sm text-gray-600">*所有活動時間均以台灣時間（GMT+8）為準</p>
+              <div className="text-sm text-gray-600 mb-3">
+                <p>*所有活動時間均以台灣時間（GMT+8）為準</p>
+                <p className="text-xs mt-1">
+                  當前時間：{currentTime.toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' })}
+                </p>
+              </div>
+
+              {/* 包含歷史活動選項 */}
+              <div className="mb-3">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={includeHistoryEvents}
+                    onChange={(e) => setIncludeHistoryEvents(e.target.checked)}
+                    className="w-4 h-4 rounded border-gray-300 focus:ring-2 focus:ring-offset-0 cursor-pointer"
+                    style={{
+                      accentColor: '#1a3a6e',
+                    }}
+                  />
+                  <span className="text-sm font-medium" style={{ color: '#1a3a6e' }}>
+                    包含所有歷史活動
+                  </span>
+                </label>
+                {!includeHistoryEvents && sortedEvents.length !== eventsByTime.length && (
+                  <p className="text-xs text-gray-500 mt-1 ml-6">
+                    已隱藏 {sortedEvents.length - eventsByTime.length} 個已結束的活動
+                  </p>
+                )}
+              </div>
+
+              {/* 類型篩選按鈕 */}
+              <div className="flex flex-wrap gap-2">
+                {eventTypeOrder.map((tagType) => {
+                  const isSelected = selectedTagFilters.has(tagType);
+                  return (
+                    <button
+                      key={tagType}
+                      onClick={() => {
+                        const newFilters = new Set(selectedTagFilters);
+                        if (isSelected) {
+                          newFilters.delete(tagType);
+                        } else {
+                          newFilters.add(tagType);
+                        }
+                        setSelectedTagFilters(newFilters);
+                      }}
+                      className="px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200"
+                      style={
+                        isSelected
+                          ? { ...getTagStyle(tagType), color: 'white' }
+                          : {
+                              backgroundColor: '#e8eaed',
+                              color: '#6b7280',
+                              border: '1px solid #d1d5db',
+                            }
+                      }
+                    >
+                      {tagType}
+                    </button>
+                  );
+                })}
+                {selectedTagFilters.size > 0 && (
+                  <button
+                    onClick={() => setSelectedTagFilters(new Set())}
+                    className="px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200"
+                    style={{
+                      backgroundColor: '#fee2e2',
+                      color: '#991b1b',
+                      border: '1px solid #fecaca',
+                    }}
+                  >
+                    清除篩選
+                  </button>
+                )}
+              </div>
             </div>
             <div className="flex flex-col gap-3">
               {isAdmin && (
@@ -1043,173 +1181,217 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
           </div>
         </div>
 
-        {sortedEvents.length === 0 ? (
+        {filteredEvents.length === 0 ? (
           <div
             className="rounded-lg shadow-sm p-12 text-center"
             style={{ backgroundColor: '#e8eaed' }}
           >
-            <p className="text-lg text-gray-500">目前沒有安排的活動</p>
+            <p className="text-lg text-gray-500">
+              {selectedTagFilters.size > 0 ? '沒有符合篩選條件的活動' : '目前沒有安排的活動'}
+            </p>
           </div>
         ) : (
           <div className="space-y-3">
-            {sortedEvents.map((event, index) => (
-              <div
-                key={index}
-                className={`rounded-md shadow-sm hover:shadow-lg transition-all duration-200 overflow-hidden border-l-4 ${
-                  event.status === 'unconfirmed' ? 'opacity-60 grayscale' : ''
-                } ${isAdmin ? 'cursor-pointer' : ''}`}
-                style={{
-                  backgroundColor: '#e8eaed',
-                  borderLeftColor: '#1a3a6e',
-                }}
-                onClick={() => isAdmin && handleEditClick(event)}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = '#d8dade';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = '#e8eaed';
-                }}
-              >
-                <div className="p-4">
-                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-                    {/* Left side - Main info */}
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2 flex-wrap">
-                        {event.tags &&
-                          event.tags.length > 0 &&
-                          event.tags.map((tag: string, tagIndex: number) => (
-                            <span
-                              key={tagIndex}
-                              className={`inline-block px-2 py-0.5 rounded text-xs font-semibold ${getTagColor(
-                                tag,
-                              )}`}
-                              style={getTagStyle(tag)}
-                            >
-                              {tag}
-                            </span>
-                          ))}
+            {filteredEvents.map((event, index) => {
+              const isEventPast = isPastEvent(event);
+              return (
+                <div
+                  key={index}
+                  className={`rounded-md shadow-sm hover:shadow-lg transition-all duration-200 overflow-hidden border-l-4 ${
+                    event.status === 'unconfirmed' || isEventPast ? 'opacity-60 grayscale' : ''
+                  } ${isAdmin ? 'cursor-pointer' : ''}`}
+                  style={{
+                    backgroundColor: '#e8eaed',
+                    borderLeftColor: '#1a3a6e',
+                  }}
+                  onClick={() => isAdmin && handleEditClick(event)}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#d8dade';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = '#e8eaed';
+                  }}
+                >
+                  <div className="p-4">
+                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                      {/* Left side - Main info */}
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2 flex-wrap">
+                          {event.tags &&
+                            event.tags.length > 0 &&
+                            event.tags
+                              .slice()
+                              .sort((a: string, b: string) => {
+                                const indexA = eventTypeOrder.indexOf(a);
+                                const indexB = eventTypeOrder.indexOf(b);
+                                // If tag not in order list, put it at the end
+                                const orderA = indexA === -1 ? 999 : indexA;
+                                const orderB = indexB === -1 ? 999 : indexB;
+                                return orderA - orderB;
+                              })
+                              .map((tag: string, tagIndex: number) => (
+                                <span
+                                  key={tagIndex}
+                                  className={`inline-block px-2 py-0.5 rounded text-xs font-semibold ${getTagColor(
+                                    tag,
+                                  )}`}
+                                  style={getTagStyle(tag)}
+                                >
+                                  {tag}
+                                </span>
+                              ))}
 
-                        <div className="flex items-center gap-3 text-xs text-gray-600">
-                          <div className="flex items-center gap-1">
-                            <CalendarIcon style={{ fontSize: '14px' }} />
-                            <span>{formatDate(event.startDate)}</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <ClockIcon style={{ fontSize: '14px' }} />
-                            <span>{formatTime(event.startDate, event.endDate)}</span>
+                          <div className="flex items-center gap-3 text-xs text-gray-600">
+                            {(() => {
+                              const { dateInfo, timeInfo, isMultiDay } = formatDateTime(
+                                event.startDate,
+                                event.endDate,
+                              );
+
+                              if (isMultiDay) {
+                                // Multi-day event: show full datetime range in one line
+                                return (
+                                  <div className="flex items-center gap-1">
+                                    <ClockIcon style={{ fontSize: '14px' }} />
+                                    <span>{timeInfo}</span>
+                                  </div>
+                                );
+                              } else {
+                                // Same day event: show date and time separately
+                                return (
+                                  <>
+                                    <div className="flex items-center gap-1">
+                                      <CalendarIcon style={{ fontSize: '14px' }} />
+                                      <span>{dateInfo}</span>
+                                    </div>
+                                    <div className="flex items-center gap-1">
+                                      <ClockIcon style={{ fontSize: '14px' }} />
+                                      <span>{timeInfo}</span>
+                                    </div>
+                                  </>
+                                );
+                              }
+                            })()}
                           </div>
                         </div>
-                      </div>
 
-                      {/* Title with Status */}
-                      <div className="flex items-center gap-2 mb-2">
-                        <h2 className="text-lg font-bold" style={{ color: '#1a3a6e' }}>
-                          {event.title}
-                        </h2>
-                        {event.status === 'unconfirmed' && (
-                          <span className="inline-block px-2 py-0.5 rounded text-xs font-semibold bg-gray-400 text-white">
-                            未確認
-                          </span>
-                        )}
-                      </div>
-
-                      <div className="flex flex-wrap items-center gap-3 text-sm text-gray-700 mb-2">
-                        <div className="flex items-center gap-1">
-                          <PinDrop style={{ fontSize: '16px' }} className="text-gray-500" />
-                          {getLocationLink(event.location) ? (
-                            <a
-                              href={getLocationLink(event.location)}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="hover:underline"
-                              style={{ color: '#1a3a6e' }}
-                            >
-                              {getLocationDisplay(event.location) || '待定'}
-                            </a>
-                          ) : (
-                            <span>{getLocationDisplay(event.location) || '待定'}</span>
+                        {/* Title with Status */}
+                        <div className="flex items-center gap-2 mb-2">
+                          <h2 className="text-lg font-bold" style={{ color: '#1a3a6e' }}>
+                            {event.title}
+                          </h2>
+                          {event.status === 'unconfirmed' && (
+                            <span className="inline-block px-2 py-0.5 rounded text-xs font-semibold bg-gray-400 text-white">
+                              未確認
+                            </span>
+                          )}
+                          {isEventPast && (
+                            <span className="inline-block px-2 py-0.5 rounded text-xs font-semibold bg-gray-500 text-white">
+                              已結束
+                            </span>
                           )}
                         </div>
 
-                        {event.speakers && event.speakers.length > 0 && (
+                        <div className="flex flex-wrap items-center gap-3 text-sm text-gray-700 mb-2">
                           <div className="flex items-center gap-1">
-                            <PersonIcon style={{ fontSize: '16px' }} className="text-gray-500" />
-                            <span>{event.speakers.join('、')}</span>
+                            <PinDrop style={{ fontSize: '16px' }} className="text-gray-500" />
+                            {getLocationLink(event.location) ? (
+                              <a
+                                href={getLocationLink(event.location)}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="hover:underline"
+                                style={{ color: '#1a3a6e' }}
+                              >
+                                {getLocationDisplay(event.location) || '待定'}
+                              </a>
+                            ) : (
+                              <span>{getLocationDisplay(event.location) || '待定'}</span>
+                            )}
+                          </div>
+
+                          {event.speakers && event.speakers.length > 0 && (
+                            <div className="flex items-center gap-1">
+                              <PersonIcon style={{ fontSize: '16px' }} className="text-gray-500" />
+                              <span>{event.speakers.join('、')}</span>
+                            </div>
+                          )}
+                        </div>
+
+                        {event.description && (
+                          <div className="text-sm text-gray-600">
+                            {renderDescription(event.description)}
                           </div>
                         )}
                       </div>
 
-                      {event.description && (
-                        <div className="text-sm text-gray-600">
-                          {renderDescription(event.description)}
+                      {/* Right side - Compact date display and buttons */}
+                      <div className="md:text-right flex-shrink-0 flex flex-col gap-2">
+                        <div
+                          className="rounded-md px-4 py-2 text-white text-center"
+                          style={{ backgroundColor: '#1a3a6e' }}
+                        >
+                          <div className="text-2xl font-bold">{event.startDate.getDate()}</div>
+                          <div className="text-xs opacity-90">
+                            {event.startDate.getMonth() + 1}月
+                          </div>
                         </div>
-                      )}
-                    </div>
-
-                    {/* Right side - Compact date display and buttons */}
-                    <div className="md:text-right flex-shrink-0 flex flex-col gap-2">
-                      <div
-                        className="rounded-md px-4 py-2 text-white text-center"
-                        style={{ backgroundColor: '#1a3a6e' }}
-                      >
-                        <div className="text-2xl font-bold">{event.startDate.getDate()}</div>
-                        <div className="text-xs opacity-90">{event.startDate.getMonth() + 1}月</div>
+                        {event.status !== 'unconfirmed' &&
+                          (hasConflict(event) ? (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleAddToCalendar(event, e);
+                              }}
+                              className="border-2 px-3 py-1.5 text-xs font-medium tracking-wide transition-colors duration-300 whitespace-nowrap"
+                              style={{
+                                borderColor: '#8B4049',
+                                color: '#8B4049',
+                                backgroundColor: 'transparent',
+                              }}
+                              onMouseEnter={(e) => {
+                                e.currentTarget.style.backgroundColor = '#8B4049';
+                                e.currentTarget.style.color = 'white';
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.backgroundColor = 'transparent';
+                                e.currentTarget.style.color = '#8B4049';
+                              }}
+                              title="有時間衝突"
+                            >
+                              + 加入（有衝突）
+                            </button>
+                          ) : (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleAddToCalendar(event, e);
+                              }}
+                              className="border-2 px-3 py-1.5 text-xs font-medium tracking-wide transition-colors duration-300 whitespace-nowrap"
+                              style={{
+                                borderColor: '#1a3a6e',
+                                color: '#1a3a6e',
+                                backgroundColor: 'transparent',
+                              }}
+                              onMouseEnter={(e) => {
+                                e.currentTarget.style.backgroundColor = '#1a3a6e';
+                                e.currentTarget.style.color = 'white';
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.backgroundColor = 'transparent';
+                                e.currentTarget.style.color = '#1a3a6e';
+                              }}
+                              title="加入日曆"
+                            >
+                              + 加入
+                            </button>
+                          ))}
                       </div>
-                      {event.status !== 'unconfirmed' &&
-                        (hasConflict(event) ? (
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleAddToCalendar(event, e);
-                            }}
-                            className="border-2 px-3 py-1.5 text-xs font-medium tracking-wide transition-colors duration-300 whitespace-nowrap"
-                            style={{
-                              borderColor: '#8B4049',
-                              color: '#8B4049',
-                              backgroundColor: 'transparent',
-                            }}
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.backgroundColor = '#8B4049';
-                              e.currentTarget.style.color = 'white';
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.backgroundColor = 'transparent';
-                              e.currentTarget.style.color = '#8B4049';
-                            }}
-                            title="有時間衝突"
-                          >
-                            + 加入（有衝突）
-                          </button>
-                        ) : (
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleAddToCalendar(event, e);
-                            }}
-                            className="border-2 px-3 py-1.5 text-xs font-medium tracking-wide transition-colors duration-300 whitespace-nowrap"
-                            style={{
-                              borderColor: '#1a3a6e',
-                              color: '#1a3a6e',
-                              backgroundColor: 'transparent',
-                            }}
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.backgroundColor = '#1a3a6e';
-                              e.currentTarget.style.color = 'white';
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.backgroundColor = 'transparent';
-                              e.currentTarget.style.color = '#1a3a6e';
-                            }}
-                            title="加入日曆"
-                          >
-                            + 加入
-                          </button>
-                        ))}
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
@@ -1305,7 +1487,7 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
                   類型（可多選）
                 </label>
                 <div className="space-y-2">
-                  {['熱門賽道', '技術', '黑客松', '組隊社交', '贊助商'].map((tag) => {
+                  {['黑客松', '贊助商', '組隊社交', '技術', '熱門賽道'].map((tag) => {
                     const tagsArray = editForm.tags
                       ? editForm.tags.split('、').filter((t) => t.trim())
                       : [];
