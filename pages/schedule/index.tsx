@@ -1359,7 +1359,7 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
                               }}
                               title="有時間衝突"
                             >
-                              + 加入（有衝突）
+                              + 日曆（有衝突）
                             </button>
                           ) : (
                             <button
@@ -1383,7 +1383,7 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
                               }}
                               title="加入日曆"
                             >
-                              + 加入
+                              + 日曆
                             </button>
                           ))}
                       </div>
