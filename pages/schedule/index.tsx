@@ -266,11 +266,24 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
     const title = encodeURIComponent(event.title);
     const startTime = formatDateForGoogle(event.startDate);
     const endTime = formatDateForGoogle(event.endDate);
-    const details = encodeURIComponent(
-      event.description ||
-        '' + (event.speakers?.length ? `\n講者: ${event.speakers.join('、')}` : ''),
-    );
-    const location = encodeURIComponent(event.location || '');
+
+    // 檢查是否為線上活動
+    const isOnlineEvent =
+      event.location === '線上' || event.location?.toLowerCase().includes('online');
+    const googleMeetLink = 'https://meet.google.com/xqk-afqm-sfw';
+
+    // 構建 details，如果是線上活動則添加 Google Meet 連結
+    let detailsText = event.description || '';
+    if (event.speakers?.length) {
+      detailsText += `\n講者: ${event.speakers.join('、')}`;
+    }
+    if (isOnlineEvent) {
+      detailsText += `\n\n線上會議連結: ${googleMeetLink}`;
+    }
+    const details = encodeURIComponent(detailsText);
+
+    // 如果是線上活動，location 使用 Google Meet 連結；否則使用原始地點
+    const location = encodeURIComponent(isOnlineEvent ? googleMeetLink : event.location || '');
 
     return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${startTime}/${endTime}&details=${details}&location=${location}`;
   };
@@ -929,6 +942,101 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
                   + 新增活動
                 </button>
               )}
+            </div>
+          </div>
+        </div>
+
+        {/* 活動地點資訊 */}
+        <div className="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Google Meet 線上活動 */}
+          <div
+            className="rounded-lg shadow-md p-5 border-l-4"
+            style={{
+              backgroundColor: '#e8eef5',
+              borderLeftColor: '#1a3a6e',
+            }}
+          >
+            <div className="flex items-start gap-3">
+              <div className="flex-shrink-0 mt-1">
+                <svg
+                  className="w-6 h-6"
+                  style={{ color: '#1a3a6e' }}
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z" />
+                </svg>
+              </div>
+              <div className="flex-1 min-w-0">
+                <h3 className="font-bold text-base mb-2" style={{ color: '#1a3a6e' }}>
+                  線上活動 - Google Meet
+                </h3>
+                <p className="text-sm text-gray-600 mb-2">大多數線上工作坊將在此舉行</p>
+                <a
+                  href="https://meet.google.com/xqk-afqm-sfw"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-sm font-medium hover:underline"
+                  style={{ color: '#8B0000' }}
+                >
+                  <span>進入會議室 (xqk-afqm-sfw)</span>
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                    />
+                  </svg>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          {/* imToken 實體活動 */}
+          <div
+            className="rounded-lg shadow-md p-5 border-l-4"
+            style={{
+              backgroundColor: '#e8eef5',
+              borderLeftColor: '#1a3a6e',
+            }}
+          >
+            <div className="flex items-start gap-3">
+              <div className="flex-shrink-0 mt-1">
+                <PinDrop style={{ fontSize: '24px', color: '#1a3a6e' }} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h3
+                  className="font-bold text-base mb-2 flex items-center gap-2"
+                  style={{ color: '#1a3a6e' }}
+                >
+                  <span>實體活動 -</span>
+                  <img
+                    src="/sponsor-media/imToken-logo.svg"
+                    alt="imToken"
+                    className="h-5 inline-block"
+                    style={{ verticalAlign: 'middle' }}
+                  />
+                </h3>
+                <p className="text-sm text-gray-600 mb-2">大多數實體工作坊將在此舉行</p>
+                <a
+                  href="https://www.google.com/maps/search/?api=1&query=台北市中正區羅斯福路二段9號9樓"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-sm font-medium hover:underline"
+                  style={{ color: '#8B0000' }}
+                >
+                  <span>台北市中正區羅斯福路二段 9 號 9 樓</span>
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                    />
+                  </svg>
+                </a>
+              </div>
             </div>
           </div>
         </div>

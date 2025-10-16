@@ -313,7 +313,7 @@ export default function Terms() {
                 15. 適用法律和管轄權
               </h2>
               <p className="text-[16px] leading-relaxed text-gray-700 mb-4">
-                本條款受中華民國法律管轄並依其解釋。因本條款產生的任何爭議應由台灣新竹地方法院作為第一審管轄法院。
+                本條款受中華民國法律管轄並依其解釋。因本條款產生的任何爭議應由臺灣臺北地方法院作為第一審管轄法院。
               </p>
             </section>
 
@@ -343,7 +343,7 @@ export default function Terms() {
                 18. 完整協議
               </h2>
               <p className="text-[16px] leading-relaxed text-gray-700 mb-4">
-                本條款（包括隱私權政策）構成您與主辦單位之間關於本服務的完整協議，取代所有先前或同期的協議和理解。
+                本條款（包括隱私權政策）構成您與主辦單位之間關於本服務的完整協議，取代所有先前的協議和理解。
               </p>
             </section>
 
@@ -398,6 +398,22 @@ export default function Terms() {
 
           {/* 返回按鈕 */}
           <div className="mt-16 flex justify-center gap-4">
+            <Link href="/commitment">
+              <a
+                className="inline-flex items-center px-8 py-3 border-2 font-semibold rounded-lg transition-colors cursor-pointer"
+                style={{ borderColor: '#1a3a6e', color: '#1a3a6e' }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#1a3a6e';
+                  e.currentTarget.style.color = 'white';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                  e.currentTarget.style.color = '#1a3a6e';
+                }}
+              >
+                參賽者承諾書
+              </a>
+            </Link>
             <Link href="/privacy">
               <a
                 className="inline-flex items-center px-8 py-3 border-2 font-semibold rounded-lg transition-colors cursor-pointer"

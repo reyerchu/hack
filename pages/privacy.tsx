@@ -337,7 +337,39 @@ export default function Privacy() {
           </div>
 
           {/* 返回按鈕 */}
-          <div className="mt-16 flex justify-center">
+          <div className="mt-16 flex justify-center gap-4">
+            <Link href="/commitment">
+              <a
+                className="inline-flex items-center px-8 py-3 border-2 font-semibold rounded-lg transition-colors cursor-pointer"
+                style={{ borderColor: '#1a3a6e', color: '#1a3a6e' }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#1a3a6e';
+                  e.currentTarget.style.color = 'white';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                  e.currentTarget.style.color = '#1a3a6e';
+                }}
+              >
+                參賽者承諾書
+              </a>
+            </Link>
+            <Link href="/terms">
+              <a
+                className="inline-flex items-center px-8 py-3 border-2 font-semibold rounded-lg transition-colors cursor-pointer"
+                style={{ borderColor: '#1a3a6e', color: '#1a3a6e' }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#1a3a6e';
+                  e.currentTarget.style.color = 'white';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                  e.currentTarget.style.color = '#1a3a6e';
+                }}
+              >
+                服務條款
+              </a>
+            </Link>
             <Link href="/">
               <a
                 className="inline-flex items-center px-8 py-3 text-white font-semibold rounded-lg transition-colors cursor-pointer"
