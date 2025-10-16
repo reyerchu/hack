@@ -3,7 +3,7 @@ import { google } from 'googleapis';
 
 /**
  * Google Calendar OAuth 授權端點
- * 
+ *
  * 用途：
  * 1. 生成 OAuth 授權 URL
  * 2. 處理 OAuth 回調
@@ -25,10 +25,13 @@ if (typeof global.FormData === 'undefined') {
 const getOAuth2Client = () => {
   const clientId = process.env.GOOGLE_CLIENT_ID;
   const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
-  const redirectUri = process.env.GOOGLE_REDIRECT_URI || `${process.env.NEXT_PUBLIC_SITE_URL}/api/calendar/callback`;
+  const redirectUri =
+    process.env.GOOGLE_REDIRECT_URI || `${process.env.NEXT_PUBLIC_SITE_URL}/api/calendar/callback`;
 
   if (!clientId || !clientSecret) {
-    throw new Error('缺少 Google OAuth 配置。請設置 GOOGLE_CLIENT_ID 和 GOOGLE_CLIENT_SECRET 環境變數。');
+    throw new Error(
+      '缺少 Google OAuth 配置。請設置 GOOGLE_CLIENT_ID 和 GOOGLE_CLIENT_SECRET 環境變數。',
+    );
   }
 
   return new google.auth.OAuth2(clientId, clientSecret, redirectUri);
@@ -52,10 +55,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       res.status(200).json({ authUrl });
     } catch (error: any) {
       console.error('生成授權 URL 失敗:', error);
-      res.status(500).json({ 
-        error: '生成授權 URL 失敗', 
+      res.status(500).json({
+        error: '生成授權 URL 失敗',
         message: error.message,
-        details: '請確認已設置 GOOGLE_CLIENT_ID 和 GOOGLE_CLIENT_SECRET 環境變數'
+        details: '請確認已設置 GOOGLE_CLIENT_ID 和 GOOGLE_CLIENT_SECRET 環境變數',
       });
     }
   } else if (req.method === 'POST') {
@@ -73,19 +76,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       oauth2Client.setCredentials(tokens);
 
       // 返回 tokens（在生產環境中應該加密存儲）
-      res.status(200).json({ 
+      res.status(200).json({
         tokens,
-        message: '授權成功'
+        message: '授權成功',
       });
     } catch (error: any) {
       console.error('交換授權碼失敗:', error);
-      res.status(500).json({ 
-        error: '授權失敗', 
-        message: error.message 
+      res.status(500).json({
+        error: '授權失敗',
+        message: error.message,
       });
     }
   } else {
     res.status(405).json({ error: '不支援的 HTTP 方法' });
   }
 }
-

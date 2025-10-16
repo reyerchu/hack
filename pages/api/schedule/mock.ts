@@ -102,7 +102,8 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
       track: 'Social',
       location: '線下',
       speakers: ['XueDAO'],
-      description: 'DeFi 主題聊天與 RWA 黑客松現場組隊活動\n報名連結：https://luma.com/cmy4qjmz?tk=0FYhD',
+      description:
+        'DeFi 主題聊天與 RWA 黑客松現場組隊活動\n報名連結：https://luma.com/cmy4qjmz?tk=0FYhD',
       page: 'RWA 黑客松',
       startDate: new Date('2025-10-26T19:00:00+08:00'),
       endDate: new Date('2025-10-26T21:30:00+08:00'),

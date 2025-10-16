@@ -212,6 +212,8 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
       return 'https://meet.google.com/xqk-afqm-sfw';
     } else if (location === '台北市中正區羅斯福路二段 9 號 9 樓' || location.includes('imToken')) {
       return 'https://www.google.com/maps/search/?api=1&query=台北市中正區羅斯福路二段9號9樓';
+    } else if (location.includes('Sui Hub') || location.includes('信義路四段 380 號')) {
+      return 'https://www.google.com/maps/place/%E5%B7%A5%E4%BD%9C%E6%A8%82+Working+Ler+%7C+%E5%85%B1%E6%83%B3%E7%A9%BA%E9%96%93+%E4%BF%A1%E7%BE%A9%E5%AE%89%E5%92%8C/@25.0328561,121.5558953,16.99z/data=!3m1!5s0x3442abcbe8a9e295:0xc9763f603da29e73!4m14!1m7!3m6!1s0x3442ab11c4af9bb3:0xea1a873f6bf98712!2z5bel5L2c5qiCIFdvcmtpbmcgTGVyIHwg5YWx5oOz56m66ZaTIOS_oee-qeWuieWSjA!8m2!3d25.0328524!4d121.5558986!16s%2Fg%2F11l288qq82!3m5!1s0x3442ab11c4af9bb3:0xea1a873f6bf98712!8m2!3d25.0328524!4d121.5558986!16s%2Fg%2F11l288qq82?entry=ttu&g_ep=EgoyMDI1MTAxMy4wIKXMDSoASAFQAw%3D%3D';
     } else if (location.includes('Cozy Cowork Cafe')) {
       return 'https://www.google.com/maps/search/?api=1&query=Cozy+Cowork+Cafe+台北';
     } else if (location.includes('A747')) {

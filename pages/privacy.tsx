@@ -390,6 +390,13 @@ export default function Privacy() {
             </Link>
           </div>
         </div>
+
+        {/* Footer */}
+        <div className="bg-gray-50 py-8">
+          <div className="max-w-[1200px] mx-auto px-8 md:px-12 text-center text-gray-600">
+            <p>© 2025 RWA Hackathon Taiwan | RWA Nexus. All rights reserved.</p>
+          </div>
+        </div>
       </div>
     </>
   );

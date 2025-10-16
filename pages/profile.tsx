@@ -400,7 +400,10 @@ export default function ProfilePage() {
               {!isEditing ? (
                 <button
                   onClick={handleEditClick}
-                  className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                  className="px-4 py-2 text-white rounded transition duration-300"
+                  style={{ backgroundColor: '#1a3a6e' }}
+                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#2a4a7e')}
+                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#1a3a6e')}
                 >
                   編輯個人資料
                 </button>
@@ -408,7 +411,10 @@ export default function ProfilePage() {
                 <div className="flex gap-2">
                   <button
                     onClick={handleSaveEdit}
-                    className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+                    className="px-4 py-2 text-white rounded transition duration-300"
+                    style={{ backgroundColor: '#1a3a6e' }}
+                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#2a4a7e')}
+                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#1a3a6e')}
                   >
                     儲存
                   </button>
@@ -920,7 +926,10 @@ export default function ProfilePage() {
             <div className="mb-6">
               <button
                 onClick={() => router.push('/team-up/create')}
-                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                className="px-6 py-3 text-white rounded-lg transition-colors font-medium"
+                style={{ backgroundColor: '#1a3a6e' }}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#2a4a7e')}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#1a3a6e')}
               >
                 ＋ 發布新需求
               </button>
@@ -1025,7 +1034,10 @@ export default function ProfilePage() {
             <div className="mb-6">
               <button
                 onClick={() => router.push('/team-up')}
-                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                className="px-6 py-3 text-white rounded-lg transition-colors font-medium"
+                style={{ backgroundColor: '#1a3a6e' }}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#2a4a7e')}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#1a3a6e')}
               >
                 瀏覽更多找隊友需求
               </button>

@@ -119,13 +119,21 @@ export default function AppHeader() {
         <div className="flex flex-row justify-center items-center order-2 md:order-3">
           {!user || !isSignedIn ? (
             <Link href="/auth">
-              <a className="font-header font-bold bg-secondary rounded-full text-primaryDark text-sm px-10 py-1 hover:bg-primaryDark hover:text-secondary transition duration-300 ease-in-out">
+              <a
+                className="font-header font-bold rounded-full text-white text-sm px-10 py-1 transition duration-300 ease-in-out"
+                style={{ backgroundColor: '#1a3a6e' }}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#2a4a7e')}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#1a3a6e')}
+              >
                 報名｜登入
               </a>
             </Link>
           ) : (
             <button
-              className="font-header font-bold bg-secondary rounded-full text-primaryDark text-sm px-10 py-1 hover:bg-primaryDark hover:text-secondary transition duration-300 ease-in-out"
+              className="font-header font-bold rounded-full text-white text-sm px-10 py-1 transition duration-300 ease-in-out"
+              style={{ backgroundColor: '#1a3a6e' }}
+              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#2a4a7e')}
+              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#1a3a6e')}
               onClick={toggleDialog}
             >
               {hasProfile ? '個人中心' : '註冊'}

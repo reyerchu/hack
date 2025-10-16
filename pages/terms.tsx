@@ -337,20 +337,10 @@ export default function Terms() {
               </p>
             </section>
 
-            {/* 18. 完整協議 */}
+            {/* 18. 聯絡方式 */}
             <section className="mb-12">
               <h2 className="text-[24px] font-bold mb-6" style={{ color: '#1a3a6e' }}>
-                18. 完整協議
-              </h2>
-              <p className="text-[16px] leading-relaxed text-gray-700 mb-4">
-                本條款（包括隱私權政策）構成您與主辦單位之間關於本服務的完整協議，取代所有先前的協議和理解。
-              </p>
-            </section>
-
-            {/* 19. 聯絡方式 */}
-            <section className="mb-12">
-              <h2 className="text-[24px] font-bold mb-6" style={{ color: '#1a3a6e' }}>
-                19. 聯絡方式
+                18. 聯絡方式
               </h2>
               <p className="text-[16px] leading-relaxed text-gray-700 mb-4">
                 如對本條款有任何疑問，請聯絡我們：
@@ -448,6 +438,13 @@ export default function Terms() {
                 返回首頁
               </a>
             </Link>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="bg-gray-50 py-8">
+          <div className="max-w-[1200px] mx-auto px-8 md:px-12 text-center text-gray-600">
+            <p>© 2025 RWA Hackathon Taiwan | RWA Nexus. All rights reserved.</p>
           </div>
         </div>
       </div>

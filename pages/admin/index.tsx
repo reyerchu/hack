@@ -102,8 +102,10 @@ export default function Admin({ questions }: { questions: QADocument[] }) {
           <div className="flex flex-row justify-end my-4">
             <button
               type="button"
-              className="py-2 px-5 rounded-lg font-bold"
-              style={{ backgroundColor: '#9CA6FF', color: 'black' }}
+              className="py-2 px-5 rounded-lg font-bold text-white transition duration-300"
+              style={{ backgroundColor: '#1a3a6e' }}
+              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#2a4a7e')}
+              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#1a3a6e')}
               onClick={() => {
                 postAnnouncement();
               }}

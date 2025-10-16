@@ -196,7 +196,10 @@ export default function AuthPage() {
       <section className="bg-secondary min-h-screen pt-14">
         <div className="p-4">
           <Link href="/" passHref>
-            <div className="cursor-pointer items-center inline-flex text-primaryDark font-medium">
+            <div
+              className="cursor-pointer items-center inline-flex font-medium"
+              style={{ color: '#1a3a6e' }}
+            >
               <ChevronLeftIcon />
               返回活動網站
             </div>
@@ -268,7 +271,10 @@ export default function AuthPage() {
                       <div className="flex justify-center mt-6 mb-4">
                         <button
                           type="button"
-                          className="rounded-full text-base w-full text-white bg-primaryDark hover:brightness-90 px-4 py-2"
+                          className="rounded-full text-base w-full text-white px-4 py-2 transition duration-300"
+                          style={{ backgroundColor: '#1a3a6e' }}
+                          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#2a4a7e')}
+                          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#1a3a6e')}
                           onClick={() => {
                             handleSubmit();
                           }}
@@ -327,7 +333,10 @@ export default function AuthPage() {
                   <div className="flex justify-center mt-6 mb-4">
                     <button
                       type="button"
-                      className="rounded-full text-base w-full text-white bg-primaryDark hover:brightness-90 px-4 py-2"
+                      className="rounded-full text-base w-full text-white px-4 py-2 transition duration-300"
+                      style={{ backgroundColor: '#1a3a6e' }}
+                      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#2a4a7e')}
+                      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#1a3a6e')}
                       onClick={() => {
                         sendResetEmail();
                         setErrorMsg('');

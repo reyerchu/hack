@@ -102,7 +102,11 @@ export default function TSMCPrizePool() {
                             alt={`${sponsor.name} logo`}
                             width={sponsor.logo.includes('Cathay') ? 220 : 120}
                             height={sponsor.logo.includes('Cathay') ? 50 : 40}
-                            className={sponsor.logo.includes('Cathay') ? "h-10 w-auto object-contain max-w-[220px]" : "h-8 w-auto object-contain max-w-[120px]"}
+                            className={
+                              sponsor.logo.includes('Cathay')
+                                ? 'h-10 w-auto object-contain max-w-[220px]'
+                                : 'h-8 w-auto object-contain max-w-[120px]'
+                            }
                           />
                         </a>
                       </div>
