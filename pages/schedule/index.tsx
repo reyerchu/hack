@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { useState } from 'react';
 import { GetServerSideProps } from 'next';
+import { useRouter } from 'next/router';
 import { RequestHelper } from '../../lib/request-helper';
 import { useAuthContext } from '../../lib/user/AuthContext';
 import CalendarIcon from '@material-ui/icons/CalendarToday';
@@ -9,6 +10,7 @@ import ClockIcon from '@material-ui/icons/AccessTime';
 import PersonIcon from '@material-ui/icons/Person';
 import CloseIcon from '@material-ui/icons/Close';
 import ShareIcon from '@material-ui/icons/Share';
+import EditIcon from '@material-ui/icons/Edit';
 import Link from 'next/link';
 
 interface SchedulePageProps {
@@ -16,6 +18,7 @@ interface SchedulePageProps {
 }
 
 export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
+  const router = useRouter();
   const { profile, isSignedIn, user } = useAuthContext();
   const [editingEvent, setEditingEvent] = useState<any>(null);
   const [editForm, setEditForm] = useState<any>({});
@@ -1218,14 +1221,14 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
               return (
                 <div
                   key={index}
-                  className={`rounded-md shadow-sm hover:shadow-lg transition-all duration-200 overflow-hidden border-l-4 ${
+                  className={`rounded-md shadow-sm hover:shadow-lg transition-all duration-200 overflow-hidden border-l-4 cursor-pointer ${
                     event.status === 'unconfirmed' || isEventPast ? 'opacity-60 grayscale' : ''
-                  } ${isAdmin ? 'cursor-pointer' : ''}`}
+                  }`}
                   style={{
                     backgroundColor: '#e8eaed',
                     borderLeftColor: '#1a3a6e',
                   }}
-                  onClick={() => isAdmin && handleEditClick(event)}
+                  onClick={() => router.push(`/schedule/${event.id}`)}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.backgroundColor = '#d8dade';
                   }}
@@ -1432,6 +1435,32 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
                           <ShareIcon style={{ fontSize: '14px' }} />
                           {copiedEventId === event.id ? '已複製' : '分享'}
                         </button>
+                        {isAdmin && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleEditClick(event);
+                            }}
+                            className="border-2 px-3 py-1.5 text-xs font-medium tracking-wide transition-colors duration-300 whitespace-nowrap flex items-center gap-1"
+                            style={{
+                              borderColor: '#f59e0b',
+                              color: '#f59e0b',
+                              backgroundColor: 'transparent',
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.backgroundColor = '#f59e0b';
+                              e.currentTarget.style.color = 'white';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.backgroundColor = 'transparent';
+                              e.currentTarget.style.color = '#f59e0b';
+                            }}
+                            title="編輯活動"
+                          >
+                            <EditIcon style={{ fontSize: '14px' }} />
+                            編輯
+                          </button>
+                        )}
                       </div>
                     </div>
                   </div>
