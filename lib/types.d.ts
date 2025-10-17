@@ -228,6 +228,7 @@ type Announcement = {
  */
 
 type ScheduleEvent = {
+  id?: string;
   title: string;
   speakers?: string[];
   type?: string;

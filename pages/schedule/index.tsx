@@ -8,6 +8,8 @@ import PinDrop from '@material-ui/icons/PinDrop';
 import ClockIcon from '@material-ui/icons/AccessTime';
 import PersonIcon from '@material-ui/icons/Person';
 import CloseIcon from '@material-ui/icons/Close';
+import ShareIcon from '@material-ui/icons/Share';
+import Link from 'next/link';
 
 interface SchedulePageProps {
   scheduleCard: ScheduleEvent[];
@@ -27,6 +29,7 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
   );
   const [selectedTagFilters, setSelectedTagFilters] = useState<Set<string>>(new Set());
   const [includeHistoryEvents, setIncludeHistoryEvents] = useState(false);
+  const [copiedEventId, setCopiedEventId] = useState<string | null>(null);
 
   // Check if user is admin - must be signed in AND have admin permissions
   const isAdmin =
@@ -413,6 +416,24 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
       console.error('移除事件失敗:', error);
       alert(`移除失敗：${error.message}`);
     }
+  };
+
+  // Function to copy event link
+  const handleCopyEventLink = (event: any, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+    const eventUrl = `${baseUrl}/schedule/${event.id}`;
+
+    navigator.clipboard
+      .writeText(eventUrl)
+      .then(() => {
+        setCopiedEventId(event.id);
+        setTimeout(() => setCopiedEventId(null), 2000);
+      })
+      .catch((err) => {
+        console.error('複製連結失敗:', err);
+        alert('複製連結失敗，請重試');
+      });
   };
 
   // Function to connect to Google Calendar
@@ -1386,6 +1407,31 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
                               + 日曆
                             </button>
                           ))}
+                        <button
+                          onClick={(e) => handleCopyEventLink(event, e)}
+                          className="border-2 px-3 py-1.5 text-xs font-medium tracking-wide transition-colors duration-300 whitespace-nowrap flex items-center gap-1"
+                          style={{
+                            borderColor: copiedEventId === event.id ? '#16a34a' : '#1a3a6e',
+                            color: copiedEventId === event.id ? '#16a34a' : '#1a3a6e',
+                            backgroundColor: 'transparent',
+                          }}
+                          onMouseEnter={(e) => {
+                            if (copiedEventId !== event.id) {
+                              e.currentTarget.style.backgroundColor = '#1a3a6e';
+                              e.currentTarget.style.color = 'white';
+                            }
+                          }}
+                          onMouseLeave={(e) => {
+                            if (copiedEventId !== event.id) {
+                              e.currentTarget.style.backgroundColor = 'transparent';
+                              e.currentTarget.style.color = '#1a3a6e';
+                            }
+                          }}
+                          title={copiedEventId === event.id ? '已複製連結' : '分享活動連結'}
+                        >
+                          <ShareIcon style={{ fontSize: '14px' }} />
+                          {copiedEventId === event.id ? '✓' : '分享'}
+                        </button>
                       </div>
                     </div>
                   </div>
