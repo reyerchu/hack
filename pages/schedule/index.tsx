@@ -1409,11 +1409,11 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
                           ))}
                         <button
                           onClick={(e) => handleCopyEventLink(event, e)}
-                          className="border-2 px-3 py-1.5 text-xs font-medium tracking-wide transition-colors duration-300 whitespace-nowrap flex items-center gap-1"
+                          className="border-2 px-3 py-1.5 text-xs font-medium tracking-wide transition-all duration-300 whitespace-nowrap flex items-center gap-1"
                           style={{
                             borderColor: copiedEventId === event.id ? '#16a34a' : '#1a3a6e',
-                            color: copiedEventId === event.id ? '#16a34a' : '#1a3a6e',
-                            backgroundColor: 'transparent',
+                            color: copiedEventId === event.id ? 'white' : '#1a3a6e',
+                            backgroundColor: copiedEventId === event.id ? '#16a34a' : 'transparent',
                           }}
                           onMouseEnter={(e) => {
                             if (copiedEventId !== event.id) {
@@ -1430,7 +1430,7 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
                           title={copiedEventId === event.id ? '已複製連結' : '分享活動連結'}
                         >
                           <ShareIcon style={{ fontSize: '14px' }} />
-                          {copiedEventId === event.id ? '✓' : '分享'}
+                          {copiedEventId === event.id ? '已複製' : '分享'}
                         </button>
                       </div>
                     </div>
