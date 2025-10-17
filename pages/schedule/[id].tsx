@@ -286,9 +286,9 @@ export default function SingleEventPage({ event, error }: SingleEventPageProps) 
                 onClick={handleCopyLink}
                 className="inline-flex items-center gap-2 px-6 py-3 font-semibold rounded-lg transition-all duration-300 border-2"
                 style={{
-                  borderColor: copySuccess ? '#16a34a' : '#1a3a6e',
+                  borderColor: copySuccess ? '#166534' : '#1a3a6e',
                   color: copySuccess ? 'white' : '#1a3a6e',
-                  backgroundColor: copySuccess ? '#16a34a' : 'transparent',
+                  backgroundColor: copySuccess ? '#166534' : 'transparent',
                 }}
                 onMouseEnter={(e) => {
                   if (!copySuccess) {
