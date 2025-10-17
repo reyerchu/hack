@@ -1443,17 +1443,17 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
                             }}
                             className="border-2 px-3 py-1.5 text-xs font-medium tracking-wide transition-colors duration-300 whitespace-nowrap flex items-center gap-1"
                             style={{
-                              borderColor: '#f59e0b',
-                              color: '#f59e0b',
+                              borderColor: '#991b1b',
+                              color: '#991b1b',
                               backgroundColor: 'transparent',
                             }}
                             onMouseEnter={(e) => {
-                              e.currentTarget.style.backgroundColor = '#f59e0b';
+                              e.currentTarget.style.backgroundColor = '#991b1b';
                               e.currentTarget.style.color = 'white';
                             }}
                             onMouseLeave={(e) => {
                               e.currentTarget.style.backgroundColor = 'transparent';
-                              e.currentTarget.style.color = '#f59e0b';
+                              e.currentTarget.style.color = '#991b1b';
                             }}
                             title="編輯活動"
                           >
