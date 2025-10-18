@@ -226,20 +226,37 @@ export default function SingleEventPage({ event, error }: SingleEventPageProps) 
 
             {/* 地点 */}
             {event.location && (
-              <div className="flex items-center gap-2 mb-6 text-gray-700">
-                <PinDrop style={{ fontSize: '20px', color: '#1a3a6e' }} />
-                {getLocationLink(event.location) ? (
-                  <a
-                    href={getLocationLink(event.location)!}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-lg hover:underline"
-                    style={{ color: '#1a3a6e' }}
-                  >
-                    {event.location}
-                  </a>
-                ) : (
-                  <span className="text-lg">{event.location}</span>
+              <div className="mb-6">
+                <div className="flex items-center gap-2 text-gray-700">
+                  <PinDrop style={{ fontSize: '20px', color: '#1a3a6e' }} />
+                  {getLocationLink(event.location) ? (
+                    <a
+                      href={getLocationLink(event.location)!}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-lg hover:underline"
+                      style={{ color: '#1a3a6e' }}
+                    >
+                      {event.location}
+                    </a>
+                  ) : (
+                    <span className="text-lg">{event.location}</span>
+                  )}
+                </div>
+                {/* 线上活动显示 Google Meet 链接 */}
+                {(event.location === '線上' || event.location?.toLowerCase().includes('online')) && (
+                  <div className="mt-2 ml-7">
+                    <a
+                      href="https://meet.google.com/xqk-afqm-sfw"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 text-sm font-medium hover:underline"
+                      style={{ color: '#1a3a6e' }}
+                    >
+                      <span>📹</span>
+                      <span>Google Meet: https://meet.google.com/xqk-afqm-sfw</span>
+                    </a>
+                  </div>
                 )}
               </div>
             )}
