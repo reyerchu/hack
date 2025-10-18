@@ -48,7 +48,7 @@ export default function TSMCChallenges(props: { challenges: Challenge[] }) {
             <span className="font-bold" style={{ color: '#1a3a6e' }}>
               10/20
             </span>{' '}
-            公布題庫：
+            陸續公布題庫：
           </p>
         </div>
 
