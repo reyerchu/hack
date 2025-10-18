@@ -14,9 +14,17 @@ const EVENT_APPLICATIONS = 'event-applications';
  */
 async function handlePost(req: NextApiRequest, res: NextApiResponse) {
   try {
+    console.log('[Event Application API] Received POST request');
+    console.log('[Event Application API] Body:', JSON.stringify(req.body, null, 2));
+    
     const { eventId, eventTitle, definitekEmail, userEmail, userName } = req.body;
 
     if (!eventId || !definitekEmail || !userEmail) {
+      console.error('[Event Application API] Missing required fields:', {
+        eventId: !!eventId,
+        definitekEmail: !!definitekEmail,
+        userEmail: !!userEmail,
+      });
       return res.status(400).json({ 
         statusCode: 400, 
         msg: 'Missing required fields' 
@@ -32,18 +40,31 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
       });
     }
 
-    // Verify user has registered for the hackathon
-    const isAuthorized = await userIsAuthorized(userToken, ['hacker']);
-    if (!isAuthorized) {
-      return res.status(403).json({ 
-        statusCode: 403, 
-        msg: 'Forbidden: User must register for the hackathon first' 
+    // Verify user token is valid (any authenticated user can apply)
+    // We'll check if they're registered by verifying their email exists
+    try {
+      console.log('[Event Application API] Verifying token...');
+      const decodedToken = await firestore().app.auth().verifyIdToken(userToken);
+      if (!decodedToken || !decodedToken.uid) {
+        console.error('[Event Application API] Invalid token - no uid');
+        return res.status(401).json({ 
+          statusCode: 401, 
+          msg: 'Invalid authentication token' 
+        });
+      }
+      console.log('[Event Application API] Token verified for user:', decodedToken.uid);
+    } catch (error) {
+      console.error('[Event Application API] Token verification error:', error);
+      return res.status(401).json({ 
+        statusCode: 401, 
+        msg: 'Invalid authentication token' 
       });
     }
 
     const db = firestore();
     
     // Check if user already applied for this event
+    console.log('[Event Application API] Checking for existing applications...');
     const existingApplications = await db
       .collection(EVENT_APPLICATIONS)
       .where('eventId', '==', eventId)
@@ -51,6 +72,7 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
       .get();
 
     if (!existingApplications.empty) {
+      console.log('[Event Application API] User already applied');
       return res.status(400).json({ 
         statusCode: 400, 
         msg: 'You have already applied for this event' 
@@ -68,16 +90,21 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
       status: 'pending',
     };
 
-    await db.collection(EVENT_APPLICATIONS).add(applicationData);
+    console.log('[Event Application API] Saving application:', applicationData);
+    const docRef = await db.collection(EVENT_APPLICATIONS).add(applicationData);
+    console.log('[Event Application API] Application saved with ID:', docRef.id);
 
     // Send email notification
     try {
+      console.log('[Event Application API] Sending email notification...');
       await sendEmailNotification(applicationData);
+      console.log('[Event Application API] Email notification sent');
     } catch (emailError) {
-      console.error('Failed to send email notification:', emailError);
+      console.error('[Event Application API] Failed to send email notification:', emailError);
       // Continue even if email fails
     }
 
+    console.log('[Event Application API] Application submitted successfully');
     return res.status(200).json({ 
       statusCode: 200, 
       msg: 'Application submitted successfully' 

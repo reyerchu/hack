@@ -186,6 +186,9 @@ export default function SingleEventPage({ event, error }: SingleEventPageProps) 
 
       const data = await response.json();
 
+      console.log('[Application] Response status:', response.status);
+      console.log('[Application] Response data:', data);
+
       if (response.ok) {
         setApplicationMessage({
           type: 'success',
@@ -197,16 +200,17 @@ export default function SingleEventPage({ event, error }: SingleEventPageProps) 
           setApplicationMessage(null);
         }, 5000);
       } else {
+        console.error('[Application] Error response:', data);
         setApplicationMessage({
           type: 'error',
-          text: data.msg || '申請失敗，請稍後再試',
+          text: data.msg || `申請失敗 (${response.status})，請稍後再試`,
         });
       }
     } catch (error) {
-      console.error('Application submission error:', error);
+      console.error('[Application] Submission error:', error);
       setApplicationMessage({
         type: 'error',
-        text: '申請失敗，請稍後再試',
+        text: `申請失敗：${error.message || '請稍後再試'}`,
       });
     } finally {
       setIsSubmitting(false);
@@ -214,25 +218,13 @@ export default function SingleEventPage({ event, error }: SingleEventPageProps) 
   };
 
   const handleApplicationClick = () => {
-    if (!isSignedIn) {
+    if (!isSignedIn || !user) {
       setApplicationMessage({
         type: 'info',
-        text: '請先報名黑客松才能申請此活動',
+        text: '請先登入才能申請此活動',
       });
       setTimeout(() => {
-        router.push('/register');
-      }, 2000);
-      return;
-    }
-
-    // Check if user has hacker role
-    if (!user?.permissions?.includes('hacker')) {
-      setApplicationMessage({
-        type: 'info',
-        text: '請先完成黑客松報名才能申請此活動',
-      });
-      setTimeout(() => {
-        router.push('/register');
+        router.push('/auth');
       }, 2000);
       return;
     }
