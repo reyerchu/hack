@@ -4,6 +4,7 @@ import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { RequestHelper } from '../../lib/request-helper';
 import { useAuthContext } from '../../lib/user/AuthContext';
+import { auth } from '../../lib/firebase';
 import CalendarIcon from '@material-ui/icons/CalendarToday';
 import PinDrop from '@material-ui/icons/PinDrop';
 import ClockIcon from '@material-ui/icons/AccessTime';
@@ -163,11 +164,15 @@ export default function SingleEventPage({ event, error }: SingleEventPageProps) 
     setApplicationMessage(null);
 
     try {
-      // Get user token
-      const token = await user?.getIdToken();
-      if (!token) {
-        throw new Error('Unable to get authentication token');
+      // Get user token from Firebase Auth
+      const currentUser = auth.currentUser;
+      if (!currentUser) {
+        throw new Error('User not authenticated');
       }
+
+      console.log('[Application] Getting ID token...');
+      const token = await currentUser.getIdToken();
+      console.log('[Application] Token obtained');
 
       const response = await fetch('/api/event-application', {
         method: 'POST',
@@ -179,8 +184,8 @@ export default function SingleEventPage({ event, error }: SingleEventPageProps) 
           eventId: event.id,
           eventTitle: event.title,
           definitekEmail: definitekEmail.trim(),
-          userEmail: user?.email || '',
-          userName: `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || user?.email || 'Unknown',
+          userEmail: user?.email || currentUser.email || '',
+          userName: `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || user?.email || currentUser.email || 'Unknown',
         }),
       });
 
