@@ -124,10 +124,19 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
  * Send email notification to admin
  */
 async function sendEmailNotification(applicationData: any) {
-  // Using nodemailer or similar service
-  // For now, we'll use a simple fetch to a notification service
-  // You can integrate with SendGrid, AWS SES, or other email services
+  const nodemailer = require('nodemailer');
   
+  // 配置 SMTP 传输
+  const transporter = nodemailer.createTransport({
+    host: process.env.SMTP_HOST || 'smtp.gmail.com',
+    port: parseInt(process.env.SMTP_PORT || '587'),
+    secure: false,
+    auth: {
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS || process.env.SMTP_PASSWORD,
+    },
+  });
+
   const emailContent = `
 新的活動申請
 
@@ -141,23 +150,78 @@ async function sendEmailNotification(applicationData: any) {
 
 申請時間：${new Date(applicationData.appliedAt).toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' })}
 
-請登入後台查看詳細資訊。
+請登入 Firebase Console 查看詳細資訊：
+https://console.firebase.google.com/project/hackathon-rwa-nexus/firestore/databases/-default-/data/~2Fevent-applications
   `.trim();
 
-  console.log('Email notification prepared:');
-  console.log(emailContent);
-  console.log('To: reyer.chu@rwa.nexus');
+  const mailOptions = {
+    from: `"RWA 黑客松團隊" <${process.env.SMTP_USER || process.env.EMAIL_FROM}>`,
+    to: 'reyer.chu@rwa.nexus',
+    subject: `【RWA 黑客松】新的活動申請：${applicationData.eventTitle}`,
+    html: `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+    .header { background: #1a3a6e; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; }
+    .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 8px 8px; }
+    .info-box { background: white; padding: 20px; border-left: 4px solid #1a3a6e; margin: 20px 0; }
+    .button { display: inline-block; background: #1a3a6e; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0; }
+    .footer { text-align: center; color: #666; margin-top: 30px; font-size: 12px; }
+    .label { font-weight: bold; color: #1a3a6e; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🎯 新的活動申請</h1>
+    </div>
+    <div class="content">
+      <h2>活動信息</h2>
+      <div class="info-box">
+        <p><span class="label">活動名稱：</span>${applicationData.eventTitle}</p>
+        <p><span class="label">活動 ID：</span>${applicationData.eventId}</p>
+      </div>
+      
+      <h2>申請人資訊</h2>
+      <div class="info-box">
+        <p><span class="label">姓名：</span>${applicationData.userName}</p>
+        <p><span class="label">黑客松註冊信箱：</span>${applicationData.userEmail}</p>
+        <p><span class="label">Defintek 信箱：</span>${applicationData.definitekEmail}</p>
+        <p><span class="label">申請時間：</span>${new Date(applicationData.appliedAt).toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' })}</p>
+      </div>
+      
+      <div style="text-align: center;">
+        <a href="https://console.firebase.google.com/project/hackathon-rwa-nexus/firestore/databases/-default-/data/~2Fevent-applications" class="button" style="color: white;">
+          前往 Firebase 查看詳情
+        </a>
+      </div>
+      
+      <div class="footer">
+        <p>此郵件由系統自動發送</p>
+        <p>RWA Hackathon | https://hackathon.com.tw</p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+    `,
+    text: emailContent,
+  };
 
-  // TODO: Integrate with actual email service
-  // For example, using SendGrid:
-  // const sgMail = require('@sendgrid/mail');
-  // sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-  // await sgMail.send({
-  //   to: 'reyer.chu@rwa.nexus',
-  //   from: 'no-reply@hackathon.com.tw',
-  //   subject: `新的活動申請：${applicationData.eventTitle}`,
-  //   text: emailContent,
-  // });
+  console.log('Sending email notification to:', mailOptions.to);
+  
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    console.log('Email sent successfully:', info.messageId);
+    return info;
+  } catch (error) {
+    console.error('Failed to send email:', error);
+    throw error;
+  }
 }
 
 /**
