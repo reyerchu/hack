@@ -133,6 +133,44 @@ export default function SingleEventPage({ event, error }: SingleEventPageProps) 
     return null;
   };
 
+  // Convert URLs in text to clickable links
+  const linkifyText = (text: string) => {
+    if (!text) return null;
+    
+    // Split by line breaks first
+    const lines = text.split('\n');
+    
+    return lines.map((line, lineIndex) => {
+      // URL regex pattern
+      const urlRegex = /(https?:\/\/[^\s]+)/g;
+      const parts = line.split(urlRegex);
+      
+      return (
+        <React.Fragment key={lineIndex}>
+          {parts.map((part, partIndex) => {
+            // Check if this part is a URL
+            if (urlRegex.test(part)) {
+              return (
+                <a
+                  key={partIndex}
+                  href={part}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 hover:underline break-all"
+                  style={{ color: '#1a3a6e' }}
+                >
+                  {part}
+                </a>
+              );
+            }
+            return <span key={partIndex}>{part}</span>;
+          })}
+          {lineIndex < lines.length - 1 && <br />}
+        </React.Fragment>
+      );
+    });
+  };
+
   const handleCopyLink = () => {
     const url = window.location.href;
     navigator.clipboard.writeText(url).then(() => {
@@ -435,8 +473,8 @@ export default function SingleEventPage({ event, error }: SingleEventPageProps) 
                 <h2 className="text-xl font-bold mb-3" style={{ color: '#1a3a6e' }}>
                   活動說明
                 </h2>
-                <div className="text-gray-700 whitespace-pre-wrap leading-relaxed">
-                  {event.description}
+                <div className="text-gray-700 leading-relaxed">
+                  {linkifyText(event.description)}
                 </div>
               </div>
             )}
