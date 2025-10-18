@@ -186,8 +186,8 @@ export default function SingleEventPage({ event, error }: SingleEventPageProps) 
           eventId: event.id,
           eventTitle: event.title,
           definitekEmail: definitekEmail.trim(),
-          userEmail: user?.email || currentUser.email || '',
-          userName: `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || user?.email || currentUser.email || 'Unknown',
+          userEmail: currentUser.email || '',
+          userName: `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || currentUser.email || 'Unknown',
         }),
       });
 
