@@ -17,7 +17,7 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
     console.log('[Event Application API] Received POST request');
     console.log('[Event Application API] Body:', JSON.stringify(req.body, null, 2));
     
-    const { eventId, eventTitle, definitekEmail, userEmail, userName } = req.body;
+    const { eventId, eventTitle, definitekEmail, userEmail, userName, firstName, lastName } = req.body;
 
     if (!eventId || !definitekEmail || !userEmail) {
       console.error('[Event Application API] Missing required fields:', {
@@ -87,6 +87,8 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
       definitekEmail,
       userEmail,
       userName: userName || 'Unknown User',
+      firstName: firstName || '',
+      lastName: lastName || '',
       appliedAt: new Date().toISOString(),
       status: 'pending',
     };
@@ -154,10 +156,15 @@ async function sendEmailNotification(applicationData: any) {
 https://console.firebase.google.com/project/hackathon-rwa-nexus/firestore/databases/-default-/data/~2Fevent-applications
   `.trim();
 
+  // Format applicant name: lastName + firstName
+  const applicantName = applicationData.lastName && applicationData.firstName
+    ? `${applicationData.lastName}${applicationData.firstName}`
+    : applicationData.userName;
+
   const mailOptions = {
     from: `"RWA 黑客松團隊" <${process.env.SMTP_USER || process.env.EMAIL_FROM}>`,
     to: 'reyer.chu@rwa.nexus',
-    subject: `【RWA 黑客松】新的活動申請：${applicationData.eventTitle}`,
+    subject: `【RWA 黑客松】新的活動申請：${applicantName} - ${applicationData.eventTitle}`,
     html: `
 <!DOCTYPE html>
 <html>

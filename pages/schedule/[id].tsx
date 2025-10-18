@@ -188,6 +188,8 @@ export default function SingleEventPage({ event, error }: SingleEventPageProps) 
           definitekEmail: definitekEmail.trim(),
           userEmail: currentUser.email || '',
           userName: `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || currentUser.email || 'Unknown',
+          firstName: user?.firstName || '',
+          lastName: user?.lastName || '',
         }),
       });
 
