@@ -2,9 +2,10 @@ import * as React from 'react';
 import { GetServerSideProps } from 'next';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
+import firebase from 'firebase/app';
+import 'firebase/auth';
 import { RequestHelper } from '../../lib/request-helper';
 import { useAuthContext } from '../../lib/user/AuthContext';
-import { auth } from '../../lib/firebase';
 import CalendarIcon from '@material-ui/icons/CalendarToday';
 import PinDrop from '@material-ui/icons/PinDrop';
 import ClockIcon from '@material-ui/icons/AccessTime';
@@ -165,7 +166,7 @@ export default function SingleEventPage({ event, error }: SingleEventPageProps) 
 
     try {
       // Get user token from Firebase Auth
-      const currentUser = auth.currentUser;
+      const currentUser = firebase.auth().currentUser;
       if (!currentUser) {
         throw new Error('User not authenticated');
       }
