@@ -471,7 +471,6 @@ export default function SingleEventPage({ event, error }: SingleEventPageProps) 
                       onChange={(e) => setDefinitekEmail(e.target.value)}
                       placeholder="請輸入您在 defintek.io 註冊的信箱"
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-opacity-50"
-                      style={{ focusRingColor: '#1a3a6e' }}
                       disabled={isSubmitting}
                       required
                     />
