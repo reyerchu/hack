@@ -44,7 +44,7 @@ export default function TSMCAbout() {
               </div>
               <div>
                 <span className="font-semibold text-black">賽道贊助：</span>
-                <span>國泰金控｜Zircuit｜Sui｜Self Protocol｜Oasis Protocol</span>
+                <span>國泰金控｜Oasis Protocol｜Self Protocol｜Zircuit｜Sui</span>
               </div>
               <div>
                 <span className="font-semibold text-black">其他贊助：</span>

@@ -16,6 +16,18 @@ export default function TSMCPrizePool() {
       url: 'https://www.cathayholdings.com/',
     },
     {
+      name: 'ROFL（Run-time Offchain Logic）框架',
+      track: '鏈下隱私保護，鏈上結果驗證',
+      logo: '/sponsor-media/Oasis-logo.svg',
+      url: 'https://oasis.net/',
+    },
+    {
+      name: '協議',
+      track: '隱私保護下的自我主權金融',
+      logo: '/sponsor-media/Self-logo.svg',
+      url: 'https://self.xyz/',
+    },
+    {
       name: '主鏈',
       track: '安全即信任，保護一切 DeFi 流動',
       logo: '/sponsor-media/Zircuit-logo.svg',
@@ -26,18 +38,6 @@ export default function TSMCPrizePool() {
       track: '高速體驗，重新定義資產上鏈',
       logo: '/sponsor-media/Sui-logo.svg',
       url: 'https://sui.io/',
-    },
-    {
-      name: '協議',
-      track: '隱私保護下的自我主權金融',
-      logo: '/sponsor-media/Self-logo.svg',
-      url: 'https://self.xyz/',
-    },
-    {
-      name: 'ROFL（Run-time Offchain Logic）框架',
-      track: '鏈下隱私保護，鏈上結果驗證',
-      logo: '/sponsor-media/Oasis-logo.svg',
-      url: 'https://oasis.net/',
     },
   ];
 
