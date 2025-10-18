@@ -180,7 +180,7 @@ https://console.firebase.google.com/project/hackathon-rwa-nexus/firestore/databa
       <h1>🎯 新的活動申請</h1>
     </div>
     <div class="content">
-      <h2>活動信息</h2>
+      <h2>活動資訊</h2>
       <div class="info-box">
         <p><span class="label">活動名稱：</span>${applicationData.eventTitle}</p>
         <p><span class="label">活動 ID：</span>${applicationData.eventId}</p>
