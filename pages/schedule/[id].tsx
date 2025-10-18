@@ -146,7 +146,7 @@ export default function SingleEventPage({ event, error }: SingleEventPageProps) 
     if (!definitekEmail.trim()) {
       setApplicationMessage({
         type: 'error',
-        text: '請填寫 Defintek 註冊信箱',
+        text: '請填寫「deFintek 線上課程網站」註冊信箱',
       });
       return;
     }
@@ -422,7 +422,7 @@ export default function SingleEventPage({ event, error }: SingleEventPageProps) 
                 <form onSubmit={handleApplicationSubmit}>
                   <div className="mb-4">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Defintek 註冊信箱 <span className="text-red-500">*</span>
+                      「deFintek 線上課程網站」註冊信箱 <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="email"
