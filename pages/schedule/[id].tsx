@@ -441,6 +441,30 @@ export default function SingleEventPage({ event, error }: SingleEventPageProps) 
               </div>
             )}
 
+            {/* 课程链接 - 仅显示给特定活动 */}
+            {requiresApplication && (
+              <div className="mb-6 p-6 rounded-lg border-2" style={{ borderColor: '#1a3a6e', backgroundColor: '#f0f4f8' }}>
+                <h2 className="text-xl font-bold mb-3" style={{ color: '#1a3a6e' }}>
+                  📚 課程資訊
+                </h2>
+                <p className="text-gray-700 mb-4">
+                  此活動為 Solidity 智能合約課程的報名活動。完成報名後，您將可以訪問完整的課程內容。
+                </p>
+                <a
+                  href="https://defintek.io/courses/solidity"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-6 py-3 text-white font-semibold rounded-lg transition-colors"
+                  style={{ backgroundColor: '#1a3a6e' }}
+                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#2a4a7e')}
+                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#1a3a6e')}
+                >
+                  <span>🔗</span>
+                  查看課程詳情
+                </a>
+              </div>
+            )}
+
             {/* 消息提示 */}
             {applicationMessage && (
               <div
