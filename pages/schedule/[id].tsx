@@ -26,6 +26,7 @@ export default function SingleEventPage({ event, error }: SingleEventPageProps) 
   const [showApplicationForm, setShowApplicationForm] = React.useState(false);
   const [definitekEmail, setDefinitekEmail] = React.useState('');
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [isCheckingApplication, setIsCheckingApplication] = React.useState(false);
   const [applicationMessage, setApplicationMessage] = React.useState<{
     type: 'success' | 'error' | 'info';
     text: string;
@@ -223,7 +224,7 @@ export default function SingleEventPage({ event, error }: SingleEventPageProps) 
     }
   };
 
-  const handleApplicationClick = () => {
+  const handleApplicationClick = async () => {
     if (!isSignedIn || !user) {
       setApplicationMessage({
         type: 'info',
@@ -235,6 +236,46 @@ export default function SingleEventPage({ event, error }: SingleEventPageProps) 
       return;
     }
 
+    // Check if user has already applied
+    setIsCheckingApplication(true);
+    setApplicationMessage(null);
+    
+    try {
+      const currentUser = firebase.auth().currentUser;
+      if (!currentUser) {
+        setApplicationMessage({
+          type: 'error',
+          text: '請重新登入',
+        });
+        setIsCheckingApplication(false);
+        return;
+      }
+
+      const token = await currentUser.getIdToken();
+      const response = await fetch(`/api/event-application?eventId=${event.id}&checkOnly=true`, {
+        method: 'GET',
+        headers: {
+          'Authorization': token,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.hasApplied) {
+          setApplicationMessage({
+            type: 'info',
+            text: '您已經申請過此活動',
+          });
+          setIsCheckingApplication(false);
+          return;
+        }
+      }
+    } catch (error) {
+      console.error('[Application] Check error:', error);
+      // Continue to show form even if check fails
+    }
+
+    setIsCheckingApplication(false);
     setShowApplicationForm(true);
     setApplicationMessage(null);
   };
@@ -485,13 +526,14 @@ export default function SingleEventPage({ event, error }: SingleEventPageProps) 
               {requiresApplication && (
                 <button
                   onClick={handleApplicationClick}
-                  className="inline-flex items-center gap-2 px-6 py-3 text-white font-semibold rounded-lg transition-colors"
+                  disabled={isCheckingApplication}
+                  className="inline-flex items-center gap-2 px-6 py-3 text-white font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   style={{ backgroundColor: '#8B4049' }}
-                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#9B5059')}
-                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#8B4049')}
+                  onMouseEnter={(e) => !isCheckingApplication && (e.currentTarget.style.backgroundColor = '#9B5059')}
+                  onMouseLeave={(e) => !isCheckingApplication && (e.currentTarget.style.backgroundColor = '#8B4049')}
                 >
                   <AssignmentIcon style={{ fontSize: '20px' }} />
-                  申請參加
+                  {isCheckingApplication ? '檢查中...' : '申請參加'}
                 </button>
               )}
 

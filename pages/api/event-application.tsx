@@ -226,10 +226,11 @@ https://console.firebase.google.com/project/hackathon-rwa-nexus/firestore/databa
 
 /**
  * Get applications for a specific event (admin only)
+ * Or check if current user has applied (checkOnly mode)
  */
 async function handleGet(req: NextApiRequest, res: NextApiResponse) {
   try {
-    const { eventId } = req.query;
+    const { eventId, checkOnly } = req.query;
     
     if (!eventId || typeof eventId !== 'string') {
       return res.status(400).json({ 
@@ -246,7 +247,37 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
       });
     }
 
-    // Only allow admins to view applications
+    // Check if this is a "check only" request (user checking their own application status)
+    if (checkOnly === 'true') {
+      try {
+        const decodedToken = await auth().verifyIdToken(userToken);
+        const userEmail = decodedToken.email;
+
+        const db = firestore();
+        const snapshot = await db
+          .collection(EVENT_APPLICATIONS)
+          .where('eventId', '==', eventId)
+          .where('userEmail', '==', userEmail)
+          .limit(1)
+          .get();
+
+        return res.status(200).json({ 
+          hasApplied: !snapshot.empty,
+          application: snapshot.empty ? null : {
+            id: snapshot.docs[0].id,
+            ...snapshot.docs[0].data(),
+          }
+        });
+      } catch (error) {
+        console.error('[Event Application API] Check error:', error);
+        return res.status(401).json({ 
+          statusCode: 401, 
+          msg: 'Invalid authentication token' 
+        });
+      }
+    }
+
+    // For full list, only allow admins
     const isAuthorized = await userIsAuthorized(userToken, ['super_admin', 'admin']);
     if (!isAuthorized) {
       return res.status(403).json({ 
