@@ -76,7 +76,7 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
       console.log('[Event Application API] User already applied');
       return res.status(400).json({ 
         statusCode: 400, 
-        msg: 'You have already applied for this event' 
+        msg: '您已經申請過此活動' 
       });
     }
 
