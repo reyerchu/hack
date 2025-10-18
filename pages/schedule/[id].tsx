@@ -3,12 +3,14 @@ import { GetServerSideProps } from 'next';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { RequestHelper } from '../../lib/request-helper';
+import { useAuthContext } from '../../lib/user/AuthContext';
 import CalendarIcon from '@material-ui/icons/CalendarToday';
 import PinDrop from '@material-ui/icons/PinDrop';
 import ClockIcon from '@material-ui/icons/AccessTime';
 import PersonIcon from '@material-ui/icons/Person';
 import ArrowBack from '@material-ui/icons/ArrowBack';
 import ShareIcon from '@material-ui/icons/Share';
+import AssignmentIcon from '@material-ui/icons/Assignment';
 
 interface SingleEventPageProps {
   event: any;
@@ -17,7 +19,18 @@ interface SingleEventPageProps {
 
 export default function SingleEventPage({ event, error }: SingleEventPageProps) {
   const router = useRouter();
+  const { isSignedIn, user } = useAuthContext();
   const [copySuccess, setCopySuccess] = React.useState(false);
+  const [showApplicationForm, setShowApplicationForm] = React.useState(false);
+  const [definitekEmail, setDefinitekEmail] = React.useState('');
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [applicationMessage, setApplicationMessage] = React.useState<{
+    type: 'success' | 'error' | 'info';
+    text: string;
+  } | null>(null);
+
+  // Check if this event requires application (specific event ID)
+  const requiresApplication = event?.id === 'Elyt7SvclfTp43LPKmaq';
 
   if (error || !event) {
     return (
@@ -123,6 +136,109 @@ export default function SingleEventPage({ event, error }: SingleEventPageProps) 
       setCopySuccess(true);
       setTimeout(() => setCopySuccess(false), 2000);
     });
+  };
+
+  const handleApplicationSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!definitekEmail.trim()) {
+      setApplicationMessage({
+        type: 'error',
+        text: '請填寫 Defintek 註冊信箱',
+      });
+      return;
+    }
+
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(definitekEmail)) {
+      setApplicationMessage({
+        type: 'error',
+        text: '請填寫有效的電子郵件地址',
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+    setApplicationMessage(null);
+
+    try {
+      // Get user token
+      const token = await user?.getIdToken();
+      if (!token) {
+        throw new Error('Unable to get authentication token');
+      }
+
+      const response = await fetch('/api/event-application', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': token,
+        },
+        body: JSON.stringify({
+          eventId: event.id,
+          eventTitle: event.title,
+          definitekEmail: definitekEmail.trim(),
+          userEmail: user?.email || '',
+          userName: `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || user?.email || 'Unknown',
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setApplicationMessage({
+          type: 'success',
+          text: '申請已成功送出！我們已發送通知給主辦方。',
+        });
+        setDefinitekEmail('');
+        setShowApplicationForm(false);
+        setTimeout(() => {
+          setApplicationMessage(null);
+        }, 5000);
+      } else {
+        setApplicationMessage({
+          type: 'error',
+          text: data.msg || '申請失敗，請稍後再試',
+        });
+      }
+    } catch (error) {
+      console.error('Application submission error:', error);
+      setApplicationMessage({
+        type: 'error',
+        text: '申請失敗，請稍後再試',
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleApplicationClick = () => {
+    if (!isSignedIn) {
+      setApplicationMessage({
+        type: 'info',
+        text: '請先報名黑客松才能申請此活動',
+      });
+      setTimeout(() => {
+        router.push('/register');
+      }, 2000);
+      return;
+    }
+
+    // Check if user has hacker role
+    if (!user?.permissions?.includes('hacker')) {
+      setApplicationMessage({
+        type: 'info',
+        text: '請先完成黑客松報名才能申請此活動',
+      });
+      setTimeout(() => {
+        router.push('/register');
+      }, 2000);
+      return;
+    }
+
+    setShowApplicationForm(true);
+    setApplicationMessage(null);
   };
 
   const generateGoogleCalendarLink = () => {
@@ -284,8 +400,103 @@ export default function SingleEventPage({ event, error }: SingleEventPageProps) 
               </div>
             )}
 
+            {/* 消息提示 */}
+            {applicationMessage && (
+              <div
+                className={`mb-6 p-4 rounded-lg ${
+                  applicationMessage.type === 'success'
+                    ? 'bg-green-50 border border-green-200 text-green-800'
+                    : applicationMessage.type === 'error'
+                    ? 'bg-red-50 border border-red-200 text-red-800'
+                    : 'bg-blue-50 border border-blue-200 text-blue-800'
+                }`}
+              >
+                {applicationMessage.text}
+              </div>
+            )}
+
+            {/* 申请表单 */}
+            {requiresApplication && showApplicationForm && (
+              <div className="mb-6 p-6 bg-gray-50 rounded-lg border border-gray-200">
+                <h3 className="text-lg font-bold mb-4" style={{ color: '#1a3a6e' }}>
+                  申請參加此活動
+                </h3>
+                <form onSubmit={handleApplicationSubmit}>
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Defintek 註冊信箱 <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="email"
+                      value={definitekEmail}
+                      onChange={(e) => setDefinitekEmail(e.target.value)}
+                      placeholder="請輸入您在 defintek.io 註冊的信箱"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-opacity-50"
+                      style={{ focusRingColor: '#1a3a6e' }}
+                      disabled={isSubmitting}
+                      required
+                    />
+                    <p className="mt-2 text-sm text-gray-600">
+                      若尚未註冊，請先前往{' '}
+                      <a
+                        href="https://defintek.io/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="underline hover:no-underline"
+                        style={{ color: '#1a3a6e' }}
+                      >
+                        defintek.io
+                      </a>{' '}
+                      註冊帳號
+                    </p>
+                  </div>
+                  <div className="flex gap-3">
+                    <button
+                      type="submit"
+                      disabled={isSubmitting}
+                      className="px-6 py-2 text-white font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      style={{ backgroundColor: '#1a3a6e' }}
+                      onMouseEnter={(e) =>
+                        !isSubmitting && (e.currentTarget.style.backgroundColor = '#2a4a7e')
+                      }
+                      onMouseLeave={(e) =>
+                        !isSubmitting && (e.currentTarget.style.backgroundColor = '#1a3a6e')
+                      }
+                    >
+                      {isSubmitting ? '送出中...' : '送出申請'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowApplicationForm(false);
+                        setDefinitekEmail('');
+                        setApplicationMessage(null);
+                      }}
+                      disabled={isSubmitting}
+                      className="px-6 py-2 text-gray-700 font-semibold rounded-lg transition-colors border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      取消
+                    </button>
+                  </div>
+                </form>
+              </div>
+            )}
+
             {/* 操作按钮 */}
             <div className="flex flex-wrap gap-3 pt-6 border-t border-gray-200">
+              {requiresApplication && (
+                <button
+                  onClick={handleApplicationClick}
+                  className="inline-flex items-center gap-2 px-6 py-3 text-white font-semibold rounded-lg transition-colors"
+                  style={{ backgroundColor: '#8B4049' }}
+                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#9B5059')}
+                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#8B4049')}
+                >
+                  <AssignmentIcon style={{ fontSize: '20px' }} />
+                  申請參加
+                </button>
+              )}
+
               <a
                 href={generateGoogleCalendarLink()}
                 target="_blank"
