@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { firestore } from 'firebase-admin';
+import { firestore, auth } from 'firebase-admin';
 import initializeApi from '../../lib/admin/init';
 import { userIsAuthorized } from '../../lib/authorization/check-authorization';
 
@@ -41,10 +41,9 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
     }
 
     // Verify user token is valid (any authenticated user can apply)
-    // We'll check if they're registered by verifying their email exists
     try {
       console.log('[Event Application API] Verifying token...');
-      const decodedToken = await firestore().app.auth().verifyIdToken(userToken);
+      const decodedToken = await auth().verifyIdToken(userToken);
       if (!decodedToken || !decodedToken.uid) {
         console.error('[Event Application API] Invalid token - no uid');
         return res.status(401).json({ 
@@ -53,11 +52,13 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
         });
       }
       console.log('[Event Application API] Token verified for user:', decodedToken.uid);
+      console.log('[Event Application API] User email:', decodedToken.email);
     } catch (error) {
       console.error('[Event Application API] Token verification error:', error);
+      console.error('[Event Application API] Error details:', error.message);
       return res.status(401).json({ 
         statusCode: 401, 
-        msg: 'Invalid authentication token' 
+        msg: `Invalid authentication token: ${error.message}` 
       });
     }
 
