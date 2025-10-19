@@ -13,6 +13,44 @@ initializeApi();
 const db = firestore();
 
 /**
+ * 获取用户数据（支持多个 collection）
+ * 
+ * @param userId - Firebase Auth UID 或 Firestore document ID
+ * @returns 用户数据和文档引用
+ */
+async function getUserData(userId: string): Promise<{
+  exists: boolean;
+  data: any;
+  ref: FirebaseFirestore.DocumentReference;
+} | null> {
+  try {
+    // 1. 先尝试 registrations collection（主要用于黑客松报名用户）
+    let userDoc = await db.collection('registrations').doc(userId).get();
+    if (userDoc.exists) {
+      return { exists: true, data: userDoc.data(), ref: userDoc.ref };
+    }
+
+    // 2. 尝试通过 email 查询 registrations
+    const regByEmail = await db.collection('registrations').where('email', '==', userId).limit(1).get();
+    if (!regByEmail.empty) {
+      const doc = regByEmail.docs[0];
+      return { exists: true, data: doc.data(), ref: doc.ref };
+    }
+
+    // 3. 尝试 users collection（向后兼容）
+    userDoc = await db.collection('users').doc(userId).get();
+    if (userDoc.exists) {
+      return { exists: true, data: userDoc.data(), ref: userDoc.ref };
+    }
+
+    return null;
+  } catch (error) {
+    console.error('Error getting user data:', error);
+    return null;
+  }
+}
+
+/**
  * 检查用户是否有赞助商权限
  * 
  * @param userId - 用户 ID
@@ -25,13 +63,13 @@ export async function checkSponsorPermission(
 ): Promise<boolean> {
   try {
     // 1. 检查是否是 super_admin 或 admin
-    const userDoc = await db.collection('users').doc(userId).get();
+    const userData = await getUserData(userId);
     
-    if (!userDoc.exists) {
+    if (!userData || !userData.exists) {
       return false;
     }
     
-    const user = userDoc.data();
+    const user = userData.data;
     const permissions = user?.permissions || [];
     
     // Admin 有所有权限
@@ -39,10 +77,11 @@ export async function checkSponsorPermission(
       return true;
     }
     
-    // 2. 检查 sponsor-user-mappings
+    // 2. 检查 sponsor-user-mappings (使用 document ID)
+    const docId = userData.ref.id;
     const mappingQuery = await db
       .collection(SPONSOR_COLLECTIONS.SPONSOR_USER_MAPPINGS)
-      .where('userId', '==', userId)
+      .where('userId', '==', docId)
       .where('sponsorId', '==', sponsorId)
       .limit(1)
       .get();
@@ -67,13 +106,13 @@ export async function checkTrackAccess(
 ): Promise<boolean> {
   try {
     // 1. 获取用户权限
-    const userDoc = await db.collection('users').doc(userId).get();
+    const userData = await getUserData(userId);
     
-    if (!userDoc.exists) {
+    if (!userData || !userData.exists) {
       return false;
     }
     
-    const user = userDoc.data();
+    const user = userData.data;
     const permissions = user?.permissions || [];
     
     // Admin 可以访问所有赛道
@@ -81,10 +120,11 @@ export async function checkTrackAccess(
       return true;
     }
     
-    // 2. 获取用户的 sponsor mappings
+    // 2. 获取用户的 sponsor mappings (使用 document ID)
+    const docId = userData.ref.id;
     const mappingsSnapshot = await db
       .collection(SPONSOR_COLLECTIONS.SPONSOR_USER_MAPPINGS)
-      .where('userId', '==', userId)
+      .where('userId', '==', docId)
       .get();
     
     if (mappingsSnapshot.empty) {
@@ -149,13 +189,13 @@ export async function checkChallengeAccess(
 export async function getUserAccessibleTracks(userId: string): Promise<string[]> {
   try {
     // 1. 获取用户权限
-    const userDoc = await db.collection('users').doc(userId).get();
+    const userData = await getUserData(userId);
     
-    if (!userDoc.exists) {
+    if (!userData || !userData.exists) {
       return [];
     }
     
-    const user = userDoc.data();
+    const user = userData.data;
     const permissions = user?.permissions || [];
     
     // Admin 可以访问所有赛道
@@ -175,10 +215,11 @@ export async function getUserAccessibleTracks(userId: string): Promise<string[]>
       return Array.from(trackIds);
     }
     
-    // 2. 获取用户的 sponsor mappings
+    // 2. 获取用户的 sponsor mappings (使用 document ID)
+    const docId = userData.ref.id;
     const mappingsSnapshot = await db
       .collection(SPONSOR_COLLECTIONS.SPONSOR_USER_MAPPINGS)
-      .where('userId', '==', userId)
+      .where('userId', '==', docId)
       .get();
     
     if (mappingsSnapshot.empty) {
@@ -221,23 +262,24 @@ export async function getUserSponsorRole(
 ): Promise<'admin' | 'viewer' | 'judge' | null> {
   try {
     // 1. 检查是否是系统 admin
-    const userDoc = await db.collection('users').doc(userId).get();
+    const userData = await getUserData(userId);
     
-    if (!userDoc.exists) {
+    if (!userData || !userData.exists) {
       return null;
     }
     
-    const user = userDoc.data();
+    const user = userData.data;
     const permissions = user?.permissions || [];
     
     if (permissions.includes('super_admin') || permissions.includes('admin')) {
       return 'admin';
     }
     
-    // 2. 查询 sponsor-user-mappings
+    // 2. 查询 sponsor-user-mappings (使用 document ID)
+    const docId = userData.ref.id;
     const mappingQuery = await db
       .collection(SPONSOR_COLLECTIONS.SPONSOR_USER_MAPPINGS)
-      .where('userId', '==', userId)
+      .where('userId', '==', docId)
       .where('sponsorId', '==', sponsorId)
       .limit(1)
       .get();
@@ -284,9 +326,18 @@ export async function hasSponsorRole(
  */
 export async function getUserSponsors(userId: string): Promise<string[]> {
   try {
+    // 获取用户数据以获取 document ID
+    const userData = await getUserData(userId);
+    
+    if (!userData || !userData.exists) {
+      return [];
+    }
+    
+    // 使用 document ID 查询
+    const docId = userData.ref.id;
     const mappingsSnapshot = await db
       .collection(SPONSOR_COLLECTIONS.SPONSOR_USER_MAPPINGS)
-      .where('userId', '==', userId)
+      .where('userId', '==', docId)
       .get();
     
     return mappingsSnapshot.docs.map((doc) => doc.data().sponsorId);
@@ -347,13 +398,13 @@ export async function canEditSubmission(
 ): Promise<boolean> {
   try {
     // 1. 检查是否是系统 admin
-    const userDoc = await db.collection('users').doc(userId).get();
+    const userData = await getUserData(userId);
     
-    if (!userDoc.exists) {
+    if (!userData || !userData.exists) {
       return false;
     }
     
-    const user = userDoc.data();
+    const user = userData.data;
     const permissions = user?.permissions || [];
     
     if (permissions.includes('super_admin') || permissions.includes('admin')) {
@@ -373,8 +424,10 @@ export async function canEditSubmission(
     const submission = submissionDoc.data();
     
     // 3. 只有队伍成员可以编辑（赞助商不能编辑）
+    // 使用 document ID 进行比对
+    const docId = userData.ref.id;
     const teamMemberIds = (submission?.teamMembers || []).map((m: any) => m.userId);
-    return teamMemberIds.includes(userId);
+    return teamMemberIds.includes(docId);
   } catch (error) {
     console.error('Error checking submission edit permission:', error);
     return false;
