@@ -1,6 +1,5 @@
 import React from 'react';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
 
 /**
  * 首页新闻/公告区块
@@ -11,12 +10,50 @@ export default function HomeNewsSection() {
     <section className="relative py-12 overflow-hidden" style={{ backgroundColor: '#f0f4f8' }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* 新闻标题 */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-8"
-        >
+        <div className="text-center mb-8 animate-fade-in-down">
+          <style jsx>{`
+            @keyframes fadeInDown {
+              from {
+                opacity: 0;
+                transform: translateY(-20px);
+              }
+              to {
+                opacity: 1;
+                transform: translateY(0);
+              }
+            }
+            @keyframes fadeInUp {
+              from {
+                opacity: 0;
+                transform: translateY(20px);
+              }
+              to {
+                opacity: 1;
+                transform: translateY(0);
+              }
+            }
+            @keyframes scaleIn {
+              from {
+                opacity: 0;
+                transform: scale(0.95);
+              }
+              to {
+                opacity: 1;
+                transform: scale(1);
+              }
+            }
+            .animate-fade-in-down {
+              animation: fadeInDown 0.6s ease-out;
+            }
+            .animate-fade-in-up {
+              animation: fadeInUp 0.6s ease-out 0.2s;
+              animation-fill-mode: both;
+            }
+            .animate-scale-in {
+              animation: scaleIn 0.6s ease-out 0.2s;
+              animation-fill-mode: both;
+            }
+          `}</style>
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-4"
             style={{ backgroundColor: '#1a3a6e', color: 'white' }}
           >
@@ -27,15 +64,10 @@ export default function HomeNewsSection() {
             Workshops Start!
           </h2>
           <div className="w-24 h-1 mx-auto rounded" style={{ backgroundColor: '#1a3a6e' }}></div>
-        </motion.div>
+        </div>
 
         {/* 主要内容卡片 */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="max-w-4xl mx-auto"
-        >
+        <div className="max-w-4xl mx-auto animate-scale-in">
           <div className="relative rounded-2xl shadow-2xl overflow-hidden border-4"
             style={{ 
               backgroundColor: 'white',
@@ -167,19 +199,14 @@ export default function HomeNewsSection() {
               </div>
             </div>
           </div>
-        </motion.div>
+        </div>
 
         {/* 底部装饰 */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-          className="text-center mt-8"
-        >
+        <div className="text-center mt-8 animate-fade-in-up">
           <p className="text-gray-600">
             更多精彩工作坊即將推出，敬請期待！
           </p>
-        </motion.div>
+        </div>
       </div>
     </section>
   );
