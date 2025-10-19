@@ -6,6 +6,8 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useAuthContext } from '../user/AuthContext';
+import firebase from 'firebase/app';
+import 'firebase/auth';
 import type {
   TrackListResponse,
   ExtendedChallenge,
@@ -13,6 +15,31 @@ import type {
   SponsorNotification,
   SponsorActivityLog,
 } from './types';
+
+/**
+ * 安全地获取当前用户的 ID Token
+ */
+async function getAuthToken(): Promise<string | null> {
+  try {
+    // 检查 Firebase 是否已初始化
+    if (!firebase.apps.length) {
+      console.error('Firebase not initialized');
+      return null;
+    }
+
+    const currentUser = firebase.auth().currentUser;
+    if (!currentUser) {
+      console.error('No current user');
+      return null;
+    }
+
+    const token = await currentUser.getIdToken();
+    return token;
+  } catch (error) {
+    console.error('Error getting auth token:', error);
+    return null;
+  }
+}
 
 /**
  * 获取赞助商的赛道列表
@@ -33,7 +60,10 @@ export function useSponsorTracks() {
       setLoading(true);
       setError(null);
 
-      const token = await (window as any).firebase.auth().currentUser?.getIdToken();
+      const token = await getAuthToken();
+      if (!token) {
+        throw new Error('無法獲取認證令牌');
+      }
 
       const response = await fetch('/api/sponsor/tracks', {
         headers: {
@@ -109,7 +139,10 @@ export function useSubmission(submissionId: string | null) {
       setLoading(true);
       setError(null);
 
-      const token = await (window as any).firebase.auth().currentUser?.getIdToken();
+      const token = await getAuthToken();
+      if (!token) {
+        throw new Error('無法獲取認證令牌');
+      }
 
       const response = await fetch(`/api/sponsor/submissions/${submissionId}`, {
         headers: {
@@ -163,7 +196,10 @@ export function useSponsorNotifications(unreadOnly = false) {
       setLoading(true);
       setError(null);
 
-      const token = await (window as any).firebase.auth().currentUser?.getIdToken();
+      const token = await getAuthToken();
+      if (!token) {
+        throw new Error('無法獲取認證令牌');
+      }
 
       const response = await fetch(
         `/api/sponsor/notifications?unreadOnly=${unreadOnly}&limit=50`,
@@ -196,7 +232,10 @@ export function useSponsorNotifications(unreadOnly = false) {
   const markAsRead = useCallback(
     async (notificationId: string) => {
       try {
-        const token = await (window as any).firebase.auth().currentUser?.getIdToken();
+        const token = await getAuthToken();
+      if (!token) {
+        throw new Error('無法獲取認證令牌');
+      }
 
         const response = await fetch(`/api/sponsor/notifications/${notificationId}`, {
           method: 'PATCH',
@@ -226,7 +265,10 @@ export function useSponsorNotifications(unreadOnly = false) {
   const deleteNotification = useCallback(
     async (notificationId: string) => {
       try {
-        const token = await (window as any).firebase.auth().currentUser?.getIdToken();
+        const token = await getAuthToken();
+      if (!token) {
+        throw new Error('無法獲取認證令牌');
+      }
 
         const response = await fetch(`/api/sponsor/notifications/${notificationId}`, {
           method: 'DELETE',
