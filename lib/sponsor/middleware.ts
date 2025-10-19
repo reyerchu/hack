@@ -164,17 +164,17 @@ export async function requireAuth(
     // 2. 脚本创建用户: { permissions: [...], ... }
     const nestedUser = userData?.user;
     const permissions = nestedUser?.permissions || userData?.permissions || [];
-    const email = 
+    const userEmail = 
       userData?.email || 
       nestedUser?.preferredEmail || 
       userData?.preferredEmail || 
-      decodedToken.email;
+      email;  // 使用之前从 token 获取的 email
     
     // 将用户信息附加到 request 对象
     // ⚠️ 重要：使用 Firestore document ID，不是 Firebase Auth UID
     const authReq = req as AuthenticatedRequest;
     authReq.userId = userInfo.docId;  // 使用 Firestore document ID
-    authReq.userEmail = email;
+    authReq.userEmail = userEmail;
     authReq.userPermissions = permissions;
     
     console.log('Auth success:', {
