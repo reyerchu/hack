@@ -9,10 +9,14 @@
  */
 
 import { NextApiRequest, NextApiResponse } from 'next';
+import { firestore } from 'firebase-admin';
+import initializeApi from '../../../../lib/admin/init';
 import { requireSponsorAuth } from '../../../../lib/sponsor/middleware';
-import { db } from '../../../../lib/firebaseAdmin';
 import { SPONSOR_NOTIFICATIONS } from '../../../../lib/sponsor/collections';
 import type { SponsorNotification } from '../../../../lib/sponsor/types';
+
+initializeApi();
+const db = firestore();
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'GET') {
