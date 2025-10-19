@@ -38,16 +38,33 @@ export default function AppHeader() {
 
     //creating dynamic nav items
     setDynamicNavItems((dynamicNavItems) => {
+      let updatedNavItems = [...dynamicNavItems];
+
+      // Add admin link for admin/super_admin
       if (
         isSignedIn &&
         profile &&
         (profile.user.permissions[0] === 'admin' ||
           profile.user.permissions[0] === 'super_admin') &&
-        dynamicNavItems.filter(({ text }) => text === '管理員').length === 0
+        updatedNavItems.filter(({ text }) => text === '管理員').length === 0
       ) {
-        return [...dynamicNavItems, { text: '管理員', path: '/admin' }];
+        updatedNavItems = [...updatedNavItems, { text: '管理員', path: '/admin' }];
       }
-      return dynamicNavItems;
+
+      // Add sponsor link for sponsor users
+      if (
+        isSignedIn &&
+        profile &&
+        profile.user.permissions &&
+        (profile.user.permissions.includes('sponsor') ||
+          profile.user.permissions.includes('admin') ||
+          profile.user.permissions.includes('super_admin')) &&
+        updatedNavItems.filter(({ text }) => text === '賛助商').length === 0
+      ) {
+        updatedNavItems = [...updatedNavItems, { text: '賛助商', path: '/sponsor/dashboard' }];
+      }
+
+      return updatedNavItems;
     });
 
     // Handle click outside profile dialog
