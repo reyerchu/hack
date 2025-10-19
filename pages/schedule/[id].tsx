@@ -486,7 +486,7 @@ export default function SingleEventPage({ event, error }: SingleEventPageProps) 
                   📚 課程資訊
                 </h2>
                 <p className="text-gray-700 mb-4">
-                  此活動為 Solidity 智能合約課程的報名活動。完成報名後，您將可以訪問完整的課程內容。
+                  此課程只免費提供給黑客松參賽者，完成報名後，您將可以訪問完整的課程內容。
                 </p>
                 <a
                   href="https://defintek.io/courses/solidity"
