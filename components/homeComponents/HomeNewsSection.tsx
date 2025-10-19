@@ -25,26 +25,32 @@ export default function HomeNewsSection() {
         <div className="max-w-[900px]">
           {/* Main Message */}
           <div className="mb-6">
-            <p className="text-[18px] leading-relaxed text-gray-800">
+            <p className="text-[18px] leading-relaxed text-gray-800 mb-4">
               🎓 黑客松工作坊已經開跑！從 2025/10/20 起，每晚都有賽道介紹、獎項說明及活動 QA 的工作坊，歡迎一起來了解挑戰、補充技能、找到隊友、腦力激盪。
+            </p>
+            <p className="text-[18px] leading-relaxed text-gray-800">
+              特別推薦：Solidity 智能合約線上工作坊，由資深工程師瞿孝洋老師親授，從基礎到進階（DEX 套利機器人），完整 4.5 小時課程。
             </p>
           </div>
 
-          {/* Schedule Link */}
-          <div className="flex items-center gap-3">
-            <span className="text-[18px] text-gray-800">📅 最新時程表：</span>
+          {/* Schedule Button */}
+          <div>
             <Link href="/schedule">
               <a 
-                className="text-[18px] font-semibold underline transition-colors"
-                style={{ color: '#1a3a6e' }}
+                className="inline-flex items-center gap-2 px-6 py-3 text-[16px] font-semibold transition-all duration-300 rounded"
+                style={{ 
+                  backgroundColor: '#1a3a6e',
+                  color: 'white',
+                }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.color = '#2a4a7e';
+                  e.currentTarget.style.backgroundColor = '#2a4a7e';
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.color = '#1a3a6e';
+                  e.currentTarget.style.backgroundColor = '#1a3a6e';
                 }}
               >
-                https://hackathon.com.tw/schedule
+                <span>📅</span>
+                <span>最新時程表</span>
               </a>
             </Link>
           </div>
