@@ -4,7 +4,7 @@
  * 所有赞助商相关的类型定义
  */
 
-import { Timestamp } from 'firebase/firestore';
+import { Timestamp } from 'firebase-admin/firestore';
 
 // ============================================================================
 // 扩展的 Sponsor 类型
@@ -447,9 +447,9 @@ export interface TrackStats {
 // ============================================================================
 
 /**
- * 通用 API 响应
+ * 通用 API 响应类型
  */
-export interface ApiResponse<T = any> {
+export interface ApiResponseData<T = any> {
   success: boolean;
   data?: T;
   error?: string;

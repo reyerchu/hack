@@ -11,8 +11,18 @@ export * from './collections';
 // Permissions
 export * from './permissions';
 
-// Middleware
-export * from './middleware';
+// Middleware (explicit exports to avoid naming conflicts)
+export type { AuthenticatedRequest } from './middleware';
+export {
+  ApiResponse,
+  requireAuth,
+  requireSponsorAuth,
+  requireTrackAccess,
+  requireSponsorAccess,
+  requireSponsorRole,
+  requireAdmin,
+  withMiddleware,
+} from './middleware';
 
 // Activity Logging
 export * from './activity-log';
