@@ -18,11 +18,11 @@ interface StatsCardProps {
 function StatsCard({ title, value, description, icon, trend }: StatsCardProps) {
   return (
     <div
-      className="rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow duration-200"
+      className="rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow duration-200"
       style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb' }}
     >
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-sm font-medium" style={{ color: '#6b7280' }}>
+      <div className="flex items-center justify-between mb-2">
+        <h3 className="text-xs font-medium uppercase tracking-wide" style={{ color: '#6b7280' }}>
           {title}
         </h3>
         {icon && <div style={{ color: '#1a3a6e' }}>{icon}</div>}
@@ -30,11 +30,11 @@ function StatsCard({ title, value, description, icon, trend }: StatsCardProps) {
 
       <div className="flex items-end justify-between">
         <div>
-          <div className="text-3xl font-bold" style={{ color: '#1a3a6e' }}>
+          <div className="text-2xl font-bold" style={{ color: '#1a3a6e' }}>
             {value}
           </div>
           {description && (
-            <p className="text-sm mt-1" style={{ color: '#9ca3af' }}>
+            <p className="text-xs mt-0.5" style={{ color: '#9ca3af' }}>
               {description}
             </p>
           )}
@@ -42,7 +42,7 @@ function StatsCard({ title, value, description, icon, trend }: StatsCardProps) {
 
         {trend && (
           <div
-            className="text-sm font-medium"
+            className="text-xs font-medium"
             style={{ color: trend.isPositive ? '#059669' : '#dc2626' }}
           >
             {trend.isPositive ? '↑' : '↓'} {Math.abs(trend.value)}%
@@ -66,15 +66,15 @@ interface DashboardStatsProps {
 export default function DashboardStats({ stats, loading }: DashboardStatsProps) {
   if (loading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
         {[...Array(4)].map((_, i) => (
           <div
             key={i}
-            className="rounded-lg p-6 animate-pulse"
+            className="rounded-lg p-4 animate-pulse"
             style={{ backgroundColor: '#f3f4f6' }}
           >
-            <div className="h-4 bg-gray-300 rounded w-1/2 mb-4"></div>
-            <div className="h-8 bg-gray-300 rounded w-3/4"></div>
+            <div className="h-3 bg-gray-300 rounded w-1/2 mb-2"></div>
+            <div className="h-6 bg-gray-300 rounded w-3/4"></div>
           </div>
         ))}
       </div>
@@ -82,7 +82,7 @@ export default function DashboardStats({ stats, loading }: DashboardStatsProps) 
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
       <StatsCard
         title="我的賽道"
         value={stats.totalTracks}
