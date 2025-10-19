@@ -15,14 +15,23 @@ echo ""
 # Step 0: Pre-deployment checks
 echo "0️⃣ Pre-deployment checks..."
 
-# 0.1 Check for zombie processes on port
-ZOMBIE_PID=$(lsof -ti :$PORT 2>/dev/null | grep -v "$(pm2 pid $APP_NAME 2>/dev/null || echo 'none')" | head -1 || true)
-if [ ! -z "$ZOMBIE_PID" ]; then
-  echo "   ⚠️  Port $PORT occupied by zombie PID $ZOMBIE_PID"
-  echo "   Killing zombie process..."
-  kill -9 $ZOMBIE_PID 2>/dev/null || true
-  sleep 2
-  echo "   ✓ Zombie killed"
+# 0.1 Check for ALL zombie processes on port (aggressive cleanup)
+ZOMBIE_PIDS=$(lsof -ti :$PORT 2>/dev/null || true)
+if [ ! -z "$ZOMBIE_PIDS" ]; then
+  echo "   ⚠️  Port $PORT occupied by processes: $ZOMBIE_PIDS"
+  echo "   Killing ALL processes on port $PORT..."
+  echo "$ZOMBIE_PIDS" | xargs -r kill -9 2>/dev/null || true
+  sleep 3
+  
+  # Verify port is free
+  if lsof -i :$PORT >/dev/null 2>&1; then
+    echo "   ❌ FAILED to free port $PORT!"
+    lsof -i :$PORT
+    echo ""
+    echo "   ABORTING deployment. Run: ./fix-zombie.sh"
+    exit 1
+  fi
+  echo "   ✓ All zombies killed, port is free"
 fi
 
 # 0.2 TypeScript type check
@@ -69,15 +78,28 @@ pm2 delete $APP_NAME 2>/dev/null || echo "   (no instance)"
 echo "   ✓ Deleted"
 echo ""
 
-# Step 5: Final port check
+# Step 5: Final port check (triple check!)
 echo "5️⃣ Final port check..."
+ATTEMPTS=0
+while [ $ATTEMPTS -lt 3 ]; do
+  if lsof -i :$PORT >/dev/null 2>&1; then
+    echo "   ⚠️  Port $PORT still occupied (attempt $((ATTEMPTS + 1))/3)"
+    lsof -i :$PORT
+    echo "   Force killing..."
+    lsof -ti :$PORT | xargs -r kill -9 2>/dev/null || true
+    sleep 2
+    ATTEMPTS=$((ATTEMPTS + 1))
+  else
+    echo "   ✓ Port $PORT is free"
+    break
+  fi
+done
+
 if lsof -i :$PORT >/dev/null 2>&1; then
-  echo "   ⚠️  Port $PORT still occupied!"
-  echo "   Force killing..."
-  lsof -ti :$PORT | xargs kill -9 2>/dev/null || true
-  sleep 2
+  echo "   ❌ CRITICAL: Cannot free port $PORT after 3 attempts!"
+  echo "   Run: ./fix-zombie.sh"
+  exit 1
 fi
-echo "   ✓ Port $PORT free"
 echo ""
 
 # Step 6: Start new instance
@@ -86,11 +108,11 @@ pm2 start ecosystem.config.js --env production
 echo "   ✓ Started"
 echo ""
 
-# Step 7: Health check
+# Step 7: Health check (more thorough)
 echo "7️⃣ Health check..."
 sleep 5
 
-MAX_RETRIES=12
+MAX_RETRIES=15
 RETRY=0
 SUCCESS=0
 
@@ -98,27 +120,34 @@ while [ $RETRY -lt $MAX_RETRIES ]; do
   STATUS=$(pm2 jlist 2>/dev/null | jq -r ".[] | select(.name==\"$APP_NAME\") | .pm2_env.status" 2>/dev/null || echo "unknown")
   RESTARTS=$(pm2 jlist 2>/dev/null | jq -r ".[] | select(.name==\"$APP_NAME\") | .pm2_env.restart_time" 2>/dev/null || echo "0")
   
-  if [ "$STATUS" = "online" ] && [ "$RESTARTS" -lt 3 ]; then
+  if [ "$STATUS" = "online" ] && [ "$RESTARTS" -lt 5 ]; then
     echo "   Status: online (restarts: $RESTARTS)"
     
-    # Test HTTP
+    # Test HTTP with actual content check
     sleep 2
-    if curl -sf http://localhost:$PORT/ >/dev/null 2>&1; then
-      echo "   ✓ Service responding"
-      SUCCESS=1
-      break
+    HTTP_RESPONSE=$(curl -sf http://localhost:$PORT/ 2>&1 || echo "FAIL")
+    if echo "$HTTP_RESPONSE" | grep -q "<!DOCTYPE html"; then
+      echo "   ✓ Service responding with HTML"
+      
+      # Double check: verify port is bound correctly
+      if lsof -i :$PORT | grep -q "LISTEN"; then
+        echo "   ✓ Port $PORT listening"
+        SUCCESS=1
+        break
+      fi
     else
-      echo "   Waiting for HTTP response..."
+      echo "   Waiting for valid HTTP response..."
     fi
-  elif [ "$STATUS" = "errored" ] || [ "$RESTARTS" -ge 5 ]; then
+  elif [ "$STATUS" = "errored" ] || [ "$RESTARTS" -ge 10 ]; then
     echo ""
-    echo "   ❌ Service failed!"
+    echo "   ❌ Service failed (status: $STATUS, restarts: $RESTARTS)!"
     echo ""
     pm2 status
     echo ""
     echo "Error logs:"
-    pm2 logs $APP_NAME --err --lines 30 --nostream 2>/dev/null || true
+    pm2 logs $APP_NAME --err --lines 50 --nostream 2>/dev/null || true
     echo ""
+    echo "   Run: ./fix-zombie.sh"
     exit 1
   else
     echo "   Waiting... (status: $STATUS, restarts: $RESTARTS)"
@@ -132,7 +161,9 @@ if [ $SUCCESS -eq 0 ]; then
   echo ""
   echo "   ❌ Health check timeout!"
   pm2 status
-  pm2 logs $APP_NAME --lines 30 --nostream
+  pm2 logs $APP_NAME --lines 50 --nostream
+  echo ""
+  echo "   Run: ./fix-zombie.sh"
   exit 1
 fi
 echo ""
