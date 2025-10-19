@@ -29,7 +29,22 @@ export default function HomeNewsSection() {
               🎓 黑客松工作坊已經開跑！從 2025/10/20 起，每晚都有賽道介紹、獎項說明及活動 QA 的工作坊，歡迎一起來了解挑戰、補充技能、找到隊友、腦力激盪。
             </p>
             <p className="text-[18px] leading-relaxed text-gray-800">
-              特別推薦：Solidity 智能合約線上工作坊，由資深工程師瞿孝洋老師親授，從基礎到進階（DEX 套利機器人），完整 4.5 小時課程。
+              特別推薦：
+              <Link href="/schedule/Elyt7SvclfTp43LPKmaq">
+                <a 
+                  className="font-semibold underline transition-colors"
+                  style={{ color: '#1a3a6e' }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = '#2a4a7e';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = '#1a3a6e';
+                  }}
+                >
+                  Solidity 智能合約線上工作坊
+                </a>
+              </Link>
+              ，由資深工程師瞿孝洋老師親授，從基礎到進階（DEX 套利機器人），完整 4.5 小時課程。
             </p>
           </div>
 
