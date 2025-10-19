@@ -140,9 +140,9 @@ export default function SponsorDashboard() {
   // 主要儀表板內容
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#f9fafb' }}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {/* Header */}
-        <div className="mb-8">
+        <div className="mb-6">
           <h1 className="text-3xl font-bold mb-2" style={{ color: '#1a3a6e' }}>
             贊助商儀表板
           </h1>
@@ -154,20 +154,42 @@ export default function SponsorDashboard() {
         {/* Statistics */}
         <DashboardStats stats={stats} loading={statsLoading} />
 
+        {/* Getting Started Guide */}
+        <div className="mb-6 rounded-lg p-5" style={{ backgroundColor: '#ffffff', border: '2px solid #1a3a6e' }}>
+          <div className="flex items-start gap-4">
+            <div className="flex-shrink-0">
+              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: '#1a3a6e' }}>
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div className="flex-1">
+              <h3 className="text-lg font-semibold mb-2" style={{ color: '#1a3a6e' }}>
+                快速開始指南
+              </h3>
+              <ul className="space-y-1.5 text-sm" style={{ color: '#6b7280' }}>
+                <li>✓ <strong>查看賽道</strong>：點擊賽道卡片查看詳情</li>
+                <li>✓ <strong>管理挑戰</strong>：編輯題目內容、上傳文件</li>
+                <li>✓ <strong>審核提交</strong>：查看團隊提交、進行評分</li>
+                <li>✓ <strong>聯繫團隊</strong>：與優秀團隊互動交流</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
         {/* My Tracks */}
-        <div className="mt-8">
+        <div className="mb-6">
           <h2 className="text-xl font-semibold mb-4" style={{ color: '#1a3a6e' }}>
             我的賽道
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {tracks.map((track) => (
               <div
                 key={track.id}
-                className="rounded-lg p-6 shadow-sm hover:shadow-lg transition-all duration-200 cursor-pointer"
+                className="rounded-lg p-5 shadow-sm hover:shadow-lg transition-all duration-200 cursor-pointer"
                 style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb' }}
                 onClick={() => router.push(`/sponsor/tracks/${track.id}`)}
               >
-                <div className="flex items-start justify-between mb-3">
+                <div className="flex items-start justify-between mb-2">
                   <h3 className="text-lg font-semibold" style={{ color: '#1a3a6e' }}>
                     {track.trackName}
                   </h3>
@@ -228,13 +250,108 @@ export default function SponsorDashboard() {
         </div>
 
         {/* Quick Actions */}
-        <QuickActions trackId={tracks[0]?.id} />
+        <div className="mb-6">
+          <h2 className="text-xl font-semibold mb-4" style={{ color: '#1a3a6e' }}>
+            快速操作
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <button
+              onClick={() => router.push(tracks[0] ? `/sponsor/tracks/${tracks[0].id}/challenge` : '/sponsor/tracks')}
+              className="rounded-lg p-4 border-2 transition-all duration-200 hover:shadow-lg text-left"
+              style={{ borderColor: '#e5e7eb', backgroundColor: '#ffffff' }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = '#1a3a6e';
+                e.currentTarget.style.backgroundColor = '#f9fafb';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = '#e5e7eb';
+                e.currentTarget.style.backgroundColor = '#ffffff';
+              }}
+            >
+              <div className="mb-2" style={{ color: '#1a3a6e' }}>
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+              </div>
+              <h3 className="text-sm font-semibold mb-1" style={{ color: '#1a3a6e' }}>管理挑戰題目</h3>
+              <p className="text-xs" style={{ color: '#6b7280' }}>上傳或編輯賽道內容</p>
+            </button>
 
-        {/* Notifications */}
-        <NotificationCenter notifications={notifications} onMarkAsRead={markAsRead} />
+            <button
+              onClick={() => router.push(tracks[0] ? `/sponsor/tracks/${tracks[0].id}/submissions` : '/sponsor/submissions')}
+              className="rounded-lg p-4 border-2 transition-all duration-200 hover:shadow-lg text-left"
+              style={{ borderColor: '#e5e7eb', backgroundColor: '#ffffff' }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = '#1a3a6e';
+                e.currentTarget.style.backgroundColor = '#f9fafb';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = '#e5e7eb';
+                e.currentTarget.style.backgroundColor = '#ffffff';
+              }}
+            >
+              <div className="mb-2" style={{ color: '#1a3a6e' }}>
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              </div>
+              <h3 className="text-sm font-semibold mb-1" style={{ color: '#1a3a6e' }}>查看提交</h3>
+              <p className="text-xs" style={{ color: '#6b7280' }}>瀏覽隊伍的項目提交</p>
+            </button>
 
-        {/* Activity Log - TODO: 實現實際的活动日志數據獲取 */}
-        <ActivityLog logs={[]} />
+            <button
+              onClick={() => router.push(tracks[0] ? `/sponsor/tracks/${tracks[0].id}/judging` : '/sponsor/judging')}
+              className="rounded-lg p-4 border-2 transition-all duration-200 hover:shadow-lg text-left"
+              style={{ borderColor: '#e5e7eb', backgroundColor: '#ffffff' }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = '#1a3a6e';
+                e.currentTarget.style.backgroundColor = '#f9fafb';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = '#e5e7eb';
+                e.currentTarget.style.backgroundColor = '#ffffff';
+              }}
+            >
+              <div className="mb-2" style={{ color: '#1a3a6e' }}>
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                </svg>
+              </div>
+              <h3 className="text-sm font-semibold mb-1" style={{ color: '#1a3a6e' }}>評審與決選</h3>
+              <p className="text-xs" style={{ color: '#6b7280' }}>對提交進行評分排名</p>
+            </button>
+
+            <button
+              onClick={() => router.push('/sponsor/reports')}
+              className="rounded-lg p-4 border-2 transition-all duration-200 hover:shadow-lg text-left"
+              style={{ borderColor: '#e5e7eb', backgroundColor: '#ffffff' }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = '#1a3a6e';
+                e.currentTarget.style.backgroundColor = '#f9fafb';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = '#e5e7eb';
+                e.currentTarget.style.backgroundColor = '#ffffff';
+              }}
+            >
+              <div className="mb-2" style={{ color: '#1a3a6e' }}>
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+              </div>
+              <h3 className="text-sm font-semibold mb-1" style={{ color: '#1a3a6e' }}>數據報告</h3>
+              <p className="text-xs" style={{ color: '#6b7280' }}>查看參與度與品牌曝光</p>
+            </button>
+          </div>
+        </div>
+
+        {/* Notifications - 只在有通知時顯示 */}
+        {notifications && notifications.length > 0 && (
+          <NotificationCenter notifications={notifications} onMarkAsRead={markAsRead} />
+        )}
+
+        {/* Activity Log - 暫時隱藏，待實際數據接入後再顯示 */}
+        {/* <ActivityLog logs={[]} /> */}
       </div>
     </div>
   );
