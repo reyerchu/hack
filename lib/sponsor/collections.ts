@@ -1,7 +1,7 @@
 /**
  * Track Sponsor Feature - Firestore Collections
  * 
- * 所有赞助商相关的 Firestore collection 名称
+ * 所有贊助商相關的 Firestore collection 名称
  */
 
 export const SPONSOR_COLLECTIONS = {
@@ -21,7 +21,7 @@ export const SPONSOR_COLLECTIONS = {
 } as const;
 
 /**
- * Collection 名称类型
+ * Collection 名称類型
  */
 export type SponsorCollectionName = typeof SPONSOR_COLLECTIONS[keyof typeof SPONSOR_COLLECTIONS];
 

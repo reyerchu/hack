@@ -1,7 +1,7 @@
 /**
  * Track Sponsor Feature - Permission System
  * 
- * 赛道级别的权限控制和数据隔离
+ * 賽道級別的權限控制和數據隔離
  */
 
 import { firestore } from 'firebase-admin';
@@ -13,10 +13,10 @@ initializeApi();
 const db = firestore();
 
 /**
- * 获取用户数据（支持多个 collection）
+ * 獲取用戶數據（支持多个 collection）
  * 
  * @param userId - Firebase Auth UID 或 Firestore document ID
- * @returns 用户数据和文档引用
+ * @returns 用戶數據和文檔引用
  */
 async function getUserData(userId: string): Promise<{
   exists: boolean;
@@ -24,20 +24,20 @@ async function getUserData(userId: string): Promise<{
   ref: FirebaseFirestore.DocumentReference;
 } | null> {
   try {
-    // 1. 先尝试 registrations collection（主要用于黑客松报名用户）
+    // 1. 先嘗試 registrations collection（主要用于黑客松報名用戶）
     let userDoc = await db.collection('registrations').doc(userId).get();
     if (userDoc.exists) {
       return { exists: true, data: userDoc.data(), ref: userDoc.ref };
     }
 
-    // 2. 尝试通过 email 查询 registrations
+    // 2. 嘗試透過 email 查詢 registrations
     const regByEmail = await db.collection('registrations').where('email', '==', userId).limit(1).get();
     if (!regByEmail.empty) {
       const doc = regByEmail.docs[0];
       return { exists: true, data: doc.data(), ref: doc.ref };
     }
 
-    // 3. 尝试 users collection（向后兼容）
+    // 3. 嘗試 users collection（向後兼容）
     userDoc = await db.collection('users').doc(userId).get();
     if (userDoc.exists) {
       return { exists: true, data: userDoc.data(), ref: userDoc.ref };
@@ -51,18 +51,18 @@ async function getUserData(userId: string): Promise<{
 }
 
 /**
- * 检查用户是否有赞助商权限
+ * 檢查用戶是否有贊助商權限
  * 
- * @param userId - 用户 ID
- * @param sponsorId - 赞助商 ID
- * @returns 是否有权限
+ * @param userId - 用戶 ID
+ * @param sponsorId - 贊助商 ID
+ * @returns 是否有權限
  */
 export async function checkSponsorPermission(
   userId: string,
   sponsorId: string,
 ): Promise<boolean> {
   try {
-    // 1. 检查是否是 super_admin 或 admin
+    // 1. 檢查是否是 super_admin 或 admin
     const userData = await getUserData(userId);
     
     if (!userData || !userData.exists) {
@@ -72,12 +72,12 @@ export async function checkSponsorPermission(
     const user = userData.data;
     const permissions = user?.permissions || [];
     
-    // Admin 有所有权限
+    // Admin 有所有權限
     if (permissions.includes('super_admin') || permissions.includes('admin')) {
       return true;
     }
     
-    // 2. 检查 sponsor-user-mappings (使用 document ID)
+    // 2. 檢查 sponsor-user-mappings (使用 document ID)
     const docId = userData.ref.id;
     const mappingQuery = await db
       .collection(SPONSOR_COLLECTIONS.SPONSOR_USER_MAPPINGS)
@@ -94,10 +94,10 @@ export async function checkSponsorPermission(
 }
 
 /**
- * 检查用户是否可以访问特定赛道
+ * 檢查用戶是否可以访问特定賽道
  * 
- * @param userId - 用户 ID
- * @param trackId - 赛道 ID
+ * @param userId - 用戶 ID
+ * @param trackId - 賽道 ID
  * @returns 是否可以访问
  */
 export async function checkTrackAccess(
@@ -105,7 +105,7 @@ export async function checkTrackAccess(
   trackId: string,
 ): Promise<boolean> {
   try {
-    // 1. 获取用户权限
+    // 1. 獲取用戶權限
     const userData = await getUserData(userId);
     
     if (!userData || !userData.exists) {
@@ -115,12 +115,12 @@ export async function checkTrackAccess(
     const user = userData.data;
     const permissions = user?.permissions || [];
     
-    // Admin 可以访问所有赛道
+    // Admin 可以访问所有賽道
     if (permissions.includes('super_admin') || permissions.includes('admin')) {
       return true;
     }
     
-    // 2. 获取用户的 sponsor mappings (使用 document ID)
+    // 2. 獲取用戶的 sponsor mappings (使用 document ID)
     const docId = userData.ref.id;
     const mappingsSnapshot = await db
       .collection(SPONSOR_COLLECTIONS.SPONSOR_USER_MAPPINGS)
@@ -133,7 +133,7 @@ export async function checkTrackAccess(
     
     const sponsorIds = mappingsSnapshot.docs.map((doc) => doc.data().sponsorId);
     
-    // 3. 检查这些 sponsors 是否赞助该 track
+    // 3. 檢查这些 sponsors 是否赞助该 track
     const challengeSnapshot = await db
       .collection(SPONSOR_COLLECTIONS.EXTENDED_CHALLENGES)
       .where('trackId', '==', trackId)
@@ -149,10 +149,10 @@ export async function checkTrackAccess(
 }
 
 /**
- * 检查用户是否可以访问特定挑战
+ * 檢查用戶是否可以访问特定挑戰
  * 
- * @param userId - 用户 ID
- * @param challengeId - 挑战 ID
+ * @param userId - 用戶 ID
+ * @param challengeId - 挑戰 ID
  * @returns 是否可以访问
  */
 export async function checkChallengeAccess(
@@ -160,7 +160,7 @@ export async function checkChallengeAccess(
   challengeId: string,
 ): Promise<boolean> {
   try {
-    // 1. 获取挑战信息
+    // 1. 獲取挑戰資訊
     const challengeDoc = await db
       .collection(SPONSOR_COLLECTIONS.EXTENDED_CHALLENGES)
       .doc(challengeId)
@@ -172,7 +172,7 @@ export async function checkChallengeAccess(
     
     const challenge = challengeDoc.data();
     
-    // 2. 检查用户是否可以访问该赛道
+    // 2. 檢查用戶是否可以访问该賽道
     return checkTrackAccess(userId, challenge?.trackId || '');
   } catch (error) {
     console.error('Error checking challenge access:', error);
@@ -181,14 +181,14 @@ export async function checkChallengeAccess(
 }
 
 /**
- * 获取用户可访问的所有赛道
+ * 獲取用戶可访问的所有賽道
  * 
- * @param userId - 用户 ID
- * @returns 赛道 ID 列表
+ * @param userId - 用戶 ID
+ * @returns 賽道 ID 列表
  */
 export async function getUserAccessibleTracks(userId: string): Promise<string[]> {
   try {
-    // 1. 获取用户权限
+    // 1. 獲取用戶權限
     const userData = await getUserData(userId);
     
     if (!userData || !userData.exists) {
@@ -198,7 +198,7 @@ export async function getUserAccessibleTracks(userId: string): Promise<string[]>
     const user = userData.data;
     const permissions = user?.permissions || [];
     
-    // Admin 可以访问所有赛道
+    // Admin 可以访问所有賽道
     if (permissions.includes('super_admin') || permissions.includes('admin')) {
       const allChallenges = await db
         .collection(SPONSOR_COLLECTIONS.EXTENDED_CHALLENGES)
@@ -215,7 +215,7 @@ export async function getUserAccessibleTracks(userId: string): Promise<string[]>
       return Array.from(trackIds);
     }
     
-    // 2. 获取用户的 sponsor mappings (使用 document ID)
+    // 2. 獲取用戶的 sponsor mappings (使用 document ID)
     const docId = userData.ref.id;
     const mappingsSnapshot = await db
       .collection(SPONSOR_COLLECTIONS.SPONSOR_USER_MAPPINGS)
@@ -228,7 +228,7 @@ export async function getUserAccessibleTracks(userId: string): Promise<string[]>
     
     const sponsorIds = mappingsSnapshot.docs.map((doc) => doc.data().sponsorId);
     
-    // 3. 获取这些 sponsors 赞助的所有 tracks
+    // 3. 獲取这些 sponsors 赞助的所有 tracks
     const challengesSnapshot = await db
       .collection(SPONSOR_COLLECTIONS.EXTENDED_CHALLENGES)
       .where('sponsorId', 'in', sponsorIds)
@@ -250,10 +250,10 @@ export async function getUserAccessibleTracks(userId: string): Promise<string[]>
 }
 
 /**
- * 获取用户在指定赞助商的角色
+ * 獲取用戶在指定贊助商的角色
  * 
- * @param userId - 用户 ID
- * @param sponsorId - 赞助商 ID
+ * @param userId - 用戶 ID
+ * @param sponsorId - 贊助商 ID
  * @returns 角色 ('admin' | 'viewer' | 'judge' | null)
  */
 export async function getUserSponsorRole(
@@ -261,7 +261,7 @@ export async function getUserSponsorRole(
   sponsorId: string,
 ): Promise<'admin' | 'viewer' | 'judge' | null> {
   try {
-    // 1. 检查是否是系统 admin
+    // 1. 檢查是否是系统 admin
     const userData = await getUserData(userId);
     
     if (!userData || !userData.exists) {
@@ -275,7 +275,7 @@ export async function getUserSponsorRole(
       return 'admin';
     }
     
-    // 2. 查询 sponsor-user-mappings (使用 document ID)
+    // 2. 查詢 sponsor-user-mappings (使用 document ID)
     const docId = userData.ref.id;
     const mappingQuery = await db
       .collection(SPONSOR_COLLECTIONS.SPONSOR_USER_MAPPINGS)
@@ -297,12 +297,12 @@ export async function getUserSponsorRole(
 }
 
 /**
- * 检查用户是否有指定的赞助商角色
+ * 檢查用戶是否有指定的贊助商角色
  * 
- * @param userId - 用户 ID
- * @param sponsorId - 赞助商 ID
+ * @param userId - 用戶 ID
+ * @param sponsorId - 贊助商 ID
  * @param requiredRoles - 所需角色列表
- * @returns 是否有权限
+ * @returns 是否有權限
  */
 export async function hasSponsorRole(
   userId: string,
@@ -319,21 +319,21 @@ export async function hasSponsorRole(
 }
 
 /**
- * 获取用户所属的所有赞助商
+ * 獲取用戶所属的所有贊助商
  * 
- * @param userId - 用户 ID
- * @returns 赞助商 ID 列表
+ * @param userId - 用戶 ID
+ * @returns 贊助商 ID 列表
  */
 export async function getUserSponsors(userId: string): Promise<string[]> {
   try {
-    // 获取用户数据以获取 document ID
+    // 獲取用戶數據以獲取 document ID
     const userData = await getUserData(userId);
     
     if (!userData || !userData.exists) {
       return [];
     }
     
-    // 使用 document ID 查询
+    // 使用 document ID 查詢
     const docId = userData.ref.id;
     const mappingsSnapshot = await db
       .collection(SPONSOR_COLLECTIONS.SPONSOR_USER_MAPPINGS)
@@ -348,9 +348,9 @@ export async function getUserSponsors(userId: string): Promise<string[]> {
 }
 
 /**
- * 检查用户是否可以查看指定的提交
+ * 檢查用戶是否可以查看指定的提交
  * 
- * @param userId - 用户 ID
+ * @param userId - 用戶 ID
  * @param submissionId - 提交 ID
  * @returns 是否可以查看
  */
@@ -359,7 +359,7 @@ export async function canViewSubmission(
   submissionId: string,
 ): Promise<boolean> {
   try {
-    // 1. 获取提交信息
+    // 1. 獲取提交資訊
     const submissionDoc = await db
       .collection(SPONSOR_COLLECTIONS.TEAM_SUBMISSIONS)
       .doc(submissionId)
@@ -371,13 +371,13 @@ export async function canViewSubmission(
     
     const submission = submissionDoc.data();
     
-    // 2. 检查是否是队伍成员
+    // 2. 檢查是否是隊伍成员
     const teamMemberIds = (submission?.teamMembers || []).map((m: any) => m.userId);
     if (teamMemberIds.includes(userId)) {
       return true;
     }
     
-    // 3. 检查是否可以访问该赛道
+    // 3. 檢查是否可以访问该賽道
     return checkTrackAccess(userId, submission?.projectTrack || '');
   } catch (error) {
     console.error('Error checking submission view permission:', error);
@@ -386,18 +386,18 @@ export async function canViewSubmission(
 }
 
 /**
- * 检查用户是否可以编辑指定的提交
+ * 檢查用戶是否可以編輯指定的提交
  * 
- * @param userId - 用户 ID
+ * @param userId - 用戶 ID
  * @param submissionId - 提交 ID
- * @returns 是否可以编辑
+ * @returns 是否可以編輯
  */
 export async function canEditSubmission(
   userId: string,
   submissionId: string,
 ): Promise<boolean> {
   try {
-    // 1. 检查是否是系统 admin
+    // 1. 檢查是否是系统 admin
     const userData = await getUserData(userId);
     
     if (!userData || !userData.exists) {
@@ -411,7 +411,7 @@ export async function canEditSubmission(
       return true;
     }
     
-    // 2. 获取提交信息
+    // 2. 獲取提交資訊
     const submissionDoc = await db
       .collection(SPONSOR_COLLECTIONS.TEAM_SUBMISSIONS)
       .doc(submissionId)
@@ -423,7 +423,7 @@ export async function canEditSubmission(
     
     const submission = submissionDoc.data();
     
-    // 3. 只有队伍成员可以编辑（赞助商不能编辑）
+    // 3. 只有隊伍成员可以編輯（贊助商不能編輯）
     // 使用 document ID 进行比对
     const docId = userData.ref.id;
     const teamMemberIds = (submission?.teamMembers || []).map((m: any) => m.userId);

@@ -1,13 +1,13 @@
 /**
  * Track Sponsor Feature - Type Definitions
  * 
- * 所有赞助商相关的类型定义
+ * 所有贊助商相關的類型定義
  */
 
 import { Timestamp } from 'firebase-admin/firestore';
 
 // ============================================================================
-// 扩展的 Sponsor 类型
+// 擴展的 Sponsor 類型
 // ============================================================================
 
 /**
@@ -16,12 +16,12 @@ import { Timestamp } from 'firebase-admin/firestore';
 export type SponsorTier = 'title' | 'track' | 'general';
 
 /**
- * 联系人角色
+ * 聯繫人角色
  */
 export type ContactRole = 'primary' | 'technical' | 'marketing';
 
 /**
- * 联系人信息
+ * 聯繫人資訊
  */
 export interface SponsorContact {
   name: string;
@@ -42,17 +42,17 @@ export interface BrandKit {
 }
 
 /**
- * 赞助商权限
+ * 贊助商權限
  */
 export interface SponsorPermissions {
-  canEditTrackChallenge: boolean;  // 可否编辑赛道题目
+  canEditTrackChallenge: boolean;  // 可否編輯賽道题目
   canViewSubmissions: boolean;     // 可否查看提交
   canJudge: boolean;               // 可否评审
-  canContactTeams: boolean;        // 可否联系队伍
+  canContactTeams: boolean;        // 可否联系隊伍
 }
 
 /**
- * 合约信息
+ * 合約資訊
  */
 export interface SponsorContract {
   signedDate: Date | Timestamp;
@@ -61,50 +61,50 @@ export interface SponsorContract {
 }
 
 /**
- * 扩展的赞助商信息
+ * 擴展的贊助商資訊
  */
 export interface ExtendedSponsor {
   id: string;
   
-  // 基本信息
+  // 基本資訊
   name: string;
   logo: string;
   website: string;
   
   // 赞助层级
   tier: SponsorTier;
-  sponsorshipAmount?: number;      // 可选，敏感信息
+  sponsorshipAmount?: number;      // 可选，敏感資訊
   
-  // 赛道关联
+  // 賽道關聯
   trackId?: string;
   trackName?: string;
   
   // 品牌素材
   brandKit?: BrandKit;
   
-  // 联系人
+  // 聯繫人
   contacts: SponsorContact[];
   
-  // 权限
+  // 權限
   permissions: SponsorPermissions;
   
-  // 合约
+  // 合約
   contract?: SponsorContract;
   
-  // 状态
+  // 狀態
   status: 'active' | 'inactive' | 'pending';
   
-  // 元数据
+  // 元數據
   createdAt: Date | Timestamp;
   updatedAt: Date | Timestamp;
 }
 
 // ============================================================================
-// 扩展的 Challenge 类型
+// 擴展的 Challenge 類型
 // ============================================================================
 
 /**
- * 奖金信息
+ * 獎金資訊
  */
 export interface ChallengePrize {
   rank: number;                    // 1, 2, 3...
@@ -124,7 +124,7 @@ export interface ChallengeRequirements {
 }
 
 /**
- * 自定义提交字段
+ * 自定義提交字段
  */
 export interface CustomSubmissionField {
   name: string;
@@ -166,32 +166,32 @@ export interface ChallengeAttachment {
 }
 
 /**
- * 挑战状态
+ * 挑戰狀態
  */
 export type ChallengeStatus = 'draft' | 'published' | 'closed';
 
 /**
- * 扩展的挑战信息
+ * 擴展的挑戰資訊
  */
 export interface ExtendedChallenge {
   id: string;
   
-  // 基本信息
+  // 基本資訊
   title: string;
   description: string;
   detailedDescription?: string;    // Markdown 格式
   
-  // 赛道信息
+  // 賽道資訊
   track: string;
   trackId: string;
   
-  // 赞助商关联
+  // 贊助商關聯
   sponsorId: string;
   sponsorName: string;
   
-  // 奖金
+  // 獎金
   prizes: ChallengePrize[];
-  prizeDetails?: string;           // 奖金详情描述（简化版）
+  prizeDetails?: string;           // 獎金詳情描述（简化版）
   
   // 要求
   requirements: ChallengeRequirements;
@@ -214,7 +214,7 @@ export interface ExtendedChallenge {
   
   // 附件
   attachments?: ChallengeAttachment[];
-  challengeBriefUrl?: string;      // 挑战简报 PDF URL
+  challengeBriefUrl?: string;      // 挑戰简报 PDF URL
   
   // 品牌素材
   brandAssets?: {
@@ -222,22 +222,22 @@ export interface ExtendedChallenge {
     kvImageUrl?: string;
   };
   
-  // 状态和排序
+  // 狀態和排序
   status: ChallengeStatus;
   rank: number;
   
-  // 元数据
+  // 元數據
   createdBy: string;
   createdAt: Date | Timestamp;
   updatedAt: Date | Timestamp;
 }
 
 // ============================================================================
-// 队伍提交
+// 隊伍提交
 // ============================================================================
 
 /**
- * 队伍成员
+ * 隊伍成员
  */
 export interface TeamMember {
   userId: string;
@@ -247,7 +247,7 @@ export interface TeamMember {
 }
 
 /**
- * 提交状态
+ * 提交狀態
  */
 export type SubmissionStatus = 
   | 'draft' 
@@ -273,16 +273,16 @@ export interface SubmissionScore {
 }
 
 /**
- * 队伍提交
+ * 隊伍提交
  */
 export interface TeamSubmission {
   id: string;
   
-  // 队伍信息
+  // 隊伍資訊
   teamName: string;
   teamMembers: TeamMember[];
   
-  // 项目信息
+  // 項目資訊
   projectName: string;
   projectTrack: string;
   trackId: string;
@@ -298,7 +298,7 @@ export interface TeamSubmission {
   presentationUrl?: string;
   documentationUrl?: string;
   
-  // 自定义字段
+  // 自定義字段
   customFields?: {
     [fieldName: string]: string;
   };
@@ -307,7 +307,7 @@ export interface TeamSubmission {
   techStack: string[];
   tags?: string[];
   
-  // 状态
+  // 狀態
   status: SubmissionStatus;
   reviewNotes?: string;
   isRecommended?: boolean;
@@ -350,16 +350,16 @@ export interface JudgingCriteria {
 }
 
 // ============================================================================
-// 赞助商用户关联
+// 贊助商用戶關聯
 // ============================================================================
 
 /**
- * 赞助商用户角色
+ * 贊助商用戶角色
  */
 export type SponsorUserRole = 'admin' | 'viewer' | 'judge';
 
 /**
- * 赞助商用户映射
+ * 贊助商用戶映射
  */
 export interface SponsorUserMapping {
   id: string;
@@ -374,7 +374,7 @@ export interface SponsorUserMapping {
 // ============================================================================
 
 /**
- * 赞助商活动类型
+ * 贊助商活动類型
  */
 export type SponsorActivityAction =
   | 'view_submission'
@@ -389,7 +389,7 @@ export type SponsorActivityAction =
   | 'other';
 
 /**
- * 赞助商活动日志
+ * 贊助商活动日志
  */
 export interface SponsorActivityLog {
   id: string;
@@ -415,7 +415,7 @@ export interface SponsorActivityLog {
 // ============================================================================
 
 /**
- * 赞助商通知类型
+ * 贊助商通知類型
  */
 export type SponsorNotificationType =
   | 'new_submission'
@@ -428,7 +428,7 @@ export type SponsorNotificationType =
   | 'team_contacted';
 
 /**
- * 赞助商通知
+ * 贊助商通知
  */
 export interface SponsorNotification {
   id: string;
@@ -454,11 +454,11 @@ export interface SponsorNotification {
 }
 
 // ============================================================================
-// 统计数据
+// 統計數據
 // ============================================================================
 
 /**
- * 赛道统计
+ * 賽道統計
  */
 export interface TrackStats {
   trackId: string;
@@ -485,11 +485,11 @@ export interface TrackStats {
 }
 
 // ============================================================================
-// API 响应类型
+// API 响应類型
 // ============================================================================
 
 /**
- * 通用 API 响应类型
+ * 通用 API 响应類型
  */
 export interface ApiResponseData<T = any> {
   success: boolean;
@@ -510,7 +510,7 @@ export interface PaginatedResponse<T> {
 }
 
 /**
- * 赛道列表响应
+ * 賽道列表响应
  */
 export interface TrackListResponse {
   tracks: Array<{
@@ -542,7 +542,7 @@ export interface SubmissionListItem {
 }
 
 /**
- * 评审信息响应
+ * 评审資訊响应
  */
 export interface JudgingInfoResponse {
   criteria: JudgingCriterion[];
@@ -550,7 +550,7 @@ export interface JudgingInfoResponse {
     id: string;
     teamName: string;
     projectName: string;
-    myScore?: SubmissionScore;     // 当前评审的评分
+    myScore?: SubmissionScore;     // 當前评审的评分
     averageScore?: number;
   }>;
 }

@@ -1,7 +1,7 @@
 /**
  * Track Sponsor Feature - Activity Logging
  * 
- * 记录赞助商的所有操作（Audit Trail）
+ * 記錄贊助商的所有操作（Audit Trail）
  */
 
 import { firestore } from 'firebase-admin';
@@ -14,7 +14,7 @@ initializeApi();
 const db = firestore();
 
 /**
- * 记录赞助商活动
+ * 記錄贊助商活动
  * 
  * @param params - 活动参数
  */
@@ -41,17 +41,17 @@ export async function logSponsorActivity(params: {
     
     await db.collection(SPONSOR_COLLECTIONS.SPONSOR_ACTIVITY_LOGS).add(activityLog);
     
-    // 日志记录失败不应该影响主要业务逻辑，所以不抛出错误
+    // 日志記錄失败不应该影响主要业务逻辑，所以不抛出错误
   } catch (error) {
     console.error('Failed to log sponsor activity:', error);
   }
 }
 
 /**
- * 获取赞助商的活动日志
+ * 獲取贊助商的活动日志
  * 
- * @param sponsorId - 赞助商 ID
- * @param options - 查询选项
+ * @param sponsorId - 贊助商 ID
+ * @param options - 查詢选项
  * @returns 活动日志列表
  */
 export async function getSponsorActivityLogs(
@@ -89,7 +89,7 @@ export async function getSponsorActivityLogs(
     // 按时间倒序排列
     query = query.orderBy('timestamp', 'desc');
     
-    // 限制数量
+    // 限制數量
     if (options.limit) {
       query = query.limit(options.limit);
     }
@@ -107,10 +107,10 @@ export async function getSponsorActivityLogs(
 }
 
 /**
- * 获取用户的活动日志
+ * 獲取用戶的活动日志
  * 
- * @param userId - 用户 ID
- * @param options - 查询选项
+ * @param userId - 用戶 ID
+ * @param options - 查詢选项
  * @returns 活动日志列表
  */
 export async function getUserActivityLogs(
@@ -148,7 +148,7 @@ export async function getUserActivityLogs(
     // 按时间倒序排列
     query = query.orderBy('timestamp', 'desc');
     
-    // 限制数量
+    // 限制數量
     if (options.limit) {
       query = query.limit(options.limit);
     }
@@ -166,19 +166,19 @@ export async function getUserActivityLogs(
 }
 
 /**
- * 活动类型描述映射（用于UI显示）
+ * 活动類型描述映射（用于UI显示）
  */
 export const ACTIVITY_ACTION_LABELS: Record<SponsorActivityAction, string> = {
   view_submission: '查看提交',
-  edit_challenge: '编辑挑战',
-  score_team: '评分队伍',
-  update_track: '更新赛道',
-  contact_team: '联系队伍',
+  edit_challenge: '編輯挑戰',
+  score_team: '评分隊伍',
+  update_track: '更新賽道',
+  contact_team: '联系隊伍',
   export_report: '导出报告',
 };
 
 /**
- * 获取活动描述文本
+ * 獲取活动描述文本
  * 
  * @param log - 活动日志
  * @returns 可读的描述文本
@@ -191,16 +191,16 @@ export function getActivityDescription(log: SponsorActivityLog): string {
       return `${log.userName} 查看了提交 ${log.targetId}`;
     
     case 'edit_challenge':
-      return `${log.userName} 编辑了挑战 ${log.targetId}`;
+      return `${log.userName} 編輯了挑戰 ${log.targetId}`;
     
     case 'score_team':
       return `${log.userName} 为提交 ${log.targetId} 打分`;
     
     case 'update_track':
-      return `${log.userName} 更新了赛道 ${log.targetId}`;
+      return `${log.userName} 更新了賽道 ${log.targetId}`;
     
     case 'contact_team':
-      return `${log.userName} 联系了队伍 ${log.targetId}`;
+      return `${log.userName} 联系了隊伍 ${log.targetId}`;
     
     case 'export_report':
       return `${log.userName} 导出了报告 ${log.targetId}`;
@@ -211,10 +211,10 @@ export function getActivityDescription(log: SponsorActivityLog): string {
 }
 
 /**
- * 批量删除旧的活动日志（用于数据清理）
+ * 批量刪除舊的活动日志（用于數據清理）
  * 
- * @param beforeDate - 删除此日期之前的日志
- * @returns 删除的数量
+ * @param beforeDate - 刪除此日期之前的日志
+ * @returns 刪除的數量
  */
 export async function deleteOldActivityLogs(beforeDate: Date): Promise<number> {
   try {
@@ -227,7 +227,7 @@ export async function deleteOldActivityLogs(beforeDate: Date): Promise<number> {
       return 0;
     }
     
-    // 批量删除
+    // 批量刪除
     const batch = db.batch();
     snapshot.docs.forEach((doc) => {
       batch.delete(doc.ref);

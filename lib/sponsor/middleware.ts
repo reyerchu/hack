@@ -1,7 +1,7 @@
 /**
  * Track Sponsor Feature - API Middleware
  * 
- * 用于 API 路由的权限验证中间件
+ * 用於 API 路由的權限驗證中間件
  */
 
 import { NextApiRequest, NextApiResponse } from 'next';
@@ -18,10 +18,10 @@ initializeApi();
 const db = firestore();
 
 /**
- * 获取用户数据（支持多个 collection）
+ * 獲取用戶數據（支持多个 collection）
  * 
  * @param userId - Firebase Auth UID
- * @returns 用户数据和 document ID
+ * @returns 用戶數據和 document ID
  */
 async function getUserData(
   firebaseUid: string, 
@@ -32,13 +32,13 @@ async function getUserData(
   docId: string;
 } | null> {
   try {
-    // 1. 先尝试 registrations collection（黑客松用户）
+    // 1. 先嘗試 registrations collection（黑客松用戶）
     let userDoc = await db.collection('registrations').doc(firebaseUid).get();
     if (userDoc.exists) {
       return { exists: true, data: userDoc.data(), docId: userDoc.id };
     }
 
-    // 2. 如果提供了 email，尝试通过 email 查询 registrations
+    // 2. 如果提供了 email，嘗試透過 email 查詢 registrations
     if (email) {
       const regByEmail = await db.collection('registrations').where('email', '==', email).limit(1).get();
       if (!regByEmail.empty) {
@@ -47,14 +47,14 @@ async function getUserData(
       }
     }
 
-    // 3. 尝试通过 Firebase UID 查询 registrations（如果有 uid 字段）
+    // 3. 嘗試透過 Firebase UID 查詢 registrations（如果有 uid 字段）
     const regByUID = await db.collection('registrations').where('uid', '==', firebaseUid).limit(1).get();
     if (!regByUID.empty) {
       const doc = regByUID.docs[0];
       return { exists: true, data: doc.data(), docId: doc.id };
     }
 
-    // 4. 尝试 users collection（向后兼容）
+    // 4. 嘗試 users collection（向後兼容）
     userDoc = await db.collection('users').doc(firebaseUid).get();
     if (userDoc.exists) {
       return { exists: true, data: userDoc.data(), docId: userDoc.id };
@@ -68,7 +68,7 @@ async function getUserData(
 }
 
 /**
- * 扩展的 Request 类型（包含用户信息）
+ * 擴展的 Request 類型（包含用戶資訊）
  */
 export interface AuthenticatedRequest extends NextApiRequest {
   userId?: string;
@@ -118,7 +118,7 @@ export class ApiResponse {
 }
 
 /**
- * 验证用户身份（基础认证）
+ * 驗證用戶身份（基礎認證）
  * 
  * 使用方法：
  * ```typescript
@@ -143,12 +143,12 @@ export async function requireAuth(
       return false;
     }
     
-    // 验证 token
+    // 驗證 token
     const decodedToken = await auth().verifyIdToken(token);
     const firebaseUid = decodedToken.uid;
     const email = decodedToken.email;
     
-    // 获取用户信息（支持多个 collection）
+    // 獲取用戶資訊（支持多个 collection）
     const userInfo = await getUserData(firebaseUid, email);
     
     if (!userInfo || !userInfo.exists) {
@@ -159,18 +159,18 @@ export async function requireAuth(
     
     const userData = userInfo.data;
     
-    // 处理不同的数据结构
-    // 1. 前端注册用户: { user: { permissions: [...] }, ... }
-    // 2. 脚本创建用户: { permissions: [...], ... }
+    // 處理不同的數據結構
+    // 1. 前端註冊用戶: { user: { permissions: [...] }, ... }
+    // 2. 腳本創建用戶: { permissions: [...], ... }
     const nestedUser = userData?.user;
     const permissions = nestedUser?.permissions || userData?.permissions || [];
     const userEmail = 
       userData?.email || 
       nestedUser?.preferredEmail || 
       userData?.preferredEmail || 
-      email;  // 使用之前从 token 获取的 email
+      email;  // 使用之前从 token 獲取的 email
     
-    // 将用户信息附加到 request 对象
+    // 将用戶資訊附加到 request 對象
     // ⚠️ 重要：使用 Firestore document ID，不是 Firebase Auth UID
     const authReq = req as AuthenticatedRequest;
     authReq.userId = userInfo.docId;  // 使用 Firestore document ID
@@ -193,7 +193,7 @@ export async function requireAuth(
 }
 
 /**
- * 验证用户是否有赞助商权限
+ * 驗證用戶是否有贊助商權限
  * 
  * 使用方法：
  * ```typescript
@@ -209,7 +209,7 @@ export async function requireSponsorAuth(
   req: NextApiRequest,
   res: NextApiResponse,
 ): Promise<boolean> {
-  // 首先验证基础认证
+  // 首先驗證基礎認證
   if (!(await requireAuth(req, res))) {
     return false;
   }
@@ -217,7 +217,7 @@ export async function requireSponsorAuth(
   const authReq = req as AuthenticatedRequest;
   const permissions = authReq.userPermissions || [];
   
-  // 检查是否有 sponsor 或 admin 权限
+  // 檢查是否有 sponsor 或 admin 權限
   if (
     !permissions.includes('sponsor') &&
     !permissions.includes('admin') &&
@@ -231,7 +231,7 @@ export async function requireSponsorAuth(
 }
 
 /**
- * 验证用户是否可以访问指定赛道
+ * 驗證用戶是否可以访问指定賽道
  * 
  * 使用方法：
  * ```typescript
@@ -250,7 +250,7 @@ export async function requireTrackAccess(
   res: NextApiResponse,
   trackId: string,
 ): Promise<boolean> {
-  // 首先验证赞助商权限
+  // 首先驗證贊助商權限
   if (!(await requireSponsorAuth(req, res))) {
     return false;
   }
@@ -258,7 +258,7 @@ export async function requireTrackAccess(
   const authReq = req as AuthenticatedRequest;
   const userId = authReq.userId!;
   
-  // 检查赛道访问权限
+  // 檢查賽道访问權限
   const hasAccess = await checkTrackAccess(userId, trackId);
   
   if (!hasAccess) {
@@ -270,7 +270,7 @@ export async function requireTrackAccess(
 }
 
 /**
- * 验证用户是否可以访问指定赞助商
+ * 驗證用戶是否可以访问指定贊助商
  * 
  * 使用方法：
  * ```typescript
@@ -289,7 +289,7 @@ export async function requireSponsorAccess(
   res: NextApiResponse,
   sponsorId: string,
 ): Promise<boolean> {
-  // 首先验证赞助商权限
+  // 首先驗證贊助商權限
   if (!(await requireSponsorAuth(req, res))) {
     return false;
   }
@@ -297,7 +297,7 @@ export async function requireSponsorAccess(
   const authReq = req as AuthenticatedRequest;
   const userId = authReq.userId!;
   
-  // 检查赞助商访问权限
+  // 檢查贊助商访问權限
   const hasAccess = await checkSponsorPermission(userId, sponsorId);
   
   if (!hasAccess) {
@@ -309,7 +309,7 @@ export async function requireSponsorAccess(
 }
 
 /**
- * 验证用户是否有特定的赞助商角色
+ * 驗證用戶是否有特定的贊助商角色
  * 
  * 使用方法：
  * ```typescript
@@ -329,7 +329,7 @@ export async function requireSponsorRole(
   sponsorId: string,
   requiredRoles: Array<'admin' | 'viewer' | 'judge'>,
 ): Promise<boolean> {
-  // 首先验证赞助商访问权限
+  // 首先驗證贊助商访问權限
   if (!(await requireSponsorAccess(req, res, sponsorId))) {
     return false;
   }
@@ -337,7 +337,7 @@ export async function requireSponsorRole(
   const authReq = req as AuthenticatedRequest;
   const userId = authReq.userId!;
   
-  // 检查角色
+  // 檢查角色
   const userRole = await getUserSponsorRole(userId, sponsorId);
   
   if (!userRole || !requiredRoles.includes(userRole)) {
@@ -352,7 +352,7 @@ export async function requireSponsorRole(
 }
 
 /**
- * 验证用户是否是 Admin
+ * 驗證用戶是否是 Admin
  * 
  * 使用方法：
  * ```typescript
@@ -368,7 +368,7 @@ export async function requireAdmin(
   req: NextApiRequest,
   res: NextApiResponse,
 ): Promise<boolean> {
-  // 首先验证基础认证
+  // 首先驗證基礎認證
   if (!(await requireAuth(req, res))) {
     return false;
   }
@@ -376,7 +376,7 @@ export async function requireAdmin(
   const authReq = req as AuthenticatedRequest;
   const permissions = authReq.userPermissions || [];
   
-  // 检查是否是 admin
+  // 檢查是否是 admin
   if (!permissions.includes('admin') && !permissions.includes('super_admin')) {
     ApiResponse.forbidden(res, 'Admin permission required');
     return false;
@@ -386,9 +386,9 @@ export async function requireAdmin(
 }
 
 /**
- * 组合中间件助手
+ * 组合中間件助手
  * 
- * 允许链式调用多个中间件
+ * 允许链式调用多个中間件
  * 
  * 使用方法：
  * ```typescript
@@ -405,15 +405,15 @@ export function withMiddleware(
   handler: (req: NextApiRequest, res: NextApiResponse) => Promise<void>,
 ) {
   return async (req: NextApiRequest, res: NextApiResponse) => {
-    // 依次执行所有中间件
+    // 依次执行所有中間件
     for (const middleware of middlewares) {
       const passed = await middleware(req, res);
       if (!passed) {
-        return; // 中间件已经发送了响应
+        return; // 中間件已经发送了响应
       }
     }
     
-    // 所有中间件通过，执行主处理函数
+    // 所有中間件透過，执行主處理函数
     try {
       await handler(req, res);
     } catch (error: any) {

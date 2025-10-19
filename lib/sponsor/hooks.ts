@@ -1,7 +1,7 @@
 /**
  * Track Sponsor Feature - React Hooks
  * 
- * 赞助商功能的自定义 React Hooks
+ * 贊助商功能的自定義 React Hooks
  */
 
 import { useState, useEffect, useCallback } from 'react';
@@ -17,11 +17,11 @@ import type {
 } from './types';
 
 /**
- * 安全地获取当前用户的 ID Token
+ * 安全地獲取當前用戶的 ID Token
  */
 async function getAuthToken(): Promise<string | null> {
   try {
-    // 检查 Firebase 是否已初始化
+    // 檢查 Firebase 是否已初始化
     if (!firebase.apps.length) {
       console.error('Firebase not initialized');
       return null;
@@ -42,7 +42,7 @@ async function getAuthToken(): Promise<string | null> {
 }
 
 /**
- * 获取赞助商的赛道列表
+ * 獲取贊助商的賽道列表
  */
 export function useSponsorTracks() {
   const [tracks, setTracks] = useState<TrackListResponse['tracks']>([]);
@@ -98,7 +98,7 @@ export function useSponsorTracks() {
 }
 
 /**
- * 获取赛道统计数据
+ * 獲取賽道統計數據
  */
 export function useTrackStats() {
   const { tracks, loading, error } = useSponsorTracks();
@@ -122,7 +122,7 @@ export function useTrackStats() {
 }
 
 /**
- * 获取单个提交详情
+ * 獲取單個提交詳情
  */
 export function useSubmission(submissionId: string | null) {
   const [submission, setSubmission] = useState<TeamSubmission | null>(null);
@@ -177,7 +177,7 @@ export function useSubmission(submissionId: string | null) {
 }
 
 /**
- * 获取通知列表
+ * 獲取通知列表
  */
 export function useSponsorNotifications(unreadOnly = false) {
   const [notifications, setNotifications] = useState<SponsorNotification[]>([]);
@@ -250,7 +250,7 @@ export function useSponsorNotifications(unreadOnly = false) {
           throw new Error('Failed to mark notification as read');
         }
 
-        // 更新本地状态
+        // 更新本地狀態
         setNotifications((prev) =>
           prev.map((n) => (n.id === notificationId ? { ...n, isRead: true } : n)),
         );
@@ -281,7 +281,7 @@ export function useSponsorNotifications(unreadOnly = false) {
           throw new Error('Failed to delete notification');
         }
 
-        // 更新本地状态
+        // 更新本地狀態
         setNotifications((prev) => prev.filter((n) => n.id !== notificationId));
       } catch (err: any) {
         console.error('Error deleting notification:', err);
@@ -302,7 +302,7 @@ export function useSponsorNotifications(unreadOnly = false) {
 }
 
 /**
- * 检查用户是否有赞助商权限
+ * 檢查用戶是否有贊助商權限
  */
 export function useIsSponsor() {
   const { user } = useAuthContext();
