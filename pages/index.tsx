@@ -33,8 +33,8 @@ export default function Home(props: { challenges: Challenge[]; sponsorCard: Spon
       </Head>
 
       <BackgroundCarousel />
-      <HomeNewsSection />
       <TSMCAbout />
+      <HomeNewsSection />
       <TSMCChallengeTimeline />
       <TSMCParticipationGuidelines />
       <TSMCPrizePool />
