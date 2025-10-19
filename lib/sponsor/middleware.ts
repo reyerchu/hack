@@ -136,26 +136,38 @@ export async function requireAuth(
   res: NextApiResponse,
 ): Promise<boolean> {
   try {
+    console.log('[requireAuth] 開始驗證...');
+    console.log('[requireAuth] Authorization header:', req.headers.authorization?.substring(0, 50));
+    
     const token = req.headers.authorization?.split('Bearer ')[1];
     
     if (!token) {
+      console.error('[requireAuth] Missing token');
       ApiResponse.unauthorized(res, 'Missing authorization token');
       return false;
     }
     
+    console.log('[requireAuth] Token length:', token.length);
+    
     // 驗證 token
+    console.log('[requireAuth] 驗證 ID token...');
     const decodedToken = await auth().verifyIdToken(token);
     const firebaseUid = decodedToken.uid;
     const email = decodedToken.email;
     
+    console.log('[requireAuth] Token 驗證成功:', { uid: firebaseUid, email });
+    
     // 獲取用戶資訊（支持多個 collection）
+    console.log('[requireAuth] 獲取用戶數據...');
     const userInfo = await getUserData(firebaseUid, email);
     
     if (!userInfo || !userInfo.exists) {
-      console.error('User not found:', { firebaseUid, email });
+      console.error('[requireAuth] User not found:', { firebaseUid, email });
       ApiResponse.unauthorized(res, 'User not found');
       return false;
     }
+    
+    console.log('[requireAuth] 用戶數據找到:', { docId: userInfo.docId });
     
     const userData = userInfo.data;
     
@@ -184,9 +196,10 @@ export async function requireAuth(
       permissions: authReq.userPermissions,
     });
     
+    console.log('[requireAuth] 驗證完成 ✅');
     return true;
   } catch (error: any) {
-    console.error('Auth error:', error);
+    console.error('[requireAuth] ❌ Auth error:', error.message, error.code);
     ApiResponse.unauthorized(res, 'Invalid or expired token');
     return false;
   }
