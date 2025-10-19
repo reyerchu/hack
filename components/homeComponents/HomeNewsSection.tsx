@@ -83,7 +83,7 @@ export default function HomeNewsSection() {
                 }}
               >
                 <span>📝</span>
-                <span>申請參加課程</span>
+                <span>申請課程</span>
               </a>
             </Link>
           </div>
