@@ -1,7 +1,7 @@
 /**
- * 赛道提交列表页面
+ * 賽道提交列表頁面
  * 
- * 显示特定赛道的所有队伍提交
+ * 顯示特定賽道的所有隊伍提交
  */
 
 import React, { useEffect, useState } from 'react';
@@ -24,7 +24,7 @@ export default function SubmissionsListPage() {
   const [filter, setFilter] = useState<TeamSubmission['status'] | 'all'>('all');
   const [sortBy, setSortBy] = useState<'date' | 'score'>('date');
 
-  // 权限检查
+  // 權限檢查
   useEffect(() => {
     if (!authLoading && !isSignedIn) {
       router.push('/auth?redirect=/sponsor/dashboard');
@@ -33,7 +33,7 @@ export default function SubmissionsListPage() {
     }
   }, [authLoading, isSignedIn, isSponsor, router]);
 
-  // 获取提交列表
+  // 獲取提交列表
   useEffect(() => {
     if (!trackId || !isSignedIn) return;
 
@@ -67,14 +67,14 @@ export default function SubmissionsListPage() {
     fetchSubmissions();
   }, [trackId, isSignedIn]);
 
-  // 筛选和排序
+  // 筛選和排序
   const filteredSubmissions = submissions
     .filter((sub) => filter === 'all' || sub.status === filter)
     .sort((a, b) => {
       if (sortBy === 'score') {
         return (b.finalScore || 0) - (a.finalScore || 0);
       }
-      // 默认按提交时间倒序
+      // 默认按提交時間倒序
       const dateA = a.submittedAt?.toDate?.() || new Date(a.submittedAt || 0);
       const dateB = b.submittedAt?.toDate?.() || new Date(b.submittedAt || 0);
       return dateB.getTime() - dateA.getTime();
@@ -127,17 +127,17 @@ export default function SubmissionsListPage() {
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
-              返回赛道详情
+              返回賽道詳情
             </a>
           </Link>
 
           <div className="flex items-start justify-between">
             <div>
               <h1 className="text-3xl font-bold mb-2" style={{ color: '#1a3a6e' }}>
-                队伍提交
+                隊伍提交
               </h1>
               <p className="text-sm" style={{ color: '#6b7280' }}>
-                共 {submissions.length} 个提交
+                共 {submissions.length} 個提交
               </p>
             </div>
           </div>
@@ -147,7 +147,7 @@ export default function SubmissionsListPage() {
         <div className="mb-6 flex flex-wrap gap-4 items-center">
           <div className="flex items-center gap-2">
             <span className="text-sm font-medium" style={{ color: '#6b7280' }}>
-              状态：
+              狀態：
             </span>
             <select
               value={filter}
@@ -160,8 +160,8 @@ export default function SubmissionsListPage() {
               <option value="submitted">已提交</option>
               <option value="under_review">审核中</option>
               <option value="shortlisted">入围</option>
-              <option value="winner">获奖</option>
-              <option value="rejected">未入选</option>
+              <option value="winner">獲獎</option>
+              <option value="rejected">未入選</option>
             </select>
           </div>
 
@@ -175,8 +175,8 @@ export default function SubmissionsListPage() {
               className="px-3 py-2 rounded-lg border text-sm focus:outline-none focus:ring-2"
               style={{ borderColor: '#d1d5db' }}
             >
-              <option value="date">提交时间</option>
-              <option value="score">评分</option>
+              <option value="date">提交時間</option>
+              <option value="score">評分</option>
             </select>
           </div>
         </div>
@@ -205,7 +205,7 @@ export default function SubmissionsListPage() {
               暂无提交
             </h2>
             <p className="text-sm" style={{ color: '#6b7280' }}>
-              {filter === 'all' ? '还没有队伍提交项目' : '该状态下暂无提交'}
+              {filter === 'all' ? '還没有隊伍提交項目' : '該狀態下暂无提交'}
             </p>
           </div>
         ) : (

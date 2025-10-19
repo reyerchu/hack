@@ -1,7 +1,7 @@
 /**
- * 赛道详情页面
+ * 賽道詳情頁面
  * 
- * 显示单个赛道的详细信息、统计数据和管理选项
+ * 顯示單個賽道的详细資訊、統計數據和管理選項
  */
 
 import React, { useEffect, useState } from 'react';
@@ -20,7 +20,7 @@ export default function TrackDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // 权限检查
+  // 權限檢查
   useEffect(() => {
     if (!authLoading && !isSignedIn) {
       router.push('/auth?redirect=/sponsor/dashboard');
@@ -29,7 +29,7 @@ export default function TrackDetailPage() {
     }
   }, [authLoading, isSignedIn, isSponsor, router]);
 
-  // 获取赛道详情
+  // 獲取賽道詳情
   useEffect(() => {
     if (!trackId || !isSignedIn) return;
 
@@ -88,11 +88,11 @@ export default function TrackDetailPage() {
               加载失败
             </h2>
             <p className="text-sm" style={{ color: '#7f1d1d' }}>
-              {error || '找不到该赛道'}
+              {error || '找不到該賽道'}
             </p>
             <Link href="/sponsor/dashboard">
               <a className="inline-block mt-4 text-sm font-medium hover:underline" style={{ color: '#991b1b' }}>
-                返回仪表板
+                返回儀表板
               </a>
             </Link>
           </div>
@@ -111,7 +111,7 @@ export default function TrackDetailPage() {
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
-              返回仪表板
+              返回儀表板
             </a>
           </Link>
 
@@ -121,7 +121,7 @@ export default function TrackDetailPage() {
                 {track.trackName}
               </h1>
               <p className="text-sm" style={{ color: '#6b7280' }}>
-                赛道管理与数据总览
+                賽道管理與數據總覽
               </p>
             </div>
 
@@ -148,18 +148,18 @@ export default function TrackDetailPage() {
                       d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
                     />
                   </svg>
-                  编辑挑战
+                  編輯挑戰
                 </a>
               </Link>
             )}
           </div>
         </div>
 
-        {/* 统计卡片 */}
+        {/* 統計卡片 */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <div className="rounded-lg p-6 shadow-sm" style={{ backgroundColor: '#ffffff' }}>
             <h3 className="text-sm font-medium mb-2" style={{ color: '#6b7280' }}>
-              项目提交
+              項目提交
             </h3>
             <p className="text-3xl font-bold" style={{ color: '#1a3a6e' }}>
               {track.stats?.submissionCount || 0}
@@ -168,7 +168,7 @@ export default function TrackDetailPage() {
 
           <div className="rounded-lg p-6 shadow-sm" style={{ backgroundColor: '#ffffff' }}>
             <h3 className="text-sm font-medium mb-2" style={{ color: '#6b7280' }}>
-              参赛队伍
+              參賽隊伍
             </h3>
             <p className="text-3xl font-bold" style={{ color: '#1a3a6e' }}>
               {track.stats?.teamCount || 0}
@@ -196,7 +196,7 @@ export default function TrackDetailPage() {
                 查看提交
               </h3>
               <p className="text-sm" style={{ color: '#6b7280' }}>
-                浏览所有队伍的项目提交
+                浏览所有隊伍的項目提交
               </p>
             </a>
           </Link>
@@ -207,10 +207,10 @@ export default function TrackDetailPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
               </svg>
               <h3 className="text-lg font-semibold mb-2" style={{ color: '#1a3a6e' }}>
-                评审与决选
+                評審與決選
               </h3>
               <p className="text-sm" style={{ color: '#6b7280' }}>
-                对项目进行评分和排名
+                對項目進行評分和排名
               </p>
             </a>
           </Link>
@@ -221,10 +221,10 @@ export default function TrackDetailPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
               </svg>
               <h3 className="text-lg font-semibold mb-2" style={{ color: '#1a3a6e' }}>
-                数据报告
+                數據報告
               </h3>
               <p className="text-sm" style={{ color: '#6b7280' }}>
-                查看参与度和品牌曝光数据
+                查看参與度和品牌曝光數據
               </p>
             </a>
           </Link>

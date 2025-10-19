@@ -1,5 +1,5 @@
 /**
- * 赞助商仪表板 - 快速操作组件
+ * 贊助商儀表板 - 快速操作组件
  */
 
 import React from 'react';
@@ -20,8 +20,8 @@ interface QuickActionsProps {
 export default function QuickActions({ trackId }: QuickActionsProps) {
   const actions: QuickAction[] = [
     {
-      title: '管理挑战题目',
-      description: '上传或编辑赛道挑战内容',
+      title: '管理挑戰題目',
+      description: '上傳或編輯賽道挑戰內容',
       href: trackId ? `/sponsor/tracks/${trackId}/challenge` : '/sponsor/tracks',
       icon: (
         <svg
@@ -41,7 +41,7 @@ export default function QuickActions({ trackId }: QuickActionsProps) {
     },
     {
       title: '查看提交',
-      description: '浏览队伍的项目提交',
+      description: '浏览隊伍的項目提交',
       href: trackId ? `/sponsor/tracks/${trackId}/submissions` : '/sponsor/submissions',
       icon: (
         <svg
@@ -60,8 +60,8 @@ export default function QuickActions({ trackId }: QuickActionsProps) {
       ),
     },
     {
-      title: '评审与决选',
-      description: '对提交进行评分和排名',
+      title: '評審與決選',
+      description: '對提交進行評分和排名',
       href: trackId ? `/sponsor/tracks/${trackId}/judging` : '/sponsor/judging',
       icon: (
         <svg
@@ -80,8 +80,8 @@ export default function QuickActions({ trackId }: QuickActionsProps) {
       ),
     },
     {
-      title: '数据报告',
-      description: '查看参与度与品牌曝光',
+      title: '數據報告',
+      description: '查看参與度與品牌曝光',
       href: '/sponsor/reports',
       icon: (
         <svg

@@ -18,7 +18,7 @@ initializeApi();
 const db = firestore();
 
 /**
- * 獲取用戶數據（支持多个 collection）
+ * 獲取用戶數據（支持多個 collection）
  * 
  * @param userId - Firebase Auth UID
  * @returns 用戶數據和 document ID
@@ -77,7 +77,7 @@ export interface AuthenticatedRequest extends NextApiRequest {
 }
 
 /**
- * API 响应助手
+ * API 響應助手
  */
 export class ApiResponse {
   static success(res: NextApiResponse, data: any, message?: string) {
@@ -148,7 +148,7 @@ export async function requireAuth(
     const firebaseUid = decodedToken.uid;
     const email = decodedToken.email;
     
-    // 獲取用戶資訊（支持多个 collection）
+    // 獲取用戶資訊（支持多個 collection）
     const userInfo = await getUserData(firebaseUid, email);
     
     if (!userInfo || !userInfo.exists) {
@@ -168,9 +168,9 @@ export async function requireAuth(
       userData?.email || 
       nestedUser?.preferredEmail || 
       userData?.preferredEmail || 
-      email;  // 使用之前从 token 獲取的 email
+      email;  // 使用之前從 token 獲取的 email
     
-    // 将用戶資訊附加到 request 對象
+    // 將用戶資訊附加到 request 對象
     // ⚠️ 重要：使用 Firestore document ID，不是 Firebase Auth UID
     const authReq = req as AuthenticatedRequest;
     authReq.userId = userInfo.docId;  // 使用 Firestore document ID
@@ -386,9 +386,9 @@ export async function requireAdmin(
 }
 
 /**
- * 组合中間件助手
+ * 組合中間件助手
  * 
- * 允许链式调用多个中間件
+ * 允許鏈式調用多個中間件
  * 
  * 使用方法：
  * ```typescript
@@ -405,15 +405,15 @@ export function withMiddleware(
   handler: (req: NextApiRequest, res: NextApiResponse) => Promise<void>,
 ) {
   return async (req: NextApiRequest, res: NextApiResponse) => {
-    // 依次执行所有中間件
+    // 依次執行所有中間件
     for (const middleware of middlewares) {
       const passed = await middleware(req, res);
       if (!passed) {
-        return; // 中間件已经发送了响应
+        return; // 中間件已經發送了響應
       }
     }
     
-    // 所有中間件透過，执行主處理函数
+    // 所有中間件透過，執行主處理函数
     try {
       await handler(req, res);
     } catch (error: any) {

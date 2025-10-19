@@ -1,5 +1,5 @@
 /**
- * 赞助商仪表板 - 通知中心组件
+ * 贊助商儀表板 - 通知中心组件
  */
 
 import React, { useState } from 'react';
@@ -16,7 +16,7 @@ export default function NotificationCenter({
 }: NotificationCenterProps) {
   const [expanded, setExpanded] = useState(false);
 
-  // 只显示未读通知
+  // 只顯示未读通知
   const unreadNotifications = notifications.filter((n) => !n.isRead);
   const displayNotifications = expanded ? notifications : unreadNotifications.slice(0, 5);
 
@@ -210,7 +210,7 @@ export default function NotificationCenter({
                     className="inline-block text-sm font-medium mt-2 hover:underline"
                     style={{ color: '#1a3a6e' }}
                   >
-                    查看详情 →
+                    查看詳情 →
                   </a>
                 )}
               </div>
@@ -220,7 +220,7 @@ export default function NotificationCenter({
                   onClick={() => onMarkAsRead(notification.id)}
                   className="flex-shrink-0 text-xs px-2 py-1 rounded hover:bg-gray-100"
                   style={{ color: '#6b7280' }}
-                  title="标记为已读"
+                  title="標记為已读"
                 >
                   ✓
                 </button>

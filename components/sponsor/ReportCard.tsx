@@ -1,7 +1,7 @@
 /**
- * 报告卡片组件
+ * 報告卡片组件
  * 
- * 显示单个报告的摘要和下载按钮
+ * 顯示單個報告的摘要和下载按钮
  */
 
 import React from 'react';
@@ -42,7 +42,7 @@ export default function ReportCard({
             {description}
           </p>
 
-          {/* 数据预览 */}
+          {/* 數據预览 */}
           {data && (
             <div className="mb-4 p-3 rounded-lg" style={{ backgroundColor: '#f9fafb' }}>
               <dl className="grid grid-cols-2 gap-3">

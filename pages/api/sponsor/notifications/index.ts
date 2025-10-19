@@ -1,11 +1,11 @@
 /**
- * API: 获取赞助商通知列表
+ * API: 獲取贊助商通知列表
  * 
  * GET /api/sponsor/notifications
  * 
  * Query参数：
  * - unreadOnly: boolean - 只返回未读通知
- * - limit: number - 限制返回数量
+ * - limit: number - 限制返回數量
  */
 
 import { NextApiRequest, NextApiResponse } from 'next';
@@ -28,7 +28,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     const unreadOnly = req.query.unreadOnly === 'true';
     const limit = parseInt(req.query.limit as string) || 50;
 
-    // 构建查询
+    // 构建查詢
     let query = db
       .collection(SPONSOR_NOTIFICATIONS)
       .where('recipientId', '==', userId)
@@ -46,7 +46,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       ...doc.data(),
     })) as SponsorNotification[];
 
-    // 统计未读数量
+    // 統計未读數量
     const unreadCountSnapshot = await db
       .collection(SPONSOR_NOTIFICATIONS)
       .where('recipientId', '==', userId)

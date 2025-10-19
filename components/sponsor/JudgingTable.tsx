@@ -1,7 +1,7 @@
 /**
- * 评分表格组件
+ * 評分表格组件
  * 
- * 显示所有提交的评分和排名
+ * 顯示所有提交的評分和排名
  */
 
 import React, { useState } from 'react';
@@ -43,7 +43,7 @@ export default function JudgingTable({
       setEditingId(null);
     } catch (err) {
       console.error('Error saving scores:', err);
-      alert('保存失败，请重试');
+      alert('保存失败，請重试');
     } finally {
       setSaving(false);
     }
@@ -95,7 +95,7 @@ export default function JudgingTable({
         style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb' }}
       >
         <p className="text-sm" style={{ color: '#6b7280' }}>
-          暂无提交需要评审
+          暂无提交需要評審
         </p>
       </div>
     );
@@ -110,7 +110,7 @@ export default function JudgingTable({
               排名
             </th>
             <th className="px-4 py-3 text-left text-sm font-semibold" style={{ color: '#1a3a6e' }}>
-              队伍名称
+              隊伍名称
             </th>
             {criteria.map((c) => (
               <th key={c.name} className="px-4 py-3 text-center text-sm font-semibold" style={{ color: '#1a3a6e' }}>
@@ -125,7 +125,7 @@ export default function JudgingTable({
               总分
             </th>
             <th className="px-4 py-3 text-center text-sm font-semibold" style={{ color: '#1a3a6e' }}>
-              状态
+              狀態
             </th>
             <th className="px-4 py-3 text-center text-sm font-semibold" style={{ color: '#1a3a6e' }}>
               操作
@@ -145,7 +145,7 @@ export default function JudgingTable({
                   {index + 1}
                 </td>
 
-                {/* 队伍名称 */}
+                {/* 隊伍名称 */}
                 <td className="px-4 py-3">
                   <Link href={`/sponsor/submissions/${submission.id}`}>
                     <a className="text-sm font-medium hover:underline" style={{ color: '#1a3a6e' }}>
@@ -159,7 +159,7 @@ export default function JudgingTable({
                   )}
                 </td>
 
-                {/* 各项评分 */}
+                {/* 各项評分 */}
                 {criteria.map((c) => (
                   <td key={c.name} className="px-4 py-3 text-center">
                     {isEditing ? (
@@ -189,7 +189,7 @@ export default function JudgingTable({
                   </span>
                 </td>
 
-                {/* 状态 */}
+                {/* 狀態 */}
                 <td className="px-4 py-3 text-center">
                   {onStatusUpdate ? (
                     <select
@@ -207,8 +207,8 @@ export default function JudgingTable({
                       <option value="submitted">已提交</option>
                       <option value="under_review">审核中</option>
                       <option value="shortlisted">入围</option>
-                      <option value="winner">获奖</option>
-                      <option value="rejected">未入选</option>
+                      <option value="winner">獲獎</option>
+                      <option value="rejected">未入選</option>
                     </select>
                   ) : (
                     <span
@@ -267,7 +267,7 @@ export default function JudgingTable({
                         e.currentTarget.style.color = '#1a3a6e';
                       }}
                     >
-                      评分
+                      評分
                     </button>
                   )}
                 </td>

@@ -17,7 +17,7 @@ const SPONSORS = '/sponsors';
  */
 async function getSponsors(req: NextApiRequest, res: NextApiResponse) {
   try {
-    // 检查 Firebase 是否已初始化
+    // 檢查 Firebase 是否已初始化
     try {
       const db = firestore();
       if (!db) {

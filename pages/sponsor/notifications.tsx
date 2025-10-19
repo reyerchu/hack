@@ -1,5 +1,5 @@
 /**
- * 通知管理页面
+ * 通知管理頁面
  * 
  * 查看和管理所有通知
  */
@@ -20,7 +20,7 @@ export default function NotificationsPage() {
   const { notifications, loading, error, unreadCount, markAsRead, deleteNotification, refetch } =
     useSponsorNotifications(showUnreadOnly);
 
-  // 权限检查
+  // 權限檢查
   useEffect(() => {
     if (!authLoading && !isSignedIn) {
       router.push('/auth?redirect=/sponsor/notifications');
@@ -96,7 +96,7 @@ export default function NotificationsPage() {
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
-              返回仪表板
+              返回儀表板
             </a>
           </Link>
 
@@ -127,7 +127,7 @@ export default function NotificationsPage() {
               }}
             />
             <span className="text-sm font-medium" style={{ color: '#1a3a6e' }}>
-              只显示未读
+              只顯示未读
             </span>
           </label>
 
@@ -148,7 +148,7 @@ export default function NotificationsPage() {
                 e.currentTarget.style.color = '#1a3a6e';
               }}
             >
-              全部标记为已读
+              全部標记為已读
             </button>
           )}
         </div>
@@ -179,7 +179,7 @@ export default function NotificationsPage() {
             <p className="text-sm" style={{ color: '#6b7280' }}>
               {showUnreadOnly
                 ? '所有通知已读，做得好！'
-                : '当有新的提交或活动时，您会收到通知'}
+                : '当有新的提交或活动时，您會收到通知'}
             </p>
           </div>
         ) : (
@@ -232,7 +232,7 @@ export default function NotificationsPage() {
                           className="text-sm font-medium hover:underline"
                           style={{ color: '#1a3a6e' }}
                         >
-                          查看详情 →
+                          查看詳情 →
                         </a>
                       )}
 
@@ -253,7 +253,7 @@ export default function NotificationsPage() {
                             e.currentTarget.style.color = '#1a3a6e';
                           }}
                         >
-                          标记为已读
+                          標记為已读
                         </button>
                       )}
 
@@ -273,7 +273,7 @@ export default function NotificationsPage() {
                           e.currentTarget.style.color = '#991b1b';
                         }}
                       >
-                        删除
+                        刪除
                       </button>
                     </div>
                   </div>

@@ -1,7 +1,7 @@
 /**
- * 提交详情页面
+ * 提交詳情頁面
  * 
- * 显示单个队伍提交的完整信息
+ * 顯示單個隊伍提交的完整資訊
  */
 
 import React, { useEffect, useState } from 'react';
@@ -20,7 +20,7 @@ export default function SubmissionDetailPage() {
   const { submission, loading, error } = useSubmission(submissionId as string);
   const [updating, setUpdating] = useState(false);
 
-  // 权限检查
+  // 權限檢查
   useEffect(() => {
     if (!authLoading && !isSignedIn) {
       router.push('/auth?redirect=/sponsor/dashboard');
@@ -50,7 +50,7 @@ export default function SubmissionDetailPage() {
         throw new Error('Failed to update status');
       }
 
-      // 刷新页面数据
+      // 刷新頁面數據
       window.location.reload();
     } catch (err: any) {
       console.error('Error updating status:', err);
@@ -115,11 +115,11 @@ export default function SubmissionDetailPage() {
               加载失败
             </h2>
             <p className="text-sm" style={{ color: '#7f1d1d' }}>
-              {error || '找不到该提交'}
+              {error || '找不到該提交'}
             </p>
             <Link href="/sponsor/dashboard">
               <a className="inline-block mt-4 text-sm font-medium hover:underline" style={{ color: '#991b1b' }}>
-                返回仪表板
+                返回儀表板
               </a>
             </Link>
           </div>
@@ -193,8 +193,8 @@ export default function SubmissionDetailPage() {
             <option value="submitted">已提交</option>
             <option value="under_review">审核中</option>
             <option value="shortlisted">入围</option>
-            <option value="winner">获奖</option>
-            <option value="rejected">未入选</option>
+            <option value="winner">獲獎</option>
+            <option value="rejected">未入選</option>
           </select>
 
           <Link href={`/sponsor/tracks/${submission.trackId}/judging?submission=${submissionId}`}>
@@ -205,7 +205,7 @@ export default function SubmissionDetailPage() {
                 color: '#ffffff',
               }}
             >
-              前往评分
+              前往評分
             </a>
           </Link>
         </div>
@@ -213,7 +213,7 @@ export default function SubmissionDetailPage() {
         {/* Basic Info */}
         <div className="rounded-lg p-6 mb-6" style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb' }}>
           <h2 className="text-xl font-semibold mb-4" style={{ color: '#1a3a6e' }}>
-            基本信息
+            基本資訊
           </h2>
 
           <div className="space-y-4">
@@ -231,7 +231,7 @@ export default function SubmissionDetailPage() {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium mb-1" style={{ color: '#6b7280' }}>
-                  提交时间
+                  提交時間
                 </label>
                 <p className="text-sm" style={{ color: '#1a3a6e' }}>
                   {formatDate(submission.submittedAt)}
@@ -241,7 +241,7 @@ export default function SubmissionDetailPage() {
               {submission.finalScore !== undefined && (
                 <div>
                   <label className="block text-sm font-medium mb-1" style={{ color: '#6b7280' }}>
-                    最终评分
+                    最终評分
                   </label>
                   <p className="text-sm font-semibold" style={{ color: '#1a3a6e' }}>
                     {submission.finalScore.toFixed(1)} / 100
@@ -253,7 +253,7 @@ export default function SubmissionDetailPage() {
             {submission.tags && submission.tags.length > 0 && (
               <div>
                 <label className="block text-sm font-medium mb-2" style={{ color: '#6b7280' }}>
-                  标签
+                  標签
                 </label>
                 <div className="flex flex-wrap gap-2">
                   {submission.tags.map((tag, index) => (
@@ -278,7 +278,7 @@ export default function SubmissionDetailPage() {
         {submission.projectDescription && (
           <div className="rounded-lg p-6 mb-6" style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb' }}>
             <h2 className="text-xl font-semibold mb-4" style={{ color: '#1a3a6e' }}>
-              项目描述
+              項目描述
             </h2>
             <div className="prose prose-sm max-w-none" style={{ color: '#4b5563' }}>
               {submission.projectDescription.split('\n').map((line, i) => (
@@ -291,13 +291,13 @@ export default function SubmissionDetailPage() {
         {/* Links */}
         <div className="rounded-lg p-6 mb-6" style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb' }}>
           <h2 className="text-xl font-semibold mb-4" style={{ color: '#1a3a6e' }}>
-            相关链接
+            相關链接
           </h2>
           <div className="space-y-3">
             {submission.githubRepo && (
               <div>
                 <label className="block text-sm font-medium mb-1" style={{ color: '#6b7280' }}>
-                  GitHub 仓库
+                  GitHub 倉库
                 </label>
                 <a
                   href={submission.githubRepo}
@@ -351,7 +351,7 @@ export default function SubmissionDetailPage() {
         {submission.teamMembers && submission.teamMembers.length > 0 && (
           <div className="rounded-lg p-6" style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb' }}>
             <h2 className="text-xl font-semibold mb-4" style={{ color: '#1a3a6e' }}>
-              队伍成员 ({submission.teamMembers.length})
+              隊伍成员 ({submission.teamMembers.length})
             </h2>
             <div className="space-y-3">
               {submission.teamMembers.map((member, index) => (
@@ -376,7 +376,7 @@ export default function SubmissionDetailPage() {
                       className="text-sm hover:underline"
                       style={{ color: '#1a3a6e' }}
                     >
-                      联系
+                      聯繫
                     </a>
                   )}
                 </div>

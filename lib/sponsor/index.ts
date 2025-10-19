@@ -1,7 +1,7 @@
 /**
  * Track Sponsor Feature - Main Export
  * 
- * 统一导出所有赞助商相关的功能
+ * 统一導出所有贊助商相關的功能
  */
 
 // Types

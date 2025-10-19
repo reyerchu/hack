@@ -41,7 +41,7 @@ export async function logSponsorActivity(params: {
     
     await db.collection(SPONSOR_COLLECTIONS.SPONSOR_ACTIVITY_LOGS).add(activityLog);
     
-    // 日志記錄失败不应该影响主要业务逻辑，所以不抛出错误
+    // 日志記錄失败不應該影响主要業务逻辑，所以不抛出错误
   } catch (error) {
     console.error('Failed to log sponsor activity:', error);
   }
@@ -51,7 +51,7 @@ export async function logSponsorActivity(params: {
  * 獲取贊助商的活动日志
  * 
  * @param sponsorId - 贊助商 ID
- * @param options - 查詢选项
+ * @param options - 查詢選項
  * @returns 活动日志列表
  */
 export async function getSponsorActivityLogs(
@@ -69,7 +69,7 @@ export async function getSponsorActivityLogs(
       .collection(SPONSOR_COLLECTIONS.SPONSOR_ACTIVITY_LOGS)
       .where('sponsorId', '==', sponsorId);
     
-    // 添加筛选条件
+    // 添加筛選条件
     if (options.action) {
       query = query.where('action', '==', options.action);
     }
@@ -86,7 +86,7 @@ export async function getSponsorActivityLogs(
       query = query.where('timestamp', '<=', firestore.Timestamp.fromDate(options.endDate));
     }
     
-    // 按时间倒序排列
+    // 按時間倒序排列
     query = query.orderBy('timestamp', 'desc');
     
     // 限制數量
@@ -110,7 +110,7 @@ export async function getSponsorActivityLogs(
  * 獲取用戶的活动日志
  * 
  * @param userId - 用戶 ID
- * @param options - 查詢选项
+ * @param options - 查詢選項
  * @returns 活动日志列表
  */
 export async function getUserActivityLogs(
@@ -128,7 +128,7 @@ export async function getUserActivityLogs(
       .collection(SPONSOR_COLLECTIONS.SPONSOR_ACTIVITY_LOGS)
       .where('userId', '==', userId);
     
-    // 添加筛选条件
+    // 添加筛選条件
     if (options.sponsorId) {
       query = query.where('sponsorId', '==', options.sponsorId);
     }
@@ -145,7 +145,7 @@ export async function getUserActivityLogs(
       query = query.where('timestamp', '<=', firestore.Timestamp.fromDate(options.endDate));
     }
     
-    // 按时间倒序排列
+    // 按時間倒序排列
     query = query.orderBy('timestamp', 'desc');
     
     // 限制數量
@@ -166,15 +166,15 @@ export async function getUserActivityLogs(
 }
 
 /**
- * 活动類型描述映射（用于UI显示）
+ * 活动類型描述映射（用於UI顯示）
  */
 export const ACTIVITY_ACTION_LABELS: Record<SponsorActivityAction, string> = {
   view_submission: '查看提交',
   edit_challenge: '編輯挑戰',
-  score_team: '评分隊伍',
+  score_team: '評分隊伍',
   update_track: '更新賽道',
-  contact_team: '联系隊伍',
-  export_report: '导出报告',
+  contact_team: '聯繫隊伍',
+  export_report: '導出報告',
 };
 
 /**
@@ -194,24 +194,24 @@ export function getActivityDescription(log: SponsorActivityLog): string {
       return `${log.userName} 編輯了挑戰 ${log.targetId}`;
     
     case 'score_team':
-      return `${log.userName} 为提交 ${log.targetId} 打分`;
+      return `${log.userName} 為提交 ${log.targetId} 打分`;
     
     case 'update_track':
       return `${log.userName} 更新了賽道 ${log.targetId}`;
     
     case 'contact_team':
-      return `${log.userName} 联系了隊伍 ${log.targetId}`;
+      return `${log.userName} 聯繫了隊伍 ${log.targetId}`;
     
     case 'export_report':
-      return `${log.userName} 导出了报告 ${log.targetId}`;
+      return `${log.userName} 導出了報告 ${log.targetId}`;
     
     default:
-      return `${log.userName} 执行了 ${actionLabel}`;
+      return `${log.userName} 執行了 ${actionLabel}`;
   }
 }
 
 /**
- * 批量刪除舊的活动日志（用于數據清理）
+ * 批量刪除舊的活动日志（用於數據清理）
  * 
  * @param beforeDate - 刪除此日期之前的日志
  * @returns 刪除的數量

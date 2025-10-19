@@ -1,7 +1,7 @@
 /**
  * API: /api/sponsor/submissions/[submissionId]
  * 
- * GET - 获取单个提交的详细信息
+ * GET - 獲取單個提交的详细資訊
  */
 
 import { NextApiRequest, NextApiResponse } from 'next';
@@ -23,7 +23,7 @@ const db = firestore();
 
 /**
  * GET /api/sponsor/submissions/[submissionId]
- * 获取单个提交的详细信息
+ * 獲取單個提交的详细資訊
  */
 async function handleGet(req: NextApiRequest, res: NextApiResponse) {
   const { submissionId } = req.query;
@@ -38,7 +38,7 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
   const userId = authReq.userId!;
 
   try {
-    // 1. 获取提交
+    // 1. 獲取提交
     const submissionDoc = await db
       .collection(SPONSOR_COLLECTIONS.TEAM_SUBMISSIONS)
       .doc(submissionId)
@@ -48,7 +48,7 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
       return ApiResponse.notFound(res, 'Submission not found');
     }
 
-    // 2. 检查权限
+    // 2. 檢查權限
     const canView = await canViewSubmission(userId, submissionId);
 
     if (!canView) {
@@ -60,9 +60,9 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
       ...submissionDoc.data(),
     } as TeamSubmission;
 
-    // 3. 记录活动日志（如果是赞助商查看）
+    // 3. 記錄活动日志（如果是贊助商查看）
     if (!submission.teamMembers.some((m) => m.userId === userId)) {
-      // 获取赞助商 ID
+      // 獲取贊助商 ID
       const challengeSnapshot = await db
         .collection(SPONSOR_COLLECTIONS.EXTENDED_CHALLENGES)
         .where('trackId', '==', submission.projectTrack)

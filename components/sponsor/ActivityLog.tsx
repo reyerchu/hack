@@ -1,5 +1,5 @@
 /**
- * 赞助商仪表板 - 活动日志组件
+ * 贊助商儀表板 - 活动日志组件
  */
 
 import React from 'react';
@@ -24,7 +24,7 @@ export default function ActivityLog({ logs, maxItems = 10 }: ActivityLogProps) {
           style={{ backgroundColor: '#f9fafb', border: '1px solid #e5e7eb' }}
         >
           <p className="text-sm" style={{ color: '#6b7280' }}>
-            暂无活动记录
+            暂无活动記錄
           </p>
         </div>
       </div>
@@ -194,7 +194,7 @@ export default function ActivityLog({ logs, maxItems = 10 }: ActivityLogProps) {
                       )}
                       {log.metadata?.trackName && (
                         <p className="text-xs mt-1" style={{ color: '#9ca3af' }}>
-                          赛道：{log.metadata.trackName}
+                          賽道：{log.metadata.trackName}
                         </p>
                       )}
                     </div>

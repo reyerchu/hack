@@ -45,10 +45,10 @@ export interface BrandKit {
  * 贊助商權限
  */
 export interface SponsorPermissions {
-  canEditTrackChallenge: boolean;  // 可否編輯賽道题目
+  canEditTrackChallenge: boolean;  // 可否編輯賽道題目
   canViewSubmissions: boolean;     // 可否查看提交
-  canJudge: boolean;               // 可否评审
-  canContactTeams: boolean;        // 可否联系隊伍
+  canJudge: boolean;               // 可否評審
+  canContactTeams: boolean;        // 可否聯繫隊伍
 }
 
 /**
@@ -73,7 +73,7 @@ export interface ExtendedSponsor {
   
   // 赞助层级
   tier: SponsorTier;
-  sponsorshipAmount?: number;      // 可选，敏感資訊
+  sponsorshipAmount?: number;      // 可選，敏感資訊
   
   // 賽道關聯
   trackId?: string;
@@ -146,7 +146,7 @@ export interface SubmissionRequirements {
 }
 
 /**
- * 时间线
+ * 時間线
  */
 export interface ChallengeTimeline {
   announcementDate: Date | Timestamp;
@@ -197,7 +197,7 @@ export interface ExtendedChallenge {
   requirements: ChallengeRequirements;
   submissionRequirements: SubmissionRequirements;
   
-  // 评分标准（简化版）
+  // 評分標准（简化版）
   evaluationCriteria?: Array<{
     name: string;
     weight: number;
@@ -209,7 +209,7 @@ export interface ExtendedChallenge {
     url: string;
   }>;
   
-  // 时间线
+  // 時間线
   timeline: ChallengeTimeline;
   
   // 附件
@@ -259,7 +259,7 @@ export type SubmissionStatus =
   | 'rejected';
 
 /**
- * 评分
+ * 評分
  */
 export interface SubmissionScore {
   judgeId: string;
@@ -291,7 +291,7 @@ export interface TeamSubmission {
   description: string;
   projectDescription?: string;
   
-  // 提交内容
+  // 提交內容
   githubRepo?: string;
   demoUrl?: string;
   videoUrl?: string;
@@ -312,25 +312,25 @@ export interface TeamSubmission {
   reviewNotes?: string;
   isRecommended?: boolean;
   
-  // 评分
+  // 評分
   scores?: SubmissionScore[];
   criteriaScores?: Record<string, number>;
   averageScore?: number;
   finalScore?: number;
   finalRank?: number;
   
-  // 时间戳
+  // 時間戳
   createdAt: Date | Timestamp;
   updatedAt: Date | Timestamp;
   submittedAt?: Date | Timestamp;
 }
 
 // ============================================================================
-// 评审标准
+// 評審標准
 // ============================================================================
 
 /**
- * 评审标准项
+ * 評審標准项
  */
 export interface JudgingCriterion {
   name: string;
@@ -340,7 +340,7 @@ export interface JudgingCriterion {
 }
 
 /**
- * 评审标准
+ * 評審標准
  */
 export interface JudgingCriteria {
   id: string;
@@ -485,11 +485,11 @@ export interface TrackStats {
 }
 
 // ============================================================================
-// API 响应類型
+// API 響應類型
 // ============================================================================
 
 /**
- * 通用 API 响应類型
+ * 通用 API 響應類型
  */
 export interface ApiResponseData<T = any> {
   success: boolean;
@@ -499,7 +499,7 @@ export interface ApiResponseData<T = any> {
 }
 
 /**
- * 分页响应
+ * 分頁響應
  */
 export interface PaginatedResponse<T> {
   items: T[];
@@ -510,7 +510,7 @@ export interface PaginatedResponse<T> {
 }
 
 /**
- * 賽道列表响应
+ * 賽道列表響應
  */
 export interface TrackListResponse {
   tracks: Array<{
@@ -542,7 +542,7 @@ export interface SubmissionListItem {
 }
 
 /**
- * 评审資訊响应
+ * 評審資訊響應
  */
 export interface JudgingInfoResponse {
   criteria: JudgingCriterion[];
@@ -550,7 +550,7 @@ export interface JudgingInfoResponse {
     id: string;
     teamName: string;
     projectName: string;
-    myScore?: SubmissionScore;     // 當前评审的评分
+    myScore?: SubmissionScore;     // 當前評審的評分
     averageScore?: number;
   }>;
 }

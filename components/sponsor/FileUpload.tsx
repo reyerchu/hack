@@ -1,7 +1,7 @@
 /**
- * 文件上传组件
+ * 文件上傳组件
  * 
- * 支持拖拽上传和点击选择
+ * 支持拖拽上傳和点击選择
  */
 
 import React, { useState, useRef } from 'react';
@@ -30,10 +30,10 @@ export default function FileUpload({
   const handleFile = (file: File) => {
     setError(null);
 
-    // 检查文件大小
+    // 檢查文件大小
     const maxSizeBytes = maxSizeMB * 1024 * 1024;
     if (file.size > maxSizeBytes) {
-      setError(`文件大小不能超过 ${maxSizeMB}MB`);
+      setError(`文件大小不能超過 ${maxSizeMB}MB`);
       return;
     }
 
@@ -69,7 +69,7 @@ export default function FileUpload({
 
   return (
     <div>
-      {/* 上传区域 */}
+      {/* 上傳区域 */}
       <div
         className={`rounded-lg border-2 border-dashed p-8 text-center transition-all duration-200 cursor-pointer ${
           isDragging ? 'scale-105' : ''
@@ -99,7 +99,7 @@ export default function FileUpload({
         </svg>
 
         <p className="text-sm font-medium mb-1" style={{ color: '#1a3a6e' }}>
-          {isDragging ? '释放以上传文件' : '点击或拖拽文件到这里上传'}
+          {isDragging ? '释放以上傳文件' : '点击或拖拽文件到這里上傳'}
         </p>
 
         {description && (
@@ -132,7 +132,7 @@ export default function FileUpload({
         </div>
       )}
 
-      {/* 当前文件 */}
+      {/* 當前文件 */}
       {currentFileName && (
         <div className="mt-3 flex items-center gap-2 p-3 rounded-lg" style={{ backgroundColor: '#e8eef5' }}>
           <svg

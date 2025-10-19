@@ -1,8 +1,8 @@
 /**
  * API: /api/sponsor/tracks/[trackId]/challenge
  * 
- * GET - 获取赛道的挑战题目
- * PUT - 更新赛道挑战题目（需要权限）
+ * GET - 獲取賽道的挑戰題目
+ * PUT - 更新賽道挑戰題目（需要權限）
  */
 
 import { NextApiRequest, NextApiResponse } from 'next';
@@ -27,7 +27,7 @@ const db = firestore();
 
 /**
  * GET /api/sponsor/tracks/[trackId]/challenge
- * 获取赛道的挑战题目
+ * 獲取賽道的挑戰題目
  */
 async function handleGet(req: NextApiRequest, res: NextApiResponse) {
   const { trackId } = req.query;
@@ -39,7 +39,7 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
   if (!(await requireTrackAccess(req, res, trackId))) return;
 
   try {
-    // 查询该赛道的挑战
+    // 查詢該賽道的挑戰
     const challengesSnapshot = await db
       .collection(SPONSOR_COLLECTIONS.EXTENDED_CHALLENGES)
       .where('trackId', '==', trackId)
@@ -65,7 +65,7 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
 
 /**
  * PUT /api/sponsor/tracks/[trackId]/challenge
- * 更新赛道挑战题目
+ * 更新賽道挑戰題目
  */
 async function handlePut(req: NextApiRequest, res: NextApiResponse) {
   const { trackId } = req.query;
@@ -80,7 +80,7 @@ async function handlePut(req: NextApiRequest, res: NextApiResponse) {
   const userId = authReq.userId!;
 
   try {
-    // 1. 查询该赛道的挑战
+    // 1. 查詢該賽道的挑戰
     const challengesSnapshot = await db
       .collection(SPONSOR_COLLECTIONS.EXTENDED_CHALLENGES)
       .where('trackId', '==', trackId)
@@ -94,7 +94,7 @@ async function handlePut(req: NextApiRequest, res: NextApiResponse) {
     const challengeDoc = challengesSnapshot.docs[0];
     const existingChallenge = challengeDoc.data();
 
-    // 2. 检查权限：是否可以编辑挑战
+    // 2. 檢查權限：是否可以編輯挑戰
     const sponsorDoc = await db
       .collection(SPONSOR_COLLECTIONS.EXTENDED_SPONSORS)
       .doc(existingChallenge.sponsorId)
@@ -106,10 +106,10 @@ async function handlePut(req: NextApiRequest, res: NextApiResponse) {
 
     const sponsor = sponsorDoc.data();
 
-    // 检查用户的赞助商角色
+    // 檢查用戶的贊助商角色
     const userRole = await getUserSponsorRole(userId, existingChallenge.sponsorId);
 
-    // 只有 admin 或有 canEditTrackChallenge 权限的赞助商可以编辑
+    // 只有 admin 或有 canEditTrackChallenge 權限的贊助商可以編輯
     const canEdit =
       authReq.userPermissions?.includes('admin') ||
       authReq.userPermissions?.includes('super_admin') ||
@@ -122,7 +122,7 @@ async function handlePut(req: NextApiRequest, res: NextApiResponse) {
       );
     }
 
-    // 3. 验证并准备更新数据
+    // 3. 驗證並准备更新數據
     const {
       title,
       description,
@@ -148,7 +148,7 @@ async function handlePut(req: NextApiRequest, res: NextApiResponse) {
     if (prizes !== undefined) updateData.prizes = prizes;
     if (attachments !== undefined) updateData.attachments = attachments;
 
-    // 处理时间线（转换为 Timestamp）
+    // 處理時間线（转换為 Timestamp）
     if (timeline !== undefined) {
       updateData.timeline = {
         announcementDate: firestore.Timestamp.fromDate(new Date(timeline.announcementDate)),
@@ -159,10 +159,10 @@ async function handlePut(req: NextApiRequest, res: NextApiResponse) {
       };
     }
 
-    // 4. 更新挑战
+    // 4. 更新挑戰
     await challengeDoc.ref.update(updateData);
 
-    // 5. 记录活动日志
+    // 5. 記錄活动日志
     await logSponsorActivity({
       sponsorId: existingChallenge.sponsorId,
       userId: userId,
@@ -176,7 +176,7 @@ async function handlePut(req: NextApiRequest, res: NextApiResponse) {
       },
     });
 
-    // 6. 返回更新后的挑战
+    // 6. 返回更新后的挑戰
     const updatedChallenge: ExtendedChallenge = {
       id: challengeDoc.id,
       ...existingChallenge,

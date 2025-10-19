@@ -1,9 +1,9 @@
 /**
- * 赞助商仪表板主页面
+ * 贊助商儀表板主頁面
  * 
  * 功能：
- * - 显示赞助商负责的赛道概览
- * - 统计数据（赛道数、提交数、队伍数、平均分）
+ * - 顯示贊助商負責的賽道概覽
+ * - 統計數據（賽道数、提交数、隊伍数、平均分）
  * - 快速操作入口
  * - 通知中心
  * - 活动日志
@@ -32,12 +32,12 @@ export default function SponsorDashboard() {
   const { stats, loading: statsLoading } = useTrackStats();
   const { notifications, markAsRead } = useSponsorNotifications();
 
-  // 权限检查
+  // 權限檢查
   useEffect(() => {
     if (!authLoading && !isSignedIn) {
       router.push('/auth?redirect=/sponsor/dashboard');
     } else if (!authLoading && isSignedIn && !isSponsor) {
-      // 非赞助商用户，跳转到主页
+      // 非贊助商用戶，跳转到主頁
       router.push('/');
     }
   }, [authLoading, isSignedIn, isSponsor, router]);
@@ -98,13 +98,13 @@ export default function SponsorDashboard() {
     );
   }
 
-  // 如果没有赛道，显示欢迎页面
+  // 如果没有賽道，顯示歡迎頁面
   if (tracks.length === 0) {
     return (
       <div className="min-h-screen" style={{ backgroundColor: '#f9fafb' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <h1 className="text-3xl font-bold mb-8" style={{ color: '#1a3a6e' }}>
-            赞助商仪表板
+            贊助商儀表板
           </h1>
 
           <div
@@ -126,10 +126,10 @@ export default function SponsorDashboard() {
               />
             </svg>
             <h2 className="text-xl font-semibold mb-2" style={{ color: '#1a3a6e' }}>
-              欢迎使用赞助商平台
+              歡迎使用贊助商平台
             </h2>
             <p className="text-sm mb-6" style={{ color: '#6b7280' }}>
-              您的账号暂未关联任何赛道。如有疑问，请联系管理员。
+              您的帳號暫未關聯任何賽道。如有疑問，請聯繫管理員。
             </p>
           </div>
         </div>
@@ -137,17 +137,17 @@ export default function SponsorDashboard() {
     );
   }
 
-  // 主要仪表板内容
+  // 主要儀表板內容
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#f9fafb' }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2" style={{ color: '#1a3a6e' }}>
-            赞助商仪表板
+            贊助商儀表板
           </h1>
           <p className="text-sm" style={{ color: '#6b7280' }}>
-            欢迎回来！以下是您负责赛道的最新数据。
+            歡迎回來！以下是您負責賽道的最新數據。
           </p>
         </div>
 
@@ -157,7 +157,7 @@ export default function SponsorDashboard() {
         {/* My Tracks */}
         <div className="mt-8">
           <h2 className="text-xl font-semibold mb-4" style={{ color: '#1a3a6e' }}>
-            我的赛道
+            我的賽道
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {tracks.map((track) => (
@@ -178,7 +178,7 @@ export default function SponsorDashboard() {
                       color: track.permissions.canEdit ? '#166534' : '#6b7280',
                     }}
                   >
-                    {track.permissions.canEdit ? '可编辑' : '只读'}
+                    {track.permissions.canEdit ? '可編輯' : '只读'}
                   </span>
                 </div>
 
@@ -190,7 +190,7 @@ export default function SponsorDashboard() {
                     </span>
                   </div>
                   <div className="flex items-center justify-between text-sm">
-                    <span style={{ color: '#6b7280' }}>队伍数：</span>
+                    <span style={{ color: '#6b7280' }}>隊伍数：</span>
                     <span className="font-semibold" style={{ color: '#1a3a6e' }}>
                       {track.stats.teamCount}
                     </span>
@@ -219,7 +219,7 @@ export default function SponsorDashboard() {
                       e.currentTarget.style.backgroundColor = '#1a3a6e';
                     }}
                   >
-                    查看详情
+                    查看詳情
                   </button>
                 </div>
               </div>
@@ -233,7 +233,7 @@ export default function SponsorDashboard() {
         {/* Notifications */}
         <NotificationCenter notifications={notifications} onMarkAsRead={markAsRead} />
 
-        {/* Activity Log - TODO: 实现实际的活动日志数据获取 */}
+        {/* Activity Log - TODO: 實現實際的活动日志數據獲取 */}
         <ActivityLog logs={[]} />
       </div>
     </div>

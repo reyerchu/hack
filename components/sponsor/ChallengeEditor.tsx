@@ -1,7 +1,7 @@
 /**
- * 挑战编辑器组件
+ * 挑戰編輯器组件
  * 
- * 用于编辑赛道挑战的详细信息
+ * 用於編輯賽道挑戰的详细資訊
  */
 
 import React, { useState, useEffect } from 'react';
@@ -92,10 +92,10 @@ export default function ChallengeEditor({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {/* 基本信息 */}
+      {/* 基本資訊 */}
       <div>
         <label className="block text-sm font-medium mb-2" style={{ color: '#1a3a6e' }}>
-          挑战标题 *
+          挑戰標題 *
         </label>
         <input
           type="text"
@@ -112,7 +112,7 @@ export default function ChallengeEditor({
 
       <div>
         <label className="block text-sm font-medium mb-2" style={{ color: '#1a3a6e' }}>
-          挑战描述 *
+          挑戰描述 *
         </label>
         <textarea
           value={formData.description}
@@ -122,7 +122,7 @@ export default function ChallengeEditor({
           style={{
             borderColor: '#d1d5db',
           }}
-          placeholder="详细描述这个挑战的背景、目标和期望成果..."
+          placeholder="详细描述這個挑戰的背景、目標和期望成果..."
           required
         />
       </div>
@@ -139,14 +139,14 @@ export default function ChallengeEditor({
           style={{
             borderColor: '#d1d5db',
           }}
-          placeholder="列出参赛队伍需要提交的内容（代码、Demo、文档等）..."
+          placeholder="列出參賽隊伍需要提交的內容（代码、Demo、文檔等）..."
           required
         />
       </div>
 
       <div>
         <label className="block text-sm font-medium mb-2" style={{ color: '#1a3a6e' }}>
-          奖金详情 *
+          獎金詳情 *
         </label>
         <textarea
           value={formData.prizeDetails}
@@ -161,10 +161,10 @@ export default function ChallengeEditor({
         />
       </div>
 
-      {/* 评分标准 */}
+      {/* 評分標准 */}
       <div>
         <label className="block text-sm font-medium mb-2" style={{ color: '#1a3a6e' }}>
-          评分标准
+          評分標准
         </label>
         <div className="space-y-2 mb-3">
           {formData.evaluationCriteria.map((criterion, index) => (
@@ -185,7 +185,7 @@ export default function ChallengeEditor({
                 className="text-sm px-2 py-1 rounded hover:bg-red-100"
                 style={{ color: '#dc2626' }}
               >
-                删除
+                刪除
               </button>
             </div>
           ))}
@@ -196,7 +196,7 @@ export default function ChallengeEditor({
             type="text"
             value={newCriterion.name}
             onChange={(e) => setNewCriterion({ ...newCriterion, name: e.target.value })}
-            placeholder="标准名称（如：创新性）"
+            placeholder="標准名称（如：创新性）"
             className="flex-1 px-4 py-2 rounded-lg border"
             style={{ borderColor: '#d1d5db' }}
           />
@@ -264,7 +264,7 @@ export default function ChallengeEditor({
                 className="text-sm px-2 py-1 rounded hover:bg-red-100 flex-shrink-0"
                 style={{ color: '#dc2626' }}
               >
-                删除
+                刪除
               </button>
             </div>
           ))}
@@ -275,7 +275,7 @@ export default function ChallengeEditor({
             type="text"
             value={newResource.title}
             onChange={(e) => setNewResource({ ...newResource, title: e.target.value })}
-            placeholder="资源标题"
+            placeholder="资源標題"
             className="w-full px-4 py-2 rounded-lg border"
             style={{ borderColor: '#d1d5db' }}
           />

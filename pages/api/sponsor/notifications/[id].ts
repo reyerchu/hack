@@ -1,8 +1,8 @@
 /**
- * API: 单个通知操作
+ * API: 單個通知操作
  * 
- * PATCH /api/sponsor/notifications/[id] - 标记为已读/未读
- * DELETE /api/sponsor/notifications/[id] - 删除通知
+ * PATCH /api/sponsor/notifications/[id] - 標记為已读/未读
+ * DELETE /api/sponsor/notifications/[id] - 刪除通知
  */
 
 import { NextApiRequest, NextApiResponse } from 'next';
@@ -24,7 +24,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
     const { userId } = (req as any).user;
 
-    // 获取通知并验证所有权
+    // 獲取通知並驗證所有权
     const notificationRef = db.collection(SPONSOR_NOTIFICATIONS).doc(id);
     const notificationDoc = await notificationRef.get();
 
@@ -38,7 +38,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       return res.status(403).json({ error: 'Access denied' });
     }
 
-    // PATCH: 标记为已读/未读
+    // PATCH: 標记為已读/未读
     if (req.method === 'PATCH') {
       const { isRead } = req.body;
 
@@ -58,7 +58,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       });
     }
 
-    // DELETE: 删除通知
+    // DELETE: 刪除通知
     if (req.method === 'DELETE') {
       await notificationRef.delete();
 

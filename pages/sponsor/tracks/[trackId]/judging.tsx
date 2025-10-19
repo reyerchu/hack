@@ -1,7 +1,7 @@
 /**
- * 评审决选页面
+ * 評審決選頁面
  * 
- * 对提交进行评分、排名和决选
+ * 對提交進行評分、排名和決選
  */
 
 import React, { useEffect, useState } from 'react';
@@ -23,7 +23,7 @@ export default function JudgingPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // 权限检查
+  // 權限檢查
   useEffect(() => {
     if (!authLoading && !isSignedIn) {
       router.push('/auth?redirect=/sponsor/dashboard');
@@ -32,7 +32,7 @@ export default function JudgingPage() {
     }
   }, [authLoading, isSignedIn, isSponsor, router]);
 
-  // 获取数据
+  // 獲取數據
   useEffect(() => {
     if (!trackId || !isSignedIn) return;
 
@@ -43,7 +43,7 @@ export default function JudgingPage() {
 
         const token = await (window as any).firebase.auth().currentUser?.getIdToken();
 
-        // 并行获取提交和挑战信息
+        // 並行獲取提交和挑戰資訊
         const [submissionsRes, challengeRes] = await Promise.all([
           fetch(`/api/sponsor/tracks/${trackId}/submissions`, {
             headers: { Authorization: `Bearer ${token}` },
@@ -121,7 +121,7 @@ export default function JudgingPage() {
         throw new Error('Failed to update status');
       }
 
-      // 更新本地状态
+      // 更新本地狀態
       setSubmissions((prev) =>
         prev.map((s) => (s.id === submissionId ? { ...s, status } : s)),
       );
@@ -166,7 +166,7 @@ export default function JudgingPage() {
 
   const criteria = challenge?.evaluationCriteria || [
     { name: '创新性', weight: 30 },
-    { name: '技术实现', weight: 30 },
+    { name: '技术實現', weight: 30 },
     { name: '完成度', weight: 20 },
     { name: '展示效果', weight: 20 },
   ];
@@ -184,15 +184,15 @@ export default function JudgingPage() {
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
-              返回赛道详情
+              返回賽道詳情
             </a>
           </Link>
 
           <h1 className="text-3xl font-bold mb-2" style={{ color: '#1a3a6e' }}>
-            评审与决选
+            評審與決選
           </h1>
           <p className="text-sm" style={{ color: '#6b7280' }}>
-            对提交进行评分并确定获奖名单
+            對提交進行評分並确定獲獎名单
           </p>
         </div>
 
@@ -218,7 +218,7 @@ export default function JudgingPage() {
 
           <div className="rounded-lg p-6" style={{ backgroundColor: '#fce7f3', border: '1px solid #f9a8d4' }}>
             <h3 className="text-sm font-medium mb-2" style={{ color: '#9f1239' }}>
-              获奖
+              獲獎
             </h3>
             <p className="text-3xl font-bold" style={{ color: '#9f1239' }}>
               {winners.length}
@@ -229,7 +229,7 @@ export default function JudgingPage() {
         {/* Evaluation Criteria */}
         <div className="rounded-lg p-6 mb-6" style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb' }}>
           <h2 className="text-xl font-semibold mb-4" style={{ color: '#1a3a6e' }}>
-            评分标准
+            評分標准
           </h2>
           <div className="flex flex-wrap gap-4">
             {criteria.map((c, index) => (
@@ -263,7 +263,7 @@ export default function JudgingPage() {
         {winners.length > 0 && (
           <div className="mt-6 rounded-lg p-6" style={{ backgroundColor: '#fce7f3', border: '2px solid #f9a8d4' }}>
             <h2 className="text-xl font-semibold mb-4" style={{ color: '#9f1239' }}>
-              🏆 获奖名单
+              🏆 獲獎名单
             </h2>
             <div className="space-y-3">
               {winners

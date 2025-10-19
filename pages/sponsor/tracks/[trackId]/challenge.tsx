@@ -1,7 +1,7 @@
 /**
- * 挑战编辑页面
+ * 挑戰編輯頁面
  * 
- * 允许赞助商编辑赛道的挑战内容
+ * 允許贊助商編輯賽道的挑戰內容
  */
 
 import React, { useEffect, useState } from 'react';
@@ -24,7 +24,7 @@ export default function ChallengeEditPage() {
   const [error, setError] = useState<string | null>(null);
   const [saveSuccess, setSaveSuccess] = useState(false);
 
-  // 权限检查
+  // 權限檢查
   useEffect(() => {
     if (!authLoading && !isSignedIn) {
       router.push('/auth?redirect=/sponsor/dashboard');
@@ -33,7 +33,7 @@ export default function ChallengeEditPage() {
     }
   }, [authLoading, isSignedIn, isSponsor, router]);
 
-  // 获取挑战详情
+  // 獲取挑戰詳情
   useEffect(() => {
     if (!trackId || !isSignedIn) return;
 
@@ -52,7 +52,7 @@ export default function ChallengeEditPage() {
 
         if (!response.ok) {
           if (response.status === 404) {
-            // 挑战不存在，创建空的初始数据
+            // 挑戰不存在，創建空的初始數據
             setChallenge(null);
             setLoading(false);
             return;
@@ -108,9 +108,9 @@ export default function ChallengeEditPage() {
   };
 
   const handleFileUpload = async (file: File, field: string) => {
-    // TODO: 实现文件上传到云存储
+    // TODO: 實現文件上傳到雲存儲
     console.log('File upload:', file.name, 'for field:', field);
-    alert('文件上传功能将在后续版本中实现');
+    alert('文件上傳功能將在後續版本中實現');
   };
 
   if (authLoading || loading) {
@@ -136,15 +136,15 @@ export default function ChallengeEditPage() {
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
-              返回赛道详情
+              返回賽道詳情
             </a>
           </Link>
 
           <h1 className="text-3xl font-bold mb-2" style={{ color: '#1a3a6e' }}>
-            编辑挑战内容
+            編輯挑戰內容
           </h1>
           <p className="text-sm" style={{ color: '#6b7280' }}>
-            设置挑战的描述、要求、评分标准和奖金详情
+            设置挑戰的描述、要求、評分標准和獎金詳情
           </p>
         </div>
 
@@ -158,7 +158,7 @@ export default function ChallengeEditPage() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
             <span className="text-sm font-medium" style={{ color: '#166534' }}>
-              挑战内容已成功保存
+              挑戰內容已成功保存
             </span>
           </div>
         )}
@@ -175,7 +175,7 @@ export default function ChallengeEditPage() {
           </div>
         )}
 
-        {/* 挑战编辑器 */}
+        {/* 挑戰編輯器 */}
         <div className="rounded-lg p-6 mb-6" style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb' }}>
           <ChallengeEditor
             challenge={challenge || undefined}
@@ -184,23 +184,23 @@ export default function ChallengeEditPage() {
           />
         </div>
 
-        {/* 文件上传区域 */}
+        {/* 文件上傳区域 */}
         <div className="rounded-lg p-6" style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb' }}>
           <h2 className="text-xl font-semibold mb-4" style={{ color: '#1a3a6e' }}>
-            挑战附件
+            挑戰附件
           </h2>
 
           <div className="space-y-6">
             <div>
               <label className="block text-sm font-medium mb-2" style={{ color: '#1a3a6e' }}>
-                挑战简报 (PDF)
+                挑戰简报 (PDF)
               </label>
               <FileUpload
                 onFileSelect={(file) => handleFileUpload(file, 'challengeBrief')}
                 acceptedTypes=".pdf"
                 maxSizeMB={10}
-                description="上传详细的挑战说明文档（PDF格式，最大10MB）"
-                currentFileName={challenge?.challengeBriefUrl ? '已上传' : undefined}
+                description="上傳详细的挑戰說明文檔（PDF格式，最大10MB）"
+                currentFileName={challenge?.challengeBriefUrl ? '已上傳' : undefined}
                 currentFileUrl={challenge?.challengeBriefUrl}
               />
             </div>
@@ -213,22 +213,22 @@ export default function ChallengeEditPage() {
                 onFileSelect={(file) => handleFileUpload(file, 'logo')}
                 acceptedTypes="image/*"
                 maxSizeMB={2}
-                description="上传品牌Logo图片（PNG/JPG格式，最大2MB）"
-                currentFileName={challenge?.brandAssets?.logoUrl ? '已上传' : undefined}
+                description="上傳品牌Logo图片（PNG/JPG格式，最大2MB）"
+                currentFileName={challenge?.brandAssets?.logoUrl ? '已上傳' : undefined}
                 currentFileUrl={challenge?.brandAssets?.logoUrl}
               />
             </div>
 
             <div>
               <label className="block text-sm font-medium mb-2" style={{ color: '#1a3a6e' }}>
-                赛道KV图
+                賽道KV图
               </label>
               <FileUpload
                 onFileSelect={(file) => handleFileUpload(file, 'kv')}
                 acceptedTypes="image/*"
                 maxSizeMB={5}
-                description="上传赛道宣传主视觉图（PNG/JPG格式，最大5MB）"
-                currentFileName={challenge?.brandAssets?.kvImageUrl ? '已上传' : undefined}
+                description="上傳賽道宣傳主視覺图（PNG/JPG格式，最大5MB）"
+                currentFileName={challenge?.brandAssets?.kvImageUrl ? '已上傳' : undefined}
                 currentFileUrl={challenge?.brandAssets?.kvImageUrl}
               />
             </div>

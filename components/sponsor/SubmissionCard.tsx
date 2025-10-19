@@ -1,7 +1,7 @@
 /**
  * 提交卡片组件
  * 
- * 显示单个队伍提交的摘要信息
+ * 顯示單個隊伍提交的摘要資訊
  */
 
 import React from 'react';
@@ -20,8 +20,8 @@ export default function SubmissionCard({ submission, onClick }: SubmissionCardPr
       submitted: { bg: '#dbeafe', text: '#1e40af', label: '已提交' },
       under_review: { bg: '#fef3c7', text: '#92400e', label: '审核中' },
       shortlisted: { bg: '#dcfce7', text: '#166534', label: '入围' },
-      winner: { bg: '#fce7f3', text: '#9f1239', label: '🏆 获奖' },
-      rejected: { bg: '#fee2e2', text: '#991b1b', label: '未入选' },
+      winner: { bg: '#fce7f3', text: '#9f1239', label: '🏆 獲獎' },
+      rejected: { bg: '#fee2e2', text: '#991b1b', label: '未入選' },
     };
     return colors[status] || colors.draft;
   };
@@ -57,7 +57,7 @@ export default function SubmissionCard({ submission, onClick }: SubmissionCardPr
           </h3>
           {submission.projectName && (
             <p className="text-sm mt-1 truncate" style={{ color: '#6b7280' }}>
-              项目：{submission.projectName}
+              項目：{submission.projectName}
             </p>
           )}
         </div>
@@ -84,7 +84,7 @@ export default function SubmissionCard({ submission, onClick }: SubmissionCardPr
       <div className="grid grid-cols-2 gap-4 mb-4">
         <div>
           <p className="text-xs mb-1" style={{ color: '#9ca3af' }}>
-            提交时间
+            提交時間
           </p>
           <p className="text-sm font-medium" style={{ color: '#1a3a6e' }}>
             {formatDate(submission.submittedAt)}
@@ -94,7 +94,7 @@ export default function SubmissionCard({ submission, onClick }: SubmissionCardPr
         {submission.finalScore !== undefined && (
           <div>
             <p className="text-xs mb-1" style={{ color: '#9ca3af' }}>
-              评分
+              評分
             </p>
             <p className="text-sm font-medium" style={{ color: '#1a3a6e' }}>
               {submission.finalScore.toFixed(1)} / 100
@@ -104,7 +104,7 @@ export default function SubmissionCard({ submission, onClick }: SubmissionCardPr
 
         <div>
           <p className="text-xs mb-1" style={{ color: '#9ca3af' }}>
-            队伍成员
+            隊伍成员
           </p>
           <p className="text-sm font-medium" style={{ color: '#1a3a6e' }}>
             {submission.teamMembers?.length || 0} 人
@@ -124,7 +124,7 @@ export default function SubmissionCard({ submission, onClick }: SubmissionCardPr
               style={{ color: '#1a3a6e' }}
               onClick={(e) => e.stopPropagation()}
             >
-              查看仓库 →
+              查看倉库 →
             </a>
           </div>
         )}
@@ -161,7 +161,7 @@ export default function SubmissionCard({ submission, onClick }: SubmissionCardPr
             style={{ color: '#1a3a6e' }}
             onClick={(e) => e.stopPropagation()}
           >
-            查看详情 →
+            查看詳情 →
           </a>
         </Link>
 

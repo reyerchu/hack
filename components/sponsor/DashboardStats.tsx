@@ -1,5 +1,5 @@
 /**
- * 赞助商仪表板 - 统计卡片组件
+ * 贊助商儀表板 - 統計卡片组件
  */
 
 import React from 'react';
@@ -84,9 +84,9 @@ export default function DashboardStats({ stats, loading }: DashboardStatsProps) 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       <StatsCard
-        title="我的赛道"
+        title="我的賽道"
         value={stats.totalTracks}
-        description="负责的赛道数量"
+        description="負責的賽道數量"
         icon={
           <svg
             className="w-6 h-6"
@@ -105,9 +105,9 @@ export default function DashboardStats({ stats, loading }: DashboardStatsProps) 
       />
 
       <StatsCard
-        title="项目提交"
+        title="項目提交"
         value={stats.totalSubmissions}
-        description="总提交数量"
+        description="总提交數量"
         icon={
           <svg
             className="w-6 h-6"
@@ -126,9 +126,9 @@ export default function DashboardStats({ stats, loading }: DashboardStatsProps) 
       />
 
       <StatsCard
-        title="参赛队伍"
+        title="參賽隊伍"
         value={stats.totalTeams}
-        description="参与的队伍数"
+        description="参與的隊伍数"
         icon={
           <svg
             className="w-6 h-6"
@@ -149,7 +149,7 @@ export default function DashboardStats({ stats, loading }: DashboardStatsProps) 
       <StatsCard
         title="平均分数"
         value={stats.averageScore > 0 ? stats.averageScore.toFixed(1) : '-'}
-        description="提交项目平均分"
+        description="提交項目平均分"
         icon={
           <svg
             className="w-6 h-6"

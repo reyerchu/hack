@@ -13,7 +13,7 @@ initializeApi();
 const db = firestore();
 
 /**
- * 獲取用戶數據（支持多个 collection）
+ * 獲取用戶數據（支持多個 collection）
  * 
  * @param userId - Firebase Auth UID 或 Firestore document ID
  * @returns 用戶數據和文檔引用
@@ -24,7 +24,7 @@ async function getUserData(userId: string): Promise<{
   ref: FirebaseFirestore.DocumentReference;
 } | null> {
   try {
-    // 1. 先嘗試 registrations collection（主要用于黑客松報名用戶）
+    // 1. 先嘗試 registrations collection（主要用於黑客松報名用戶）
     let userDoc = await db.collection('registrations').doc(userId).get();
     if (userDoc.exists) {
       return { exists: true, data: userDoc.data(), ref: userDoc.ref };
@@ -133,7 +133,7 @@ export async function checkTrackAccess(
     
     const sponsorIds = mappingsSnapshot.docs.map((doc) => doc.data().sponsorId);
     
-    // 3. 檢查这些 sponsors 是否赞助该 track
+    // 3. 檢查這些 sponsors 是否赞助該 track
     const challengeSnapshot = await db
       .collection(SPONSOR_COLLECTIONS.EXTENDED_CHALLENGES)
       .where('trackId', '==', trackId)
@@ -172,7 +172,7 @@ export async function checkChallengeAccess(
     
     const challenge = challengeDoc.data();
     
-    // 2. 檢查用戶是否可以访问该賽道
+    // 2. 檢查用戶是否可以访问該賽道
     return checkTrackAccess(userId, challenge?.trackId || '');
   } catch (error) {
     console.error('Error checking challenge access:', error);
@@ -228,7 +228,7 @@ export async function getUserAccessibleTracks(userId: string): Promise<string[]>
     
     const sponsorIds = mappingsSnapshot.docs.map((doc) => doc.data().sponsorId);
     
-    // 3. 獲取这些 sponsors 赞助的所有 tracks
+    // 3. 獲取這些 sponsors 赞助的所有 tracks
     const challengesSnapshot = await db
       .collection(SPONSOR_COLLECTIONS.EXTENDED_CHALLENGES)
       .where('sponsorId', 'in', sponsorIds)
@@ -377,7 +377,7 @@ export async function canViewSubmission(
       return true;
     }
     
-    // 3. 檢查是否可以访问该賽道
+    // 3. 檢查是否可以访问該賽道
     return checkTrackAccess(userId, submission?.projectTrack || '');
   } catch (error) {
     console.error('Error checking submission view permission:', error);
@@ -424,7 +424,7 @@ export async function canEditSubmission(
     const submission = submissionDoc.data();
     
     // 3. 只有隊伍成员可以編輯（贊助商不能編輯）
-    // 使用 document ID 进行比对
+    // 使用 document ID 進行比對
     const docId = userData.ref.id;
     const teamMemberIds = (submission?.teamMembers || []).map((m: any) => m.userId);
     return teamMemberIds.includes(docId);
