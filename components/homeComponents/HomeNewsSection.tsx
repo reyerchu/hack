@@ -25,14 +25,32 @@ export default function HomeNewsSection() {
         <div className="max-w-[900px]">
           {/* Message 1: Workshops */}
           <div className="mb-6 pb-6 border-b-2 border-gray-200">
-            <p className="text-[18px] leading-relaxed text-gray-800">
+            <p className="text-[18px] leading-relaxed text-gray-800 mb-4">
               🎓 <span className="font-semibold">黑客松工作坊已經開跑！</span>從 2025/10/20 起，每晚都有賽道介紹、獎項說明及活動 QA 的工作坊，歡迎一起來了解挑戰、補充技能、找到隊友、腦力激盪。
             </p>
+            <Link href="/schedule">
+              <a 
+                className="inline-flex items-center gap-2 px-6 py-3 text-[16px] font-semibold transition-all duration-300 rounded"
+                style={{ 
+                  backgroundColor: '#1a3a6e',
+                  color: 'white',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#2a4a7e';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = '#1a3a6e';
+                }}
+              >
+                <span>📅</span>
+                <span>查看時程表</span>
+              </a>
+            </Link>
           </div>
 
           {/* Message 2: Solidity Course */}
-          <div className="mb-6">
-            <p className="text-[18px] leading-relaxed text-gray-800">
+          <div>
+            <p className="text-[18px] leading-relaxed text-gray-800 mb-4">
               💡 <span className="font-semibold">零基礎也能挑戰 40 萬獎金的 RWA 黑客松！</span>
               <Link href="/schedule/Elyt7SvclfTp43LPKmaq">
                 <a 
@@ -50,47 +68,22 @@ export default function HomeNewsSection() {
               </Link>
               （5 小時完整教學 + 10/27 賽前線下實作 QA），讓你從零到一，成為黑客松最佳利器！
             </p>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex flex-wrap gap-4">
-            <Link href="/register">
+            <Link href="/schedule/Elyt7SvclfTp43LPKmaq">
               <a 
                 className="inline-flex items-center gap-2 px-6 py-3 text-[16px] font-semibold transition-all duration-300 rounded"
                 style={{ 
-                  backgroundColor: '#8B0000',
+                  backgroundColor: '#1a3a6e',
                   color: 'white',
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = '#a00000';
+                  e.currentTarget.style.backgroundColor = '#2a4a7e';
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = '#8B0000';
-                }}
-              >
-                <span>🚀</span>
-                <span>立即報名黑客松</span>
-              </a>
-            </Link>
-            <Link href="/schedule">
-              <a 
-                className="inline-flex items-center gap-2 px-6 py-3 text-[16px] font-semibold transition-all duration-300 rounded border-2"
-                style={{ 
-                  borderColor: '#1a3a6e',
-                  color: '#1a3a6e',
-                  backgroundColor: 'transparent',
-                }}
-                onMouseEnter={(e) => {
                   e.currentTarget.style.backgroundColor = '#1a3a6e';
-                  e.currentTarget.style.color = 'white';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'transparent';
-                  e.currentTarget.style.color = '#1a3a6e';
                 }}
               >
-                <span>📅</span>
-                <span>查看時程表</span>
+                <span>📝</span>
+                <span>申請參加課程</span>
               </a>
             </Link>
           </div>
