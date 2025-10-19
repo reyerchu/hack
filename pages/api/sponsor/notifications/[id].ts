@@ -1,0 +1,75 @@
+/**
+ * API: 单个通知操作
+ * 
+ * PATCH /api/sponsor/notifications/[id] - 标记为已读/未读
+ * DELETE /api/sponsor/notifications/[id] - 删除通知
+ */
+
+import { NextApiRequest, NextApiResponse } from 'next';
+import { requireSponsorAuth } from '../../../../lib/sponsor/middleware';
+import { db } from '../../../../lib/firebaseAdmin';
+import { SPONSOR_NOTIFICATIONS } from '../../../../lib/sponsor/collections';
+
+async function handler(req: NextApiRequest, res: NextApiResponse) {
+  const { id } = req.query;
+
+  if (!id || typeof id !== 'string') {
+    return res.status(400).json({ error: 'Invalid notification ID' });
+  }
+
+  try {
+    const { userId } = (req as any).user;
+
+    // 获取通知并验证所有权
+    const notificationRef = db.collection(SPONSOR_NOTIFICATIONS).doc(id);
+    const notificationDoc = await notificationRef.get();
+
+    if (!notificationDoc.exists) {
+      return res.status(404).json({ error: 'Notification not found' });
+    }
+
+    const notification = notificationDoc.data();
+
+    if (notification?.recipientId !== userId) {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+
+    // PATCH: 标记为已读/未读
+    if (req.method === 'PATCH') {
+      const { isRead } = req.body;
+
+      if (typeof isRead !== 'boolean') {
+        return res.status(400).json({ error: 'Invalid isRead value' });
+      }
+
+      await notificationRef.update({
+        isRead,
+        readAt: isRead ? new Date() : null,
+      });
+
+      return res.status(200).json({
+        id,
+        isRead,
+        message: 'Notification updated successfully',
+      });
+    }
+
+    // DELETE: 删除通知
+    if (req.method === 'DELETE') {
+      await notificationRef.delete();
+
+      return res.status(200).json({
+        id,
+        message: 'Notification deleted successfully',
+      });
+    }
+
+    return res.status(405).json({ error: 'Method not allowed' });
+  } catch (error: any) {
+    console.error('Error updating notification:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+}
+
+export default requireSponsorAuth(handler);
+
