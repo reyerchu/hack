@@ -125,10 +125,14 @@ export default function ActivityLog({ logs, maxItems = 10 }: ActivityLogProps) {
   const getActionLabel = (action: SponsorActivityLog['action']) => {
     const labels: Record<SponsorActivityLog['action'], string> = {
       view_submission: '查看提交',
-      update_challenge: '更新挑战',
-      score_submission: '评分',
-      download_report: '下载报告',
-      contact_team: '联系队伍',
+      edit_challenge: '編輯挑戰',
+      update_challenge: '更新挑戰',
+      score_team: '評分隊伍',
+      score_submission: '評分',
+      update_track: '更新賽道',
+      contact_team: '聯絡隊伍',
+      export_report: '匯出報告',
+      download_report: '下載報告',
       other: '其他操作',
     };
     return labels[action] || action;
