@@ -23,27 +23,39 @@ const db = firestore();
  * @param userId - Firebase Auth UID
  * @returns 用户数据和 document ID
  */
-async function getUserData(userId: string): Promise<{
+async function getUserData(
+  firebaseUid: string, 
+  email?: string
+): Promise<{
   exists: boolean;
   data: any;
   docId: string;
 } | null> {
   try {
     // 1. 先尝试 registrations collection（黑客松用户）
-    let userDoc = await db.collection('registrations').doc(userId).get();
+    let userDoc = await db.collection('registrations').doc(firebaseUid).get();
     if (userDoc.exists) {
       return { exists: true, data: userDoc.data(), docId: userDoc.id };
     }
 
-    // 2. 尝试通过 Firebase UID 查询 registrations
-    const regByUID = await db.collection('registrations').where('uid', '==', userId).limit(1).get();
+    // 2. 如果提供了 email，尝试通过 email 查询 registrations
+    if (email) {
+      const regByEmail = await db.collection('registrations').where('email', '==', email).limit(1).get();
+      if (!regByEmail.empty) {
+        const doc = regByEmail.docs[0];
+        return { exists: true, data: doc.data(), docId: doc.id };
+      }
+    }
+
+    // 3. 尝试通过 Firebase UID 查询 registrations（如果有 uid 字段）
+    const regByUID = await db.collection('registrations').where('uid', '==', firebaseUid).limit(1).get();
     if (!regByUID.empty) {
       const doc = regByUID.docs[0];
       return { exists: true, data: doc.data(), docId: doc.id };
     }
 
-    // 3. 尝试 users collection（向后兼容）
-    userDoc = await db.collection('users').doc(userId).get();
+    // 4. 尝试 users collection（向后兼容）
+    userDoc = await db.collection('users').doc(firebaseUid).get();
     if (userDoc.exists) {
       return { exists: true, data: userDoc.data(), docId: userDoc.id };
     }
@@ -134,12 +146,13 @@ export async function requireAuth(
     // 验证 token
     const decodedToken = await auth().verifyIdToken(token);
     const firebaseUid = decodedToken.uid;
+    const email = decodedToken.email;
     
     // 获取用户信息（支持多个 collection）
-    const userInfo = await getUserData(firebaseUid);
+    const userInfo = await getUserData(firebaseUid, email);
     
     if (!userInfo || !userInfo.exists) {
-      console.error('User not found:', firebaseUid);
+      console.error('User not found:', { firebaseUid, email });
       ApiResponse.unauthorized(res, 'User not found');
       return false;
     }
