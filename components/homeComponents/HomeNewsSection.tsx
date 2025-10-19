@@ -23,13 +23,17 @@ export default function HomeNewsSection() {
 
         {/* Content */}
         <div className="max-w-[900px]">
-          {/* Main Message */}
-          <div className="mb-6">
-            <p className="text-[18px] leading-relaxed text-gray-800 mb-4">
-              🎓 <span className="font-semibold">零基礎也能挑戰 40 萬獎金的 RWA 黑客松！</span>從 2025/10/20 起，每晚都有賽道介紹、獎項說明及活動 QA 的工作坊，歡迎一起來了解挑戰、補充技能、找到隊友、腦力激盪。
-            </p>
+          {/* Message 1: Workshops */}
+          <div className="mb-6 pb-6 border-b-2 border-gray-200">
             <p className="text-[18px] leading-relaxed text-gray-800">
-              💡 特別推薦：
+              🎓 <span className="font-semibold">黑客松工作坊已經開跑！</span>從 2025/10/20 起，每晚都有賽道介紹、獎項說明及活動 QA 的工作坊，歡迎一起來了解挑戰、補充技能、找到隊友、腦力激盪。
+            </p>
+          </div>
+
+          {/* Message 2: Solidity Course */}
+          <div className="mb-6">
+            <p className="text-[18px] leading-relaxed text-gray-800">
+              💡 <span className="font-semibold">零基礎也能挑戰 40 萬獎金的 RWA 黑客松！</span>
               <Link href="/schedule/Elyt7SvclfTp43LPKmaq">
                 <a 
                   className="font-semibold underline transition-colors"
