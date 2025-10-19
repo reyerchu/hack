@@ -191,16 +191,36 @@ export interface ExtendedChallenge {
   
   // 奖金
   prizes: ChallengePrize[];
+  prizeDetails?: string;           // 奖金详情描述（简化版）
   
   // 要求
   requirements: ChallengeRequirements;
   submissionRequirements: SubmissionRequirements;
+  
+  // 评分标准（简化版）
+  evaluationCriteria?: Array<{
+    name: string;
+    weight: number;
+  }>;
+  
+  // 参考资源
+  resources?: Array<{
+    title: string;
+    url: string;
+  }>;
   
   // 时间线
   timeline: ChallengeTimeline;
   
   // 附件
   attachments?: ChallengeAttachment[];
+  challengeBriefUrl?: string;      // 挑战简报 PDF URL
+  
+  // 品牌素材
+  brandAssets?: {
+    logoUrl?: string;
+    kvImageUrl?: string;
+  };
   
   // 状态和排序
   status: ChallengeStatus;
@@ -232,7 +252,9 @@ export interface TeamMember {
 export type SubmissionStatus = 
   | 'draft' 
   | 'submitted' 
-  | 'under_review' 
+  | 'under_review'
+  | 'shortlisted'
+  | 'winner'
   | 'accepted' 
   | 'rejected';
 
@@ -263,13 +285,16 @@ export interface TeamSubmission {
   // 项目信息
   projectName: string;
   projectTrack: string;
+  trackId: string;
   challengeId: string;
   oneLiner: string;                // max 140 chars
   description: string;
+  projectDescription?: string;
   
   // 提交内容
   githubRepo?: string;
   demoUrl?: string;
+  videoUrl?: string;
   presentationUrl?: string;
   documentationUrl?: string;
   
@@ -280,14 +305,18 @@ export interface TeamSubmission {
   
   // 技术栈
   techStack: string[];
+  tags?: string[];
   
   // 状态
   status: SubmissionStatus;
   reviewNotes?: string;
+  isRecommended?: boolean;
   
   // 评分
   scores?: SubmissionScore[];
+  criteriaScores?: Record<string, number>;
   averageScore?: number;
+  finalScore?: number;
   finalRank?: number;
   
   // 时间戳
@@ -350,10 +379,14 @@ export interface SponsorUserMapping {
 export type SponsorActivityAction =
   | 'view_submission'
   | 'edit_challenge'
+  | 'update_challenge'
   | 'score_team'
+  | 'score_submission'
   | 'update_track'
   | 'contact_team'
-  | 'export_report';
+  | 'export_report'
+  | 'download_report'
+  | 'other';
 
 /**
  * 赞助商活动日志
@@ -369,6 +402,10 @@ export interface SponsorActivityLog {
   targetId: string;
   
   details?: any;
+  metadata?: {
+    trackName?: string;
+    [key: string]: any;
+  };
   
   timestamp: Date | Timestamp;
 }
@@ -383,8 +420,10 @@ export interface SponsorActivityLog {
 export type SponsorNotificationType =
   | 'new_submission'
   | 'submission_updated'
+  | 'submission_update'
   | 'judging_started'
   | 'judging_deadline'
+  | 'deadline_reminder'
   | 'results_announced'
   | 'team_contacted';
 
@@ -393,6 +432,7 @@ export type SponsorNotificationType =
  */
 export interface SponsorNotification {
   id: string;
+  recipientId: string;             // 主要用於 API (等同 recipientUserId)
   recipientUserId: string;
   recipientEmail?: string;
   sponsorId: string;
@@ -401,6 +441,7 @@ export interface SponsorNotification {
   type: SponsorNotificationType;
   title: string;
   message: string;
+  priority?: 'low' | 'medium' | 'high';
   
   relatedSubmissionId?: string;
   relatedTeamId?: string;
@@ -408,6 +449,7 @@ export interface SponsorNotification {
   actionUrl?: string;
   
   isRead: boolean;
+  readAt?: Date | Timestamp;
   createdAt: Date | Timestamp;
 }
 

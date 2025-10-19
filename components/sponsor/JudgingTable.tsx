@@ -79,10 +79,11 @@ export default function JudgingTable({
     const styles: Record<TeamSubmission['status'], { bg: string; text: string; label: string }> = {
       draft: { bg: '#f3f4f6', text: '#6b7280', label: '草稿' },
       submitted: { bg: '#dbeafe', text: '#1e40af', label: '已提交' },
-      under_review: { bg: '#fef3c7', text: '#92400e', label: '审核中' },
-      shortlisted: { bg: '#dcfce7', text: '#166534', label: '入围' },
-      winner: { bg: '#fce7f3', text: '#9f1239', label: '🏆 获奖' },
-      rejected: { bg: '#fee2e2', text: '#991b1b', label: '未入选' },
+      under_review: { bg: '#fef3c7', text: '#92400e', label: '審核中' },
+      shortlisted: { bg: '#dcfce7', text: '#166534', label: '入圍' },
+      winner: { bg: '#fce7f3', text: '#9f1239', label: '🏆 獲獎' },
+      accepted: { bg: '#dcfce7', text: '#166534', label: '✓ 錄取' },
+      rejected: { bg: '#fee2e2', text: '#991b1b', label: '未入選' },
     };
     return styles[status] || styles.draft;
   };
