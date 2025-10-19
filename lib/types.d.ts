@@ -293,3 +293,21 @@ declare module '*.md' {
   const content: any;
   export default content;
 }
+
+/**
+ * Track Sponsor Feature - Extended Types
+ * 
+ * 赞助商功能的扩展类型定义
+ * 详见: lib/sponsor/types.ts
+ * 
+ * - ExtendedSponsor: 扩展的赞助商信息（包含权限、合约、品牌套件等）
+ * - ExtendedChallenge: 扩展的挑战信息（包含详细要求、奖金、时间线等）
+ * - TeamSubmission: 队伍提交（黑客松项目提交）
+ * - JudgingCriteria: 评审标准
+ * - SponsorUserMapping: 赞助商用户关联
+ * - SponsorActivityLog: 赞助商活动日志
+ * - SponsorNotification: 赞助商通知
+ * - TrackStats: 赛道统计数据
+ * 
+ * 这些类型是对现有 Sponsor 和 Challenge 类型的扩展，保持向后兼容。
+ */

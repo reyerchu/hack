@@ -1,0 +1,174 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // ========================================================================
+    // Helper Functions
+    // ========================================================================
+    
+    // 检查用户是否有指定权限
+    function hasPermission(permission) {
+      return request.auth != null && 
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.permissions.hasAny([permission, 'admin', 'super_admin']);
+    }
+    
+    // 检查是否是 admin
+    function isAdmin() {
+      return hasPermission('admin');
+    }
+    
+    // 检查是否是 sponsor
+    function isSponsor() {
+      return hasPermission('sponsor');
+    }
+    
+    // 检查用户是否关联到指定赞助商
+    function isSponsorUser(sponsorId) {
+      return request.auth != null && 
+             exists(/databases/$(database)/documents/sponsor-user-mappings/$(request.auth.uid + '_' + sponsorId));
+    }
+    
+    // 检查用户是否可以访问指定赛道
+    function canAccessTrack(trackId) {
+      return isAdmin() || 
+             exists(/databases/$(database)/documents/extended-challenges/$(trackId)) &&
+             isSponsorUser(get(/databases/$(database)/documents/extended-challenges/$(trackId)).data.sponsorId);
+    }
+    
+    // 检查用户是否是队伍成员
+    function isTeamMember(teamMembers) {
+      return request.auth != null && 
+             teamMembers.hasAny([request.auth.uid]);
+    }
+    
+    // ========================================================================
+    // Extended Sponsors
+    // ========================================================================
+    
+    match /extended-sponsors/{sponsorId} {
+      // Admin 可读写
+      allow read, write: if isAdmin();
+      
+      // 赞助商用户可读自己的数据
+      allow read: if isSponsorUser(sponsorId);
+      
+      // 所有人可读基本信息（用于展示）
+      allow get: if true;
+    }
+    
+    // ========================================================================
+    // Extended Challenges
+    // ========================================================================
+    
+    match /extended-challenges/{challengeId} {
+      // Admin 可读写
+      allow read, write: if isAdmin();
+      
+      // 赞助商可读写自己的挑战
+      allow read, update: if isSponsorUser(resource.data.sponsorId);
+      
+      // 所有登录用户可读已发布的挑战
+      allow read: if request.auth != null && resource.data.status == 'published';
+    }
+    
+    // ========================================================================
+    // Team Submissions
+    // ========================================================================
+    
+    match /team-submissions/{submissionId} {
+      // Admin 可读写
+      allow read, write: if isAdmin();
+      
+      // 赞助商可读自己赛道的提交
+      allow read: if isSponsor() && 
+                     canAccessTrack(resource.data.projectTrack);
+      
+      // 队伍成员可读写自己的提交
+      allow read, write: if isTeamMember(resource.data.teamMembers.map(m => m.userId));
+      
+      // 创建提交时的验证
+      allow create: if request.auth != null &&
+                       request.resource.data.teamMembers.hasAny([request.auth.uid]) &&
+                       request.resource.data.status == 'draft';
+    }
+    
+    // ========================================================================
+    // Judging Criteria
+    // ========================================================================
+    
+    match /judging-criteria/{criteriaId} {
+      // Admin 可读写
+      allow read, write: if isAdmin();
+      
+      // 赞助商可读自己挑战的评审标准
+      allow read: if isSponsor() && 
+                     exists(/databases/$(database)/documents/extended-challenges/$(resource.data.challengeId)) &&
+                     isSponsorUser(get(/databases/$(database)/documents/extended-challenges/$(resource.data.challengeId)).data.sponsorId);
+      
+      // 所有登录用户可读
+      allow read: if request.auth != null;
+    }
+    
+    // ========================================================================
+    // Sponsor User Mappings
+    // ========================================================================
+    
+    match /sponsor-user-mappings/{mappingId} {
+      // Admin 可读写
+      allow read, write: if isAdmin();
+      
+      // 用户可读自己的 mapping
+      allow read: if request.auth != null && 
+                     resource.data.userId == request.auth.uid;
+    }
+    
+    // ========================================================================
+    // Sponsor Activity Logs
+    // ========================================================================
+    
+    match /sponsor-activity-logs/{logId} {
+      // Admin 可读写
+      allow read, write: if isAdmin();
+      
+      // 赞助商可读自己的日志
+      allow read: if isSponsorUser(resource.data.sponsorId);
+      
+      // 系统可创建日志（通过 Admin SDK）
+      allow create: if false; // 只能通过后端创建
+    }
+    
+    // ========================================================================
+    // Sponsor Notifications
+    // ========================================================================
+    
+    match /sponsor-notifications/{notificationId} {
+      // Admin 可读写
+      allow read, write: if isAdmin();
+      
+      // 用户可读自己的通知
+      allow read: if request.auth != null && 
+                     resource.data.recipientUserId == request.auth.uid;
+      
+      // 用户可更新 isRead 状态
+      allow update: if request.auth != null && 
+                       resource.data.recipientUserId == request.auth.uid &&
+                       request.resource.data.diff(resource.data).affectedKeys().hasOnly(['isRead']);
+    }
+    
+    // ========================================================================
+    // Track Stats
+    // ========================================================================
+    
+    match /track-stats/{trackId} {
+      // Admin 可读写
+      allow read, write: if isAdmin();
+      
+      // 赞助商可读自己赛道的统计
+      allow read: if isSponsor() && canAccessTrack(trackId);
+      
+      // 所有登录用户可读基本统计
+      allow read: if request.auth != null;
+    }
+  }
+}
+
