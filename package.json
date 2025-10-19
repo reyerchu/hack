@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "next dev -p 3008",
-    "dev:debug": "NODE_OPTIONS='--inspect' next dev -p 3008",
+    "dev": "next dev -p 3009",
+    "dev:debug": "NODE_OPTIONS='--inspect' next dev -p 3009",
     "build": "next build",
     "start": "next start -p 3008",
     "lint": "next lint",
@@ -79,6 +79,7 @@
     "@types/react": "17.0.38",
     "autoprefixer": "^10.4.13",
     "cz-conventional-changelog": "^3.3.0",
+    "dotenv": "^17.2.3",
     "eslint": "7.29.0",
     "eslint-config-next": "11.0.1",
     "eslint-config-prettier": "^8.3.0",
