@@ -48,7 +48,7 @@ export default function TSMCChallengeTimeline() {
   ];
 
   return (
-    <section id="schedule" className="bg-gray-50 py-16 md:py-24">
+    <section id="schedule" className="bg-white py-16 md:py-24">
       <div className="max-w-[1200px] mx-auto px-8 md:px-12">
         {/* Section Header - TSMC Style */}
         <div className="mb-12">

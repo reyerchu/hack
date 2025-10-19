@@ -12,7 +12,7 @@ export default function TSMCParticipationGuidelines() {
   ];
 
   return (
-    <section id="guidelines" className="bg-white py-16 md:py-24">
+    <section id="guidelines" className="bg-gray-50 py-16 md:py-24">
       <div className="max-w-[1200px] mx-auto px-8 md:px-12">
         {/* Section Header - TSMC Style */}
         <div className="mb-12">

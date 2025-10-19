@@ -76,7 +76,7 @@ export default function HomeFaqSection() {
   };
 
   return (
-    <section id="faq" className="relative w-full py-16 md:py-24 bg-white">
+    <section id="faq" className="relative w-full py-16 md:py-24 bg-gray-50">
       <div className="max-w-[1200px] mx-auto px-8 md:px-12">
         {/* Section Header - TSMC Style */}
         <div className="flex flex-row justify-between items-start mb-12">
