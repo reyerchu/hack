@@ -14,7 +14,12 @@ import { SPONSOR_NOTIFICATIONS } from '../../../../lib/sponsor/collections';
 initializeApi();
 const db = firestore();
 
-async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  // 驗證贊助商權限
+  if (!(await requireSponsorAuth(req, res))) {
+    return;
+  }
+
   const { id } = req.query;
 
   if (!id || typeof id !== 'string') {
@@ -22,7 +27,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   }
 
   try {
-    const { userId } = (req as any).user;
+    const userId = (req as any).userId;
 
     // 獲取通知並驗證所有权
     const notificationRef = db.collection(SPONSOR_NOTIFICATIONS).doc(id);
@@ -74,6 +79,4 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     return res.status(500).json({ error: 'Internal server error' });
   }
 }
-
-export default requireSponsorAuth(handler);
 

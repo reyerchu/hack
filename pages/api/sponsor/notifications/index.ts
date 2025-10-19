@@ -18,13 +18,18 @@ import type { SponsorNotification } from '../../../../lib/sponsor/types';
 initializeApi();
 const db = firestore();
 
-async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  // 驗證贊助商權限
+  if (!(await requireSponsorAuth(req, res))) {
+    return;
+  }
+
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
-    const { userId } = (req as any).user;
+    const userId = (req as any).userId;
     const unreadOnly = req.query.unreadOnly === 'true';
     const limit = parseInt(req.query.limit as string) || 50;
 
@@ -63,6 +68,4 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     return res.status(500).json({ error: 'Internal server error' });
   }
 }
-
-export default requireSponsorAuth(handler);
 
