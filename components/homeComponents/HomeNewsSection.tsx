@@ -51,7 +51,7 @@ export default function HomeNewsSection() {
           {/* Message 2: Solidity Course */}
           <div>
             <p className="text-[18px] leading-relaxed text-gray-800 mb-4">
-              💡 <span className="font-semibold">零基礎也能挑戰 40 萬獎金的 RWA 黑客松！</span>
+              💡 沒寫過 Solidity 智能合約，也能挑戰這場總獎金價值高達 40 萬的 RWA 黑客松競賽嗎？<span className="font-semibold">可以！</span>只要報名黑客松，免費索取
               <Link href="/schedule/Elyt7SvclfTp43LPKmaq">
                 <a 
                   className="font-semibold underline transition-colors"
@@ -66,7 +66,7 @@ export default function HomeNewsSection() {
                   Solidity 智能合約免費線上課程
                 </a>
               </Link>
-              （5 小時完整教學 + 10/27 賽前線下實作 QA），讓你從零到一，挑戰黑客松的最佳利器！
+              （5 小時完整教學 + 10/27 賽前線下實作 QA）- 讓您從零到挑戰黑客松的最佳利器！
             </p>
             <Link href="/schedule/Elyt7SvclfTp43LPKmaq">
               <a 
