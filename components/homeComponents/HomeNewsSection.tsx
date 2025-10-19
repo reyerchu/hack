@@ -30,20 +30,21 @@ export default function HomeNewsSection() {
             </p>
             <Link href="/schedule">
               <a 
-                className="inline-flex items-center gap-2 px-6 py-3 text-[16px] font-semibold transition-all duration-300 rounded"
+                className="inline-block border-2 px-8 py-3 text-[14px] font-medium uppercase tracking-wider transition-colors duration-300"
                 style={{ 
-                  backgroundColor: '#1a3a6e',
-                  color: 'white',
+                  borderColor: '#1a3a6e',
+                  color: '#1a3a6e',
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = '#2a4a7e';
+                  e.currentTarget.style.backgroundColor = '#1a3a6e';
+                  e.currentTarget.style.color = 'white';
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = '#1a3a6e';
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                  e.currentTarget.style.color = '#1a3a6e';
                 }}
               >
-                <span>📅</span>
-                <span>查看時程表</span>
+                查看時程表 View Schedule
               </a>
             </Link>
           </div>
@@ -70,20 +71,21 @@ export default function HomeNewsSection() {
             </p>
             <Link href="/schedule/Elyt7SvclfTp43LPKmaq">
               <a 
-                className="inline-flex items-center gap-2 px-6 py-3 text-[16px] font-semibold transition-all duration-300 rounded"
+                className="inline-block border-2 px-8 py-3 text-[14px] font-medium uppercase tracking-wider transition-colors duration-300"
                 style={{ 
-                  backgroundColor: '#1a3a6e',
-                  color: 'white',
+                  borderColor: '#1a3a6e',
+                  color: '#1a3a6e',
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = '#2a4a7e';
+                  e.currentTarget.style.backgroundColor = '#1a3a6e';
+                  e.currentTarget.style.color = 'white';
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = '#1a3a6e';
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                  e.currentTarget.style.color = '#1a3a6e';
                 }}
               >
-                <span>📝</span>
-                <span>申請課程</span>
+                申請課程 Apply Course
               </a>
             </Link>
           </div>
