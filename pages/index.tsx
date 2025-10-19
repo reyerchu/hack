@@ -3,6 +3,7 @@ import { GetServerSideProps } from 'next';
 import { useEffect, useState } from 'react';
 import { RequestHelper } from '../lib/request-helper';
 import BackgroundCarousel from '../components/homeComponents/BackgroundCarousel';
+import HomeNewsSection from '../components/homeComponents/HomeNewsSection';
 import TSMCAbout from '../components/homeComponents/TSMCAbout';
 import TSMCChallengeTimeline from '../components/homeComponents/TSMCChallengeTimeline';
 import TSMCParticipationGuidelines from '../components/homeComponents/TSMCParticipationGuidelines';
@@ -32,6 +33,7 @@ export default function Home(props: { challenges: Challenge[]; sponsorCard: Spon
       </Head>
 
       <BackgroundCarousel />
+      <HomeNewsSection />
       <TSMCAbout />
       <TSMCChallengeTimeline />
       <TSMCParticipationGuidelines />
