@@ -18,6 +18,44 @@ initializeApi();
 const db = firestore();
 
 /**
+ * 获取用户数据（支持多个 collection）
+ * 
+ * @param userId - Firebase Auth UID
+ * @returns 用户数据和 document ID
+ */
+async function getUserData(userId: string): Promise<{
+  exists: boolean;
+  data: any;
+  docId: string;
+} | null> {
+  try {
+    // 1. 先尝试 registrations collection（黑客松用户）
+    let userDoc = await db.collection('registrations').doc(userId).get();
+    if (userDoc.exists) {
+      return { exists: true, data: userDoc.data(), docId: userDoc.id };
+    }
+
+    // 2. 尝试通过 Firebase UID 查询 registrations
+    const regByUID = await db.collection('registrations').where('uid', '==', userId).limit(1).get();
+    if (!regByUID.empty) {
+      const doc = regByUID.docs[0];
+      return { exists: true, data: doc.data(), docId: doc.id };
+    }
+
+    // 3. 尝试 users collection（向后兼容）
+    userDoc = await db.collection('users').doc(userId).get();
+    if (userDoc.exists) {
+      return { exists: true, data: userDoc.data(), docId: userDoc.id };
+    }
+
+    return null;
+  } catch (error) {
+    console.error('Error getting user data in middleware:', error);
+    return null;
+  }
+}
+
+/**
  * 扩展的 Request 类型（包含用户信息）
  */
 export interface AuthenticatedRequest extends NextApiRequest {
@@ -95,23 +133,32 @@ export async function requireAuth(
     
     // 验证 token
     const decodedToken = await auth().verifyIdToken(token);
-    const userId = decodedToken.uid;
+    const firebaseUid = decodedToken.uid;
     
-    // 获取用户信息
-    const userDoc = await db.collection('users').doc(userId).get();
+    // 获取用户信息（支持多个 collection）
+    const userInfo = await getUserData(firebaseUid);
     
-    if (!userDoc.exists) {
+    if (!userInfo || !userInfo.exists) {
+      console.error('User not found:', firebaseUid);
       ApiResponse.unauthorized(res, 'User not found');
       return false;
     }
     
-    const userData = userDoc.data();
+    const userData = userInfo.data;
     
     // 将用户信息附加到 request 对象
+    // ⚠️ 重要：使用 Firestore document ID，不是 Firebase Auth UID
     const authReq = req as AuthenticatedRequest;
-    authReq.userId = userId;
-    authReq.userEmail = userData?.preferredEmail || decodedToken.email;
+    authReq.userId = userInfo.docId;  // 使用 Firestore document ID
+    authReq.userEmail = userData?.email || userData?.preferredEmail || decodedToken.email;
     authReq.userPermissions = userData?.permissions || [];
+    
+    console.log('Auth success:', {
+      firebaseUid,
+      firestoreDocId: userInfo.docId,
+      email: authReq.userEmail,
+      permissions: authReq.userPermissions,
+    });
     
     return true;
   } catch (error: any) {
