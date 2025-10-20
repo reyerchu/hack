@@ -26,52 +26,74 @@ initializeApi();
 const db = firestore();
 
 /**
- * GET /api/sponsor/tracks/[trackId]/challenge
- * 獲取賽道的挑戰題目
+ * GET /api/sponsor/tracks/[trackId]/challenge?challengeId=xxx
+ * 獲取指定的挑戰題目
  */
 async function handleGet(req: NextApiRequest, res: NextApiResponse) {
-  const { trackId } = req.query;
+  const { trackId, challengeId } = req.query;
+
+  console.log('[GET /api/sponsor/tracks/[trackId]/challenge] Query params:', { trackId, challengeId });
 
   if (!trackId || typeof trackId !== 'string') {
     return ApiResponse.error(res, 'Invalid track ID', 400);
+  }
+
+  if (!challengeId || typeof challengeId !== 'string') {
+    return ApiResponse.error(res, 'Invalid challenge ID', 400);
   }
 
   if (!(await requireTrackAccess(req, res, trackId))) return;
 
   try {
-    // 查詢該賽道的挑戰
-    const challengesSnapshot = await db
+    // 通過 document ID 直接獲取挑戰
+    const challengeDoc = await db
       .collection(SPONSOR_COLLECTIONS.EXTENDED_CHALLENGES)
-      .where('trackId', '==', trackId)
-      .limit(1)
+      .doc(challengeId)
       .get();
 
-    if (challengesSnapshot.empty) {
-      return ApiResponse.notFound(res, 'Challenge not found for this track');
+    console.log('[GET /api/sponsor/tracks/[trackId]/challenge] Challenge exists:', challengeDoc.exists);
+
+    if (!challengeDoc.exists) {
+      return ApiResponse.notFound(res, 'Challenge not found');
     }
 
-    const challengeDoc = challengesSnapshot.docs[0];
+    const challengeData = challengeDoc.data();
+    console.log('[GET /api/sponsor/tracks/[trackId]/challenge] Challenge trackId:', challengeData?.trackId);
+
+    // 驗證挑戰是否屬於該賽道
+    if (challengeData?.trackId !== trackId) {
+      return ApiResponse.error(res, 'Challenge does not belong to this track', 403);
+    }
+
     const challenge: ExtendedChallenge = {
       id: challengeDoc.id,
-      ...challengeDoc.data(),
+      ...challengeData,
     } as ExtendedChallenge;
+
+    console.log('[GET /api/sponsor/tracks/[trackId]/challenge] Returning challenge:', challenge.title);
 
     return ApiResponse.success(res, challenge);
   } catch (error: any) {
-    console.error('Error fetching challenge:', error);
+    console.error('[GET /api/sponsor/tracks/[trackId]/challenge] Error:', error);
     return ApiResponse.error(res, error.message || 'Failed to fetch challenge', 500);
   }
 }
 
 /**
- * PUT /api/sponsor/tracks/[trackId]/challenge
- * 更新賽道挑戰題目
+ * PUT /api/sponsor/tracks/[trackId]/challenge?challengeId=xxx
+ * 更新指定的挑戰題目
  */
 async function handlePut(req: NextApiRequest, res: NextApiResponse) {
-  const { trackId } = req.query;
+  const { trackId, challengeId } = req.query;
+
+  console.log('[PUT /api/sponsor/tracks/[trackId]/challenge] Query params:', { trackId, challengeId });
 
   if (!trackId || typeof trackId !== 'string') {
     return ApiResponse.error(res, 'Invalid track ID', 400);
+  }
+
+  if (!challengeId || typeof challengeId !== 'string') {
+    return ApiResponse.error(res, 'Invalid challenge ID', 400);
   }
 
   if (!(await requireTrackAccess(req, res, trackId))) return;
@@ -80,19 +102,26 @@ async function handlePut(req: NextApiRequest, res: NextApiResponse) {
   const userId = authReq.userId!;
 
   try {
-    // 1. 查詢該賽道的挑戰
-    const challengesSnapshot = await db
+    // 1. 通過 document ID 直接獲取挑戰
+    const challengeDoc = await db
       .collection(SPONSOR_COLLECTIONS.EXTENDED_CHALLENGES)
-      .where('trackId', '==', trackId)
-      .limit(1)
+      .doc(challengeId)
       .get();
 
-    if (challengesSnapshot.empty) {
-      return ApiResponse.notFound(res, 'Challenge not found for this track');
+    console.log('[PUT /api/sponsor/tracks/[trackId]/challenge] Challenge exists:', challengeDoc.exists);
+
+    if (!challengeDoc.exists) {
+      return ApiResponse.notFound(res, 'Challenge not found');
     }
 
-    const challengeDoc = challengesSnapshot.docs[0];
     const existingChallenge = challengeDoc.data();
+
+    console.log('[PUT /api/sponsor/tracks/[trackId]/challenge] Challenge trackId:', existingChallenge?.trackId);
+
+    // 驗證挑戰是否屬於該賽道
+    if (existingChallenge?.trackId !== trackId) {
+      return ApiResponse.error(res, 'Challenge does not belong to this track', 403);
+    }
 
     // 2. 檢查權限：是否可以編輯挑戰
     const sponsorDoc = await db
@@ -162,6 +191,8 @@ async function handlePut(req: NextApiRequest, res: NextApiResponse) {
     // 4. 更新挑戰
     await challengeDoc.ref.update(updateData);
 
+    console.log('[PUT /api/sponsor/tracks/[trackId]/challenge] Challenge updated successfully');
+
     // 5. 記錄活动日志
     await logSponsorActivity({
       sponsorId: existingChallenge.sponsorId,
@@ -172,6 +203,7 @@ async function handlePut(req: NextApiRequest, res: NextApiResponse) {
       targetId: challengeDoc.id,
       details: {
         trackId: trackId,
+        challengeId: challengeId,
         updatedFields: Object.keys(updateData),
       },
     });
@@ -183,9 +215,11 @@ async function handlePut(req: NextApiRequest, res: NextApiResponse) {
       ...updateData,
     } as ExtendedChallenge;
 
+    console.log('[PUT /api/sponsor/tracks/[trackId]/challenge] Returning updated challenge:', updatedChallenge.title);
+
     return ApiResponse.success(res, updatedChallenge, 'Challenge updated successfully');
   } catch (error: any) {
-    console.error('Error updating challenge:', error);
+    console.error('[PUT /api/sponsor/tracks/[trackId]/challenge] Error:', error);
     return ApiResponse.error(res, error.message || 'Failed to update challenge', 500);
   }
 }
