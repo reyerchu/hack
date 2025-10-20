@@ -18,16 +18,18 @@ import CommitmentContent from '../components/CommitmentContent';
  * - Must agree to commitment terms
  */
 
-interface Challenge {
+interface Track {
   id: string;
-  title: string;
-  track?: string;
+  name: string;
+  description?: string;
   sponsorName?: string;
-  organization?: string;
+  challenges?: any[];
 }
 
 interface TeamMember {
   email: string;
+  role: string;
+  hasEditRight: boolean;
   isValid?: boolean;
   isValidating?: boolean;
   name?: string;
@@ -39,15 +41,17 @@ export default function TeamRegisterPage() {
   
   // Form states
   const [teamName, setTeamName] = useState('');
-  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([{ email: '' }]);
-  const [selectedChallenges, setSelectedChallenges] = useState<string[]>([]);
+  const [myRole, setMyRole] = useState('');
+  const [myHasEditRight, setMyHasEditRight] = useState(false);
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
+  const [selectedTracks, setSelectedTracks] = useState<string[]>([]);
   const [hasAgreed, setHasAgreed] = useState(false);
   const [showCommitment, setShowCommitment] = useState(false);
-  const [expandedChallenges, setExpandedChallenges] = useState<Set<string>>(new Set());
+  const [expandedTracks, setExpandedTracks] = useState<Set<string>>(new Set());
   
   // Data states
-  const [challenges, setChallenges] = useState<Challenge[]>([]);
-  const [isLoadingChallenges, setIsLoadingChallenges] = useState(false);
+  const [tracks, setTracks] = useState<Track[]>([]);
+  const [isLoadingTracks, setIsLoadingTracks] = useState(false);
   
   // Submission states
   const [isSubmitting, setIsSubmitting] = useState(false);
