@@ -42,7 +42,7 @@ export default function AppHeader() {
 
       if (isSignedIn && profile && profile.user) {
         // Handle both flat and nested permission structures
-        const permissions = profile.user.permissions || profile.user.user?.permissions || [];
+        const permissions = profile.user.permissions || (profile.user as any).user?.permissions || [];
         console.log('[AppHeader] User permissions:', permissions);
         console.log('[AppHeader] Profile structure:', profile.user);
 

@@ -13,7 +13,6 @@ import {
   AuthenticatedRequest,
 } from '../../../../../lib/sponsor/middleware';
 import { SPONSOR_COLLECTIONS } from '../../../../../lib/sponsor/collections';
-import { logActivity } from '../../../../../lib/sponsor/activity-log';
 
 initializeApi();
 const db = firestore();
@@ -99,21 +98,24 @@ async function handlePut(req: NextApiRequest, res: NextApiResponse) {
 
     // 5. 記錄活動日誌
     console.log('[assign] 記錄活動日誌...');
-    await logActivity({
-      userId: userId,
-      action: 'update_challenge',
-      resourceType: 'challenge',
-      resourceId: challengeDoc.id,
-      metadata: {
+    try {
+      await db.collection('sponsor-activity-logs').add({
+        userId: userId,
+        action: 'update_challenge',
+        resourceType: 'challenge',
+        resourceId: challengeDoc.id,
         trackId: challengeId,
         trackName: oldData.track,
         oldSponsorId: oldData.sponsorId,
         oldSponsorName: oldData.sponsorName,
         newSponsorId: sponsorId,
         newSponsorName: sponsorName,
-      },
-      ipAddress: req.headers['x-forwarded-for'] as string || req.socket.remoteAddress || '',
-    });
+        timestamp: firestore.FieldValue.serverTimestamp(),
+      });
+    } catch (logError) {
+      console.error('[assign] Failed to log activity:', logError);
+      // Don't fail the assignment if logging fails
+    }
 
     console.log('[assign] ✅ 分配成功');
     return ApiResponse.success(res, {

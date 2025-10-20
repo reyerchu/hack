@@ -518,7 +518,7 @@ export interface TrackListResponse {
     name: string;
     sponsorId: string;
     sponsorName: string;
-    challenge?: ExtendedChallenge;
+    challenges: ExtendedChallenge[];
     stats: {
       submissionCount: number;
       teamCount: number;

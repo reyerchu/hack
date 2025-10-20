@@ -34,7 +34,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     const authReq = req as AuthenticatedRequest;
-    const userId = authReq.uid;
+    const userId = authReq.userId!;
 
     console.log('[Delete Track] Request from user:', userId, 'for track:', trackId);
 

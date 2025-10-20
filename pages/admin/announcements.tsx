@@ -196,10 +196,10 @@ export default function AnnouncementsPage({ questions }: { questions: QADocument
                           {question.question}
                         </p>
                         <div className="flex items-center gap-4 text-xs text-gray-500 mt-2">
-                          <span>From: {question.author || 'Anonymous'}</span>
-                          {question.timestamp && (
+                          <span>From: {(question as any).author || 'Anonymous'}</span>
+                          {(question as any).timestamp && (
                             <span>
-                              {new Date(question.timestamp).toLocaleDateString('zh-TW')}
+                              {new Date((question as any).timestamp).toLocaleDateString('zh-TW')}
                             </span>
                           )}
                         </div>

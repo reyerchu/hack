@@ -62,6 +62,13 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
         assignedAt: data.assignedAt,
         createdAt: data.createdAt,
         updatedAt: data.updatedAt,
+        createdBy: data.createdBy || data.assignedBy || '',
+        title: data.title || data.track || '',
+        prizes: data.prizes || [],
+        submissionRequirements: data.submissionRequirements || data.requirements || '',
+        timeline: data.timeline || '',
+        organization: data.organization || data.sponsorName || '',
+        rank: data.rank || 0,
       } as ExtendedChallenge;
     });
 

@@ -290,7 +290,7 @@ export default function SponsorDashboard() {
                         >
                           <div className="flex-1">
                             <p className="text-sm font-medium" style={{ color: '#1a3a6e' }}>
-                              {challenge.name || challenge.track}
+                              {challenge.title || challenge.track}
                             </p>
                             {challenge.description && (
                               <p className="text-xs mt-1" style={{ color: '#6b7280' }}>
@@ -330,7 +330,7 @@ export default function SponsorDashboard() {
                                 }}
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  handleDeleteClick({ ...track, id: challenge.trackId, name: challenge.name || challenge.track }, e);
+                                  handleDeleteClick({ ...track, id: challenge.trackId, name: challenge.title || challenge.track }, e);
                                 }}
                                 title="刪除挑戰"
                               >

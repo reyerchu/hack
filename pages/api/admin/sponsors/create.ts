@@ -13,7 +13,6 @@ import {
   AuthenticatedRequest,
 } from '../../../../lib/sponsor/middleware';
 import { SPONSOR_COLLECTIONS } from '../../../../lib/sponsor/collections';
-import { logActivity } from '../../../../lib/sponsor/activity-log';
 
 initializeApi();
 const db = firestore();
@@ -90,17 +89,23 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
 
     // 記錄活動日誌
     console.log('[create] 記錄活動日誌...');
-    await logActivity({
-      userId: userId,
-      action: 'other',
-      resourceType: 'sponsor',
-      resourceId: id,
-      metadata: {
-        sponsorName: name,
-        tier: tier,
-      },
-      ipAddress: req.headers['x-forwarded-for'] as string || req.socket.remoteAddress || '',
-    });
+    try {
+      await db.collection('sponsor-activity-logs').add({
+        userId: userId,
+        action: 'other',
+        resourceType: 'sponsor',
+        resourceId: id,
+        metadata: {
+          sponsorName: name,
+          tier: tier,
+        },
+        ipAddress: req.headers['x-forwarded-for'] as string || req.socket.remoteAddress || '',
+        timestamp: firestore.FieldValue.serverTimestamp(),
+      });
+    } catch (logError) {
+      console.error('[create] Failed to log activity:', logError);
+      // Don't fail the creation if logging fails
+    }
 
     console.log('[create] ✅ Sponsor 新增成功');
     return ApiResponse.success(res, {
