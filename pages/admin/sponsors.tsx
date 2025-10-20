@@ -573,11 +573,13 @@ export default function SponsorsPage() {
                     style={{ borderColor: '#d1d5db' }}
                     disabled={isSubmitting}
                   >
-                    <option value="track">Track (賽道)</option>
-                    <option value="platinum">Platinum (白金)</option>
-                    <option value="gold">Gold (金牌)</option>
-                    <option value="silver">Silver (銀牌)</option>
-                    <option value="bronze">Bronze (銅牌)</option>
+                    <option value="event">大會贊助</option>
+                    <option value="title">冠名贊助</option>
+                    <option value="track">賽道贊助</option>
+                    <option value="venue">場地贊助</option>
+                    <option value="prize">獎品贊助</option>
+                    <option value="general">一般贊助</option>
+                    <option value="other">其他贊助</option>
                   </select>
                 </div>
 
@@ -1099,13 +1101,13 @@ export default function SponsorsPage() {
                   style={{ borderColor: '#d1d5db' }}
                   disabled={isEditing}
                 >
-                  <option value="title">Title Sponsor</option>
-                  <option value="platinum">Platinum</option>
-                  <option value="gold">Gold</option>
-                  <option value="silver">Silver</option>
-                  <option value="bronze">Bronze</option>
-                  <option value="track">Track Sponsor</option>
-                  <option value="partner">Partner</option>
+                  <option value="event">大會贊助</option>
+                  <option value="title">冠名贊助</option>
+                  <option value="track">賽道贊助</option>
+                  <option value="venue">場地贊助</option>
+                  <option value="prize">獎品贊助</option>
+                  <option value="general">一般贊助</option>
+                  <option value="other">其他贊助</option>
                 </select>
               </div>
 
