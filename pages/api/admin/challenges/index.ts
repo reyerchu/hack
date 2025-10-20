@@ -46,33 +46,50 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
       .orderBy('track', 'asc')
       .get();
 
-    const challenges = challengesSnapshot.docs.map((doc) => {
-      const data = doc.data();
-      return {
-        id: doc.id,
-        trackId: data.trackId,
-        track: data.track,
-        sponsorId: data.sponsorId,
-        sponsorName: data.sponsorName,
-        status: data.status,
-        description: data.description,
-        requirements: data.requirements,
-        prizeDetails: data.prizeDetails,
-        assignedBy: data.assignedBy,
-        assignedAt: data.assignedAt,
-        createdAt: data.createdAt,
-        updatedAt: data.updatedAt,
-        createdBy: data.createdBy || data.assignedBy || '',
-        title: data.title || data.track || '',
-        prizes: data.prizes || [],
-        submissionRequirements: data.submissionRequirements || data.requirements || '',
-        timeline: data.timeline || '',
-        organization: data.organization || data.sponsorName || '',
-        rank: data.rank || 0,
-      } as ExtendedChallenge;
-    });
+    // Filter out track-only records (those without title or challengeId)
+    // Real challenges should have either title or challengeId field
+    const challenges = challengesSnapshot.docs
+      .filter((doc) => {
+        const data = doc.data();
+        // A real challenge should have title or challengeId
+        // Track-only records typically only have trackId and track name
+        const hasTitle = data.title && data.title.trim() !== '';
+        const hasChallengeId = data.challengeId && data.challengeId.trim() !== '';
+        const isChallengeRecord = hasTitle || hasChallengeId;
+        
+        if (!isChallengeRecord) {
+          console.log('[/api/admin/challenges] 過濾掉 track-only 記錄:', data.trackId, data.track);
+        }
+        
+        return isChallengeRecord;
+      })
+      .map((doc) => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          trackId: data.trackId,
+          challengeId: data.challengeId,
+          track: data.track,
+          title: data.title,
+          sponsorId: data.sponsorId,
+          sponsorName: data.sponsorName,
+          status: data.status,
+          description: data.description,
+          requirements: data.requirements,
+          prizeDetails: data.prizeDetails,
+          prizes: data.prizes,
+          submissionRequirements: data.submissionRequirements,
+          timeline: data.timeline,
+          organization: data.organization,
+          rank: data.rank,
+          assignedBy: data.assignedBy,
+          assignedAt: data.assignedAt,
+          createdAt: data.createdAt,
+          updatedAt: data.updatedAt,
+        } as ExtendedChallenge;
+      });
 
-    console.log('[/api/admin/challenges] 找到', challenges.length, '個 challenges');
+    console.log('[/api/admin/challenges] 找到', challenges.length, '個真正的 challenges');
     return ApiResponse.success(res, { challenges });
   } catch (error: any) {
     console.error('[/api/admin/challenges] ❌ Error:', error);

@@ -153,17 +153,17 @@ export async function checkTrackAccess(
     const sponsorIds = mappingsSnapshot.docs.map((doc) => doc.data().sponsorId);
     console.log('[checkTrackAccess] sponsorIds:', sponsorIds);
     
-    // 3. 檢查這些 sponsors 是否赞助該 track
-    const challengeSnapshot = await db
-      .collection(SPONSOR_COLLECTIONS.EXTENDED_CHALLENGES)
+    // 3. 檢查這些 sponsors 是否擁有該 track
+    const trackSnapshot = await db
+      .collection(SPONSOR_COLLECTIONS.TRACKS)
       .where('trackId', '==', trackId)
       .where('sponsorId', 'in', sponsorIds)
       .limit(1)
       .get();
     
-    console.log('[checkTrackAccess] 找到 challenges:', challengeSnapshot.size);
+    console.log('[checkTrackAccess] 找到 tracks:', trackSnapshot.size);
     
-    const hasAccess = !challengeSnapshot.empty;
+    const hasAccess = !trackSnapshot.empty;
     console.log('[checkTrackAccess] 最終結果:', hasAccess ? '✅ 允許訪問' : '❌ 拒絕訪問');
     
     return hasAccess;
@@ -230,25 +230,16 @@ export async function getUserAccessibleTracks(userId: string): Promise<string[]>
     if (permissions.includes('super_admin') || permissions.includes('admin') || 
         permissions[0] === 'super_admin' || permissions[0] === 'admin') {
       console.log('[getUserAccessibleTracks] 用戶是 admin，獲取所有賽道');
-      const allChallenges = await db
-        .collection(SPONSOR_COLLECTIONS.EXTENDED_CHALLENGES)
+      const allTracks = await db
+        .collection(SPONSOR_COLLECTIONS.TRACKS)
         .get();
       
-      console.log('[getUserAccessibleTracks] extended-challenges 數量:', allChallenges.size);
+      console.log('[getUserAccessibleTracks] tracks 數量:', allTracks.size);
       
-      const trackIds = new Set<string>();
-      allChallenges.docs.forEach((doc) => {
-        const data = doc.data();
-        console.log('[getUserAccessibleTracks] challenge:', doc.id, 'trackId:', data.trackId);
-        const trackId = data.trackId;
-        if (trackId) {
-          trackIds.add(trackId);
-        }
-      });
+      const trackIds = allTracks.docs.map(doc => doc.data().trackId).filter(Boolean);
       
-      const result = Array.from(trackIds);
-      console.log('[getUserAccessibleTracks] 返回 trackIds:', result);
-      return result;
+      console.log('[getUserAccessibleTracks] 返回 trackIds:', trackIds);
+      return trackIds;
     }
     
     // 2. 獲取用戶的 sponsor mappings (使用 document ID)
@@ -264,21 +255,15 @@ export async function getUserAccessibleTracks(userId: string): Promise<string[]>
     
     const sponsorIds = mappingsSnapshot.docs.map((doc) => doc.data().sponsorId);
     
-    // 3. 獲取這些 sponsors 赞助的所有 tracks
-    const challengesSnapshot = await db
-      .collection(SPONSOR_COLLECTIONS.EXTENDED_CHALLENGES)
+    // 3. 獲取這些 sponsors 擁有的所有 tracks
+    const tracksSnapshot = await db
+      .collection(SPONSOR_COLLECTIONS.TRACKS)
       .where('sponsorId', 'in', sponsorIds)
       .get();
     
-    const trackIds = new Set<string>();
-    challengesSnapshot.docs.forEach((doc) => {
-      const trackId = doc.data().trackId;
-      if (trackId) {
-        trackIds.add(trackId);
-      }
-    });
+    const trackIds = tracksSnapshot.docs.map(doc => doc.data().trackId).filter(Boolean);
     
-    return Array.from(trackIds);
+    return trackIds;
   } catch (error) {
     console.error('Error getting user accessible tracks:', error);
     return [];
