@@ -1,8 +1,10 @@
 import { useRouter } from 'next/router';
 import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
+import Link from 'next/link';
 import { useAuthContext } from '../lib/user/AuthContext';
 import { RequestHelper } from '../lib/request-helper';
+import CommitmentContent from '../components/CommitmentContent';
 
 /**
  * Team Registration Page for Hackathon
@@ -495,22 +497,22 @@ export default function TeamRegisterPage() {
                   </button>
 
                   {showCommitment && (
-                    <div className="border-2 rounded-lg p-6 max-h-96 overflow-y-auto" style={{ borderColor: '#e5e7eb' }}>
-                      <iframe
-                        src="https://hackathon.com.tw/commitment"
-                        className="w-full h-96 border-0"
-                        title="參賽者承諾書"
-                      />
-                      <div className="mt-4 text-center">
-                        <a
-                          href="https://hackathon.com.tw/commitment"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-sm hover:underline"
-                          style={{ color: '#1a3a6e' }}
-                        >
-                          在新視窗中開啟完整內容 →
-                        </a>
+                    <div className="border-2 rounded-lg p-6 max-h-96 overflow-y-auto bg-white" style={{ borderColor: '#e5e7eb' }}>
+                      <CommitmentContent />
+                      <div className="mt-6 pt-4 border-t text-center" style={{ borderColor: '#e5e7eb' }}>
+                        <Link href="/commitment">
+                          <a
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-sm hover:underline inline-flex items-center gap-1"
+                            style={{ color: '#1a3a6e' }}
+                          >
+                            在新視窗中開啟完整內容
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                            </svg>
+                          </a>
+                        </Link>
                       </div>
                     </div>
                   )}
