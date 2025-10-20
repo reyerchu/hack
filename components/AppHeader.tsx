@@ -46,6 +46,12 @@ export default function AppHeader() {
         console.log('[AppHeader] User permissions:', permissions);
         console.log('[AppHeader] Profile structure:', profile.user);
 
+        // Add team registration link for all signed-in users
+        if (updatedNavItems.filter(({ text }) => text === '團隊報名').length === 0) {
+          updatedNavItems = [...updatedNavItems, { text: '團隊報名', path: '/team-register' }];
+          console.log('[AppHeader] Added 團隊報名 link');
+        }
+
         // Check if user is admin or super_admin
         const isAdmin = 
           permissions.includes('admin') || 
