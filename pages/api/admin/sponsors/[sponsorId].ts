@@ -202,17 +202,15 @@ async function handleUpdate(req: NextApiRequest, res: NextApiResponse) {
 
     // 6. Check if sponsor exists
     console.log('[UpdateSponsor] Checking if sponsor exists...');
-    const sponsorSnapshot = await db.collection('extended-sponsors')
-      .where('id', '==', sponsorId)
-      .limit(1)
+    const sponsorDoc = await db.collection('extended-sponsors')
+      .doc(sponsorId)
       .get();
 
-    if (sponsorSnapshot.empty) {
+    if (!sponsorDoc.exists) {
       console.log('[UpdateSponsor] ❌ Sponsor not found:', sponsorId);
       return res.status(404).json({ error: '找不到該贊助商' });
     }
 
-    const sponsorDoc = sponsorSnapshot.docs[0];
     console.log('[UpdateSponsor] Sponsor found, updating...');
 
     // 7. Prepare update data
