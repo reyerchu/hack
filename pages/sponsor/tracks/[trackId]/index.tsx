@@ -274,48 +274,74 @@ export default function TrackDetailPage() {
           </h2>
           {track.challenges && track.challenges.length > 0 ? (
             <div className="grid grid-cols-1 gap-4">
-              {track.challenges.map((challenge: any) => (
-                <div
-                  key={challenge.id}
-                  className="rounded-lg p-6 shadow-sm border"
-                  style={{ backgroundColor: '#ffffff', borderColor: '#e5e7eb' }}
-                >
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <h3 className="text-lg font-semibold mb-2" style={{ color: '#1a3a6e' }}>
-                        {challenge.title}
-                      </h3>
-                      <p className="text-sm mb-4" style={{ color: '#6b7280' }}>
-                        {challenge.description}
-                      </p>
-                      {challenge.prizes && challenge.prizes.length > 0 && (
-                        <div className="text-sm" style={{ color: '#059669' }}>
-                          💰 獎金: {challenge.prizes.join(', ')}
-                        </div>
-                      )}
+              {track.challenges.map((challenge: any) => {
+                // 添加详细日志
+                console.log('[Track Detail] Challenge:', {
+                  id: challenge.id,
+                  title: challenge.title,
+                  trackId: challenge.trackId,
+                  currentPageTrackId: trackId,
+                  match: challenge.trackId === trackId
+                });
+                
+                return (
+                  <div
+                    key={challenge.id}
+                    className="rounded-lg p-6 shadow-sm border"
+                    style={{ backgroundColor: '#ffffff', borderColor: '#e5e7eb' }}
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <h3 className="text-lg font-semibold mb-2" style={{ color: '#1a3a6e' }}>
+                          {challenge.title}
+                        </h3>
+                        <p className="text-sm mb-4" style={{ color: '#6b7280' }}>
+                          {challenge.description}
+                        </p>
+                        {challenge.prizes && challenge.prizes.length > 0 && (
+                          <div className="text-sm" style={{ color: '#059669' }}>
+                            💰 獎金: {challenge.prizes.join(', ')}
+                          </div>
+                        )}
+                        {/* 添加调试信息 */}
+                        {challenge.trackId !== trackId && (
+                          <div className="mt-2 text-xs text-red-600 bg-red-50 p-2 rounded">
+                            ⚠️ 警告: trackId 不匹配 ({challenge.trackId} !== {trackId})
+                          </div>
+                        )}
+                      </div>
+                      <Link href={`/sponsor/tracks/${trackId}/challenge?challengeId=${challenge.id}`}>
+                        <a
+                          onClick={() => {
+                            console.log('[Track Detail] Navigating to challenge:', {
+                              url: `/sponsor/tracks/${trackId}/challenge?challengeId=${challenge.id}`,
+                              challengeId: challenge.id,
+                              challengeTitle: challenge.title,
+                              challengeTrackId: challenge.trackId,
+                              expectedTrackId: trackId
+                            });
+                          }}
+                          className="ml-4 px-4 py-2 rounded-lg text-sm font-medium border-2 transition-colors"
+                          style={{
+                            borderColor: '#1a3a6e',
+                            color: '#1a3a6e',
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor = '#1a3a6e';
+                            e.currentTarget.style.color = '#ffffff';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor = 'transparent';
+                            e.currentTarget.style.color = '#1a3a6e';
+                          }}
+                        >
+                          編輯
+                        </a>
+                      </Link>
                     </div>
-                    <Link href={`/sponsor/tracks/${trackId}/challenge?challengeId=${challenge.id}`}>
-                      <a
-                        className="ml-4 px-4 py-2 rounded-lg text-sm font-medium border-2 transition-colors"
-                        style={{
-                          borderColor: '#1a3a6e',
-                          color: '#1a3a6e',
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.backgroundColor = '#1a3a6e';
-                          e.currentTarget.style.color = '#ffffff';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.backgroundColor = 'transparent';
-                          e.currentTarget.style.color = '#1a3a6e';
-                        }}
-                      >
-                        編輯
-                      </a>
-                    </Link>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           ) : (
             <div
