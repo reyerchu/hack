@@ -570,19 +570,19 @@ export default function TeamRegisterPage() {
                 </button>
                 <button
                   type="submit"
-                  disabled={isSubmitting}
-                  className="px-8 py-3 rounded-lg font-medium transition-colors disabled:opacity-50"
+                  disabled={isSubmitting || !hasAgreed}
+                  className="px-8 py-3 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   style={{
-                    backgroundColor: isSubmitting ? '#9ca3af' : '#1a3a6e',
+                    backgroundColor: (isSubmitting || !hasAgreed) ? '#9ca3af' : '#1a3a6e',
                     color: '#ffffff',
                   }}
                   onMouseEnter={(e) => {
-                    if (!isSubmitting) {
+                    if (!isSubmitting && hasAgreed) {
                       e.currentTarget.style.backgroundColor = '#2a4a7e';
                     }
                   }}
                   onMouseLeave={(e) => {
-                    if (!isSubmitting) {
+                    if (!isSubmitting && hasAgreed) {
                       e.currentTarget.style.backgroundColor = '#1a3a6e';
                     }
                   }}
