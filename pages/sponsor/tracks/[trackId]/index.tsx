@@ -33,6 +33,15 @@ export default function TrackDetailPage() {
     submissionRequirements: '',
   });
 
+  // Edit Track Modal
+  const [showEditTrackModal, setShowEditTrackModal] = useState(false);
+  const [isEditingTrack, setIsEditingTrack] = useState(false);
+  const [editTrackMessage, setEditTrackMessage] = useState('');
+  const [editTrackData, setEditTrackData] = useState({
+    name: '',
+    description: '',
+  });
+
   // 權限檢查
   useEffect(() => {
     if (!authLoading && !isSignedIn) {
@@ -146,6 +155,65 @@ export default function TrackDetailPage() {
     }
   };
 
+  // Handle edit track
+  const handleEditTrackClick = () => {
+    if (track) {
+      setEditTrackData({
+        name: track.name || '',
+        description: track.description || '',
+      });
+      setEditTrackMessage('');
+      setShowEditTrackModal(true);
+    }
+  };
+
+  const handleUpdateTrack = async () => {
+    try {
+      setIsEditingTrack(true);
+      setEditTrackMessage('');
+
+      // Validation
+      if (!editTrackData.name.trim()) {
+        setEditTrackMessage('❌ 請輸入賽道名稱');
+        return;
+      }
+
+      const currentUser = firebase.auth().currentUser;
+      if (!currentUser) {
+        setEditTrackMessage('❌ 請先登入');
+        return;
+      }
+
+      const token = await currentUser.getIdToken();
+      
+      const response = await fetch(`/api/sponsor/tracks/${trackId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(editTrackData),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setEditTrackMessage('✅ 賽道更新成功！');
+        setTimeout(() => {
+          setShowEditTrackModal(false);
+          fetchTrackDetails(); // Refresh track data
+        }, 1500);
+      } else {
+        setEditTrackMessage(`❌ ${data.error || '更新失敗'}`);
+      }
+    } catch (error: any) {
+      console.error('Failed to update track:', error);
+      setEditTrackMessage('❌ 更新賽道時發生錯誤');
+    } finally {
+      setIsEditingTrack(false);
+    }
+  };
+
   if (authLoading || loading) {
     return (
       <div className="min-h-screen" style={{ backgroundColor: '#f9fafb' }}>
@@ -199,10 +267,39 @@ export default function TrackDetailPage() {
           </Link>
 
           <div className="flex items-start justify-between">
-            <div>
-              <h1 className="text-3xl font-bold mb-2" style={{ color: '#1a3a6e' }}>
-                {track.name || track.trackName}
-              </h1>
+            <div className="flex-1">
+              <div className="flex items-center gap-3 mb-2">
+                <h1 className="text-3xl font-bold" style={{ color: '#1a3a6e' }}>
+                  {track.name || track.trackName}
+                </h1>
+                {track.permissions?.canEdit && (
+                  <button
+                    onClick={handleEditTrackClick}
+                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors"
+                    style={{
+                      backgroundColor: '#f3f4f6',
+                      color: '#1a3a6e',
+                      border: '1px solid #e5e7eb',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = '#e5e7eb';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = '#f3f4f6';
+                    }}
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                      />
+                    </svg>
+                    編輯
+                  </button>
+                )}
+              </div>
               <p className="text-sm" style={{ color: '#6b7280' }}>
                 {track.description || '賽道管理與數據總覽'}
               </p>
@@ -211,7 +308,7 @@ export default function TrackDetailPage() {
             {track.permissions?.canEdit && (
               <button
                 onClick={handleAddChallengeClick}
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-colors"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-colors shrink-0"
                 style={{
                   backgroundColor: '#1a3a6e',
                   color: '#ffffff',
@@ -557,6 +654,114 @@ export default function TrackDetailPage() {
                   disabled={isCreating}
                 >
                   {isCreating ? '創建中...' : '確認創建'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Track Modal */}
+      {showEditTrackModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div
+            className="rounded-lg p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+            style={{ backgroundColor: '#ffffff' }}
+          >
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-2xl font-bold" style={{ color: '#1a3a6e' }}>
+                  編輯賽道
+                </h2>
+                <p className="text-sm mt-1" style={{ color: '#6b7280' }}>
+                  更新賽道的基本資訊
+                </p>
+              </div>
+              <button
+                onClick={() => setShowEditTrackModal(false)}
+                className="p-2 rounded-lg hover:bg-gray-100"
+                disabled={isEditingTrack}
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: '#6b7280' }}>
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="space-y-6">
+              {/* Track Name */}
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: '#374151' }}>
+                  賽道名稱 <span style={{ color: '#ef4444' }}>*</span>
+                </label>
+                <input
+                  type="text"
+                  value={editTrackData.name}
+                  onChange={(e) =>
+                    setEditTrackData({ ...editTrackData, name: e.target.value })
+                  }
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  style={{ borderColor: '#d1d5db' }}
+                  placeholder="例如：Sui 賽道"
+                  disabled={isEditingTrack}
+                />
+              </div>
+
+              {/* Track Description */}
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: '#374151' }}>
+                  賽道描述
+                </label>
+                <textarea
+                  value={editTrackData.description}
+                  onChange={(e) =>
+                    setEditTrackData({ ...editTrackData, description: e.target.value })
+                  }
+                  rows={5}
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  style={{ borderColor: '#d1d5db' }}
+                  placeholder="描述這個賽道的主題、目標和特色..."
+                  disabled={isEditingTrack}
+                />
+              </div>
+
+              {/* Message */}
+              {editTrackMessage && (
+                <div
+                  className="p-4 rounded-lg"
+                  style={{
+                    backgroundColor: editTrackMessage.includes('✅') ? '#dcfce7' : '#fee2e2',
+                    border: `1px solid ${editTrackMessage.includes('✅') ? '#86efac' : '#fecaca'}`,
+                    color: editTrackMessage.includes('✅') ? '#166534' : '#991b1b',
+                  }}
+                >
+                  {editTrackMessage}
+                </div>
+              )}
+
+              {/* Actions */}
+              <div className="flex gap-4 justify-end">
+                <button
+                  onClick={() => setShowEditTrackModal(false)}
+                  className="px-6 py-2 rounded-lg font-medium border-2 transition-colors"
+                  style={{
+                    borderColor: '#d1d5db',
+                    color: '#6b7280',
+                  }}
+                  disabled={isEditingTrack}
+                >
+                  取消
+                </button>
+                <button
+                  onClick={handleUpdateTrack}
+                  className="px-6 py-2 rounded-lg font-medium transition-colors"
+                  style={{
+                    backgroundColor: isEditingTrack ? '#9ca3af' : '#1a3a6e',
+                    color: '#ffffff',
+                  }}
+                  disabled={isEditingTrack}
+                >
+                  {isEditingTrack ? '更新中...' : '確認更新'}
                 </button>
               </div>
             </div>
