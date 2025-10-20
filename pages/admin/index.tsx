@@ -100,22 +100,13 @@ export default function Admin() {
                   <p className="text-sm text-gray-600">管理所有註冊用戶</p>
                 </a>
               </Link>
-              <Link href="/admin/events">
+              <Link href="/admin/sponsors">
                 <a className="block bg-white rounded-lg p-6 shadow-sm hover:shadow-lg transition-all duration-300 border-2"
                    style={{ borderColor: '#e5e7eb' }}>
                   <h3 className="text-lg font-bold mb-2" style={{ color: '#1a3a6e' }}>
-                    📅 活動管理
+                    🏢 贊助商管理
                   </h3>
-                  <p className="text-sm text-gray-600">管理活動時程</p>
-                </a>
-              </Link>
-              <Link href="/admin/challenges">
-                <a className="block bg-white rounded-lg p-6 shadow-sm hover:shadow-lg transition-all duration-300 border-2"
-                   style={{ borderColor: '#e5e7eb' }}>
-                  <h3 className="text-lg font-bold mb-2" style={{ color: '#1a3a6e' }}>
-                    🎯 挑戰管理
-                  </h3>
-                  <p className="text-sm text-gray-600">管理挑戰與贊助商</p>
+                  <p className="text-sm text-gray-600">管理贊助商與新增贊助商</p>
                 </a>
               </Link>
               <Link href="/admin/announcements">

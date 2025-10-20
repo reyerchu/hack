@@ -105,82 +105,57 @@ export default function ChallengePage({ challenges_ }: ChallengePageProps) {
     return <div className="text-2xl font-black text-center pt-24">Unauthorized</div>;
 
   return (
-    <div className="flex flex-col flex-grow min-h-screen bg-gray-50">
+    <div className="flex flex-col flex-grow">
       <Head>
         <title>挑戰管理 - 管理員儀表板</title>
         <meta name="description" content="管理所有挑戰" />
       </Head>
 
-      <div className="max-w-5xl mx-auto px-4 py-20">
-        <div className="mb-12">
-          <h1 className="text-4xl font-bold mb-2 text-left" style={{ color: '#1a3a6e' }}>
-            管理儀表板
-          </h1>
-        </div>
-        <AdminHeader />
-
-        {/* Management Cards Section */}
-        <div className="mb-12">
-          <h2
-            className="text-2xl font-bold mb-6"
-            style={{ color: '#1a3a6e' }}
-          >
-            Challenge 管理功能
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Link href="/admin/challenge-management">
-              <a className="block bg-white rounded-lg p-6 shadow-sm hover:shadow-lg transition-all duration-300 border-2"
-                 style={{ borderColor: '#e5e7eb' }}
-                 onMouseEnter={(e) => {
-                   e.currentTarget.style.borderColor = '#1a3a6e';
-                   e.currentTarget.style.transform = 'translateY(-4px)';
-                 }}
-                 onMouseLeave={(e) => {
-                   e.currentTarget.style.borderColor = '#e5e7eb';
-                   e.currentTarget.style.transform = 'translateY(0)';
-                 }}>
-                <div className="text-4xl mb-4">🎯</div>
-                <h3 className="text-lg font-bold mb-2" style={{ color: '#1a3a6e' }}>
-                  Challenge 分配管理
-                </h3>
-                <p className="text-sm text-gray-600 leading-relaxed">
-                  分配 challenges 給不同的 sponsors，管理賽道與贊助商的對應關係
-                </p>
-              </a>
-            </Link>
-            <Link href="/admin/add-sponsor">
-              <a className="block bg-white rounded-lg p-6 shadow-sm hover:shadow-lg transition-all duration-300 border-2"
-                 style={{ borderColor: '#e5e7eb' }}
-                 onMouseEnter={(e) => {
-                   e.currentTarget.style.borderColor = '#1a3a6e';
-                   e.currentTarget.style.transform = 'translateY(-4px)';
-                 }}
-                 onMouseLeave={(e) => {
-                   e.currentTarget.style.borderColor = '#e5e7eb';
-                   e.currentTarget.style.transform = 'translateY(0)';
-                 }}>
-                <div className="text-4xl mb-4">➕</div>
-                <h3 className="text-lg font-bold mb-2" style={{ color: '#1a3a6e' }}>
-                  新增 Sponsor
-                </h3>
-                <p className="text-sm text-gray-600 leading-relaxed">
-                  添加新的贊助商資料，包含名稱、聯絡方式和權限設定
-                </p>
-              </a>
-            </Link>
+      <div className="min-h-screen bg-gray-50">
+        <div className="max-w-5xl mx-auto px-4 py-20">
+          <div className="mb-12 text-left">
+            <h1 className="text-4xl font-bold mb-2" style={{ color: '#1a3a6e' }}>
+              管理儀表板
+            </h1>
           </div>
-        </div>
+          
+          <AdminHeader />
 
-        {/* Challenges List Section */}
-        <div className="mb-12">
-          <h2
-            className="text-2xl font-bold mb-6"
-            style={{ color: '#1a3a6e' }}
-          >
-            所有 Challenges
-          </h2>
+          {/* Challenges List Section */}
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-2xl font-bold" style={{ color: '#1a3a6e' }}>
+              挑戰管理
+            </h2>
+            {currentChallengeEditIndex === -1 && (
+              <Link href={`/admin/challenges/add?id=${nextChallengeIndex}`}>
+                <button
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-colors"
+                  style={{
+                    backgroundColor: '#1a3a6e',
+                    color: '#ffffff',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#2a4a7e';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = '#1a3a6e';
+                  }}
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 4v16m8-8H4"
+                    />
+                  </svg>
+                  新增挑戰
+                </button>
+              </Link>
+            )}
+          </div>
 
-          <div>
+          <div className="bg-white rounded-lg shadow-sm border-2 p-6" style={{ borderColor: '#e5e7eb' }}>
             {currentChallengeEditIndex !== -1 ? (
               <div>
                 <ChallengeForm
@@ -195,9 +170,19 @@ export default function ChallengePage({ challenges_ }: ChallengePageProps) {
                 />
                 <button
                   onClick={() => setCurrentChallengeEditIndex(-1)}
-                  className="p-3 bg-gray-200 rounded-lg"
+                  className="px-4 py-2 rounded-lg font-medium transition-colors"
+                  style={{
+                    backgroundColor: '#e5e7eb',
+                    color: '#374151',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#d1d5db';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = '#e5e7eb';
+                  }}
                 >
-                  Go Back
+                  返回列表
                 </button>
               </div>
             ) : (
@@ -215,24 +200,28 @@ export default function ChallengePage({ challenges_ }: ChallengePageProps) {
                     setChallenges((prev) => arrayMove(prev, oldIndex, newIndex));
                   }}
                 />
-                <div className="p-3 flex gap-x-4">
-                  <Link href={`/admin/challenges/add?id=${nextChallengeIndex}`}>
-                    <button className="p-3 bg-green-400 rounded-lg">Add New Challenge</button>
-                  </Link>
-                  <Link href="/admin">
-                    <button className="p-3 bg-gray-200 rounded-lg">Go Back</button>
-                  </Link>
-                  {orderChanged && (
+                {orderChanged && (
+                  <div className="flex gap-3 pt-6 mt-6 border-t-2" style={{ borderColor: '#e5e7eb' }}>
                     <button
                       onClick={async () => {
                         await submitReorderChallengesRequest();
                       }}
-                      className="p-3 bg-green-400 rounded-lg"
+                      className="px-6 py-3 rounded-lg font-semibold transition-colors"
+                      style={{
+                        backgroundColor: '#059669',
+                        color: '#ffffff',
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = '#047857';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = '#059669';
+                      }}
                     >
-                      Update Challenge Ranking
+                      更新排序
                     </button>
-                  )}
-                </div>
+                  </div>
+                )}
               </>
             )}
             {currentChallengeDeleteIndex !== -1 && (

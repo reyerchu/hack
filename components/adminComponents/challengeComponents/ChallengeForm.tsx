@@ -27,21 +27,21 @@ export default function ChallengeForm({
         value={challengeForm.title}
         onChange={(e) => setChallengeForm((prev) => ({ ...prev, title: e.target.value }))}
         type="text"
-        placeholder="Enter challenge title"
+        placeholder="輸入挑戰標題"
         className="border-2 p-3 rounded-lg"
       />
       <input
         value={challengeForm.organization}
         onChange={(e) => setChallengeForm((prev) => ({ ...prev, organization: e.target.value }))}
         type="text"
-        placeholder="Enter organization"
+        placeholder="輸入組織/公司名稱"
         className="border-2 p-3 rounded-lg"
       />
       <textarea
         cols={50}
         className="border-2 p-3 rounded-lg"
         value={challengeForm.description}
-        placeholder="Enter challenge description"
+        placeholder="輸入挑戰描述"
         onChange={(e) => {
           setChallengeForm((prev) => ({
             ...prev,
@@ -57,7 +57,7 @@ export default function ChallengeForm({
             value={prize}
             key={idx}
             type="text"
-            placeholder="Enter prizes"
+            placeholder="輸入獎項"
             onChange={(e) =>
               setChallengeForm((prev) => ({
                 ...prev,
@@ -75,9 +75,19 @@ export default function ChallengeForm({
                 prizes: prev.prizes.filter((sp, i) => i !== idx),
               }))
             }
-            className="bg-red-400 rounded-lg p-2 w-1/4"
+            className="rounded-lg p-2 w-1/4 font-semibold transition-colors"
+            style={{
+              backgroundColor: '#991b1b',
+              color: '#ffffff',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#7f1d1d';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = '#991b1b';
+            }}
           >
-            Delete Prizes
+            刪除
           </button>
         </div>
       ))}
@@ -88,9 +98,19 @@ export default function ChallengeForm({
             prizes: prev.prizes ? [...prev.prizes, ''] : [''],
           }))
         }
-        className="p-3 bg-green-400 rounded-lg"
+        className="p-3 rounded-lg font-semibold transition-colors"
+        style={{
+          backgroundColor: '#1a3a6e',
+          color: '#ffffff',
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.backgroundColor = '#2a4a7e';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.backgroundColor = '#1a3a6e';
+        }}
       >
-        Add Prizes
+        新增獎項
       </button>
       <button
         disabled={disableSubmit}
@@ -103,9 +123,24 @@ export default function ChallengeForm({
             setDisableSubmit(false);
           }
         }}
-        className="p-3 bg-green-400 rounded-lg"
+        className="p-3 rounded-lg font-semibold transition-colors"
+        style={{
+          backgroundColor: disableSubmit ? '#9ca3af' : '#1a3a6e',
+          color: '#ffffff',
+          cursor: disableSubmit ? 'not-allowed' : 'pointer',
+        }}
+        onMouseEnter={(e) => {
+          if (!disableSubmit) {
+            e.currentTarget.style.backgroundColor = '#2a4a7e';
+          }
+        }}
+        onMouseLeave={(e) => {
+          if (!disableSubmit) {
+            e.currentTarget.style.backgroundColor = '#1a3a6e';
+          }
+        }}
       >
-        {formAction === 'Edit' ? 'Save Changes' : 'Add Event'}
+        {formAction === 'Add' ? '新增' : '儲存'}挑戰
       </button>
     </div>
   );

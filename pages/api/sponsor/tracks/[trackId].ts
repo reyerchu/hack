@@ -92,29 +92,43 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
     
     console.log('[/api/sponsor/tracks/[trackId]] ✅ 權限檢查通過');
 
-    // 2. 獲取賽道資訊（從 extended-challenges）
-    console.log('[/api/sponsor/tracks/[trackId]] 查詢 extended-challenges...');
-    const challengeSnapshot = await db
-      .collection(SPONSOR_COLLECTIONS.EXTENDED_CHALLENGES)
+    // 2. 獲取賽道資訊（從 tracks 集合）
+    console.log('[/api/sponsor/tracks/[trackId]] 查詢 tracks...');
+    const trackSnapshot = await db
+      .collection(SPONSOR_COLLECTIONS.TRACKS)
       .where('trackId', '==', trackId)
       .limit(1)
       .get();
 
-    if (challengeSnapshot.empty) {
+    if (trackSnapshot.empty) {
       console.log('[/api/sponsor/tracks/[trackId]] ❌ 賽道不存在');
       return ApiResponse.notFound(res, '找不到該賽道');
     }
 
-    const challengeDoc = challengeSnapshot.docs[0];
-    const challenge = { id: challengeDoc.id, ...challengeDoc.data() } as ExtendedChallenge;
-    console.log('[/api/sponsor/tracks/[trackId]] 找到 challenge:', challenge.trackId);
+    const trackDoc = trackSnapshot.docs[0];
+    const track = trackDoc.data();
+    console.log('[/api/sponsor/tracks/[trackId]] 找到 track:', track.trackId);
 
-    // 3. 獲取統計數據
+    // 3. 獲取該賽道的所有挑戰
+    console.log('[/api/sponsor/tracks/[trackId]] 查詢 challenges...');
+    const challengesSnapshot = await db
+      .collection(SPONSOR_COLLECTIONS.EXTENDED_CHALLENGES)
+      .where('trackId', '==', trackId)
+      .where('status', '==', 'published')
+      .get();
+
+    const challenges = challengesSnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    })) as ExtendedChallenge[];
+    console.log('[/api/sponsor/tracks/[trackId]] 找到 challenges 數量:', challenges.length);
+
+    // 4. 獲取統計數據
     const stats = await getTrackStats(trackId);
     console.log('[/api/sponsor/tracks/[trackId]] stats:', stats);
 
-    // 4. 獲取用戶對此賽道的權限
-    const userRole = await getUserSponsorRole(userId, challenge.sponsorId);
+    // 5. 獲取用戶對此賽道的權限
+    const userRole = await getUserSponsorRole(userId, track.sponsorId);
     console.log('[/api/sponsor/tracks/[trackId]] userRole:', userRole);
     
     const permissions = {
@@ -125,13 +139,14 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
     };
     console.log('[/api/sponsor/tracks/[trackId]] permissions:', permissions);
 
-    // 5. 組裝回應數據
+    // 6. 組裝回應數據
     const trackData = {
       id: trackId,
-      name: challenge.track,
-      sponsorId: challenge.sponsorId,
-      sponsorName: challenge.sponsorName,
-      challenge: challenge,
+      name: track.name,
+      description: track.description || '',
+      sponsorId: track.sponsorId,
+      sponsorName: track.sponsorName,
+      challenges: challenges,
       stats: stats,
       permissions: permissions,
     };

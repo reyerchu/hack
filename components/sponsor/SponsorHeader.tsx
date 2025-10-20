@@ -1,34 +1,17 @@
 import { useRouter } from 'next/router';
 import Link from 'next/link';
-import { useAuthContext } from '../../lib/user/AuthContext';
-
-function isAuthorized(user): boolean {
-  if (!user || !user.permissions) return false;
-  return (user.permissions as string[]).includes('super_admin');
-}
 
 /**
- * A dashboard header.
+ * Sponsor Dashboard Header with tabs
  */
-export default function AdminHeader() {
-  const { user } = useAuthContext();
+export default function SponsorHeader() {
   const router = useRouter();
 
   const tabs = [
-    { name: '用戶管理', href: '/admin/users', exactMatch: false },
-    { name: '贊助商管理', href: '/admin/sponsors', exactMatch: false },
-    { name: '公告與問題', href: '/admin/announcements', exactMatch: false },
-    { name: '統計', href: '/admin/stats', exactMatch: false, superAdminOnly: true },
-    { name: '掃描', href: '/admin/scan', exactMatch: false },
+    { name: '賽道管理', href: '/sponsor/tracks', exactMatch: false },
+    { name: '挑戰管理', href: '/sponsor/challenges', exactMatch: false },
+    { name: '報表', href: '/sponsor/reports', exactMatch: false },
   ];
-
-  // Filter tabs based on permissions
-  const filteredTabs = tabs.filter(tab => {
-    if (tab.superAdminOnly) {
-      return isAuthorized(user);
-    }
-    return true;
-  });
 
   const isActiveTab = (href: string, exactMatch: boolean) => {
     if (exactMatch) {
@@ -40,7 +23,7 @@ export default function AdminHeader() {
   return (
     <div className="border-b-2 mb-8" style={{ borderColor: '#e5e7eb' }}>
       <nav className="-mb-0.5 flex space-x-8">
-        {filteredTabs.map((tab) => (
+        {tabs.map((tab) => (
           <Link key={tab.href} href={tab.href}>
             <a
               className="py-4 px-1 border-b-2 font-medium text-[14px] transition-colors"
@@ -70,3 +53,4 @@ export default function AdminHeader() {
     </div>
   );
 }
+

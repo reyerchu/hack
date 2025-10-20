@@ -5,7 +5,7 @@
  */
 
 import { NextApiRequest, NextApiResponse } from 'next';
-import { firestore } from 'firebase-admin';
+import firebase from 'firebase-admin';
 import initializeApi from '../../../../lib/admin/init';
 import {
   requireAuth,
@@ -13,10 +13,9 @@ import {
   AuthenticatedRequest,
 } from '../../../../lib/sponsor/middleware';
 import { SPONSOR_COLLECTIONS } from '../../../../lib/sponsor/collections';
-import { logActivity } from '../../../../lib/sponsor/activity-log';
 
 initializeApi();
-const db = firestore();
+const db = firebase.firestore();
 
 /**
  * POST - 新增 sponsor
@@ -90,17 +89,19 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
 
     // 記錄活動日誌
     console.log('[create] 記錄活動日誌...');
-    await logActivity({
-      userId: userId,
-      action: 'other',
-      resourceType: 'sponsor',
-      resourceId: id,
-      metadata: {
+    try {
+      await db.collection('sponsor-activity-logs').add({
+        userId: userId,
+        action: 'create_sponsor',
+        resourceType: 'sponsor',
+        resourceId: id,
         sponsorName: name,
         tier: tier,
-      },
-      ipAddress: req.headers['x-forwarded-for'] as string || req.socket.remoteAddress || '',
-    });
+        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+      });
+    } catch (logError) {
+      console.error('[create] Failed to log activity:', logError);
+    }
 
     console.log('[create] ✅ Sponsor 新增成功');
     return ApiResponse.success(res, {

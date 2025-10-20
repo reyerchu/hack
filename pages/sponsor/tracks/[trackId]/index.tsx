@@ -21,6 +21,17 @@ export default function TrackDetailPage() {
   const [track, setTrack] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  // Add Challenge Modal
+  const [showAddChallengeModal, setShowAddChallengeModal] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
+  const [createMessage, setCreateMessage] = useState('');
+  const [newChallengeData, setNewChallengeData] = useState({
+    title: '',
+    description: '',
+    prizes: '',
+    submissionRequirements: '',
+  });
 
   // 權限檢查
   useEffect(() => {
@@ -32,49 +43,108 @@ export default function TrackDetailPage() {
   }, [authLoading, isSignedIn, isSponsor, router]);
 
   // 獲取賽道詳情
-  useEffect(() => {
+  const fetchTrackDetails = async () => {
     if (!trackId || !isSignedIn) return;
 
-    const fetchTrackDetails = async () => {
-      try {
-        setLoading(true);
-        setError(null);
+    try {
+      setLoading(true);
+      setError(null);
 
-        // 安全获取 Firebase ID token
-        const currentUser = firebase.auth().currentUser;
-        if (!currentUser) {
-          throw new Error('無法獲取認證令牌');
-        }
-        const token = await currentUser.getIdToken();
-
-        console.log('[TrackDetailPage] 發送請求:', `/api/sponsor/tracks/${trackId}`);
-        const response = await fetch(`/api/sponsor/tracks/${trackId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        console.log('[TrackDetailPage] Response status:', response.status);
-
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
-          console.error('[TrackDetailPage] API 錯誤:', errorData);
-          throw new Error(errorData.error || 'Failed to fetch track details');
-        }
-
-        const data = await response.json();
-        console.log('[TrackDetailPage] 收到數據:', data);
-        setTrack(data.data || data);
-      } catch (err: any) {
-        console.error('Error fetching track:', err);
-        setError(err.message);
-      } finally {
-        setLoading(false);
+      // 安全获取 Firebase ID token
+      const currentUser = firebase.auth().currentUser;
+      if (!currentUser) {
+        throw new Error('無法獲取認證令牌');
       }
-    };
+      const token = await currentUser.getIdToken();
 
+      console.log('[TrackDetailPage] 發送請求:', `/api/sponsor/tracks/${trackId}`);
+      const response = await fetch(`/api/sponsor/tracks/${trackId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      console.log('[TrackDetailPage] Response status:', response.status);
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        console.error('[TrackDetailPage] API 錯誤:', errorData);
+        throw new Error(errorData.error || 'Failed to fetch track details');
+      }
+
+      const data = await response.json();
+      console.log('[TrackDetailPage] 收到數據:', data);
+      setTrack(data.data || data);
+    } catch (err: any) {
+      console.error('Error fetching track:', err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchTrackDetails();
   }, [trackId, isSignedIn]);
+
+  // Handle add challenge
+  const handleAddChallengeClick = () => {
+    setNewChallengeData({
+      title: '',
+      description: '',
+      prizes: '',
+      submissionRequirements: '',
+    });
+    setCreateMessage('');
+    setShowAddChallengeModal(true);
+  };
+
+  const handleCreateChallenge = async () => {
+    try {
+      setIsCreating(true);
+      setCreateMessage('');
+
+      // Validation
+      if (!newChallengeData.title.trim()) {
+        setCreateMessage('❌ 請輸入挑戰標題');
+        return;
+      }
+
+      const currentUser = firebase.auth().currentUser;
+      if (!currentUser) {
+        setCreateMessage('❌ 請先登入');
+        return;
+      }
+
+      const token = await currentUser.getIdToken();
+      
+      const response = await fetch(`/api/sponsor/tracks/${trackId}/challenges/create`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(newChallengeData),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setCreateMessage('✅ 挑戰創建成功！');
+        setTimeout(() => {
+          setShowAddChallengeModal(false);
+          fetchTrackDetails(); // Refresh track data
+        }, 1500);
+      } else {
+        setCreateMessage(`❌ ${data.error || '創建失敗'}`);
+      }
+    } catch (error: any) {
+      console.error('Failed to create challenge:', error);
+      setCreateMessage('❌ 創建挑戰時發生錯誤');
+    } finally {
+      setIsCreating(false);
+    }
+  };
 
   if (authLoading || loading) {
     return (
@@ -131,39 +201,38 @@ export default function TrackDetailPage() {
           <div className="flex items-start justify-between">
             <div>
               <h1 className="text-3xl font-bold mb-2" style={{ color: '#1a3a6e' }}>
-                {track.trackName}
+                {track.name || track.trackName}
               </h1>
               <p className="text-sm" style={{ color: '#6b7280' }}>
-                賽道管理與數據總覽
+                {track.description || '賽道管理與數據總覽'}
               </p>
             </div>
 
             {track.permissions?.canEdit && (
-              <Link href={`/sponsor/tracks/${trackId}/challenge`}>
-                <a
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-colors"
-                  style={{
-                    backgroundColor: '#1a3a6e',
-                    color: '#ffffff',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = '#2a4a7e';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = '#1a3a6e';
-                  }}
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                    />
-                  </svg>
-                  編輯挑戰
-                </a>
-              </Link>
+              <button
+                onClick={handleAddChallengeClick}
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-colors"
+                style={{
+                  backgroundColor: '#1a3a6e',
+                  color: '#ffffff',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#2a4a7e';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = '#1a3a6e';
+                }}
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 4v16m8-8H4"
+                  />
+                </svg>
+                新增挑戰
+              </button>
             )}
           </div>
         </div>
@@ -196,6 +265,85 @@ export default function TrackDetailPage() {
               {track.stats?.averageScore ? track.stats.averageScore.toFixed(1) : '-'}
             </p>
           </div>
+        </div>
+
+        {/* 挑戰列表 */}
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold mb-4" style={{ color: '#1a3a6e' }}>
+            賽道挑戰
+          </h2>
+          {track.challenges && track.challenges.length > 0 ? (
+            <div className="grid grid-cols-1 gap-4">
+              {track.challenges.map((challenge: any) => (
+                <div
+                  key={challenge.id}
+                  className="rounded-lg p-6 shadow-sm border"
+                  style={{ backgroundColor: '#ffffff', borderColor: '#e5e7eb' }}
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <h3 className="text-lg font-semibold mb-2" style={{ color: '#1a3a6e' }}>
+                        {challenge.title}
+                      </h3>
+                      <p className="text-sm mb-4" style={{ color: '#6b7280' }}>
+                        {challenge.description}
+                      </p>
+                      {challenge.prizes && challenge.prizes.length > 0 && (
+                        <div className="text-sm" style={{ color: '#059669' }}>
+                          💰 獎金: {challenge.prizes.join(', ')}
+                        </div>
+                      )}
+                    </div>
+                    <Link href={`/sponsor/tracks/${trackId}/challenge?challengeId=${challenge.id}`}>
+                      <a
+                        className="ml-4 px-4 py-2 rounded-lg text-sm font-medium border-2 transition-colors"
+                        style={{
+                          borderColor: '#1a3a6e',
+                          color: '#1a3a6e',
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.backgroundColor = '#1a3a6e';
+                          e.currentTarget.style.color = '#ffffff';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = 'transparent';
+                          e.currentTarget.style.color = '#1a3a6e';
+                        }}
+                      >
+                        編輯
+                      </a>
+                    </Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div
+              className="rounded-lg p-12 text-center border-2 border-dashed"
+              style={{ borderColor: '#d1d5db', backgroundColor: '#f9fafb' }}
+            >
+              <svg
+                className="mx-auto mb-4 w-12 h-12"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                style={{ color: '#9ca3af' }}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                />
+              </svg>
+              <p className="text-lg font-medium mb-2" style={{ color: '#6b7280' }}>
+                此賽道尚未添加挑戰
+              </p>
+              <p className="text-sm mb-4" style={{ color: '#9ca3af' }}>
+                點擊上方「新增挑戰」按鈕來創建第一個挑戰
+              </p>
+            </div>
+          )}
         </div>
 
         {/* 快速操作 */}
@@ -243,6 +391,152 @@ export default function TrackDetailPage() {
           </Link>
         </div>
       </div>
+
+      {/* Add Challenge Modal */}
+      {showAddChallengeModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div
+            className="rounded-lg p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+            style={{ backgroundColor: '#ffffff' }}
+          >
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-2xl font-bold" style={{ color: '#1a3a6e' }}>
+                  新增挑戰
+                </h2>
+                <p className="text-sm mt-1" style={{ color: '#6b7280' }}>
+                  為賽道創建一個新的挑戰
+                </p>
+              </div>
+              <button
+                onClick={() => setShowAddChallengeModal(false)}
+                className="p-2 rounded-lg hover:bg-gray-100"
+                disabled={isCreating}
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: '#6b7280' }}>
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="space-y-6">
+              {/* Title */}
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: '#374151' }}>
+                  挑戰標題 <span style={{ color: '#ef4444' }}>*</span>
+                </label>
+                <input
+                  type="text"
+                  value={newChallengeData.title}
+                  onChange={(e) =>
+                    setNewChallengeData({ ...newChallengeData, title: e.target.value })
+                  }
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  style={{ borderColor: '#d1d5db' }}
+                  placeholder="例如：最佳 RWA 應用創新獎"
+                  disabled={isCreating}
+                />
+              </div>
+
+              {/* Description */}
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: '#374151' }}>
+                  挑戰描述
+                </label>
+                <textarea
+                  value={newChallengeData.description}
+                  onChange={(e) =>
+                    setNewChallengeData({ ...newChallengeData, description: e.target.value })
+                  }
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  style={{ borderColor: '#d1d5db' }}
+                  placeholder="詳細描述挑戰內容..."
+                  rows={4}
+                  disabled={isCreating}
+                />
+              </div>
+
+              {/* Prizes */}
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: '#374151' }}>
+                  獎金（多個獎項請用逗號分隔）
+                </label>
+                <input
+                  type="text"
+                  value={newChallengeData.prizes}
+                  onChange={(e) =>
+                    setNewChallengeData({ ...newChallengeData, prizes: e.target.value })
+                  }
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  style={{ borderColor: '#d1d5db' }}
+                  placeholder="例如：冠軍 $10,000, 亞軍 $5,000"
+                  disabled={isCreating}
+                />
+              </div>
+
+              {/* Submission Requirements */}
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: '#374151' }}>
+                  提交要求
+                </label>
+                <textarea
+                  value={newChallengeData.submissionRequirements}
+                  onChange={(e) =>
+                    setNewChallengeData({
+                      ...newChallengeData,
+                      submissionRequirements: e.target.value,
+                    })
+                  }
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  style={{ borderColor: '#d1d5db' }}
+                  placeholder="列出提交的具體要求..."
+                  rows={3}
+                  disabled={isCreating}
+                />
+              </div>
+
+              {/* Message */}
+              {createMessage && (
+                <div
+                  className="p-4 rounded-lg text-sm"
+                  style={{
+                    backgroundColor: createMessage.startsWith('✅') ? '#d1fae5' : '#fee2e2',
+                    color: createMessage.startsWith('✅') ? '#065f46' : '#991b1b',
+                  }}
+                >
+                  {createMessage}
+                </div>
+              )}
+
+              {/* Actions */}
+              <div className="flex gap-4 justify-end">
+                <button
+                  onClick={() => setShowAddChallengeModal(false)}
+                  className="px-6 py-2 rounded-lg font-medium border-2 transition-colors"
+                  style={{
+                    borderColor: '#d1d5db',
+                    color: '#6b7280',
+                  }}
+                  disabled={isCreating}
+                >
+                  取消
+                </button>
+                <button
+                  onClick={handleCreateChallenge}
+                  className="px-6 py-2 rounded-lg font-medium transition-colors"
+                  style={{
+                    backgroundColor: isCreating ? '#9ca3af' : '#1a3a6e',
+                    color: '#ffffff',
+                  }}
+                  disabled={isCreating}
+                >
+                  {isCreating ? '創建中...' : '確認創建'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

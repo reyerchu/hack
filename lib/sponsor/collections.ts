@@ -10,6 +10,7 @@ export const SPONSOR_COLLECTIONS = {
   CHALLENGES: '/challenges',
   
   // 新增的
+  TRACKS: '/tracks',
   EXTENDED_SPONSORS: '/extended-sponsors',
   EXTENDED_CHALLENGES: '/extended-challenges',
   TEAM_SUBMISSIONS: '/team-submissions',

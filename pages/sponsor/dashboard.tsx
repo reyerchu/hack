@@ -11,6 +11,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
+import Head from 'next/head';
 import { useAuthContext } from '../../lib/user/AuthContext';
 import {
   useSponsorTracks,
@@ -22,6 +23,7 @@ import DashboardStats from '../../components/sponsor/DashboardStats';
 import QuickActions from '../../components/sponsor/QuickActions';
 import NotificationCenter from '../../components/sponsor/NotificationCenter';
 import ActivityLog from '../../components/sponsor/ActivityLog';
+import SponsorHeader from '../../components/sponsor/SponsorHeader';
 import firebase from 'firebase/app';
 import 'firebase/auth';
 
@@ -39,6 +41,19 @@ export default function SponsorDashboard() {
   const [selectedTrack, setSelectedTrack] = useState<any>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteMessage, setDeleteMessage] = useState('');
+
+  // Add track modal state
+  const [showAddTrackModal, setShowAddTrackModal] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
+  const [createMessage, setCreateMessage] = useState('');
+  const [newTrackData, setNewTrackData] = useState({
+    name: '',
+    description: '',
+    sponsorId: '',
+    sponsorName: '',
+  });
+  const [sponsors, setSponsors] = useState<Array<{ id: string; name: string }>>([]);
+  const [loadingSponsors, setLoadingSponsors] = useState(false);
 
   // 權限檢查
   useEffect(() => {
@@ -109,6 +124,98 @@ export default function SponsorDashboard() {
     }
   };
 
+  // Handle add track
+  const handleAddTrackClick = async () => {
+    setNewTrackData({
+      name: '',
+      description: '',
+      sponsorId: '',
+      sponsorName: '',
+    });
+    setCreateMessage('');
+    setShowAddTrackModal(true);
+
+    // Fetch sponsors list
+    try {
+      setLoadingSponsors(true);
+      const currentUser = firebase.auth().currentUser;
+      if (!currentUser) return;
+      
+      const token = await currentUser.getIdToken();
+      const response = await fetch('/api/admin/sponsors', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setSponsors(data.data?.sponsors || []);
+      }
+    } catch (error) {
+      console.error('Failed to fetch sponsors:', error);
+    } finally {
+      setLoadingSponsors(false);
+    }
+  };
+
+  const handleCreateTrack = async () => {
+    try {
+      setIsCreating(true);
+      setCreateMessage('');
+
+      // Validation
+      if (!newTrackData.name.trim()) {
+        setCreateMessage('❌ 請輸入賽道名稱');
+        return;
+      }
+      if (!newTrackData.sponsorId || !newTrackData.sponsorName.trim()) {
+        setCreateMessage('❌ 請選擇贊助商');
+        return;
+      }
+
+      const currentUser = firebase.auth().currentUser;
+      if (!currentUser) {
+        throw new Error('未登入');
+      }
+      const token = await currentUser.getIdToken();
+
+      console.log('[Dashboard] Creating track:', newTrackData);
+      const response = await fetch('/api/sponsor/tracks/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(newTrackData),
+      });
+
+      console.log('[Dashboard] Response status:', response.status);
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        console.error('[Dashboard] Error data:', errorData);
+        throw new Error(errorData.error || errorData.details || '創建失敗');
+      }
+
+      const data = await response.json();
+      console.log('[Dashboard] Success data:', data);
+
+      setCreateMessage('✅ 賽道已成功創建！');
+      
+      // Wait 1.5 seconds then close modal and refresh
+      setTimeout(() => {
+        setShowAddTrackModal(false);
+        refetchTracks();
+      }, 1500);
+    } catch (err: any) {
+      console.error('[Dashboard] Error creating track:', err);
+      setCreateMessage(`❌ ${err.message}`);
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
   // Loading state
   if (authLoading || tracksLoading) {
     return (
@@ -168,11 +275,49 @@ export default function SponsorDashboard() {
   // 如果没有賽道，顯示歡迎頁面
   if (tracks.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <div className="max-w-5xl mx-auto px-4 py-20">
-          <h1 className="text-4xl font-bold mb-4" style={{ color: '#1a3a6e' }}>
-            贊助商儀表板
-          </h1>
+      <div className="flex flex-col flex-grow">
+        <Head>
+          <title>儀表板 - 贊助商儀表板</title>
+          <meta name="description" content="贊助商儀表板" />
+        </Head>
+        
+        <div className="min-h-screen bg-gray-50">
+          <div className="max-w-5xl mx-auto px-4 py-20">
+            <div className="mb-12 text-left">
+              <h1 className="text-4xl font-bold mb-2" style={{ color: '#1a3a6e' }}>
+                贊助商儀表板
+              </h1>
+            </div>
+            
+            <SponsorHeader />
+            
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-2xl font-bold" style={{ color: '#1a3a6e' }}>
+                我的賽道
+              </h2>
+              {/* Show Add Track button for admins */}
+              {isSponsor && (
+                <button
+                  onClick={handleAddTrackClick}
+                  className="flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-colors"
+                  style={{
+                    backgroundColor: '#1a3a6e',
+                    color: '#ffffff',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#2a4a7e';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = '#1a3a6e';
+                  }}
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
+                  新增賽道
+                </button>
+              )}
+            </div>
 
           <div
             className="rounded-lg p-12 text-center"
@@ -196,27 +341,192 @@ export default function SponsorDashboard() {
               歡迎使用贊助商平台
             </h2>
             <p className="text-sm mb-6" style={{ color: '#6b7280' }}>
-              您的帳號暫未關聯任何賽道。如有疑問，請聯繫管理員。
+              您的帳號暫未關聯任何賽道。{isSponsor && '點擊上方「新增賽道」按鈕開始創建。'}
+              {!isSponsor && '如有疑問，請聯繫管理員。'}
             </p>
           </div>
+          </div>
         </div>
+
+        {/* Add Track Modal - also available in empty state */}
+        {showAddTrackModal && (
+          <div
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+            onClick={() => !isCreating && setShowAddTrackModal(false)}
+          >
+            <div
+              className="bg-white rounded-lg p-8 max-w-lg w-full mx-4"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center mb-6">
+                <div
+                  className="w-12 h-12 rounded-full flex items-center justify-center mr-4"
+                  style={{ backgroundColor: '#dbeafe' }}
+                >
+                  <svg
+                    className="w-6 h-6"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    style={{ color: '#1a3a6e' }}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 4v16m8-8H4"
+                    />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold" style={{ color: '#1a3a6e' }}>
+                    新增賽道
+                  </h3>
+                  <p className="text-sm" style={{ color: '#6b7280' }}>
+                    創建一個新的競賽賽道
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-4 mb-6">
+                {/* Track Name */}
+                <div>
+                  <label className="block text-sm font-medium mb-2" style={{ color: '#1a3a6e' }}>
+                    賽道名稱 <span style={{ color: '#dc2626' }}>*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={newTrackData.name}
+                    onChange={(e) => setNewTrackData({ ...newTrackData, name: e.target.value })}
+                    placeholder="例如：RWA 創新應用賽道"
+                    className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    style={{ borderColor: '#d1d5db' }}
+                    disabled={isCreating}
+                  />
+                </div>
+
+                {/* Sponsor Name */}
+                <div>
+                  <label className="block text-sm font-medium mb-2" style={{ color: '#1a3a6e' }}>
+                    贊助商名稱 <span style={{ color: '#dc2626' }}>*</span>
+                  </label>
+                  {loadingSponsors ? (
+                    <div className="w-full px-4 py-2 border rounded-lg" style={{ borderColor: '#d1d5db' }}>
+                      <span className="text-sm" style={{ color: '#6b7280' }}>載入贊助商列表...</span>
+                    </div>
+                  ) : (
+                    <select
+                      value={newTrackData.sponsorId}
+                      onChange={(e) => {
+                        const selectedSponsor = sponsors.find(s => s.id === e.target.value);
+                        setNewTrackData({ 
+                          ...newTrackData, 
+                          sponsorId: e.target.value,
+                          sponsorName: selectedSponsor?.name || ''
+                        });
+                      }}
+                      className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      style={{ borderColor: '#d1d5db' }}
+                      disabled={isCreating || loadingSponsors}
+                    >
+                      <option value="">請選擇贊助商...</option>
+                      {sponsors.map((sponsor) => (
+                        <option key={sponsor.id} value={sponsor.id}>
+                          {sponsor.name}
+                        </option>
+                      ))}
+                    </select>
+                  )}
+                </div>
+
+                {/* Description */}
+                <div>
+                  <label className="block text-sm font-medium mb-2" style={{ color: '#1a3a6e' }}>
+                    賽道描述
+                  </label>
+                  <textarea
+                    value={newTrackData.description}
+                    onChange={(e) => setNewTrackData({ ...newTrackData, description: e.target.value })}
+                    placeholder="簡要描述這個賽道的目標和要求..."
+                    rows={4}
+                    className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    style={{ borderColor: '#d1d5db' }}
+                    disabled={isCreating}
+                  />
+                </div>
+              </div>
+
+              {createMessage && (
+                <div
+                  className={`p-4 mb-4 rounded-lg ${
+                    createMessage.includes('✅')
+                      ? 'bg-green-50 border border-green-200'
+                      : 'bg-red-50 border border-red-200'
+                  }`}
+                >
+                  <p
+                    className="text-sm"
+                    style={{
+                      color: createMessage.includes('✅') ? '#166534' : '#991b1b',
+                    }}
+                  >
+                    {createMessage}
+                  </p>
+                </div>
+              )}
+
+              <div className="flex gap-4">
+                <button
+                  type="button"
+                  onClick={() => setShowAddTrackModal(false)}
+                  disabled={isCreating}
+                  className="flex-1 border-2 px-6 py-3 text-sm font-medium rounded-lg transition-colors disabled:opacity-50"
+                  style={{
+                    borderColor: '#d1d5db',
+                    color: '#6b7280',
+                    backgroundColor: 'transparent',
+                  }}
+                >
+                  取消
+                </button>
+                <button
+                  type="button"
+                  onClick={handleCreateTrack}
+                  disabled={isCreating}
+                  className="flex-1 px-6 py-3 text-sm font-medium rounded-lg transition-colors disabled:opacity-50"
+                  style={{
+                    backgroundColor: '#1a3a6e',
+                    color: '#ffffff',
+                  }}
+                >
+                  {isCreating ? '創建中...' : '確認創建'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     );
   }
 
   // 主要儀表板內容
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-5xl mx-auto px-4 py-20">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2" style={{ color: '#1a3a6e' }}>
-            贊助商儀表板
-          </h1>
-          <p className="text-base" style={{ color: '#6b7280' }}>
-            歡迎回來！以下是您負責賽道的最新數據。
-          </p>
-        </div>
+    <div className="flex flex-col flex-grow">
+      <Head>
+        <title>儀表板 - 贊助商儀表板</title>
+        <meta name="description" content="贊助商儀表板" />
+      </Head>
+      
+      <div className="min-h-screen bg-gray-50">
+        <div className="max-w-5xl mx-auto px-4 py-20">
+          {/* Header */}
+          <div className="mb-12 text-left">
+            <h1 className="text-4xl font-bold mb-2" style={{ color: '#1a3a6e' }}>
+              贊助商儀表板
+            </h1>
+          </div>
+          
+          <SponsorHeader />
 
         {/* Getting Started Guide - 移到最上方 */}
         <div className="mb-4 rounded-lg p-4" style={{ backgroundColor: '#e8f4fd', border: '2px solid #1a3a6e' }}>
@@ -245,9 +555,30 @@ export default function SponsorDashboard() {
 
         {/* My Tracks */}
         <div className="mb-4">
-          <h2 className="text-lg font-semibold mb-3" style={{ color: '#1a3a6e' }}>
-            我的賽道
-          </h2>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-lg font-semibold" style={{ color: '#1a3a6e' }}>
+              我的賽道
+            </h2>
+            <button
+              onClick={handleAddTrackClick}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-colors"
+              style={{
+                backgroundColor: '#1a3a6e',
+                color: '#ffffff',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = '#2a4a7e';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = '#1a3a6e';
+              }}
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              新增賽道
+            </button>
+          </div>
           <div className="space-y-4">
             {tracks.map((track) => (
               <div
@@ -483,6 +814,7 @@ export default function SponsorDashboard() {
 
         {/* Activity Log - 暫時隱藏，待實際數據接入後再顯示 */}
         {/* <ActivityLog logs={[]} /> */}
+        </div>
       </div>
 
       {/* Delete Confirmation Modal */}
@@ -571,6 +903,164 @@ export default function SponsorDashboard() {
                 }}
               >
                 {isDeleting ? '刪除中...' : '確認刪除'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add Track Modal */}
+      {showAddTrackModal && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+          onClick={() => !isCreating && setShowAddTrackModal(false)}
+        >
+          <div
+            className="bg-white rounded-lg p-8 max-w-lg w-full mx-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center mb-6">
+              <div
+                className="w-12 h-12 rounded-full flex items-center justify-center mr-4"
+                style={{ backgroundColor: '#dbeafe' }}
+              >
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  style={{ color: '#1a3a6e' }}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 4v16m8-8H4"
+                  />
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-xl font-bold" style={{ color: '#1a3a6e' }}>
+                  新增賽道
+                </h3>
+                <p className="text-sm" style={{ color: '#6b7280' }}>
+                  創建一個新的競賽賽道
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-4 mb-6">
+              {/* Track Name */}
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: '#1a3a6e' }}>
+                  賽道名稱 <span style={{ color: '#dc2626' }}>*</span>
+                </label>
+                <input
+                  type="text"
+                  value={newTrackData.name}
+                  onChange={(e) => setNewTrackData({ ...newTrackData, name: e.target.value })}
+                  placeholder="例如：RWA 創新應用賽道"
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  style={{ borderColor: '#d1d5db' }}
+                  disabled={isCreating}
+                />
+              </div>
+
+                {/* Sponsor Name */}
+                <div>
+                  <label className="block text-sm font-medium mb-2" style={{ color: '#1a3a6e' }}>
+                    贊助商名稱 <span style={{ color: '#dc2626' }}>*</span>
+                  </label>
+                  {loadingSponsors ? (
+                    <div className="w-full px-4 py-2 border rounded-lg" style={{ borderColor: '#d1d5db' }}>
+                      <span className="text-sm" style={{ color: '#6b7280' }}>載入贊助商列表...</span>
+                    </div>
+                  ) : (
+                    <select
+                      value={newTrackData.sponsorId}
+                      onChange={(e) => {
+                        const selectedSponsor = sponsors.find(s => s.id === e.target.value);
+                        setNewTrackData({ 
+                          ...newTrackData, 
+                          sponsorId: e.target.value,
+                          sponsorName: selectedSponsor?.name || ''
+                        });
+                      }}
+                      className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      style={{ borderColor: '#d1d5db' }}
+                      disabled={isCreating || loadingSponsors}
+                    >
+                      <option value="">請選擇贊助商...</option>
+                      {sponsors.map((sponsor) => (
+                        <option key={sponsor.id} value={sponsor.id}>
+                          {sponsor.name}
+                        </option>
+                      ))}
+                    </select>
+                  )}
+                </div>
+
+                {/* Description */}
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: '#1a3a6e' }}>
+                  賽道描述
+                </label>
+                <textarea
+                  value={newTrackData.description}
+                  onChange={(e) => setNewTrackData({ ...newTrackData, description: e.target.value })}
+                  placeholder="簡要描述這個賽道的目標和要求..."
+                  rows={4}
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  style={{ borderColor: '#d1d5db' }}
+                  disabled={isCreating}
+                />
+              </div>
+            </div>
+
+            {createMessage && (
+              <div
+                className={`p-4 mb-4 rounded-lg ${
+                  createMessage.includes('✅')
+                    ? 'bg-green-50 border border-green-200'
+                    : 'bg-red-50 border border-red-200'
+                }`}
+              >
+                <p
+                  className="text-sm"
+                  style={{
+                    color: createMessage.includes('✅') ? '#166534' : '#991b1b',
+                  }}
+                >
+                  {createMessage}
+                </p>
+              </div>
+            )}
+
+            <div className="flex gap-4">
+              <button
+                type="button"
+                onClick={() => setShowAddTrackModal(false)}
+                disabled={isCreating}
+                className="flex-1 border-2 px-6 py-3 text-sm font-medium rounded-lg transition-colors disabled:opacity-50"
+                style={{
+                  borderColor: '#d1d5db',
+                  color: '#6b7280',
+                  backgroundColor: 'transparent',
+                }}
+              >
+                取消
+              </button>
+              <button
+                type="button"
+                onClick={handleCreateTrack}
+                disabled={isCreating}
+                className="flex-1 px-6 py-3 text-sm font-medium rounded-lg transition-colors disabled:opacity-50"
+                style={{
+                  backgroundColor: '#1a3a6e',
+                  color: '#ffffff',
+                }}
+              >
+                {isCreating ? '創建中...' : '確認創建'}
               </button>
             </div>
           </div>
