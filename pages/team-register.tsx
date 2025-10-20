@@ -43,6 +43,7 @@ export default function TeamRegisterPage() {
   const [selectedChallenges, setSelectedChallenges] = useState<string[]>([]);
   const [hasAgreed, setHasAgreed] = useState(false);
   const [showCommitment, setShowCommitment] = useState(false);
+  const [expandedChallenges, setExpandedChallenges] = useState<Set<string>>(new Set());
   
   // Data states
   const [challenges, setChallenges] = useState<Challenge[]>([]);
@@ -181,6 +182,16 @@ export default function TeamRegisterPage() {
     } else {
       setSelectedChallenges([...selectedChallenges, challengeId]);
     }
+  };
+
+  const toggleChallengeExpand = (challengeId: string) => {
+    const newExpanded = new Set(expandedChallenges);
+    if (newExpanded.has(challengeId)) {
+      newExpanded.delete(challengeId);
+    } else {
+      newExpanded.add(challengeId);
+    }
+    setExpandedChallenges(newExpanded);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -406,9 +417,21 @@ export default function TeamRegisterPage() {
 
               {/* Challenge Selection */}
               <div className="bg-white rounded-lg p-8 shadow-sm">
-                <h2 className="text-2xl font-bold mb-6" style={{ color: '#1a3a6e' }}>
-                  選擇挑戰 <span style={{ color: '#ef4444' }}>*</span>
-                </h2>
+                <div className="mb-6">
+                  <h2 className="text-2xl font-bold mb-3" style={{ color: '#1a3a6e' }}>
+                    選擇挑戰 <span style={{ color: '#ef4444' }}>*</span>
+                  </h2>
+                  <div className="flex items-start gap-2 p-3 rounded-lg" style={{ backgroundColor: '#fef3c7', border: '1px solid #fbbf24' }}>
+                    <svg className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: '#92400e' }} fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                    </svg>
+                    <div className="text-sm" style={{ color: '#92400e' }}>
+                      <span className="font-semibold">報名截止日期：2025年10月27日 23:59</span>
+                      <br />
+                      截止前您可以隨時編輯或更改報名資料。
+                    </div>
+                  </div>
+                </div>
 
                 {isLoadingChallenges ? (
                   <div className="text-center py-8 text-gray-500">
@@ -421,34 +444,92 @@ export default function TeamRegisterPage() {
                 ) : (
                   <div className="space-y-3">
                     {challenges.map((challenge) => (
-                      <label
+                      <div
                         key={challenge.id}
-                        className="flex items-start gap-3 p-4 border-2 rounded-lg cursor-pointer transition-all hover:bg-gray-50"
+                        className="border-2 rounded-lg transition-all"
                         style={{
                           borderColor: selectedChallenges.includes(challenge.id) ? '#1a3a6e' : '#e5e7eb',
                           backgroundColor: selectedChallenges.includes(challenge.id) ? '#f0f4ff' : 'transparent',
                         }}
                       >
-                        <input
-                          type="checkbox"
-                          checked={selectedChallenges.includes(challenge.id)}
-                          onChange={() => toggleChallenge(challenge.id)}
-                          disabled={isSubmitting}
-                          className="mt-1 w-5 h-5 rounded focus:ring-2 focus:ring-blue-500"
-                          style={{ accentColor: '#1a3a6e' }}
-                        />
-                        <div className="flex-grow">
-                          <div className="font-semibold" style={{ color: '#1a3a6e' }}>
-                            {challenge.title}
-                          </div>
-                          {(challenge.track || challenge.sponsorName || challenge.organization) && (
-                            <div className="text-sm text-gray-600 mt-1">
-                              {challenge.track && `賽道：${challenge.track}`}
-                              {(challenge.sponsorName || challenge.organization) && ` | ${challenge.sponsorName || challenge.organization}`}
+                        {/* Challenge Header */}
+                        <div className="flex items-start gap-3 p-4">
+                          <label className="flex items-start gap-3 flex-grow cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={selectedChallenges.includes(challenge.id)}
+                              onChange={() => toggleChallenge(challenge.id)}
+                              disabled={isSubmitting}
+                              className="mt-1 w-5 h-5 rounded focus:ring-2 focus:ring-blue-500"
+                              style={{ accentColor: '#1a3a6e' }}
+                            />
+                            <div className="flex-grow">
+                              <div className="font-semibold" style={{ color: '#1a3a6e' }}>
+                                {challenge.title}
+                              </div>
+                              {(challenge.track || challenge.sponsorName || challenge.organization) && (
+                                <div className="text-sm text-gray-600 mt-1">
+                                  {challenge.track && `賽道：${challenge.track}`}
+                                  {(challenge.sponsorName || challenge.organization) && ` | ${challenge.sponsorName || challenge.organization}`}
+                                </div>
+                              )}
                             </div>
-                          )}
+                          </label>
+                          
+                          {/* Expand/Collapse Button */}
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              toggleChallengeExpand(challenge.id);
+                            }}
+                            className="flex-shrink-0 p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                            style={{ color: '#1a3a6e' }}
+                          >
+                            <svg
+                              className={`w-5 h-5 transform transition-transform ${expandedChallenges.has(challenge.id) ? 'rotate-180' : ''}`}
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                            </svg>
+                          </button>
                         </div>
-                      </label>
+
+                        {/* Challenge Details (Expandable) */}
+                        {expandedChallenges.has(challenge.id) && (
+                          <div className="px-4 pb-4 pt-2 border-t" style={{ borderColor: '#e5e7eb' }}>
+                            <div className="space-y-3 text-sm">
+                              {(challenge as any).description && (
+                                <div>
+                                  <div className="font-semibold text-gray-700 mb-1">挑戰描述</div>
+                                  <div className="text-gray-600">{(challenge as any).description}</div>
+                                </div>
+                              )}
+                              {(challenge as any).prizes && (
+                                <div>
+                                  <div className="font-semibold text-gray-700 mb-1">獎金詳情</div>
+                                  <div className="text-gray-600">
+                                    {Array.isArray((challenge as any).prizes)
+                                      ? (challenge as any).prizes.join('、')
+                                      : (challenge as any).prizes}
+                                  </div>
+                                </div>
+                              )}
+                              {(challenge as any).submissionRequirements && (
+                                <div>
+                                  <div className="font-semibold text-gray-700 mb-1">提交要求</div>
+                                  <div className="text-gray-600">{(challenge as any).submissionRequirements}</div>
+                                </div>
+                              )}
+                              {!(challenge as any).description && !(challenge as any).prizes && !(challenge as any).submissionRequirements && (
+                                <div className="text-gray-500 italic">暫無詳細資料</div>
+                              )}
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     ))}
                   </div>
                 )}
