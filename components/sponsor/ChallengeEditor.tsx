@@ -39,6 +39,11 @@ export default function ChallengeEditor({
   const getPrizeDetailsString = (challenge: any) => {
     if (!challenge) return '';
     
+    // If prizes is a string, return it directly
+    if (typeof challenge.prizes === 'string') {
+      return challenge.prizes;
+    }
+    
     // If prizes is an array, convert to string with Chinese formatting
     if (Array.isArray(challenge.prizes) && challenge.prizes.length > 0) {
       // Check if it's an array of objects with rank/amount
@@ -56,6 +61,7 @@ export default function ChallengeEditor({
       }
     }
     
+    // Fallback to prizeDetails field
     return challenge.prizeDetails || '';
   };
 
