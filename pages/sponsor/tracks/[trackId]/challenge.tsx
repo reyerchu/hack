@@ -200,6 +200,22 @@ export default function ChallengeEditPage() {
           </div>
         )}
 
+        {/* 数据诊断信息 (仅在开发环境显示) */}
+        {challenge && (
+          <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <h3 className="text-sm font-semibold text-blue-900 mb-2">🔍 數據診斷信息</h3>
+            <div className="text-xs text-blue-800 space-y-1 font-mono">
+              <div><strong>Challenge ID:</strong> {challenge.id}</div>
+              <div><strong>Challenge Title:</strong> {challenge.title || '(無標題)'}</div>
+              <div><strong>Challenge trackId:</strong> {challenge.trackId || '(無 trackId)'}</div>
+              <div><strong>Current Page trackId:</strong> {trackId}</div>
+              <div className={challenge.trackId === trackId ? 'text-green-600 font-bold' : 'text-red-600 font-bold'}>
+                <strong>trackId 匹配:</strong> {challenge.trackId === trackId ? '✅ 是' : '❌ 否'}
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* 挑戰編輯器 */}
         <div className="rounded-lg p-6 mb-6" style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb' }}>
           <ChallengeEditor
