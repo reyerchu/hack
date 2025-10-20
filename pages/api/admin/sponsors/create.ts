@@ -77,9 +77,9 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
       website: websiteUrl || '',
       contactEmail: contactEmail || '',
       contactPerson: contactName || '',
-      createdAt: firestore.FieldValue.serverTimestamp(),
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
       createdBy: userId,
-      updatedAt: firestore.FieldValue.serverTimestamp(),
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
     };
 
     await db

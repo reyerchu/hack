@@ -85,6 +85,7 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
           assignedBy: data.assignedBy,
           assignedAt: data.assignedAt,
           createdAt: data.createdAt,
+          createdBy: data.createdBy || data.assignedBy || '',
           updatedAt: data.updatedAt,
         } as ExtendedChallenge;
       });
