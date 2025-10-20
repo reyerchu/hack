@@ -19,11 +19,37 @@ export default function ChallengeEditor({
   onSave,
   loading,
 }: ChallengeEditorProps) {
+  // Helper function to convert data to string format
+  const getRequirementsString = (challenge: any) => {
+    if (!challenge) return '';
+    // If submissionRequirements is an object, convert to string
+    if (challenge.submissionRequirements && typeof challenge.submissionRequirements === 'object') {
+      const reqs = challenge.submissionRequirements;
+      const parts: string[] = [];
+      if (reqs.requireGithubRepo) parts.push('- 需要提交 GitHub 代碼庫');
+      if (reqs.requireDemo) parts.push('- 需要提供 Demo 演示');
+      if (reqs.requirePresentation) parts.push('- 需要準備簡報');
+      if (reqs.requireDocumentation) parts.push('- 需要提供文檔');
+      return parts.length > 0 ? parts.join('\n') : '';
+    }
+    // Otherwise use requirements or submissionRequirements as string
+    return challenge.requirements || challenge.submissionRequirements || '';
+  };
+
+  const getPrizeDetailsString = (challenge: any) => {
+    if (!challenge) return '';
+    // If prizes is an array, convert to string
+    if (Array.isArray(challenge.prizes) && challenge.prizes.length > 0) {
+      return challenge.prizes.map((p: any) => `${p.title || `第${p.rank}名`}: $${p.amount}`).join(', ');
+    }
+    return challenge.prizeDetails || '';
+  };
+
   const [formData, setFormData] = useState<any>({
     title: challenge?.title || '',
     description: challenge?.description || '',
-    requirements: challenge?.requirements || '',
-    prizeDetails: challenge?.prizeDetails || '',
+    requirements: getRequirementsString(challenge),
+    prizeDetails: getPrizeDetailsString(challenge),
     evaluationCriteria: challenge?.evaluationCriteria || [],
     resources: challenge?.resources || [],
   });
@@ -37,8 +63,8 @@ export default function ChallengeEditor({
       setFormData({
         title: challenge.title || '',
         description: challenge.description || '',
-        requirements: challenge.requirements || '',
-        prizeDetails: challenge.prizeDetails || '',
+        requirements: getRequirementsString(challenge),
+        prizeDetails: getPrizeDetailsString(challenge),
         evaluationCriteria: challenge.evaluationCriteria || [],
         resources: challenge.resources || [],
       });
