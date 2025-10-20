@@ -38,10 +38,24 @@ export default function ChallengeEditor({
 
   const getPrizeDetailsString = (challenge: any) => {
     if (!challenge) return '';
-    // If prizes is an array, convert to string
+    
+    // If prizes is an array, convert to string with Chinese formatting
     if (Array.isArray(challenge.prizes) && challenge.prizes.length > 0) {
-      return challenge.prizes.map((p: any) => `${p.title || `第${p.rank}名`}: $${p.amount}`).join(', ');
+      // Check if it's an array of objects with rank/amount
+      if (typeof challenge.prizes[0] === 'object' && challenge.prizes[0].amount !== undefined) {
+        return challenge.prizes.map((p: any) => {
+          const title = p.title || `第${p.rank}名`;
+          const amount = p.amount;
+          const currency = p.currency === 'TWD' ? '元' : 'u';
+          return `${title}：${amount}${currency}`;
+        }).join('，');
+      }
+      // If it's an array of strings, just join them
+      if (typeof challenge.prizes[0] === 'string') {
+        return challenge.prizes.join('，');
+      }
     }
+    
     return challenge.prizeDetails || '';
   };
 
