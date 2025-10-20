@@ -68,7 +68,7 @@ export default function TeamRegisterPage() {
   const fetchChallenges = async () => {
     try {
       setIsLoadingChallenges(true);
-      const { data, error } = await RequestHelper.get<Challenge[]>(
+      const response = await RequestHelper.get<{ data: Challenge[] }>(
         '/api/challenges/all',
         {
           headers: {
@@ -77,14 +77,25 @@ export default function TeamRegisterPage() {
         }
       );
 
-      if (error) {
-        console.error('Failed to fetch challenges:', error);
+      if (response.error) {
+        console.error('Failed to fetch challenges:', response.error);
+        setChallenges([]);
         return;
       }
 
-      setChallenges(data || []);
+      // Handle nested data structure from API
+      const challengesData = response.data?.data || response.data || [];
+      console.log('[TeamRegister] Fetched challenges:', challengesData);
+      
+      if (Array.isArray(challengesData)) {
+        setChallenges(challengesData);
+      } else {
+        console.error('[TeamRegister] Challenges data is not an array:', challengesData);
+        setChallenges([]);
+      }
     } catch (error) {
       console.error('Error fetching challenges:', error);
+      setChallenges([]);
     } finally {
       setIsLoadingChallenges(false);
     }
