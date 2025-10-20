@@ -70,9 +70,11 @@ export default function ChallengeEditPage() {
           throw new Error(errorData.error || 'Failed to fetch challenge');
         }
 
-        const data = await response.json();
-        console.log('[ChallengeEdit] Challenge data:', data);
-        setChallenge(data);
+        const responseData = await response.json();
+        console.log('[ChallengeEdit] Response data:', responseData);
+        const challengeData = responseData.data || responseData;
+        console.log('[ChallengeEdit] Challenge data:', challengeData);
+        setChallenge(challengeData);
       } catch (err: any) {
         console.error('[ChallengeEdit] Error fetching challenge:', err);
         setError(err.message);
@@ -114,8 +116,10 @@ export default function ChallengeEditPage() {
         throw new Error(errorData.error || 'Failed to save challenge');
       }
 
-      const updatedChallenge = await response.json();
-      console.log('[ChallengeEdit] Challenge saved successfully:', updatedChallenge);
+      const responseData = await response.json();
+      console.log('[ChallengeEdit] Save response:', responseData);
+      const updatedChallenge = responseData.data || responseData;
+      console.log('[ChallengeEdit] Updated challenge:', updatedChallenge);
       setChallenge(updatedChallenge);
       setSaveSuccess(true);
 
