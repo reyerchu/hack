@@ -621,7 +621,7 @@ export default function SponsorDashboard() {
                         >
                           <div className="flex-1">
                             <p className="text-sm font-medium" style={{ color: '#1a3a6e' }}>
-                              {challenge.title || challenge.track}
+                              {challenge.name || challenge.track}
                             </p>
                             {challenge.description && (
                               <p className="text-xs mt-1" style={{ color: '#6b7280' }}>
@@ -631,7 +631,7 @@ export default function SponsorDashboard() {
                           </div>
                           <div className="flex items-center gap-2 ml-4">
                             <button
-                              onClick={() => router.push(`/sponsor/tracks/${track.id}/challenge`)}
+                              onClick={() => router.push(`/sponsor/tracks/${track.id}/challenge?challengeId=${challenge.id}`)}
                               className="text-sm px-3 py-1.5 rounded-lg transition-colors"
                               style={{
                                 backgroundColor: '#1a3a6e',
@@ -661,7 +661,7 @@ export default function SponsorDashboard() {
                                 }}
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  handleDeleteClick({ ...track, id: challenge.trackId, name: challenge.title || challenge.track }, e);
+                                  handleDeleteClick({ ...track, id: challenge.trackId, name: challenge.name || challenge.track }, e);
                                 }}
                                 title="刪除挑戰"
                               >
