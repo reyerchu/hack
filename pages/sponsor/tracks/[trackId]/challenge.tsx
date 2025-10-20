@@ -37,7 +37,23 @@ export default function ChallengeEditPage() {
 
   // 獲取挑戰詳情
   useEffect(() => {
-    if (!trackId || !challengeId || !isSignedIn) return;
+    // 檢查是否缺少必要參數
+    if (!router.isReady) return;
+    
+    if (!trackId) return;
+    
+    if (!challengeId) {
+      console.log('[ChallengeEdit] Missing challengeId, redirecting to track page');
+      setError('缺少挑戰 ID 參數');
+      setLoading(false);
+      // 延遲重定向，讓用戶看到錯誤消息
+      setTimeout(() => {
+        router.push(`/sponsor/tracks/${trackId}`);
+      }, 2000);
+      return;
+    }
+    
+    if (!isSignedIn) return;
 
     const fetchChallenge = async () => {
       try {
@@ -84,7 +100,7 @@ export default function ChallengeEditPage() {
     };
 
     fetchChallenge();
-  }, [trackId, challengeId, isSignedIn]);
+  }, [router.isReady, trackId, challengeId, isSignedIn, router]);
 
   const handleSave = async (data: Partial<ExtendedChallenge>) => {
     try {
