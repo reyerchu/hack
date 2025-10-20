@@ -36,45 +36,38 @@ export default function ChallengeEditor({
     return challenge.requirements || challenge.submissionRequirements || '';
   };
 
-  const getPrizeDetailsString = (challenge: any) => {
-    if (!challenge) return '';
+  const getPrizesArray = (challenge: any) => {
+    if (!challenge) return [];
     
-    // If prizes is a string, return it directly
-    if (typeof challenge.prizes === 'string') {
-      return challenge.prizes;
+    // If prizes is already an array of objects with currency/amount/description
+    if (Array.isArray(challenge.prizes) && challenge.prizes.length > 0 && typeof challenge.prizes[0] === 'object') {
+      return challenge.prizes.map((p: any) => ({
+        currency: p.currency || 'TWD',
+        amount: p.amount || 0,
+        description: p.description || p.title || '',
+      }));
     }
     
-    // If prizes is an array, convert to string with Chinese formatting
-    if (Array.isArray(challenge.prizes) && challenge.prizes.length > 0) {
-      // Check if it's an array of objects with rank/amount
-      if (typeof challenge.prizes[0] === 'object' && challenge.prizes[0].amount !== undefined) {
-        return challenge.prizes.map((p: any) => {
-          const title = p.title || `第${p.rank}名`;
-          const amount = p.amount;
-          const currency = p.currency === 'TWD' ? '元' : 'u';
-          return `${title}：${amount}${currency}`;
-        }).join('，');
-      }
-      // If it's an array of strings, just join them
-      if (typeof challenge.prizes[0] === 'string') {
-        return challenge.prizes.join('，');
-      }
+    // If prizes is a string, try to parse it
+    if (typeof challenge.prizes === 'string' && challenge.prizes.trim()) {
+      // For now, return empty array - user will need to re-enter
+      return [];
     }
     
-    // Fallback to prizeDetails field
-    return challenge.prizeDetails || '';
+    return [];
   };
 
   const [formData, setFormData] = useState<any>({
     title: challenge?.title || '',
     description: challenge?.description || '',
     requirements: getRequirementsString(challenge),
-    prizeDetails: getPrizeDetailsString(challenge),
+    prizes: getPrizesArray(challenge),
     evaluationCriteria: challenge?.evaluationCriteria || [],
     resources: challenge?.resources || [],
   });
 
-  const [newCriterion, setNewCriterion] = useState({ name: '', weight: 20 });
+  const [newCriterion, setNewCriterion] = useState({ name: '' });
+  const [newPrize, setNewPrize] = useState({ currency: 'TWD', amount: '', description: '' });
   const [newResource, setNewResource] = useState({ title: '', url: '' });
   const [saving, setSaving] = useState(false);
 
@@ -84,7 +77,7 @@ export default function ChallengeEditor({
         title: challenge.title || '',
         description: challenge.description || '',
         requirements: getRequirementsString(challenge),
-        prizeDetails: getPrizeDetailsString(challenge),
+        prizes: getPrizesArray(challenge),
         evaluationCriteria: challenge.evaluationCriteria || [],
         resources: challenge.resources || [],
       });
@@ -106,9 +99,9 @@ export default function ChallengeEditor({
     if (newCriterion.name.trim()) {
       setFormData((prev) => ({
         ...prev,
-        evaluationCriteria: [...prev.evaluationCriteria, { ...newCriterion }],
+        evaluationCriteria: [...prev.evaluationCriteria, { name: newCriterion.name }],
       }));
-      setNewCriterion({ name: '', weight: 20 });
+      setNewCriterion({ name: '' });
     }
   };
 
@@ -116,6 +109,27 @@ export default function ChallengeEditor({
     setFormData((prev) => ({
       ...prev,
       evaluationCriteria: prev.evaluationCriteria.filter((_, i) => i !== index),
+    }));
+  };
+
+  const addPrize = () => {
+    if (newPrize.amount && newPrize.description.trim()) {
+      setFormData((prev) => ({
+        ...prev,
+        prizes: [...prev.prizes, {
+          currency: newPrize.currency,
+          amount: parseFloat(newPrize.amount),
+          description: newPrize.description,
+        }],
+      }));
+      setNewPrize({ currency: 'TWD', amount: '', description: '' });
+    }
+  };
+
+  const removePrize = (index: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      prizes: prev.prizes.filter((_, i) => i !== index),
     }));
   };
 
@@ -189,21 +203,92 @@ export default function ChallengeEditor({
         />
       </div>
 
+      {/* 獎金詳情 */}
       <div>
         <label className="block text-sm font-medium mb-2" style={{ color: '#1a3a6e' }}>
           獎金詳情 *
         </label>
-        <textarea
-          value={formData.prizeDetails}
-          onChange={(e) => setFormData({ ...formData, prizeDetails: e.target.value })}
-          rows={3}
-          className="w-full px-4 py-2 rounded-lg border focus:outline-none focus:ring-2"
-          style={{
-            borderColor: '#d1d5db',
-          }}
-          placeholder="例如：第一名 $1000、第二名 $500、第三名 $300"
-          required
-        />
+        
+        {/* 已添加的奖金列表 */}
+        <div className="space-y-2 mb-3">
+          {formData.prizes.map((prize: any, index: number) => (
+            <div
+              key={index}
+              className="flex items-center gap-3 p-3 rounded-lg"
+              style={{ backgroundColor: '#f9fafb', border: '1px solid #e5e7eb' }}
+            >
+              <span className="text-sm font-medium" style={{ color: '#059669', minWidth: '60px' }}>
+                {prize.currency === 'TWD' ? '台幣' : 'USD'}
+              </span>
+              <span className="text-sm font-semibold" style={{ color: '#1a3a6e', minWidth: '100px' }}>
+                {prize.amount.toLocaleString()}
+              </span>
+              <span className="flex-1 text-sm" style={{ color: '#6b7280' }}>
+                {prize.description}
+              </span>
+              <button
+                type="button"
+                onClick={() => removePrize(index)}
+                className="text-sm px-2 py-1 rounded hover:bg-red-100"
+                style={{ color: '#dc2626' }}
+              >
+                刪除
+              </button>
+            </div>
+          ))}
+        </div>
+
+        {/* 添加新奖金 */}
+        <div className="flex gap-3">
+          <select
+            value={newPrize.currency}
+            onChange={(e) => setNewPrize({ ...newPrize, currency: e.target.value })}
+            className="px-3 py-2 rounded-lg border"
+            style={{ borderColor: '#d1d5db', minWidth: '100px' }}
+          >
+            <option value="TWD">台幣</option>
+            <option value="USD">USD</option>
+          </select>
+          <input
+            type="number"
+            value={newPrize.amount}
+            onChange={(e) => setNewPrize({ ...newPrize, amount: e.target.value })}
+            placeholder="金額"
+            className="w-32 px-4 py-2 rounded-lg border"
+            style={{ borderColor: '#d1d5db' }}
+          />
+          <input
+            type="text"
+            value={newPrize.description}
+            onChange={(e) => setNewPrize({ ...newPrize, description: e.target.value })}
+            placeholder="描述（例如：第一名）"
+            className="flex-1 px-4 py-2 rounded-lg border"
+            style={{ borderColor: '#d1d5db' }}
+          />
+          <button
+            type="button"
+            onClick={addPrize}
+            className="px-4 py-2 rounded-lg font-medium transition-colors"
+            style={{
+              backgroundColor: '#1a3a6e',
+              color: '#ffffff',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#2a4a7e';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = '#1a3a6e';
+            }}
+          >
+            添加
+          </button>
+        </div>
+        
+        {formData.prizes.length === 0 && (
+          <p className="text-xs mt-2" style={{ color: '#dc2626' }}>
+            * 請至少添加一個獎金項目
+          </p>
+        )}
       </div>
 
       {/* 評分標准 */}
@@ -212,7 +297,7 @@ export default function ChallengeEditor({
           評分標准
         </label>
         <div className="space-y-2 mb-3">
-          {formData.evaluationCriteria.map((criterion, index) => (
+          {formData.evaluationCriteria.map((criterion: any, index: number) => (
             <div
               key={index}
               className="flex items-center gap-3 p-3 rounded-lg"
@@ -220,9 +305,6 @@ export default function ChallengeEditor({
             >
               <span className="flex-1 text-sm" style={{ color: '#1a3a6e' }}>
                 {criterion.name}
-              </span>
-              <span className="text-sm font-semibold" style={{ color: '#6b7280' }}>
-                {criterion.weight}%
               </span>
               <button
                 type="button"
@@ -240,21 +322,9 @@ export default function ChallengeEditor({
           <input
             type="text"
             value={newCriterion.name}
-            onChange={(e) => setNewCriterion({ ...newCriterion, name: e.target.value })}
-            placeholder="標准名称（如：创新性）"
+            onChange={(e) => setNewCriterion({ name: e.target.value })}
+            placeholder="標准名称（如：创新性、技術難度、實用性）"
             className="flex-1 px-4 py-2 rounded-lg border"
-            style={{ borderColor: '#d1d5db' }}
-          />
-          <input
-            type="number"
-            value={newCriterion.weight}
-            onChange={(e) =>
-              setNewCriterion({ ...newCriterion, weight: parseInt(e.target.value) || 0 })
-            }
-            min="0"
-            max="100"
-            placeholder="权重%"
-            className="w-24 px-4 py-2 rounded-lg border"
             style={{ borderColor: '#d1d5db' }}
           />
           <button

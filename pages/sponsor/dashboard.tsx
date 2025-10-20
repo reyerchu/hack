@@ -633,7 +633,11 @@ export default function SponsorDashboard() {
                                 💰 獎金: {typeof challenge.prizes === 'string' 
                                   ? challenge.prizes 
                                   : Array.isArray(challenge.prizes) && challenge.prizes.length > 0
-                                    ? challenge.prizes.join(', ')
+                                    ? (typeof challenge.prizes[0] === 'object'
+                                      ? challenge.prizes.map((p: any) => 
+                                          `${p.currency === 'TWD' ? '台幣' : 'USD'} ${p.amount.toLocaleString()} ${p.description}`
+                                        ).join('，')
+                                      : challenge.prizes.join(', '))
                                     : ''}
                               </p>
                             )}
