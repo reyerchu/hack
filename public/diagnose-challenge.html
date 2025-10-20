@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>挑戰數據診斷工具</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #1a3a6e;
+            margin-bottom: 30px;
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: monospace;
+        }
+        button {
+            background: #1a3a6e;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            background: #2a4a7e;
+        }
+        .result {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 6px;
+            display: none;
+        }
+        .result.show {
+            display: block;
+        }
+        .success {
+            background: #dcfce7;
+            border: 2px solid #86efac;
+            color: #166534;
+        }
+        .error {
+            background: #fee2e2;
+            border: 2px solid #fecaca;
+            color: #991b1b;
+        }
+        .warning {
+            background: #fef3c7;
+            border: 2px solid #fde68a;
+            color: #92400e;
+        }
+        .info {
+            background: #dbeafe;
+            border: 2px solid #93c5fd;
+            color: #1e40af;
+        }
+        pre {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .match-status {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+        .match-yes {
+            color: #059669;
+        }
+        .match-no {
+            color: #dc2626;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 挑戰數據診斷工具</h1>
+        
+        <div class="input-group">
+            <label for="trackId">賽道 ID (Track ID):</label>
+            <input type="text" id="trackId" value="sui-賽道-835919" placeholder="例如: sui-賽道-835919">
+        </div>
+        
+        <div class="input-group">
+            <label for="challengeId">挑戰 ID (Challenge ID):</label>
+            <input type="text" id="challengeId" value="bLn3Yu4UuPzqRxRwFStu" placeholder="例如: bLn3Yu4UuPzqRxRwFStu">
+        </div>
+        
+        <button onclick="diagnose()">🔍 開始診斷</button>
+        
+        <div id="result" class="result"></div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    
+    <script>
+        // 從環境變量或本地存儲初始化 Firebase
+        const firebaseConfig = {
+            apiKey: localStorage.getItem('NEXT_PUBLIC_FIREBASE_API_KEY') || "AIzaSyABqR4yQY8dH1pq7YJj6TFNUyNqPIMj_oQ",
+            authDomain: localStorage.getItem('NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN') || "hackathon-rwa-nexus.firebaseapp.com",
+            projectId: localStorage.getItem('NEXT_PUBLIC_FIREBASE_PROJECT_ID') || "hackathon-rwa-nexus",
+            storageBucket: localStorage.getItem('NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET') || "hackathon-rwa-nexus.firebasestorage.app",
+            messagingSenderId: localStorage.getItem('NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID') || "318709534231",
+            appId: localStorage.getItem('NEXT_PUBLIC_FIREBASE_APP_ID') || "1:318709534231:web:8e7c5d8e5dc542ce90cd1c"
+        };
+
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+
+        const db = firebase.firestore();
+
+        async function diagnose() {
+            const trackId = document.getElementById('trackId').value.trim();
+            const challengeId = document.getElementById('challengeId').value.trim();
+            const resultDiv = document.getElementById('result');
+            
+            if (!trackId || !challengeId) {
+                resultDiv.className = 'result show error';
+                resultDiv.innerHTML = '<strong>❌ 錯誤</strong><br>請填寫賽道 ID 和挑戰 ID';
+                return;
+            }
+
+            resultDiv.className = 'result show info';
+            resultDiv.innerHTML = '<strong>⏳ 診斷中...</strong><br>正在查詢數據庫...';
+
+            try {
+                // 1. 獲取賽道信息
+                const trackSnapshot = await db.collection('tracks')
+                    .where('trackId', '==', trackId)
+                    .limit(1)
+                    .get();
+
+                if (trackSnapshot.empty) {
+                    throw new Error('找不到該賽道');
+                }
+
+                const track = trackSnapshot.docs[0].data();
+
+                // 2. 獲取挑戰信息
+                const challengeDoc = await db.collection('extended-challenges')
+                    .doc(challengeId)
+                    .get();
+
+                if (!challengeDoc.exists) {
+                    throw new Error('找不到該挑戰');
+                }
+
+                const challenge = challengeDoc.data();
+
+                // 3. 檢查匹配
+                const isMatch = challenge.trackId === trackId;
+
+                // 4. 顯示結果
+                let html = '<h2>📊 診斷結果</h2>';
+                
+                html += '<div class="match-status ' + (isMatch ? 'match-yes' : 'match-no') + '">';
+                html += isMatch ? '✅ trackId 匹配' : '❌ trackId 不匹配';
+                html += '</div>';
+
+                html += '<h3>賽道信息:</h3>';
+                html += '<pre>';
+                html += '名稱: ' + (track.name || '(無)') + '\n';
+                html += 'trackId: ' + trackId + '\n';
+                html += '贊助商: ' + (track.sponsorName || '(無)') + '\n';
+                html += '</pre>';
+
+                html += '<h3>挑戰信息:</h3>';
+                html += '<pre>';
+                html += '標題: ' + (challenge.title || '(無標題)') + '\n';
+                html += 'challengeId: ' + challengeId + '\n';
+                html += 'trackId: ' + (challenge.trackId || '(無)') + '\n';
+                html += '賽道名稱: ' + (challenge.track || '(無)') + '\n';
+                html += '描述: ' + ((challenge.description || '').substring(0, 200)) + '...\n';
+                if (challenge.prizes && challenge.prizes.length > 0) {
+                    html += '獎金: ' + challenge.prizes.join(', ') + '\n';
+                }
+                html += '</pre>';
+
+                if (!isMatch) {
+                    html += '<div style="margin-top: 20px; padding: 15px; background: #fee2e2; border-radius: 6px;">';
+                    html += '<h3 style="color: #991b1b; margin-top: 0;">⚠️ 問題確認</h3>';
+                    html += '<p><strong>挑戰的 trackId:</strong> ' + (challenge.trackId || '(空)') + '</p>';
+                    html += '<p><strong>期望的 trackId:</strong> ' + trackId + '</p>';
+                    html += '<p><strong>解決方案:</strong></p>';
+                    html += '<ol>';
+                    html += '<li>在 Firestore 中找到 challenge ID: <code>' + challengeId + '</code></li>';
+                    html += '<li>更新 <code>trackId</code> 字段為: <code>' + trackId + '</code></li>';
+                    html += '<li>同時更新相關字段: <code>track</code>, <code>sponsorId</code>, <code>sponsorName</code></li>';
+                    html += '</ol>';
+                    html += '</div>';
+                    
+                    // 查找該挑戰實際屬於哪個賽道
+                    if (challenge.trackId) {
+                        try {
+                            const actualTrackSnapshot = await db.collection('tracks')
+                                .where('trackId', '==', challenge.trackId)
+                                .limit(1)
+                                .get();
+                            
+                            if (!actualTrackSnapshot.empty) {
+                                const actualTrack = actualTrackSnapshot.docs[0].data();
+                                html += '<div style="margin-top: 20px; padding: 15px; background: #fef3c7; border-radius: 6px;">';
+                                html += '<h3 style="color: #92400e; margin-top: 0;">💡 額外信息</h3>';
+                                html += '<p>該挑戰實際屬於賽道: <strong>' + (actualTrack.name || '(無名稱)') + '</strong></p>';
+                                html += '<p>贊助商: ' + (actualTrack.sponsorName || '(無)') + '</p>';
+                                html += '</div>';
+                            }
+                        } catch (e) {
+                            console.error('Error fetching actual track:', e);
+                        }
+                    }
+                }
+
+                resultDiv.className = 'result show ' + (isMatch ? 'success' : 'warning');
+                resultDiv.innerHTML = html;
+
+            } catch (error) {
+                resultDiv.className = 'result show error';
+                resultDiv.innerHTML = '<strong>❌ 錯誤</strong><br>' + error.message;
+                console.error('Diagnosis error:', error);
+            }
+        }
+
+        // 自動填充 URL 參數
+        window.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            if (params.has('trackId')) {
+                document.getElementById('trackId').value = params.get('trackId');
+            }
+            if (params.has('challengeId')) {
+                document.getElementById('challengeId').value = params.get('challengeId');
+            }
+            if (params.has('auto')) {
+                diagnose();
+            }
+        });
+    </script>
+</body>
+</html>
