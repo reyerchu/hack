@@ -75,15 +75,23 @@ export default function SubmissionsListPage() {
         return (b.finalScore || 0) - (a.finalScore || 0);
       }
       // 默认按提交時間倒序
-      const dateA = a.submittedAt?.toDate?.() || new Date(a.submittedAt || 0);
-      const dateB = b.submittedAt?.toDate?.() || new Date(b.submittedAt || 0);
+      const dateA = a.submittedAt instanceof Date 
+        ? a.submittedAt 
+        : (a.submittedAt as any)?._seconds 
+        ? new Date((a.submittedAt as any)._seconds * 1000) 
+        : new Date(0);
+      const dateB = b.submittedAt instanceof Date 
+        ? b.submittedAt 
+        : (b.submittedAt as any)?._seconds 
+        ? new Date((b.submittedAt as any)._seconds * 1000) 
+        : new Date(0);
       return dateB.getTime() - dateA.getTime();
     });
 
   if (authLoading || loading) {
     return (
       <div className="min-h-screen" style={{ backgroundColor: '#f9fafb' }}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-12">
           <div className="animate-pulse">
             <div className="h-10 bg-gray-300 rounded w-1/3 mb-6"></div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -100,7 +108,7 @@ export default function SubmissionsListPage() {
   if (error) {
     return (
       <div className="min-h-screen" style={{ backgroundColor: '#f9fafb' }}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-12">
           <div
             className="rounded-lg p-6"
             style={{ backgroundColor: '#fee2e2', border: '1px solid #fecaca' }}

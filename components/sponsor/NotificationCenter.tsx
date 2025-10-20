@@ -191,12 +191,17 @@ export default function NotificationCenter({
                     {notification.title}
                   </h3>
                   <span className="text-xs flex-shrink-0" style={{ color: '#9ca3af' }}>
-                    {new Date(notification.createdAt).toLocaleDateString('zh-TW', {
-                      month: 'short',
-                      day: 'numeric',
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })}
+                    {(() => {
+                      const date = notification.createdAt instanceof Date
+                        ? notification.createdAt
+                        : new Date((notification.createdAt as any)._seconds * 1000);
+                      return date.toLocaleDateString('zh-TW', {
+                        month: 'short',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      });
+                    })()}
                   </span>
                 </div>
 

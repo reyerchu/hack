@@ -172,34 +172,36 @@ export default function TeamUpIndex({
 
       <AppHeader />
 
-      <div className="min-h-screen bg-white pt-24 pb-8">
-        <div className="max-w-[1400px] mx-auto px-4 md:px-8">
+      <div className="min-h-screen bg-gray-50">
+        <div className="max-w-5xl mx-auto px-4 py-20">
           {/* 頁面標題 */}
           <div className="mb-8">
-            <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-4">
+            <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4 mb-4">
               <div>
-                <h1 className="text-3xl md:text-4xl font-bold mb-2" style={{ color: '#1a3a6e' }}>
+                <h1 className="text-4xl font-bold mb-2" style={{ color: '#1a3a6e' }}>
                   找隊友
                 </h1>
-                <p className="text-gray-600 text-lg">瀏覽 {total} 個找隊友需求，找到最適合的團隊</p>
+                <p className="text-gray-600 text-base">瀏覽 {total} 個找隊友需求，找到最適合的團隊</p>
               </div>
-              <Link
-                href="/team-up/create"
-                className="inline-block border-2 px-6 py-3 text-sm font-medium uppercase tracking-wider transition-colors duration-300 text-center"
-                style={{
-                  borderColor: '#1a3a6e',
-                  color: '#1a3a6e',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = '#1a3a6e';
-                  e.currentTarget.style.color = 'white';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'transparent';
-                  e.currentTarget.style.color = '#1a3a6e';
-                }}
-              >
-                + 發布需求
+              <Link href="/team-up/create">
+                <a
+                  className="inline-block border-2 px-6 py-2 text-[14px] font-medium uppercase tracking-wider transition-colors duration-300"
+                  style={{
+                    borderColor: '#1a3a6e',
+                    color: '#1a3a6e',
+                    backgroundColor: 'transparent',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#1a3a6e';
+                    e.currentTarget.style.color = 'white';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                    e.currentTarget.style.color = '#1a3a6e';
+                  }}
+                >
+                  + 發布需求
+                </a>
               </Link>
             </div>
 
@@ -233,10 +235,11 @@ export default function TeamUpIndex({
             <div className="mt-8 text-center">
               <button
                 onClick={handleLoadMore}
-                className="px-8 py-3 border-2 text-sm font-medium uppercase tracking-wider transition-colors duration-300"
+                className="px-8 py-2 border-2 text-[14px] font-medium uppercase tracking-wider transition-colors duration-300"
                 style={{
                   borderColor: '#1a3a6e',
                   color: '#1a3a6e',
+                  backgroundColor: 'transparent',
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.backgroundColor = '#1a3a6e';

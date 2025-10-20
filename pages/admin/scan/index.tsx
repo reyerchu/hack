@@ -237,9 +237,16 @@ export default function Admin() {
         <meta name="description" content="HackPortal's Admin Page" />
       </Head>
 
-      <section id="subheader" className="p-4">
-        <AdminHeader />
-      </section>
+      <div className="bg-gray-50">
+        <div className="max-w-5xl mx-auto px-4 pt-20">
+          <div className="mb-12">
+            <h1 className="text-4xl font-bold mb-2 text-left" style={{ color: '#1a3a6e' }}>
+              管理儀表板
+            </h1>
+          </div>
+          <AdminHeader />
+        </div>
+      </div>
       {currentScan && (
         <Dialog
           open={showDeleteScanDialog}

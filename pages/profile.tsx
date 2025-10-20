@@ -391,36 +391,74 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="px-8 pt-20 pb-8 w-full">
-      <div className="max-w-6xl mx-auto">
-        <div className="flex justify-between items-center mb-5">
-          <h1 className="text-3xl font-bold">個人中心</h1>
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-5xl mx-auto px-4 py-20">
+        <div className="flex justify-between items-center mb-8">
+          <h1
+            className="text-4xl font-bold"
+            style={{ color: '#1a3a6e' }}
+          >
+            個人中心
+          </h1>
           {activeTab === 'profile' && (
             <>
               {!isEditing ? (
                 <button
                   onClick={handleEditClick}
-                  className="px-4 py-2 text-white rounded transition duration-300"
-                  style={{ backgroundColor: '#1a3a6e' }}
-                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#2a4a7e')}
-                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#1a3a6e')}
+                  className="border-2 px-6 py-2 text-[14px] font-medium uppercase tracking-wider transition-colors duration-300"
+                  style={{
+                    borderColor: '#1a3a6e',
+                    color: '#1a3a6e',
+                    backgroundColor: 'transparent',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#1a3a6e';
+                    e.currentTarget.style.color = 'white';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                    e.currentTarget.style.color = '#1a3a6e';
+                  }}
                 >
                   編輯個人資料
                 </button>
               ) : (
-                <div className="flex gap-2">
+                <div className="flex gap-3">
                   <button
                     onClick={handleSaveEdit}
-                    className="px-4 py-2 text-white rounded transition duration-300"
-                    style={{ backgroundColor: '#1a3a6e' }}
-                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#2a4a7e')}
-                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#1a3a6e')}
+                    className="border-2 px-6 py-2 text-[14px] font-medium uppercase tracking-wider transition-colors duration-300"
+                    style={{
+                      borderColor: '#1a3a6e',
+                      color: '#1a3a6e',
+                      backgroundColor: 'transparent',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = '#1a3a6e';
+                      e.currentTarget.style.color = 'white';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = 'transparent';
+                      e.currentTarget.style.color = '#1a3a6e';
+                    }}
                   >
                     儲存
                   </button>
                   <button
                     onClick={handleCancelEdit}
-                    className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+                    className="border-2 px-6 py-2 text-[14px] font-medium uppercase tracking-wider transition-colors duration-300"
+                    style={{
+                      borderColor: '#6b7280',
+                      color: '#6b7280',
+                      backgroundColor: 'transparent',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = '#6b7280';
+                      e.currentTarget.style.color = 'white';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = 'transparent';
+                      e.currentTarget.style.color = '#6b7280';
+                    }}
                   >
                     取消
                   </button>
@@ -431,35 +469,74 @@ export default function ProfilePage() {
         </div>
 
         {/* Tab 切換 */}
-        <div className="border-b border-gray-200 mb-6">
-          <nav className="-mb-px flex space-x-8">
+        <div className="border-b-2 mb-8" style={{ borderColor: '#e5e7eb' }}>
+          <nav className="-mb-0.5 flex space-x-8">
             <button
               onClick={() => setActiveTab('profile')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+              className="py-4 px-1 border-b-2 font-medium text-[14px] transition-colors"
+              style={
                 activeTab === 'profile'
-                  ? 'border-blue-600 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
+                  ? { borderColor: '#1a3a6e', color: '#1a3a6e' }
+                  : { borderColor: 'transparent', color: '#6b7280' }
+              }
+              onMouseEnter={(e) => {
+                if (activeTab !== 'profile') {
+                  e.currentTarget.style.color = '#374151';
+                  e.currentTarget.style.borderColor = '#d1d5db';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (activeTab !== 'profile') {
+                  e.currentTarget.style.color = '#6b7280';
+                  e.currentTarget.style.borderColor = 'transparent';
+                }
+              }}
             >
               個人資料
             </button>
             <button
               onClick={() => setActiveTab('teamup-needs')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+              className="py-4 px-1 border-b-2 font-medium text-[14px] transition-colors"
+              style={
                 activeTab === 'teamup-needs'
-                  ? 'border-blue-600 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
+                  ? { borderColor: '#1a3a6e', color: '#1a3a6e' }
+                  : { borderColor: 'transparent', color: '#6b7280' }
+              }
+              onMouseEnter={(e) => {
+                if (activeTab !== 'teamup-needs') {
+                  e.currentTarget.style.color = '#374151';
+                  e.currentTarget.style.borderColor = '#d1d5db';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (activeTab !== 'teamup-needs') {
+                  e.currentTarget.style.color = '#6b7280';
+                  e.currentTarget.style.borderColor = 'transparent';
+                }
+              }}
             >
               我的找隊友需求 ({myNeeds.length})
             </button>
             <button
               onClick={() => setActiveTab('teamup-applications')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+              className="py-4 px-1 border-b-2 font-medium text-[14px] transition-colors"
+              style={
                 activeTab === 'teamup-applications'
-                  ? 'border-blue-600 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
+                  ? { borderColor: '#1a3a6e', color: '#1a3a6e' }
+                  : { borderColor: 'transparent', color: '#6b7280' }
+              }
+              onMouseEnter={(e) => {
+                if (activeTab !== 'teamup-applications') {
+                  e.currentTarget.style.color = '#374151';
+                  e.currentTarget.style.borderColor = '#d1d5db';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (activeTab !== 'teamup-applications') {
+                  e.currentTarget.style.color = '#6b7280';
+                  e.currentTarget.style.borderColor = 'transparent';
+                }
+              }}
             >
               我的找隊友申請 ({myApplications.length})
             </button>
@@ -485,8 +562,8 @@ export default function ProfilePage() {
               </div>
 
               {/* Profile Information */}
-              <div className="w-full bg-white rounded-xl border-2 border-gray-200 p-6">
-                <h2 className="text-2xl font-bold mb-6 pb-2 border-b-2 border-gray-300">
+              <div className="w-full bg-white rounded-xl border-2 p-8" style={{ borderColor: '#e5e7eb' }}>
+                <h2 className="text-2xl font-bold mb-6 pb-3 border-b-2" style={{ color: '#1a3a6e', borderColor: '#e5e7eb' }}>
                   個人資料
                 </h2>
                 <div className="flex flex-col gap-y-6">
@@ -592,7 +669,8 @@ export default function ProfilePage() {
                           }
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-blue-600 hover:underline break-all"
+                          className="hover:underline break-all"
+                          style={{ color: '#1a3a6e' }}
                         >
                           {profile.github}
                         </a>
@@ -621,7 +699,8 @@ export default function ProfilePage() {
                           }
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-blue-600 hover:underline break-all"
+                          className="hover:underline break-all"
+                          style={{ color: '#1a3a6e' }}
                         >
                           {profile.linkedin}
                         </a>
@@ -650,7 +729,8 @@ export default function ProfilePage() {
                           }
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-blue-600 hover:underline break-all"
+                          className="hover:underline break-all"
+                          style={{ color: '#1a3a6e' }}
                         >
                           {profile.website}
                         </a>
@@ -773,8 +853,8 @@ export default function ProfilePage() {
               </div>
 
               {/* LINE Community Section */}
-              <div className="w-full bg-white rounded-xl border-2 border-gray-200 p-6">
-                <h2 className="text-2xl font-bold mb-6 pb-2 border-b-2 border-gray-300">
+              <div className="w-full bg-white rounded-xl border-2 p-8" style={{ borderColor: '#e5e7eb' }}>
+                <h2 className="text-2xl font-bold mb-6 pb-3 border-b-2" style={{ color: '#1a3a6e', borderColor: '#e5e7eb' }}>
                   加入 Line 社群
                 </h2>
                 <div className="flex flex-col md:flex-row gap-6 items-start">
@@ -796,7 +876,8 @@ export default function ProfilePage() {
                         href="https://line.me/ti/g2/Ae5RbTZMqVF4lE8U8b0FOfs6M5uyiyQMAvu6aQ"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-xl font-bold text-blue-600 hover:underline inline-flex items-center gap-2"
+                        className="text-lg font-bold hover:underline inline-flex items-center gap-2"
+                        style={{ color: '#1a3a6e' }}
                       >
                         RWA黑客松2025
                         <svg
@@ -926,10 +1007,20 @@ export default function ProfilePage() {
             <div className="mb-6">
               <button
                 onClick={() => router.push('/team-up/create')}
-                className="px-6 py-3 text-white rounded-lg transition-colors font-medium"
-                style={{ backgroundColor: '#1a3a6e' }}
-                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#2a4a7e')}
-                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#1a3a6e')}
+                className="border-2 px-6 py-2 text-[14px] font-medium uppercase tracking-wider transition-colors duration-300"
+                style={{
+                  borderColor: '#1a3a6e',
+                  color: '#1a3a6e',
+                  backgroundColor: 'transparent',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#1a3a6e';
+                  e.currentTarget.style.color = 'white';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                  e.currentTarget.style.color = '#1a3a6e';
+                }}
               >
                 ＋ 發布新需求
               </button>
@@ -1034,10 +1125,20 @@ export default function ProfilePage() {
             <div className="mb-6">
               <button
                 onClick={() => router.push('/team-up')}
-                className="px-6 py-3 text-white rounded-lg transition-colors font-medium"
-                style={{ backgroundColor: '#1a3a6e' }}
-                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#2a4a7e')}
-                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#1a3a6e')}
+                className="border-2 px-6 py-2 text-[14px] font-medium uppercase tracking-wider transition-colors duration-300"
+                style={{
+                  borderColor: '#1a3a6e',
+                  color: '#1a3a6e',
+                  backgroundColor: 'transparent',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#1a3a6e';
+                  e.currentTarget.style.color = 'white';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                  e.currentTarget.style.color = '#1a3a6e';
+                }}
               >
                 瀏覽更多找隊友需求
               </button>

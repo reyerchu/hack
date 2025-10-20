@@ -7,6 +7,8 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
+import firebase from 'firebase/app';
+import 'firebase/auth';
 import { useAuthContext } from '../../../../lib/user/AuthContext';
 import { useIsSponsor } from '../../../../lib/sponsor/hooks';
 
@@ -38,20 +40,31 @@ export default function TrackDetailPage() {
         setLoading(true);
         setError(null);
 
-        const token = await (window as any).firebase.auth().currentUser?.getIdToken();
+        // 安全获取 Firebase ID token
+        const currentUser = firebase.auth().currentUser;
+        if (!currentUser) {
+          throw new Error('無法獲取認證令牌');
+        }
+        const token = await currentUser.getIdToken();
 
+        console.log('[TrackDetailPage] 發送請求:', `/api/sponsor/tracks/${trackId}`);
         const response = await fetch(`/api/sponsor/tracks/${trackId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
 
+        console.log('[TrackDetailPage] Response status:', response.status);
+
         if (!response.ok) {
-          throw new Error('Failed to fetch track details');
+          const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+          console.error('[TrackDetailPage] API 錯誤:', errorData);
+          throw new Error(errorData.error || 'Failed to fetch track details');
         }
 
         const data = await response.json();
-        setTrack(data);
+        console.log('[TrackDetailPage] 收到數據:', data);
+        setTrack(data.data || data);
       } catch (err: any) {
         console.error('Error fetching track:', err);
         setError(err.message);
@@ -66,7 +79,7 @@ export default function TrackDetailPage() {
   if (authLoading || loading) {
     return (
       <div className="min-h-screen" style={{ backgroundColor: '#f9fafb' }}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-12">
           <div className="animate-pulse">
             <div className="h-10 bg-gray-300 rounded w-1/3 mb-6"></div>
             <div className="h-64 bg-gray-300 rounded"></div>
@@ -79,7 +92,7 @@ export default function TrackDetailPage() {
   if (error || !track) {
     return (
       <div className="min-h-screen" style={{ backgroundColor: '#f9fafb' }}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-12">
           <div
             className="rounded-lg p-6"
             style={{ backgroundColor: '#fee2e2', border: '1px solid #fecaca' }}
@@ -103,7 +116,7 @@ export default function TrackDetailPage() {
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#f9fafb' }}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-12">
         {/* Header */}
         <div className="mb-6">
           <Link href="/sponsor/dashboard">

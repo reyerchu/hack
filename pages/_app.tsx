@@ -19,7 +19,10 @@ import 'prismjs/themes/prism-tomorrow.css';
 // used for rendering equations
 import 'katex/dist/katex.min.css';
 
-initFirebase();
+// Initialize Firebase only on client side
+if (typeof window !== 'undefined') {
+  initFirebase();
+}
 
 /**
  * A Wrapper for the RWA Hackathon Taiwan web app.

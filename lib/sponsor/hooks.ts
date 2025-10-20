@@ -51,37 +51,52 @@ export function useSponsorTracks() {
   const { user, isSignedIn } = useAuthContext();
 
   const fetchTracks = useCallback(async () => {
+    console.log('[useSponsorTracks] fetchTracks called, isSignedIn:', isSignedIn);
+    
     if (!isSignedIn) {
+      console.log('[useSponsorTracks] 用戶未登入，跳過');
       setLoading(false);
       return;
     }
 
     try {
+      console.log('[useSponsorTracks] 開始獲取賽道...');
       setLoading(true);
       setError(null);
 
       const token = await getAuthToken();
       if (!token) {
+        console.error('[useSponsorTracks] 無法獲取 token');
         throw new Error('無法獲取認證令牌');
       }
+      
+      console.log('[useSponsorTracks] Token 獲取成功，發送請求到 /api/sponsor/tracks');
 
       const response = await fetch('/api/sponsor/tracks', {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
+      
+      console.log('[useSponsorTracks] Response status:', response.status);
 
       if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        console.error('[useSponsorTracks] API 錯誤:', errorData);
         throw new Error('Failed to fetch tracks');
       }
 
       const data = await response.json();
-      setTracks(data.tracks || []);
+      console.log('[useSponsorTracks] 收到數據:', data);
+      console.log('[useSponsorTracks] data.data:', data.data);
+      console.log('[useSponsorTracks] tracks 數量:', data.data?.tracks?.length || 0);
+      setTracks(data.data?.tracks || []);
     } catch (err: any) {
-      console.error('Error fetching tracks:', err);
+      console.error('[useSponsorTracks] 錯誤:', err);
       setError(err.message);
     } finally {
       setLoading(false);
+      console.log('[useSponsorTracks] fetchTracks 完成');
     }
   }, [isSignedIn]);
 
@@ -155,7 +170,7 @@ export function useSubmission(submissionId: string | null) {
       }
 
       const data = await response.json();
-      setSubmission(data);
+      setSubmission(data.data || null);
     } catch (err: any) {
       console.error('Error fetching submission:', err);
       setError(err.message);
@@ -215,8 +230,8 @@ export function useSponsorNotifications(unreadOnly = false) {
       }
 
       const data = await response.json();
-      setNotifications(data.notifications || []);
-      setUnreadCount(data.unreadCount || 0);
+      setNotifications(data.data?.notifications || []);
+      setUnreadCount(data.data?.unreadCount || 0);
     } catch (err: any) {
       console.error('Error fetching notifications:', err);
       setError(err.message);

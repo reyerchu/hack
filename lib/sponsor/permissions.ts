@@ -70,10 +70,12 @@ export async function checkSponsorPermission(
     }
     
     const user = userData.data;
-    const permissions = user?.permissions || [];
+    // 支持兩種數據結構：扁平和嵌套
+    const permissions = user?.permissions || user?.user?.permissions || [];
     
     // Admin 有所有權限
-    if (permissions.includes('super_admin') || permissions.includes('admin')) {
+    if (permissions.includes('super_admin') || permissions.includes('admin') ||
+        permissions[0] === 'super_admin' || permissions[0] === 'admin') {
       return true;
     }
     
@@ -105,33 +107,51 @@ export async function checkTrackAccess(
   trackId: string,
 ): Promise<boolean> {
   try {
+    console.log('[checkTrackAccess] 開始檢查, userId:', userId, 'trackId:', trackId);
+    
     // 1. 獲取用戶權限
     const userData = await getUserData(userId);
+    console.log('[checkTrackAccess] userData exists:', userData?.exists);
     
     if (!userData || !userData.exists) {
+      console.log('[checkTrackAccess] ❌ 用戶不存在');
       return false;
     }
     
     const user = userData.data;
-    const permissions = user?.permissions || [];
+    console.log('[checkTrackAccess] user.permissions:', user?.permissions);
+    console.log('[checkTrackAccess] user.user?.permissions:', user?.user?.permissions);
+    
+    // 處理不同的數據結構
+    const permissions = user?.permissions || user?.user?.permissions || [];
+    console.log('[checkTrackAccess] 最終 permissions:', permissions);
     
     // Admin 可以访问所有賽道
-    if (permissions.includes('super_admin') || permissions.includes('admin')) {
+    if (permissions.includes('super_admin') || permissions.includes('admin') ||
+        permissions[0] === 'super_admin' || permissions[0] === 'admin') {
+      console.log('[checkTrackAccess] ✅ 用戶是 admin，允許訪問');
       return true;
     }
     
+    console.log('[checkTrackAccess] 用戶不是 admin，檢查 sponsor mappings...');
+    
     // 2. 獲取用戶的 sponsor mappings (使用 document ID)
     const docId = userData.ref.id;
+    console.log('[checkTrackAccess] docId:', docId);
     const mappingsSnapshot = await db
       .collection(SPONSOR_COLLECTIONS.SPONSOR_USER_MAPPINGS)
       .where('userId', '==', docId)
       .get();
     
+    console.log('[checkTrackAccess] mappings 數量:', mappingsSnapshot.size);
+    
     if (mappingsSnapshot.empty) {
+      console.log('[checkTrackAccess] ❌ 沒有 sponsor mappings');
       return false;
     }
     
     const sponsorIds = mappingsSnapshot.docs.map((doc) => doc.data().sponsorId);
+    console.log('[checkTrackAccess] sponsorIds:', sponsorIds);
     
     // 3. 檢查這些 sponsors 是否赞助該 track
     const challengeSnapshot = await db
@@ -141,9 +161,14 @@ export async function checkTrackAccess(
       .limit(1)
       .get();
     
-    return !challengeSnapshot.empty;
-  } catch (error) {
-    console.error('Error checking track access:', error);
+    console.log('[checkTrackAccess] 找到 challenges:', challengeSnapshot.size);
+    
+    const hasAccess = !challengeSnapshot.empty;
+    console.log('[checkTrackAccess] 最終結果:', hasAccess ? '✅ 允許訪問' : '❌ 拒絕訪問');
+    
+    return hasAccess;
+  } catch (error: any) {
+    console.error('[checkTrackAccess] ❌ Error:', error.message, error);
     return false;
   }
 }
@@ -188,31 +213,42 @@ export async function checkChallengeAccess(
  */
 export async function getUserAccessibleTracks(userId: string): Promise<string[]> {
   try {
+    console.log('[getUserAccessibleTracks] 開始, userId:', userId);
     // 1. 獲取用戶權限
     const userData = await getUserData(userId);
     
     if (!userData || !userData.exists) {
+      console.log('[getUserAccessibleTracks] 用戶不存在');
       return [];
     }
     
     const user = userData.data;
-    const permissions = user?.permissions || [];
+    const permissions = user?.permissions || user?.user?.permissions || [];
+    console.log('[getUserAccessibleTracks] permissions:', permissions);
     
     // Admin 可以访问所有賽道
-    if (permissions.includes('super_admin') || permissions.includes('admin')) {
+    if (permissions.includes('super_admin') || permissions.includes('admin') || 
+        permissions[0] === 'super_admin' || permissions[0] === 'admin') {
+      console.log('[getUserAccessibleTracks] 用戶是 admin，獲取所有賽道');
       const allChallenges = await db
         .collection(SPONSOR_COLLECTIONS.EXTENDED_CHALLENGES)
         .get();
       
+      console.log('[getUserAccessibleTracks] extended-challenges 數量:', allChallenges.size);
+      
       const trackIds = new Set<string>();
       allChallenges.docs.forEach((doc) => {
-        const trackId = doc.data().trackId;
+        const data = doc.data();
+        console.log('[getUserAccessibleTracks] challenge:', doc.id, 'trackId:', data.trackId);
+        const trackId = data.trackId;
         if (trackId) {
           trackIds.add(trackId);
         }
       });
       
-      return Array.from(trackIds);
+      const result = Array.from(trackIds);
+      console.log('[getUserAccessibleTracks] 返回 trackIds:', result);
+      return result;
     }
     
     // 2. 獲取用戶的 sponsor mappings (使用 document ID)
@@ -269,9 +305,11 @@ export async function getUserSponsorRole(
     }
     
     const user = userData.data;
-    const permissions = user?.permissions || [];
+    // 支持兩種數據結構：扁平和嵌套
+    const permissions = user?.permissions || user?.user?.permissions || [];
     
-    if (permissions.includes('super_admin') || permissions.includes('admin')) {
+    if (permissions.includes('super_admin') || permissions.includes('admin') ||
+        permissions[0] === 'super_admin' || permissions[0] === 'admin') {
       return 'admin';
     }
     
@@ -326,23 +364,29 @@ export async function hasSponsorRole(
  */
 export async function getUserSponsors(userId: string): Promise<string[]> {
   try {
+    console.log('[getUserSponsors] 開始, userId:', userId);
     // 獲取用戶數據以獲取 document ID
     const userData = await getUserData(userId);
+    console.log('[getUserSponsors] userData exists:', userData?.exists);
     
     if (!userData || !userData.exists) {
+      console.log('[getUserSponsors] 用戶不存在，返回空數組');
       return [];
     }
     
     // 使用 document ID 查詢
     const docId = userData.ref.id;
+    console.log('[getUserSponsors] docId:', docId);
     const mappingsSnapshot = await db
       .collection(SPONSOR_COLLECTIONS.SPONSOR_USER_MAPPINGS)
       .where('userId', '==', docId)
       .get();
     
-    return mappingsSnapshot.docs.map((doc) => doc.data().sponsorId);
+    const sponsorIds = mappingsSnapshot.docs.map((doc) => doc.data().sponsorId);
+    console.log('[getUserSponsors] 返回 sponsorIds:', sponsorIds);
+    return sponsorIds;
   } catch (error) {
-    console.error('Error getting user sponsors:', error);
+    console.error('[getUserSponsors] ❌ Error:', error);
     return [];
   }
 }
@@ -405,9 +449,11 @@ export async function canEditSubmission(
     }
     
     const user = userData.data;
-    const permissions = user?.permissions || [];
+    // 支持兩種數據結構：扁平和嵌套
+    const permissions = user?.permissions || user?.user?.permissions || [];
     
-    if (permissions.includes('super_admin') || permissions.includes('admin')) {
+    if (permissions.includes('super_admin') || permissions.includes('admin') ||
+        permissions[0] === 'super_admin' || permissions[0] === 'admin') {
       return true;
     }
     

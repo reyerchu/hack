@@ -1,7 +1,6 @@
+import { useRouter } from 'next/router';
 import Link from 'next/link';
-import NavLink from '../NavLink';
 import { useAuthContext } from '../../lib/user/AuthContext';
-import { useEffect } from 'react';
 
 function isAuthorized(user): boolean {
   if (!user || !user.permissions) return false;
@@ -13,67 +12,62 @@ function isAuthorized(user): boolean {
  */
 export default function AdminHeader() {
   const { user } = useAuthContext();
+  const router = useRouter();
 
-  useEffect(() => {
-    accordion();
-  }, []);
+  const tabs = [
+    { name: '使用者', href: '/admin/users', exactMatch: false },
+    { name: '活動', href: '/admin/events', exactMatch: false },
+    { name: '挑戰', href: '/admin/challenges', exactMatch: false },
+    { name: '公告與問題', href: '/admin/announcements', exactMatch: false },
+    { name: '統計', href: '/admin/stats', exactMatch: false, superAdminOnly: true },
+    { name: '掃描', href: '/admin/scan', exactMatch: false },
+  ];
 
-  const accordion = () => {
-    var acc = document.getElementsByClassName('accordion');
-    for (let i = 0; i < acc.length; i++) {
-      acc[i].addEventListener('click', function () {
-        this.classList.toggle('menuactive');
-        var panel = this.nextElementSibling;
-        if (panel.style.maxHeight) {
-          panel.style.maxHeight = null;
-        } else {
-          panel.style.maxHeight = panel.scrollHeight + 'px';
-        }
-      });
+  // Filter tabs based on permissions
+  const filteredTabs = tabs.filter(tab => {
+    if (tab.superAdminOnly) {
+      return isAuthorized(user);
     }
+    return true;
+  });
+
+  const isActiveTab = (href: string, exactMatch: boolean) => {
+    if (exactMatch) {
+      return router.pathname === href;
+    }
+    return router.pathname.startsWith(href);
   };
 
   return (
-    <section className="pt-14">
-      <header className="top-14 sticky hidden md:flex flex-row justify-between p-2 md:p-4 items-center bg-white shadow-sm z-10">
-        <div className="mx-auto md:flex justify-center md:text-lg lg:text-xl font-header md:text-left">
-          <NavLink href="/admin" exact={true} className="mx-4">
-            Event Dashboard
-          </NavLink>
-          <NavLink href="/admin/scan" exact={true} className="mx-4">
-            Scanner
-          </NavLink>
-          <NavLink href="/admin/users" exact={true} className="mx-4">
-            Users Dashboard
-          </NavLink>
-          {isAuthorized(user) && (
-            <NavLink href="/admin/stats" exact={true} className="mx-4">
-              Stats at a Glance
-            </NavLink>
-          )}
-        </div>
-      </header>
-      <div className="my-4 md:hidden ">
-        <button className="accordion text-left p-2 text-sm bg-[#C1C8FF]">Admin Menu</button>
-        <div className="panel w-full bg-[#F2F3FF] text-sm">
-          <ul className="">
-            <li className="p-2 hover:bg-[#DCDEFF]">
-              <Link href="/admin">Event Dashboard</Link>
-            </li>
-            <li className="p-2 hover:bg-[#DCDEFF]">
-              <Link href="/admin/scan">Scanner</Link>
-            </li>
-            <li className="p-2 hover:bg-[#DCDEFF]">
-              <Link href="/admin/users">Users Dashboard</Link>
-            </li>
-            {isAuthorized(user) && (
-              <li className="p-2 hover:bg-[#DCDEFF]">
-                <Link href="/admin/stats">Stats at a Glance</Link>
-              </li>
-            )}
-          </ul>
-        </div>
-      </div>
-    </section>
+    <div className="border-b-2 mb-8" style={{ borderColor: '#e5e7eb' }}>
+      <nav className="-mb-0.5 flex space-x-8">
+        {filteredTabs.map((tab) => (
+          <Link key={tab.href} href={tab.href}>
+            <a
+              className="py-4 px-1 border-b-2 font-medium text-[14px] transition-colors"
+              style={
+                isActiveTab(tab.href, tab.exactMatch)
+                  ? { borderColor: '#1a3a6e', color: '#1a3a6e' }
+                  : { borderColor: 'transparent', color: '#6b7280' }
+              }
+              onMouseEnter={(e) => {
+                if (!isActiveTab(tab.href, tab.exactMatch)) {
+                  e.currentTarget.style.color = '#374151';
+                  e.currentTarget.style.borderColor = '#d1d5db';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!isActiveTab(tab.href, tab.exactMatch)) {
+                  e.currentTarget.style.color = '#6b7280';
+                  e.currentTarget.style.borderColor = 'transparent';
+                }
+              }}
+            >
+              {tab.name}
+            </a>
+          </Link>
+        ))}
+      </nav>
+    </div>
   );
 }

@@ -1,72 +1,64 @@
-import { GetServerSideProps } from 'next';
+/**
+ * Super Admin Dashboard
+ * 
+ * 統一的管理界面，與 Home 頁面風格一致
+ */
+
 import Head from 'next/head';
 import Link from 'next/link';
-import React, { useState } from 'react';
+import React from 'react';
 import AdminHeader from '../../components/adminComponents/AdminHeader';
-import ErrorList from '../../components/ErrorList';
-import EventDetailLink from '../../components/adminComponents/eventComponents/EventDetailLink';
-import PendingQuestion from '../../components/dashboardComponents/PendingQuestion';
-import SuccessCard from '../../components/adminComponents/SuccessCard';
-import { RequestHelper } from '../../lib/request-helper';
 import { useAuthContext } from '../../lib/user/AuthContext';
-import { QADocument } from '../api/questions';
 
 export function isAuthorized(user): boolean {
   if (!user || !user.permissions) return false;
+  const permissions = user.permissions;
   return (
-    (user.permissions as string[]).includes('admin') ||
-    (user.permissions as string[]).includes('organizer') ||
-    (user.permissions as string[]).includes('super_admin')
+    permissions.includes('admin') ||
+    permissions.includes('organizer') ||
+    permissions.includes('super_admin') ||
+    permissions[0] === 'admin' ||
+    permissions[0] === 'super_admin'
   );
 }
 
-/**
- * The main page of Admin Console.
- *
- * Route: /admin
- */
-export default function Admin({ questions }: { questions: QADocument[] }) {
+export default function Admin() {
   const { user, isSignedIn } = useAuthContext();
 
-  const [announcement, setAnnouncement] = useState('');
-  const [errors, setErrors] = useState<string[]>([]);
-  const [showSuccessMsg, setShowSuccessMsg] = useState(false);
-
-  const addError = (errMsg: string) => {
-    setErrors((prev) => [...prev, errMsg]);
-  };
-
-  const postAnnouncement = async () => {
-    if (!user.permissions.includes('super_admin')) {
-      alert('You do not have permission to perform this functionality');
-      return;
-    }
-    try {
-      await RequestHelper.post<Announcement, void>(
-        '/api/announcements',
-        {
-          headers: {
-            Authorization: user.token,
-          },
-        },
-        {
-          announcement,
-        },
-      );
-
-      setShowSuccessMsg(true);
-      setTimeout(() => {
-        setShowSuccessMsg(false);
-      }, 2000);
-      setAnnouncement('');
-    } catch (error) {
-      addError('Failed to post announcement! Please try again later');
-      console.log(error);
-    }
-  };
-
-  if (!isSignedIn || !isAuthorized(user))
-    return <div className="text-2xl font-black text-center">Unauthorized</div>;
+  if (!isSignedIn || !isAuthorized(user)) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center max-w-5xl mx-auto px-4">
+          <h1 className="text-4xl font-bold mb-4" style={{ color: '#1a3a6e' }}>
+            未授權
+          </h1>
+          <p className="text-base text-gray-600 mb-8">
+            您沒有權限訪問此頁面
+          </p>
+          <Link href="/">
+            <a
+              className="inline-block border-2 px-8 py-3 text-sm font-medium uppercase tracking-wider transition-colors duration-300"
+              style={{
+                borderColor: '#1a3a6e',
+                color: '#1a3a6e',
+                backgroundColor: 'transparent',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = '#1a3a6e';
+                e.currentTarget.style.color = 'white';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent';
+                e.currentTarget.style.color = '#1a3a6e';
+              }}
+            >
+              返回首頁
+            </a>
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col flex-grow">
@@ -74,80 +66,91 @@ export default function Admin({ questions }: { questions: QADocument[] }) {
         <title>HackPortal - Admin</title>
         <meta name="description" content="HackPortal's Admin Page" />
       </Head>
-      <AdminHeader />
-      {user.permissions.includes('super_admin') && (
-        <div className="p-6">
-          <ErrorList
-            errors={errors}
-            onClose={(idx: number) => {
-              const newErrorList = [...errors];
-              newErrorList.splice(idx, 1);
-              setErrors(newErrorList);
-            }}
-          />
-          {showSuccessMsg && (
-            <div className="my-2">
-              <SuccessCard msg="Announcement posted successfully" />
-            </div>
-          )}
-          <h1 className="font-bold text-xl">Post Announcement: </h1>
-          <textarea
-            value={announcement}
-            onChange={(e) => setAnnouncement(e.target.value)}
-            className="w-full rounded-xl p-4"
-            style={{ backgroundColor: '#F2F3FF' }}
-            placeholder="Type your announcement here"
-            rows={5}
-          ></textarea>
-          <div className="flex flex-row justify-end my-4">
-            <button
-              type="button"
-              className="py-2 px-5 rounded-lg font-bold text-white transition duration-300"
-              style={{ backgroundColor: '#1a3a6e' }}
-              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#2a4a7e')}
-              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#1a3a6e')}
-              onClick={() => {
-                postAnnouncement();
-              }}
-            >
-              Post
-            </button>
-          </div>
-        </div>
-      )}
-      <div className="p-6">
-        <h1 className="font-bold text-xl">Pending Questions: </h1>
-        {questions.map((question, idx) => (
-          <Link key={idx} passHref href={`/admin/resolve/${question.id}`}>
-            <a>
-              <PendingQuestion key={idx} question={question.question} />
-            </a>
-          </Link>
-        ))}
-      </div>
 
-      {user.permissions[0] === 'super_admin' && (
-        <div className="p-6">
-          <h1 className="font-bold text-xl">Event Details: </h1>
-          <div className="p-4">
-            <EventDetailLink title="View Events" href="/admin/events" />
-            <EventDetailLink title="View Challenges" href="/admin/challenges" />
+      <div className="min-h-screen bg-gray-50">
+        <div className="max-w-5xl mx-auto px-4 py-20">
+          {/* Header */}
+          <div className="mb-12">
+            <h1
+              className="text-4xl font-bold mb-2 text-left"
+              style={{ color: '#1a3a6e' }}
+            >
+              管理儀表板
+            </h1>
+          </div>
+
+          {/* Admin Tabs */}
+          <AdminHeader />
+
+          {/* Quick Links Section */}
+          <div className="mb-12">
+            <h2
+              className="text-2xl font-bold mb-6"
+              style={{ color: '#1a3a6e' }}
+            >
+              快速連結
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <Link href="/admin/users">
+                <a className="block bg-white rounded-lg p-6 shadow-sm hover:shadow-lg transition-all duration-300 border-2"
+                   style={{ borderColor: '#e5e7eb' }}>
+                  <h3 className="text-lg font-bold mb-2" style={{ color: '#1a3a6e' }}>
+                    👥 使用者管理
+                  </h3>
+                  <p className="text-sm text-gray-600">管理所有註冊用戶</p>
+                </a>
+              </Link>
+              <Link href="/admin/events">
+                <a className="block bg-white rounded-lg p-6 shadow-sm hover:shadow-lg transition-all duration-300 border-2"
+                   style={{ borderColor: '#e5e7eb' }}>
+                  <h3 className="text-lg font-bold mb-2" style={{ color: '#1a3a6e' }}>
+                    📅 活動管理
+                  </h3>
+                  <p className="text-sm text-gray-600">管理活動時程</p>
+                </a>
+              </Link>
+              <Link href="/admin/challenges">
+                <a className="block bg-white rounded-lg p-6 shadow-sm hover:shadow-lg transition-all duration-300 border-2"
+                   style={{ borderColor: '#e5e7eb' }}>
+                  <h3 className="text-lg font-bold mb-2" style={{ color: '#1a3a6e' }}>
+                    🎯 挑戰管理
+                  </h3>
+                  <p className="text-sm text-gray-600">管理挑戰與贊助商</p>
+                </a>
+              </Link>
+              <Link href="/admin/announcements">
+                <a className="block bg-white rounded-lg p-6 shadow-sm hover:shadow-lg transition-all duration-300 border-2"
+                   style={{ borderColor: '#e5e7eb' }}>
+                  <h3 className="text-lg font-bold mb-2" style={{ color: '#1a3a6e' }}>
+                    📢 公告與問題
+                  </h3>
+                  <p className="text-sm text-gray-600">發布公告與回覆問題</p>
+                </a>
+              </Link>
+              {user.permissions[0] === 'super_admin' && (
+                <Link href="/admin/stats">
+                  <a className="block bg-white rounded-lg p-6 shadow-sm hover:shadow-lg transition-all duration-300 border-2"
+                     style={{ borderColor: '#e5e7eb' }}>
+                    <h3 className="text-lg font-bold mb-2" style={{ color: '#1a3a6e' }}>
+                      📊 統計報表
+                    </h3>
+                    <p className="text-sm text-gray-600">查看統計數據</p>
+                  </a>
+                </Link>
+              )}
+              <Link href="/admin/scan">
+                <a className="block bg-white rounded-lg p-6 shadow-sm hover:shadow-lg transition-all duration-300 border-2"
+                   style={{ borderColor: '#e5e7eb' }}>
+                  <h3 className="text-lg font-bold mb-2" style={{ color: '#1a3a6e' }}>
+                    📱 掃描功能
+                  </h3>
+                  <p className="text-sm text-gray-600">掃描 QR Code</p>
+                </a>
+              </Link>
+            </div>
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }
-
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  const protocol = context.req.headers.referer?.split('://')[0] || 'http';
-  const { data } = await RequestHelper.get<QADocument[]>(
-    `${protocol}://${context.req.headers.host}/api/questions/pending`,
-    {},
-  );
-  return {
-    props: {
-      questions: data,
-    },
-  };
-};

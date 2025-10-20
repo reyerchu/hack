@@ -19,7 +19,7 @@ export default function ChallengeEditor({
   onSave,
   loading,
 }: ChallengeEditorProps) {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<any>({
     title: challenge?.title || '',
     description: challenge?.description || '',
     requirements: challenge?.requirements || '',
@@ -104,7 +104,6 @@ export default function ChallengeEditor({
           className="w-full px-4 py-2 rounded-lg border focus:outline-none focus:ring-2"
           style={{
             borderColor: '#d1d5db',
-            focusRing: '#1a3a6e',
           }}
           required
         />

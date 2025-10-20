@@ -42,7 +42,7 @@ export default function ReportsPage() {
   if (authLoading || tracksLoading) {
     return (
       <div className="min-h-screen" style={{ backgroundColor: '#f9fafb' }}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-12">
           <div className="animate-pulse">
             <div className="h-10 bg-gray-300 rounded w-1/3 mb-6"></div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -230,7 +230,7 @@ export default function ReportsPage() {
                   <div className="flex items-start justify-between mb-4">
                     <div>
                       <h3 className="text-lg font-semibold" style={{ color: '#1a3a6e' }}>
-                        {track.trackName}
+                        {track.name}
                       </h3>
                       <p className="text-sm mt-1" style={{ color: '#6b7280' }}>
                         賽道 ID: {track.id}

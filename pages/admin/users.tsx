@@ -291,12 +291,16 @@ export default function UserPage() {
         <meta name="description" content="管理所有註冊用戶" />
       </Head>
 
-      <section id="subheader" className="p-2 md:p-4">
+      <div className="max-w-5xl mx-auto px-4 py-20">
+        <div className="mb-12">
+          <h1 className="text-4xl font-bold mb-2 text-left" style={{ color: '#1a3a6e' }}>
+            管理儀表板
+          </h1>
+        </div>
         <AdminHeader />
-      </section>
 
-      {currentUser === '' ? (
-        <div className="p-4 md:p-8 pt-24">
+        {currentUser === '' ? (
+        <div>
           {/* Header */}
           <div className="mb-6">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">用戶管理</h1>
@@ -638,7 +642,7 @@ export default function UserPage() {
           </div>
         </div>
       ) : (
-        <div className="pt-24">
+        <div>
           <UserAdminView
             currentUserId={currentUser}
             goBack={() => {
@@ -650,6 +654,7 @@ export default function UserPage() {
           />
         </div>
       )}
+      </div>
     </div>
   );
 }

@@ -93,7 +93,7 @@ export default function SubmissionDetailPage() {
   if (authLoading || loading) {
     return (
       <div className="min-h-screen" style={{ backgroundColor: '#f9fafb' }}>
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-12">
           <div className="animate-pulse">
             <div className="h-10 bg-gray-300 rounded w-1/3 mb-6"></div>
             <div className="h-96 bg-gray-300 rounded"></div>
@@ -106,7 +106,7 @@ export default function SubmissionDetailPage() {
   if (error || !submission) {
     return (
       <div className="min-h-screen" style={{ backgroundColor: '#f9fafb' }}>
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-12">
           <div
             className="rounded-lg p-6"
             style={{ backgroundColor: '#fee2e2', border: '1px solid #fecaca' }}

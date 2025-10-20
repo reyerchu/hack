@@ -175,6 +175,10 @@ export const ACTIVITY_ACTION_LABELS: Record<SponsorActivityAction, string> = {
   update_track: '更新賽道',
   contact_team: '聯繫隊伍',
   export_report: '導出報告',
+  update_challenge: '更新挑戰',
+  score_submission: '評分提交',
+  download_report: '下載報告',
+  other: '其他操作',
 };
 
 /**

@@ -7,6 +7,8 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
+import firebase from 'firebase/app';
+import 'firebase/auth';
 import { useAuthContext } from '../../../../lib/user/AuthContext';
 import { useIsSponsor } from '../../../../lib/sponsor/hooks';
 import ChallengeEditor from '../../../../components/sponsor/ChallengeEditor';
@@ -42,7 +44,12 @@ export default function ChallengeEditPage() {
         setLoading(true);
         setError(null);
 
-        const token = await (window as any).firebase.auth().currentUser?.getIdToken();
+        // 安全获取 Firebase ID token
+        const currentUser = firebase.auth().currentUser;
+        if (!currentUser) {
+          throw new Error('無法獲取認證令牌');
+        }
+        const token = await currentUser.getIdToken();
 
         const response = await fetch(`/api/sponsor/tracks/${trackId}/challenge`, {
           headers: {
@@ -78,7 +85,12 @@ export default function ChallengeEditPage() {
       setSaveSuccess(false);
       setError(null);
 
-      const token = await (window as any).firebase.auth().currentUser?.getIdToken();
+      // 安全获取 Firebase ID token
+      const currentUser = firebase.auth().currentUser;
+      if (!currentUser) {
+        throw new Error('無法獲取認證令牌');
+      }
+      const token = await currentUser.getIdToken();
 
       const response = await fetch(`/api/sponsor/tracks/${trackId}/challenge`, {
         method: 'PUT',
@@ -116,7 +128,7 @@ export default function ChallengeEditPage() {
   if (authLoading || loading) {
     return (
       <div className="min-h-screen" style={{ backgroundColor: '#f9fafb' }}>
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-12">
           <div className="animate-pulse">
             <div className="h-10 bg-gray-300 rounded w-1/3 mb-6"></div>
             <div className="h-96 bg-gray-300 rounded"></div>
@@ -128,7 +140,7 @@ export default function ChallengeEditPage() {
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#f9fafb' }}>
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-12">
         {/* Header */}
         <div className="mb-6">
           <Link href={`/sponsor/tracks/${trackId}`}>

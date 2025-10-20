@@ -37,31 +37,39 @@ export default function AppHeader() {
     }
 
     //creating dynamic nav items
-    setDynamicNavItems((dynamicNavItems) => {
-      let updatedNavItems = [...dynamicNavItems];
+    setDynamicNavItems(() => {
+      let updatedNavItems = [...navItems]; // Always start from base navItems
 
-      // Add admin link for admin/super_admin
-      if (
-        isSignedIn &&
-        profile &&
-        (profile.user.permissions[0] === 'admin' ||
-          profile.user.permissions[0] === 'super_admin') &&
-        updatedNavItems.filter(({ text }) => text === '管理員').length === 0
-      ) {
-        updatedNavItems = [...updatedNavItems, { text: '管理員', path: '/admin' }];
-      }
+      if (isSignedIn && profile && profile.user) {
+        // Handle both flat and nested permission structures
+        const permissions = profile.user.permissions || profile.user.user?.permissions || [];
+        console.log('[AppHeader] User permissions:', permissions);
+        console.log('[AppHeader] Profile structure:', profile.user);
 
-      // Add sponsor link for sponsor users
-      if (
-        isSignedIn &&
-        profile &&
-        profile.user.permissions &&
-        (profile.user.permissions.includes('sponsor') ||
-          profile.user.permissions.includes('admin') ||
-          profile.user.permissions.includes('super_admin')) &&
-        updatedNavItems.filter(({ text }) => text === '賛助商').length === 0
-      ) {
-        updatedNavItems = [...updatedNavItems, { text: '賛助商', path: '/sponsor/dashboard' }];
+        // Check if user is admin or super_admin
+        const isAdmin = 
+          permissions.includes('admin') || 
+          permissions.includes('super_admin') ||
+          permissions[0] === 'admin' ||
+          permissions[0] === 'super_admin';
+
+        // Add admin link for admin/super_admin
+        if (isAdmin && updatedNavItems.filter(({ text }) => text === '管理員').length === 0) {
+          updatedNavItems = [...updatedNavItems, { text: '管理員', path: '/admin' }];
+          console.log('[AppHeader] Added 管理員 link');
+        }
+
+        // Check if user is sponsor, admin, or super_admin
+        const isSponsor = 
+          permissions.includes('sponsor') ||
+          permissions.includes('admin') ||
+          permissions.includes('super_admin');
+
+        // Add sponsor link for sponsor users
+        if (isSponsor && updatedNavItems.filter(({ text }) => text === '賛助商').length === 0) {
+          updatedNavItems = [...updatedNavItems, { text: '賛助商', path: '/sponsor/dashboard' }];
+          console.log('[AppHeader] Added 賛助商 link');
+        }
       }
 
       return updatedNavItems;
@@ -79,7 +87,7 @@ export default function AppHeader() {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, []);
+  }, [isSignedIn, profile]); // Add dependencies to re-run when user logs in
 
   const toggleMenu = () => {
     setShowMenu(!showMenu);

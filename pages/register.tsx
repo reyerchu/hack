@@ -18,6 +18,10 @@ import DisplayQuestion from '../components/registerComponents/DisplayQuestion';
  * Registration: /
  */
 
+export async function getServerSideProps() {
+  return { props: {} }; // Force SSR, disable static generation
+}
+
 export default function Register() {
   const router = useRouter();
 
@@ -36,11 +40,13 @@ export default function Register() {
   const [formValid, setFormValid] = useState(true);
   const [resumeFile, setResumeFile] = useState<File | null>(null);
   const checkRedirect = async () => {
+    if (typeof window === 'undefined') return; // Skip on server
     if (hasProfile) router.push('/profile');
     else setLoading(false);
   };
 
   useEffect(() => {
+    if (typeof window === 'undefined') return; // Skip on server
     setTimeout(() => {
       //load json data into dropdown list for universities and majors
       if (document.getElementById('schools') !== null) {
@@ -72,6 +78,14 @@ export default function Register() {
   }, []);
 
   useEffect(() => {
+    if (typeof window === 'undefined') return; // Skip on server
+    
+    // Redirect to auth if no user
+    if (!user) {
+      router.push('/auth');
+      return;
+    }
+    
     checkRedirect();
   }, [user]);
 
@@ -127,12 +141,7 @@ export default function Register() {
     }
   };
 
-  if (!user) {
-    router.push('/auth');
-    return <LoadIcon width={200} height={200} />;
-  }
-
-  if (loading) {
+  if (!user || loading) {
     return <LoadIcon width={200} height={200} />;
   }
 
@@ -205,21 +214,22 @@ export default function Register() {
   };
 
   return (
-    <div className="flex flex-col flex-grow bg-white pt-14">
+    <div className="min-h-screen bg-gray-50">
       <Head>
         <title>註冊 | Register</title>
         <meta name="description" content="註冊參加 2025 RWA 黑客松台灣" />
         <link rel="icon" href="/favicon.ico?v=2.0" />
       </Head>
 
-      <section id="jumbotron" className="p-2 px-6">
-        <div className="max-w-4xl py-6 mx-auto flex flex-col items-center">
-          <div className="registrationTitle text-4xl font-bold text-center">註冊</div>
-          <div className="text-1xl my-4 font-bold font-small text-center">
+      <div className="max-w-5xl mx-auto px-4 py-20">
+        <div className="mb-8 text-center">
+          <h1 className="text-4xl font-bold mb-2" style={{ color: '#1a3a6e' }}>
+            註冊
+          </h1>
+          <p className="text-lg text-gray-700 mt-4">
             請填寫以下欄位。完成申請表格大約需要 5 分鐘。
-          </div>
+          </p>
         </div>
-      </section>
 
       <section className="flex justify-center">
         <Formik
@@ -320,16 +330,26 @@ export default function Register() {
                 ))}
 
                 {/* Submit */}
-                <div className="my-8">
+                <div className="my-8 flex flex-col items-start gap-3">
                   <button
                     type="submit"
-                    className="mr-auto cursor-pointer px-4 py-2 rounded-md bg-blue-200 hover:bg-blue-300"
+                    className="px-6 py-3 rounded-md text-sm font-medium transition-colors duration-300"
+                    style={{
+                      backgroundColor: '#1a3a6e',
+                      color: 'white',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = '#2a4a7e';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = '#1a3a6e';
+                    }}
                     onClick={() => setFormValid(!(!isValid || !dirty))}
                   >
                     提交
                   </button>
                   {!isValid && !formValid && (
-                    <div className="text-red-600">錯誤：表單中有無效的欄位</div>
+                    <div className="text-red-600 text-sm">錯誤：表單中有無效的欄位</div>
                   )}
                 </div>
               </Form>
@@ -337,6 +357,7 @@ export default function Register() {
           }}
         </Formik>
       </section>
+      </div>
     </div>
   );
 }

@@ -1,0 +1,157 @@
+/**
+ * API: /api/sponsor/tracks/[trackId]
+ * 
+ * GET - 獲取單個賽道的詳細資訊
+ */
+
+import { NextApiRequest, NextApiResponse } from 'next';
+import { firestore } from 'firebase-admin';
+import initializeApi from '../../../../lib/admin/init';
+import {
+  requireSponsorAuth,
+  ApiResponse,
+  AuthenticatedRequest,
+} from '../../../../lib/sponsor/middleware';
+import {
+  checkTrackAccess,
+  getUserSponsorRole,
+} from '../../../../lib/sponsor/permissions';
+import { SPONSOR_COLLECTIONS } from '../../../../lib/sponsor/collections';
+import type { ExtendedChallenge } from '../../../../lib/sponsor/types';
+
+// 初始化 Firebase Admin
+initializeApi();
+const db = firestore();
+
+/**
+ * 獲取賽道統計數據
+ */
+async function getTrackStats(trackId: string) {
+  try {
+    const statsDoc = await db
+      .collection(SPONSOR_COLLECTIONS.TRACK_STATS)
+      .doc(trackId)
+      .get();
+
+    if (statsDoc.exists) {
+      return statsDoc.data();
+    }
+
+    // 如果沒有統計數據，返回默認值
+    return {
+      submissionCount: 0,
+      teamCount: 0,
+      averageScore: 0,
+    };
+  } catch (error) {
+    console.error('Error fetching track stats:', error);
+    return {
+      submissionCount: 0,
+      teamCount: 0,
+      averageScore: 0,
+    };
+  }
+}
+
+/**
+ * GET - 獲取單個賽道詳情
+ */
+async function handleGet(req: NextApiRequest, res: NextApiResponse) {
+  console.log('[/api/sponsor/tracks/[trackId]] ========== GET 請求開始 ==========');
+  
+  if (!(await requireSponsorAuth(req, res))) {
+    console.log('[/api/sponsor/tracks/[trackId]] ❌ 認證失敗');
+    return;
+  }
+
+  const authReq = req as AuthenticatedRequest;
+  const userId = authReq.userId!;
+  const { trackId } = req.query;
+
+  console.log('[/api/sponsor/tracks/[trackId]] ✅ 認證成功, userId:', userId);
+  console.log('[/api/sponsor/tracks/[trackId]] trackId:', trackId);
+
+  if (!trackId || typeof trackId !== 'string') {
+    return ApiResponse.error(res, 'Invalid track ID', 400);
+  }
+
+  try {
+    // 1. 檢查用戶是否有權限訪問此賽道
+    console.log('[/api/sponsor/tracks/[trackId]] 檢查權限中...');
+    console.log('[/api/sponsor/tracks/[trackId]] userId:', userId);
+    console.log('[/api/sponsor/tracks/[trackId]] trackId:', trackId);
+    console.log('[/api/sponsor/tracks/[trackId]] userPermissions:', authReq.userPermissions);
+    
+    const hasAccess = await checkTrackAccess(userId, trackId);
+    console.log('[/api/sponsor/tracks/[trackId]] hasAccess:', hasAccess);
+    
+    if (!hasAccess) {
+      console.log('[/api/sponsor/tracks/[trackId]] ❌ 權限檢查失敗');
+      return ApiResponse.forbidden(res, '您沒有權限訪問此賽道');
+    }
+    
+    console.log('[/api/sponsor/tracks/[trackId]] ✅ 權限檢查通過');
+
+    // 2. 獲取賽道資訊（從 extended-challenges）
+    console.log('[/api/sponsor/tracks/[trackId]] 查詢 extended-challenges...');
+    const challengeSnapshot = await db
+      .collection(SPONSOR_COLLECTIONS.EXTENDED_CHALLENGES)
+      .where('trackId', '==', trackId)
+      .limit(1)
+      .get();
+
+    if (challengeSnapshot.empty) {
+      console.log('[/api/sponsor/tracks/[trackId]] ❌ 賽道不存在');
+      return ApiResponse.notFound(res, '找不到該賽道');
+    }
+
+    const challengeDoc = challengeSnapshot.docs[0];
+    const challenge = { id: challengeDoc.id, ...challengeDoc.data() } as ExtendedChallenge;
+    console.log('[/api/sponsor/tracks/[trackId]] 找到 challenge:', challenge.trackId);
+
+    // 3. 獲取統計數據
+    const stats = await getTrackStats(trackId);
+    console.log('[/api/sponsor/tracks/[trackId]] stats:', stats);
+
+    // 4. 獲取用戶對此賽道的權限
+    const userRole = await getUserSponsorRole(userId, challenge.sponsorId);
+    console.log('[/api/sponsor/tracks/[trackId]] userRole:', userRole);
+    
+    const permissions = {
+      canEdit: userRole === 'admin',
+      canViewSubmissions: ['admin', 'viewer', 'judge'].includes(userRole || ''),
+      canJudge: ['admin', 'judge'].includes(userRole || ''),
+      canManageFinance: userRole === 'admin',
+    };
+    console.log('[/api/sponsor/tracks/[trackId]] permissions:', permissions);
+
+    // 5. 組裝回應數據
+    const trackData = {
+      id: trackId,
+      name: challenge.track,
+      sponsorId: challenge.sponsorId,
+      sponsorName: challenge.sponsorName,
+      challenge: challenge,
+      stats: stats,
+      permissions: permissions,
+    };
+
+    console.log('[/api/sponsor/tracks/[trackId]] ========== 返回成功 ==========');
+    return ApiResponse.success(res, trackData);
+  } catch (error: any) {
+    console.error('[/api/sponsor/tracks/[trackId]] ❌ Error:', error);
+    return ApiResponse.error(res, error.message || 'Failed to fetch track details', 500);
+  }
+}
+
+/**
+ * Main handler
+ */
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method === 'GET') {
+    return handleGet(req, res);
+  }
+
+  return res.status(405).json({ error: 'Method not allowed' });
+}
+

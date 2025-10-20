@@ -9,7 +9,7 @@
  * - 活动日志
  */
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useAuthContext } from '../../lib/user/AuthContext';
 import {
@@ -22,15 +22,23 @@ import DashboardStats from '../../components/sponsor/DashboardStats';
 import QuickActions from '../../components/sponsor/QuickActions';
 import NotificationCenter from '../../components/sponsor/NotificationCenter';
 import ActivityLog from '../../components/sponsor/ActivityLog';
+import firebase from 'firebase/app';
+import 'firebase/auth';
 
 export default function SponsorDashboard() {
   const router = useRouter();
   const { isSignedIn, loading: authLoading } = useAuthContext();
   const isSponsor = useIsSponsor();
 
-  const { tracks, loading: tracksLoading, error: tracksError } = useSponsorTracks();
+  const { tracks, loading: tracksLoading, error: tracksError, refetch: refetchTracks } = useSponsorTracks();
   const { stats, loading: statsLoading } = useTrackStats();
   const { notifications, markAsRead } = useSponsorNotifications();
+
+  // Delete modal state
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [selectedTrack, setSelectedTrack] = useState<any>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteMessage, setDeleteMessage] = useState('');
 
   // 權限檢查
   useEffect(() => {
@@ -42,11 +50,70 @@ export default function SponsorDashboard() {
     }
   }, [authLoading, isSignedIn, isSponsor, router]);
 
+  // Handle delete challenge
+  const handleDeleteClick = (track: any, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSelectedTrack(track);
+    setDeleteMessage('');
+    setShowDeleteModal(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!selectedTrack) return;
+
+    try {
+      setIsDeleting(true);
+      setDeleteMessage('');
+
+      const currentUser = firebase.auth().currentUser;
+      if (!currentUser) {
+        throw new Error('未登入');
+      }
+      const token = await currentUser.getIdToken();
+
+      console.log('[Dashboard] Deleting track:', selectedTrack.id);
+      const apiUrl = `/api/sponsor/tracks/${selectedTrack.id}/delete`;
+      console.log('[Dashboard] API URL:', apiUrl);
+
+      const response = await fetch(apiUrl, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      console.log('[Dashboard] Response status:', response.status);
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        console.error('[Dashboard] Error data:', errorData);
+        throw new Error(errorData.error || errorData.details || '刪除失敗');
+      }
+
+      const data = await response.json();
+      console.log('[Dashboard] Success data:', data);
+
+      setDeleteMessage('✅ Challenge 已成功刪除！');
+      
+      // Wait 1.5 seconds then close modal and refresh
+      setTimeout(() => {
+        setShowDeleteModal(false);
+        refetchTracks();
+      }, 1500);
+    } catch (err: any) {
+      console.error('[Dashboard] Error deleting challenge:', err);
+      console.error('[Dashboard] Error details:', err.message, err.stack);
+      setDeleteMessage(`❌ ${err.message}`);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   // Loading state
   if (authLoading || tracksLoading) {
     return (
       <div className="min-h-screen" style={{ backgroundColor: '#f9fafb' }}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-12">
           <div className="animate-pulse">
             <div
               className="h-10 bg-gray-300 rounded w-1/3 mb-8"
@@ -71,7 +138,7 @@ export default function SponsorDashboard() {
   if (tracksError) {
     return (
       <div className="min-h-screen" style={{ backgroundColor: '#f9fafb' }}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-12">
           <div
             className="rounded-lg p-6"
             style={{ backgroundColor: '#fee2e2', border: '1px solid #fecaca' }}
@@ -101,9 +168,9 @@ export default function SponsorDashboard() {
   // 如果没有賽道，顯示歡迎頁面
   if (tracks.length === 0) {
     return (
-      <div className="min-h-screen" style={{ backgroundColor: '#f9fafb' }}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <h1 className="text-3xl font-bold mb-8" style={{ color: '#1a3a6e' }}>
+      <div className="min-h-screen bg-gray-50">
+        <div className="max-w-5xl mx-auto px-4 py-20">
+          <h1 className="text-4xl font-bold mb-4" style={{ color: '#1a3a6e' }}>
             贊助商儀表板
           </h1>
 
@@ -139,14 +206,14 @@ export default function SponsorDashboard() {
 
   // 主要儀表板內容
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#f9fafb' }}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-5xl mx-auto px-4 py-20">
         {/* Header */}
-        <div className="mb-4">
-          <h1 className="text-2xl font-bold mb-1" style={{ color: '#1a3a6e' }}>
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold mb-2" style={{ color: '#1a3a6e' }}>
             贊助商儀表板
           </h1>
-          <p className="text-sm" style={{ color: '#6b7280' }}>
+          <p className="text-base" style={{ color: '#6b7280' }}>
             歡迎回來！以下是您負責賽道的最新數據。
           </p>
         </div>
@@ -181,20 +248,26 @@ export default function SponsorDashboard() {
           <h2 className="text-lg font-semibold mb-3" style={{ color: '#1a3a6e' }}>
             我的賽道
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+          <div className="space-y-4">
             {tracks.map((track) => (
               <div
                 key={track.id}
-                className="rounded-lg p-5 shadow-sm hover:shadow-lg transition-all duration-200 cursor-pointer"
+                className="rounded-lg p-5 shadow-sm"
                 style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb' }}
-                onClick={() => router.push(`/sponsor/tracks/${track.id}`)}
               >
-                <div className="flex items-start justify-between mb-2">
-                  <h3 className="text-lg font-semibold" style={{ color: '#1a3a6e' }}>
-                    {track.trackName}
-                  </h3>
+                {/* Track Header */}
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex-1">
+                    <h3 className="text-xl font-semibold mb-1" style={{ color: '#1a3a6e' }}>
+                      {track.name}
+                    </h3>
+                    <p className="text-sm" style={{ color: '#6b7280' }}>
+                      {track.challenges?.length || 0} 個挑戰 • {track.stats.submissionCount} 個提交 • {track.stats.teamCount} 個隊伍
+                      {track.stats.averageScore !== undefined && ` • 平均分: ${track.stats.averageScore.toFixed(1)}`}
+                    </p>
+                  </div>
                   <span
-                    className="px-2 py-1 rounded text-xs font-semibold"
+                    className="px-3 py-1 rounded text-xs font-semibold"
                     style={{
                       backgroundColor: track.permissions.canEdit ? '#dcfce7' : '#e5e7eb',
                       color: track.permissions.canEdit ? '#166534' : '#6b7280',
@@ -204,31 +277,89 @@ export default function SponsorDashboard() {
                   </span>
                 </div>
 
-                <div className="space-y-2 mb-4">
-                  <div className="flex items-center justify-between text-sm">
-                    <span style={{ color: '#6b7280' }}>提交数：</span>
-                    <span className="font-semibold" style={{ color: '#1a3a6e' }}>
-                      {track.stats.submissionCount}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span style={{ color: '#6b7280' }}>隊伍数：</span>
-                    <span className="font-semibold" style={{ color: '#1a3a6e' }}>
-                      {track.stats.teamCount}
-                    </span>
-                  </div>
-                  {track.stats.averageScore !== undefined && (
-                    <div className="flex items-center justify-between text-sm">
-                      <span style={{ color: '#6b7280' }}>平均分：</span>
-                      <span className="font-semibold" style={{ color: '#1a3a6e' }}>
-                        {track.stats.averageScore.toFixed(1)}
-                      </span>
+                {/* Challenges List */}
+                {track.challenges && track.challenges.length > 0 && (
+                  <div className="space-y-2 mb-4">
+                    <h4 className="text-sm font-semibold" style={{ color: '#1a3a6e' }}>挑戰列表：</h4>
+                    <div className="space-y-2">
+                      {track.challenges.map((challenge) => (
+                        <div
+                          key={challenge.id}
+                          className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors"
+                          style={{ border: '1px solid #e5e7eb' }}
+                        >
+                          <div className="flex-1">
+                            <p className="text-sm font-medium" style={{ color: '#1a3a6e' }}>
+                              {challenge.name || challenge.track}
+                            </p>
+                            {challenge.description && (
+                              <p className="text-xs mt-1" style={{ color: '#6b7280' }}>
+                                {challenge.description.substring(0, 100)}{challenge.description.length > 100 ? '...' : ''}
+                              </p>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-2 ml-4">
+                            <button
+                              onClick={() => router.push(`/sponsor/tracks/${track.id}/challenge`)}
+                              className="text-sm px-3 py-1.5 rounded-lg transition-colors"
+                              style={{
+                                backgroundColor: '#1a3a6e',
+                                color: '#ffffff',
+                              }}
+                              onMouseEnter={(e) => {
+                                e.currentTarget.style.backgroundColor = '#2a4a7e';
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.backgroundColor = '#1a3a6e';
+                              }}
+                            >
+                              查看
+                            </button>
+                            {track.permissions.canEdit && (
+                              <button
+                                className="text-sm px-2 py-1.5 rounded-lg transition-colors"
+                                style={{
+                                  backgroundColor: '#dc2626',
+                                  color: '#ffffff',
+                                }}
+                                onMouseEnter={(e) => {
+                                  e.currentTarget.style.backgroundColor = '#b91c1c';
+                                }}
+                                onMouseLeave={(e) => {
+                                  e.currentTarget.style.backgroundColor = '#dc2626';
+                                }}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeleteClick({ ...track, id: challenge.trackId, name: challenge.name || challenge.track }, e);
+                                }}
+                                title="刪除挑戰"
+                              >
+                                <svg
+                                  className="w-4 h-4"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                  />
+                                </svg>
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                  )}
-                </div>
+                  </div>
+                )}
 
+                {/* Track Actions */}
                 <div className="pt-3 border-t" style={{ borderColor: '#e5e7eb' }}>
                   <button
+                    onClick={() => router.push(`/sponsor/tracks/${track.id}`)}
                     className="w-full text-sm font-medium py-2 rounded-lg transition-colors"
                     style={{
                       backgroundColor: '#1a3a6e',
@@ -241,7 +372,7 @@ export default function SponsorDashboard() {
                       e.currentTarget.style.backgroundColor = '#1a3a6e';
                     }}
                   >
-                    查看詳情
+                    查看賽道詳情
                   </button>
                 </div>
               </div>
@@ -353,6 +484,98 @@ export default function SponsorDashboard() {
         {/* Activity Log - 暫時隱藏，待實際數據接入後再顯示 */}
         {/* <ActivityLog logs={[]} /> */}
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && selectedTrack && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+          onClick={() => !isDeleting && setShowDeleteModal(false)}
+        >
+          <div
+            className="bg-white rounded-lg p-8 max-w-md w-full mx-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center mb-4">
+              <div
+                className="w-12 h-12 rounded-full flex items-center justify-center mr-4"
+                style={{ backgroundColor: '#fee2e2' }}
+              >
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  style={{ color: '#dc2626' }}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                  />
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-xl font-bold" style={{ color: '#1a3a6e' }}>
+                  確認刪除 Challenge
+                </h3>
+              </div>
+            </div>
+
+            <p className="text-base mb-6" style={{ color: '#6b7280' }}>
+              確定要刪除 <strong style={{ color: '#1a3a6e' }}>{selectedTrack.name}</strong> 嗎？
+              此操作無法撤銷。
+            </p>
+
+            {deleteMessage && (
+              <div
+                className={`p-4 mb-4 rounded-lg ${
+                  deleteMessage.includes('✅')
+                    ? 'bg-green-50 border border-green-200'
+                    : 'bg-red-50 border border-red-200'
+                }`}
+              >
+                <p
+                  className="text-sm"
+                  style={{
+                    color: deleteMessage.includes('✅') ? '#166534' : '#991b1b',
+                  }}
+                >
+                  {deleteMessage}
+                </p>
+              </div>
+            )}
+
+            <div className="flex gap-4">
+              <button
+                type="button"
+                onClick={() => setShowDeleteModal(false)}
+                disabled={isDeleting}
+                className="flex-1 border-2 px-6 py-3 text-sm font-medium rounded-lg transition-colors disabled:opacity-50"
+                style={{
+                  borderColor: '#d1d5db',
+                  color: '#6b7280',
+                  backgroundColor: 'transparent',
+                }}
+              >
+                取消
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteConfirm}
+                disabled={isDeleting}
+                className="flex-1 px-6 py-3 text-sm font-medium rounded-lg transition-colors disabled:opacity-50"
+                style={{
+                  backgroundColor: '#dc2626',
+                  color: '#ffffff',
+                }}
+              >
+                {isDeleting ? '刪除中...' : '確認刪除'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

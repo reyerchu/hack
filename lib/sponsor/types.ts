@@ -523,6 +523,14 @@ export interface TrackListResponse {
       submissionCount: number;
       teamCount: number;
       averageScore?: number;
+      shortlistedCount?: number;
+      highestScore?: number;
+    };
+    permissions: {
+      canEdit: boolean;
+      canViewSubmissions: boolean;
+      canJudge: boolean;
+      canManageFinance: boolean;
     };
   }>;
 }

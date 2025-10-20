@@ -1,6 +1,8 @@
 import { Transition, Dialog } from '@headlessui/react';
 import { GetServerSideProps } from 'next';
+import Head from 'next/head';
 import React, { Fragment } from 'react';
+import AdminHeader from '../../../components/adminComponents/AdminHeader';
 import EventForm from '../../../components/adminComponents/eventComponents/EventForm';
 import EventList from '../../../components/adminComponents/eventComponents/EventList';
 import { RequestHelper } from '../../../lib/request-helper';
@@ -85,10 +87,24 @@ export default function EventPage({ events_ }: EventPageProps) {
     }
   };
   if (!isSignedIn || !isAuthorized(user))
-    return <div className="text-2xl font-black text-center">Unauthorized</div>;
+    return <div className="text-2xl font-black text-center pt-24">Unauthorized</div>;
 
   return (
-    <div className="p-3">
+    <div className="flex flex-col flex-grow min-h-screen bg-gray-50">
+      <Head>
+        <title>活動管理 - 管理員儀表板</title>
+        <meta name="description" content="管理所有活動" />
+      </Head>
+
+      <div className="max-w-5xl mx-auto px-4 py-20">
+        <div className="mb-12">
+          <h1 className="text-4xl font-bold mb-2 text-left" style={{ color: '#1a3a6e' }}>
+            管理儀表板
+          </h1>
+        </div>
+        <AdminHeader />
+
+      <div>
       {currentEventEditIndex !== -1 ? (
         <div>
           <EventForm
@@ -188,6 +204,8 @@ export default function EventPage({ events_ }: EventPageProps) {
           </Dialog>
         </Transition>
       )}
+      </div>
+      </div>
     </div>
   );
 }

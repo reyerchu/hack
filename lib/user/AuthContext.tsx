@@ -17,6 +17,11 @@ interface AuthContextState {
   isSignedIn: boolean;
 
   /**
+   * Indicates if authentication is still loading
+   */
+  loading: boolean;
+
+  /**
    * Signs in using Google OAuth pop-up.
    */
   signInWithGoogle: () => void;
@@ -219,6 +224,7 @@ function AuthProvider({ children }: React.PropsWithChildren<Record<string, any>>
   const authContextValue: AuthContextState = {
     user,
     isSignedIn,
+    loading,
     signInWithGoogle,
     signOut,
     hasProfile,
@@ -228,7 +234,7 @@ function AuthProvider({ children }: React.PropsWithChildren<Record<string, any>>
   };
 
   return (
-    <AuthContext.Provider value={authContextValue}>{!loading && children}</AuthContext.Provider>
+    <AuthContext.Provider value={authContextValue}>{children}</AuthContext.Provider>
   );
 }
 

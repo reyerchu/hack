@@ -64,8 +64,8 @@ export default function CreateTeamNeed() {
 
         <AppHeader />
 
-        <div className="min-h-screen bg-white pt-24 pb-16">
-          <div className="max-w-4xl mx-auto px-4 md:px-8 text-center">
+        <div className="min-h-screen bg-gray-50">
+          <div className="max-w-5xl mx-auto px-4 py-20 text-center">
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
               <div className="text-6xl mb-4">🔒</div>
               <h1 className="text-2xl font-bold mb-4" style={{ color: '#1a3a6e' }}>
@@ -95,14 +95,14 @@ export default function CreateTeamNeed() {
 
       <AppHeader />
 
-      <div className="min-h-screen bg-white pt-24 pb-16">
-        <div className="max-w-4xl mx-auto px-4 md:px-8">
+      <div className="min-h-screen bg-gray-50">
+        <div className="max-w-5xl mx-auto px-4 py-20">
           {/* 頁面標題 */}
           <div className="mb-8">
-            <h1 className="text-3xl md:text-4xl font-bold mb-2" style={{ color: '#1a3a6e' }}>
+            <h1 className="text-4xl font-bold mb-2" style={{ color: '#1a3a6e' }}>
               發布找隊友需求
             </h1>
-            <p className="text-gray-600 text-lg">
+            <p className="text-gray-600 text-base">
               填寫您的專案或個人資訊和需要的隊友角色，吸引志同道合的夥伴加入
             </p>
           </div>
