@@ -161,6 +161,7 @@ async function handlePut(req: NextApiRequest, res: NextApiResponse) {
       timeline,
       attachments,
       prizes,
+      prizeDetails,
     } = req.body;
 
     const updateData: Partial<ExtendedChallenge> = {
@@ -174,7 +175,11 @@ async function handlePut(req: NextApiRequest, res: NextApiResponse) {
     if (requirements !== undefined) updateData.requirements = requirements;
     if (submissionRequirements !== undefined)
       updateData.submissionRequirements = submissionRequirements;
+    
+    // Support both 'prizes' and 'prizeDetails' for backward compatibility
     if (prizes !== undefined) updateData.prizes = prizes;
+    if (prizeDetails !== undefined) updateData.prizes = prizeDetails;
+    
     if (attachments !== undefined) updateData.attachments = attachments;
 
     // 處理時間线（转换為 Timestamp）
