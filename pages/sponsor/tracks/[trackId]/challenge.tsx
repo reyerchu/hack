@@ -17,7 +17,7 @@ import type { ExtendedChallenge } from '../../../../lib/sponsor/types';
 
 export default function ChallengeEditPage() {
   const router = useRouter();
-  const { trackId } = router.query;
+  const { trackId, challengeId } = router.query;
   const { isSignedIn, loading: authLoading } = useAuthContext();
   const isSponsor = useIsSponsor();
 
@@ -37,12 +37,14 @@ export default function ChallengeEditPage() {
 
   // 獲取挑戰詳情
   useEffect(() => {
-    if (!trackId || !isSignedIn) return;
+    if (!trackId || !challengeId || !isSignedIn) return;
 
     const fetchChallenge = async () => {
       try {
         setLoading(true);
         setError(null);
+
+        console.log('[ChallengeEdit] Fetching challenge:', { trackId, challengeId });
 
         // 安全获取 Firebase ID token
         const currentUser = firebase.auth().currentUser;
@@ -51,26 +53,28 @@ export default function ChallengeEditPage() {
         }
         const token = await currentUser.getIdToken();
 
-        const response = await fetch(`/api/sponsor/tracks/${trackId}/challenge`, {
+        const response = await fetch(`/api/sponsor/tracks/${trackId}/challenge?challengeId=${challengeId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
 
+        console.log('[ChallengeEdit] Response status:', response.status);
+
         if (!response.ok) {
           if (response.status === 404) {
-            // 挑戰不存在，創建空的初始數據
-            setChallenge(null);
-            setLoading(false);
-            return;
+            // 挑戰不存在
+            throw new Error('找不到該挑戰');
           }
-          throw new Error('Failed to fetch challenge');
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Failed to fetch challenge');
         }
 
         const data = await response.json();
+        console.log('[ChallengeEdit] Challenge data:', data);
         setChallenge(data);
       } catch (err: any) {
-        console.error('Error fetching challenge:', err);
+        console.error('[ChallengeEdit] Error fetching challenge:', err);
         setError(err.message);
       } finally {
         setLoading(false);
@@ -78,12 +82,14 @@ export default function ChallengeEditPage() {
     };
 
     fetchChallenge();
-  }, [trackId, isSignedIn]);
+  }, [trackId, challengeId, isSignedIn]);
 
   const handleSave = async (data: Partial<ExtendedChallenge>) => {
     try {
       setSaveSuccess(false);
       setError(null);
+
+      console.log('[ChallengeEdit] Saving challenge:', { trackId, challengeId, data });
 
       // 安全获取 Firebase ID token
       const currentUser = firebase.auth().currentUser;
@@ -92,7 +98,7 @@ export default function ChallengeEditPage() {
       }
       const token = await currentUser.getIdToken();
 
-      const response = await fetch(`/api/sponsor/tracks/${trackId}/challenge`, {
+      const response = await fetch(`/api/sponsor/tracks/${trackId}/challenge?challengeId=${challengeId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -101,19 +107,22 @@ export default function ChallengeEditPage() {
         body: JSON.stringify(data),
       });
 
+      console.log('[ChallengeEdit] Save response status:', response.status);
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || 'Failed to save challenge');
       }
 
       const updatedChallenge = await response.json();
+      console.log('[ChallengeEdit] Challenge saved successfully:', updatedChallenge);
       setChallenge(updatedChallenge);
       setSaveSuccess(true);
 
       // 3秒后隐藏成功提示
       setTimeout(() => setSaveSuccess(false), 3000);
     } catch (err: any) {
-      console.error('Error saving challenge:', err);
+      console.error('[ChallengeEdit] Error saving challenge:', err);
       setError(err.message);
       throw err;
     }
