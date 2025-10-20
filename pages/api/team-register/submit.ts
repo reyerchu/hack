@@ -13,8 +13,9 @@ const db = firebase.firestore();
  * Request body:
  * {
  *   teamName: string,
- *   teamMembers: string[],  // array of emails
- *   challenges: string[],    // array of challenge IDs
+ *   teamLeader: { email: string, name: string, role: string, hasEditRight: boolean },
+ *   teamMembers: [{ email: string, name: string, role: string, hasEditRight: boolean }],
+ *   tracks: string[],  // array of track IDs
  *   agreedToCommitment: boolean
  * }
  * 
@@ -26,10 +27,18 @@ const db = firebase.firestore();
  * }
  */
 
+interface TeamMember {
+  email: string;
+  name?: string;
+  role: string;
+  hasEditRight: boolean;
+}
+
 interface SubmitRequest {
   teamName: string;
-  teamMembers: string[];
-  challenges: string[];
+  teamLeader: TeamMember & { userId?: string };
+  teamMembers: TeamMember[];
+  tracks: string[];
   agreedToCommitment: boolean;
 }
 
@@ -55,23 +64,37 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const userId = decodedToken.uid;
 
     // Get request body
-    const { teamName, teamMembers, challenges, agreedToCommitment } = req.body as SubmitRequest;
+    const { teamName, teamLeader, teamMembers, tracks, agreedToCommitment } = req.body as SubmitRequest;
 
     // Validation
     if (!teamName || !teamName.trim()) {
       return res.status(400).json({ error: '團隊名稱為必填項' });
     }
 
+    if (!teamLeader || !teamLeader.email || !teamLeader.role) {
+      return res.status(400).json({ error: '團隊領導者資訊不完整' });
+    }
+
     if (!Array.isArray(teamMembers) || teamMembers.length === 0) {
-      return res.status(400).json({ error: '請至少添加一位隊友' });
+      return res.status(400).json({ error: '請至少添加一位團隊成員' });
     }
 
-    if (teamMembers.length > 5) {
-      return res.status(400).json({ error: '團隊成員最多 5 人' });
+    if (teamMembers.length > 10) {
+      return res.status(400).json({ error: '團隊成員最多 10 人（不含領導者）' });
     }
 
-    if (!Array.isArray(challenges) || challenges.length === 0) {
-      return res.status(400).json({ error: '請至少選擇一個挑戰' });
+    // Validate all team members have required fields
+    for (let i = 0; i < teamMembers.length; i++) {
+      const member = teamMembers[i];
+      if (!member.email || !member.role) {
+        return res.status(400).json({ 
+          error: `第 ${i + 1} 位成員的資訊不完整（需要 Email 和角色）` 
+        });
+      }
+    }
+
+    if (!Array.isArray(tracks) || tracks.length === 0) {
+      return res.status(400).json({ error: '請至少選擇一個賽道' });
     }
 
     if (!agreedToCommitment) {
@@ -79,66 +102,109 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     // Validate all team member emails are registered
-    const normalizedEmails = teamMembers.map(email => email.trim().toLowerCase());
-    const uniqueEmails = [...new Set(normalizedEmails)];
+    const memberEmails = teamMembers.map(m => m.email.trim().toLowerCase());
+    const uniqueEmails = [...new Set(memberEmails)];
 
-    if (uniqueEmails.length !== normalizedEmails.length) {
-      return res.status(400).json({ error: '隊友 Email 不可重複' });
+    if (uniqueEmails.length !== memberEmails.length) {
+      return res.status(400).json({ error: '團隊成員 Email 不可重複' });
     }
 
-    // Check each email
-    for (const email of uniqueEmails) {
-      const userSnapshot = await db
+    // Check if leader email is in team members
+    const leaderEmail = teamLeader.email.trim().toLowerCase();
+    if (uniqueEmails.includes(leaderEmail)) {
+      return res.status(400).json({ error: '團隊成員中不應包含領導者的 Email' });
+    }
+
+    // Validate each team member email is registered
+    const validatedMembers: TeamMember[] = [];
+    
+    for (const member of teamMembers) {
+      const email = member.email.trim().toLowerCase();
+      
+      // Check registrations collection first
+      let userSnapshot = await db
         .collection('registrations')
         .where('user.preferredEmail', '==', email)
         .limit(1)
         .get();
 
-      if (userSnapshot.empty) {
-        // Also check users collection
-        const usersSnapshot = await db
+      let userData: any = null;
+      let userName = member.name;
+
+      if (!userSnapshot.empty) {
+        userData = userSnapshot.docs[0].data();
+        userName = userName || `${userData?.user?.firstName || ''} ${userData?.user?.lastName || ''}`.trim() || 
+                   userData?.user?.nickname || email;
+      } else {
+        // Check users collection
+        userSnapshot = await db
           .collection('users')
           .where('preferredEmail', '==', email)
           .limit(1)
           .get();
 
-        if (usersSnapshot.empty) {
+        if (userSnapshot.empty) {
           return res.status(400).json({ 
-            error: `隊友 Email ${email} 尚未註冊` 
+            error: `團隊成員 Email ${email} 尚未註冊` 
+          });
+        }
+
+        userData = userSnapshot.docs[0].data();
+        userName = userName || userData?.nickname || userData?.displayName || email;
+      }
+
+      validatedMembers.push({
+        email: email,
+        name: userName,
+        role: member.role.trim(),
+        hasEditRight: member.hasEditRight || false,
+      });
+    }
+
+    // Get leader user info
+    let leaderName = teamLeader.name || '';
+    const leaderUserDoc = await db.collection('registrations').doc(userId).get();
+    
+    if (leaderUserDoc.exists) {
+      const leaderData = leaderUserDoc.data();
+      if (!leaderName) {
+        leaderName = `${leaderData?.user?.firstName || ''} ${leaderData?.user?.lastName || ''}`.trim() || 
+                     leaderData?.user?.nickname || leaderEmail;
+      }
+    }
+
+    // Validate tracks exist
+    const trackDetails: any[] = [];
+    for (const trackId of tracks) {
+      // Try to find track by trackId field
+      const trackSnapshot = await db
+        .collection('tracks')
+        .where('trackId', '==', trackId)
+        .limit(1)
+        .get();
+      
+      let trackData: any = null;
+      
+      if (!trackSnapshot.empty) {
+        trackData = trackSnapshot.docs[0].data();
+      } else {
+        // Try to find by document ID
+        const trackDoc = await db.collection('tracks').doc(trackId).get();
+        
+        if (trackDoc.exists) {
+          trackData = trackDoc.data();
+        } else {
+          return res.status(400).json({ 
+            error: `賽道 ${trackId} 不存在` 
           });
         }
       }
-    }
 
-    // Get user info
-    const userDoc = await db.collection('registrations').doc(userId).get();
-    let userName = '';
-    let userEmail = '';
-
-    if (userDoc.exists) {
-      const userData = userDoc.data();
-      userName = `${userData?.user?.firstName || ''} ${userData?.user?.lastName || ''}`.trim() || 
-                 userData?.user?.nickname || '';
-      userEmail = userData?.user?.preferredEmail || '';
-    }
-
-    // Validate challenges exist
-    const challengeDetails: any[] = [];
-    for (const challengeId of challenges) {
-      const challengeDoc = await db.collection('extended-challenges').doc(challengeId).get();
-      
-      if (!challengeDoc.exists) {
-        return res.status(400).json({ 
-          error: `挑戰 ${challengeId} 不存在` 
-        });
-      }
-
-      const challengeData = challengeDoc.data();
-      challengeDetails.push({
-        id: challengeId,
-        title: challengeData?.title || '',
-        track: challengeData?.track || '',
-        sponsorName: challengeData?.sponsorName || '',
+      trackDetails.push({
+        id: trackId,
+        name: trackData?.name || trackData?.trackId || '',
+        description: trackData?.description || '',
+        sponsorName: trackData?.sponsorName || '',
       });
     }
 
@@ -147,13 +213,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       teamName: teamName.trim(),
       teamLeader: {
         userId: userId,
-        name: userName,
-        email: userEmail,
+        email: leaderEmail,
+        name: leaderName,
+        role: teamLeader.role.trim(),
+        hasEditRight: teamLeader.hasEditRight !== false, // Default to true for leader
       },
-      teamMembers: uniqueEmails,
-      challenges: challengeDetails,
+      teamMembers: validatedMembers,
+      tracks: trackDetails,
+      challenges: [], // To be filled when submitting deliverables
       agreedToCommitment: true,
-      status: 'pending', // pending, approved, rejected
+      status: 'active', // active, completed, disqualified
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
       updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
       submittedBy: userId,
@@ -169,18 +238,47 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         resourceType: 'team_registration',
         resourceId: docRef.id,
         teamName: teamName.trim(),
-        memberCount: uniqueEmails.length,
-        challengeCount: challenges.length,
+        memberCount: validatedMembers.length + 1, // +1 for leader
+        trackCount: tracks.length,
         timestamp: firebase.firestore.FieldValue.serverTimestamp(),
       });
     } catch (logError) {
       console.error('[SubmitTeamRegistration] Failed to log activity:', logError);
     }
 
+    // Send notification emails to all team members
+    try {
+      const allMembers = [
+        { email: leaderEmail, name: leaderName, role: teamLeader.role },
+        ...validatedMembers.map(m => ({ email: m.email, name: m.name || '', role: m.role }))
+      ];
+
+      // Create notification records (actual email sending can be implemented later)
+      const emailPromises = allMembers.map(member => 
+        db.collection('email-notifications').add({
+          to: member.email,
+          type: 'team_registration_confirmation',
+          teamId: docRef.id,
+          teamName: teamName.trim(),
+          memberName: member.name,
+          memberRole: member.role,
+          trackCount: tracks.length,
+          status: 'pending',
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        })
+      );
+
+      await Promise.all(emailPromises);
+      console.log(`[SubmitTeamRegistration] Created ${allMembers.length} email notification records`);
+    } catch (emailError) {
+      console.error('[SubmitTeamRegistration] Failed to create email notifications:', emailError);
+      // Don't fail the registration if email notifications fail
+    }
+
     return res.status(200).json({
       success: true,
       registrationId: docRef.id,
-      message: '團隊報名成功！我們會盡快審核您的申請。',
+      message: '團隊報名成功！通知郵件將發送給所有團隊成員。',
     });
 
   } catch (error: any) {
@@ -191,4 +289,3 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
   }
 }
-
