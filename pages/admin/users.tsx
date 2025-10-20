@@ -399,7 +399,16 @@ export default function UserPage() {
               <div className="ml-auto">
                 <button
                   onClick={exportToCSV}
-                  className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm"
+                  className="px-4 py-2 text-white rounded-lg transition-colors text-sm"
+                  style={{
+                    backgroundColor: '#1a3a6e',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#2a4a7e';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = '#1a3a6e';
+                  }}
                 >
                   匯出 CSV
                 </button>
@@ -602,11 +611,16 @@ export default function UserPage() {
                                 </span>
                                 <button
                                   onClick={() => setCurrentPage(page)}
-                                  className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
+                                  className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium transition-colors ${
                                     currentPage === page
-                                      ? 'z-10 bg-blue-50 border-blue-500 text-blue-600'
+                                      ? 'z-10 border-gray-300'
                                       : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
                                   }`}
+                                  style={
+                                    currentPage === page
+                                      ? { backgroundColor: '#1a3a6e', color: '#ffffff' }
+                                      : {}
+                                  }
                                 >
                                   {page}
                                 </button>
@@ -617,11 +631,16 @@ export default function UserPage() {
                             <button
                               key={page}
                               onClick={() => setCurrentPage(page)}
-                              className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
+                              className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium transition-colors ${
                                 currentPage === page
-                                  ? 'z-10 bg-blue-50 border-blue-500 text-blue-600'
+                                  ? 'z-10 border-gray-300'
                                   : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
                               }`}
+                              style={
+                                currentPage === page
+                                  ? { backgroundColor: '#1a3a6e', color: '#ffffff' }
+                                  : {}
+                              }
                             >
                               {page}
                             </button>
