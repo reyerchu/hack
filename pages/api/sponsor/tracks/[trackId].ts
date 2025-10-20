@@ -160,11 +160,101 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
 }
 
 /**
+ * PUT - 更新賽道資訊
+ */
+async function handlePut(req: NextApiRequest, res: NextApiResponse) {
+  console.log('[/api/sponsor/tracks/[trackId]] ========== PUT 請求開始 ==========');
+  
+  if (!(await requireSponsorAuth(req, res))) {
+    console.log('[/api/sponsor/tracks/[trackId]] ❌ 認證失敗');
+    return;
+  }
+
+  const authReq = req as AuthenticatedRequest;
+  const userId = authReq.userId!;
+  const { trackId } = req.query;
+  const { name, description } = req.body;
+
+  console.log('[/api/sponsor/tracks/[trackId]] userId:', userId);
+  console.log('[/api/sponsor/tracks/[trackId]] trackId:', trackId);
+  console.log('[/api/sponsor/tracks/[trackId]] update data:', { name, description });
+
+  if (!trackId || typeof trackId !== 'string') {
+    return ApiResponse.error(res, 'Invalid track ID', 400);
+  }
+
+  if (!name || !name.trim()) {
+    return ApiResponse.error(res, '賽道名稱為必填項', 400);
+  }
+
+  try {
+    // 1. 檢查用戶是否有權限編輯此賽道
+    const hasAccess = await checkTrackAccess(userId, trackId);
+    console.log('[/api/sponsor/tracks/[trackId]] hasAccess:', hasAccess);
+    
+    if (!hasAccess) {
+      return ApiResponse.forbidden(res, '您沒有權限編輯此賽道');
+    }
+
+    // 2. 更新賽道資訊
+    const trackSnapshot = await db
+      .collection(SPONSOR_COLLECTIONS.TRACKS)
+      .where('trackId', '==', trackId)
+      .limit(1)
+      .get();
+
+    if (trackSnapshot.empty) {
+      return ApiResponse.notFound(res, '找不到該賽道');
+    }
+
+    const trackDoc = trackSnapshot.docs[0];
+    const updateData = {
+      name: name.trim(),
+      description: description?.trim() || '',
+      updatedAt: firestore.FieldValue.serverTimestamp(),
+    };
+
+    await trackDoc.ref.update(updateData);
+
+    // 3. 記錄活動日誌
+    try {
+      await db.collection('sponsor-activity-logs').add({
+        userId: userId,
+        action: 'update_track',
+        resourceType: 'track',
+        resourceId: trackDoc.id,
+        trackId: trackId,
+        changes: updateData,
+        timestamp: firestore.FieldValue.serverTimestamp(),
+      });
+    } catch (logError) {
+      console.error('[/api/sponsor/tracks/[trackId]] Failed to log activity:', logError);
+    }
+
+    console.log('[/api/sponsor/tracks/[trackId]] ✅ 賽道更新成功');
+    return ApiResponse.success(res, {
+      message: '賽道更新成功',
+      track: {
+        trackId,
+        ...updateData,
+      },
+    });
+  } catch (error: any) {
+    console.error('[/api/sponsor/tracks/[trackId]] ❌ Error:', error);
+    return ApiResponse.error(res, error.message || 'Failed to update track', 500);
+  }
+}
+
+/**
  * Main handler
  */
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'GET') {
     return handleGet(req, res);
+  }
+
+  if (req.method === 'PUT') {
+    return handlePut(req, res);
   }
 
   return res.status(405).json({ error: 'Method not allowed' });
