@@ -144,11 +144,66 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
       });
     }
 
-    // 6. 返回賽道列表
-    const tracks = tracksData;
+    // 6. 計算每個賽道的總獎金並排序
+    // Calculate total prize for each track
+    const tracksWithPrizes = tracksData.map(track => {
+      let totalPrize = 0;
+      
+      // Sum up prizes from all challenges in this track
+      if (track.challenges && track.challenges.length > 0) {
+        track.challenges.forEach((challenge: any) => {
+          if (challenge.prizes) {
+            // Parse prize if it's a string (e.g., "第一名：500u，第二名：300u")
+            if (typeof challenge.prizes === 'string') {
+              const prizeMatches = challenge.prizes.match(/(\d+)u/g);
+              if (prizeMatches) {
+                prizeMatches.forEach((match: string) => {
+                  const amount = parseInt(match.replace('u', ''));
+                  if (!isNaN(amount)) {
+                    totalPrize += amount;
+                  }
+                });
+              }
+            } else if (Array.isArray(challenge.prizes)) {
+              // If prizes is an array, try to sum numeric values
+              challenge.prizes.forEach((prize: any) => {
+                if (typeof prize === 'number') {
+                  totalPrize += prize;
+                } else if (typeof prize === 'string') {
+                  const prizeMatches = prize.match(/(\d+)u?/g);
+                  if (prizeMatches) {
+                    prizeMatches.forEach((match: string) => {
+                      const amount = parseInt(match.replace('u', ''));
+                      if (!isNaN(amount)) {
+                        totalPrize += amount;
+                      }
+                    });
+                  }
+                }
+              });
+            } else if (typeof challenge.prizes === 'number') {
+              totalPrize += challenge.prizes;
+            }
+          }
+        });
+      }
+      
+      return {
+        ...track,
+        totalPrize: totalPrize,
+      };
+    });
+    
+    // Sort by totalPrize descending (higher prize first)
+    tracksWithPrizes.sort((a, b) => b.totalPrize - a.totalPrize);
+    
+    const tracks = tracksWithPrizes;
     
     console.log('[/api/sponsor/tracks] 最終 tracks 數量:', tracks.length);
-    console.log('[/api/sponsor/tracks] tracks:', JSON.stringify(tracks, null, 2));
+    console.log('[/api/sponsor/tracks] Tracks sorted by prize (high to low)');
+    tracks.forEach(track => {
+      console.log(`  - ${track.name}: ${track.totalPrize}u`);
+    });
 
     const response: TrackListResponse = {
       tracks: tracks,

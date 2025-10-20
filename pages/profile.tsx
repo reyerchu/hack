@@ -7,13 +7,14 @@ import { RequestHelper } from '../lib/request-helper';
 import type { TeamNeed } from '../lib/teamUp/types';
 import MyNeedsList from '../components/teamUp/dashboard/MyNeedsList';
 import MyApplicationsList from '../components/teamUp/dashboard/MyApplicationsList';
+import TeamManagement from '../components/TeamManagement';
 
 /**
  * A page that allows a user to modify app or profile settings and see their data.
  *
  * Route: /profile
  */
-type TabType = 'profile' | 'teamup-needs' | 'teamup-applications';
+type TabType = 'profile' | 'teamup-needs' | 'teamup-applications' | 'my-teams';
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -539,6 +540,29 @@ export default function ProfilePage() {
               }}
             >
               我的找隊友申請 ({myApplications.length})
+            </button>
+            <button
+              onClick={() => setActiveTab('my-teams')}
+              className="py-4 px-1 border-b-2 font-medium text-[14px] transition-colors"
+              style={
+                activeTab === 'my-teams'
+                  ? { borderColor: '#1a3a6e', color: '#1a3a6e' }
+                  : { borderColor: 'transparent', color: '#6b7280' }
+              }
+              onMouseEnter={(e) => {
+                if (activeTab !== 'my-teams') {
+                  e.currentTarget.style.color = '#374151';
+                  e.currentTarget.style.borderColor = '#d1d5db';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (activeTab !== 'my-teams') {
+                  e.currentTarget.style.color = '#6b7280';
+                  e.currentTarget.style.borderColor = 'transparent';
+                }
+              }}
+            >
+              我的團隊
             </button>
           </nav>
         </div>
@@ -1153,6 +1177,23 @@ export default function ProfilePage() {
             ) : (
               <MyApplicationsList applications={myApplications} onRefresh={fetchMyApplications} />
             )}
+          </section>
+        )}
+
+        {/* 我的團隊 Tab */}
+        {activeTab === 'my-teams' && (
+          <section className="w-full py-5">
+            <div className="mb-6 bg-white rounded-lg border-2 p-6" style={{ borderColor: '#e5e7eb' }}>
+              <h2 className="text-2xl font-bold mb-4" style={{ color: '#1a3a6e' }}>
+                我的團隊
+              </h2>
+              <p className="text-gray-600 mb-6">
+                查看您參與的所有黑客松團隊。您可以查看團隊詳情，如果您擁有編輯權限，還可以更新團隊資料。
+              </p>
+              
+              {/* Team Management Component */}
+              <TeamManagement />
+            </div>
           </section>
         )}
       </div>
