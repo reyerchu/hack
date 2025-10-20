@@ -631,7 +631,7 @@ export default function SponsorDashboard() {
                           </div>
                           <div className="flex items-center gap-2 ml-4">
                             <button
-                              onClick={() => router.push(`/sponsor/tracks/${track.id}/challenge`)}
+                              onClick={() => router.push(`/sponsor/tracks/${track.id}/challenge?challengeId=${challenge.id}`)}
                               className="text-sm px-3 py-1.5 rounded-lg transition-colors"
                               style={{
                                 backgroundColor: '#1a3a6e',

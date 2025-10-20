@@ -68,6 +68,26 @@ export default function SponsorsPage() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteMessage, setDeleteMessage] = useState('');
 
+  // 編輯功能
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingSponsor, setEditingSponsor] = useState<Sponsor | null>(null);
+  const [editFormData, setEditFormData] = useState({
+    name: '',
+    tier: 'track',
+    description: '',
+    logoUrl: '',
+    kvImageUrl: '',
+    websiteUrl: '',
+    contactEmail: '',
+    contactName: '',
+  });
+  const [editLogoFile, setEditLogoFile] = useState<File | null>(null);
+  const [editKvFile, setEditKvFile] = useState<File | null>(null);
+  const [editLogoPreview, setEditLogoPreview] = useState<string>('');
+  const [editKvPreview, setEditKvPreview] = useState<string>('');
+  const [isEditing, setIsEditing] = useState(false);
+  const [editMessage, setEditMessage] = useState('');
+
   // 權限檢查
   useEffect(() => {
     if (!authLoading && !isSignedIn) {
@@ -195,6 +215,111 @@ export default function SponsorsPage() {
     setSelectedSponsor(sponsor);
     setDeleteMessage('');
     setShowDeleteModal(true);
+  };
+
+  // 處理編輯點擊
+  const handleEditClick = (sponsor: Sponsor) => {
+    setEditingSponsor(sponsor);
+    setEditFormData({
+      name: sponsor.name || '',
+      tier: sponsor.tier || 'track',
+      description: sponsor.description || '',
+      logoUrl: sponsor.logoUrl || '',
+      kvImageUrl: (sponsor as any).kvImageUrl || '',
+      websiteUrl: sponsor.websiteUrl || '',
+      contactEmail: sponsor.contactEmail || '',
+      contactName: sponsor.contactName || '',
+    });
+    setEditLogoFile(null);
+    setEditKvFile(null);
+    setEditLogoPreview(sponsor.logoUrl || '');
+    setEditKvPreview((sponsor as any).kvImageUrl || '');
+    setEditMessage('');
+    setShowEditModal(true);
+  };
+
+  // 處理編輯Logo文件選擇
+  const handleEditLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setEditLogoFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setEditLogoPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // 處理編輯KV文件選擇
+  const handleEditKvChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setEditKvFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setEditKvPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // 提交編輯
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!editingSponsor) return;
+
+    // 驗證
+    if (!editFormData.name.trim()) {
+      setEditMessage('❌ 請填寫名稱');
+      return;
+    }
+
+    setIsEditing(true);
+    setEditMessage('');
+
+    try {
+      const currentUser = firebase.auth().currentUser;
+      if (!currentUser) {
+        throw new Error('未認證');
+      }
+
+      const token = await currentUser.getIdToken();
+
+      // 目前僅發送表單數據，文件上傳功能待實現
+      const response = await fetch(`/api/admin/sponsors/${editingSponsor.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(editFormData),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setEditMessage('✅ 贊助商更新成功！');
+        
+        // 刷新列表
+        fetchSponsors();
+        
+        // 2秒後關閉 modal
+        setTimeout(() => {
+          setShowEditModal(false);
+          setEditingSponsor(null);
+          setEditMessage('');
+        }, 2000);
+      } else {
+        setEditMessage(`❌ ${data.error || '更新失敗'}`);
+      }
+    } catch (error: any) {
+      console.error('Error updating sponsor:', error);
+      setEditMessage(`❌ 更新失敗: ${error.message}`);
+    } finally {
+      setIsEditing(false);
+    }
   };
 
   const handleDeleteConfirm = async () => {
@@ -773,22 +898,40 @@ export default function SponsorsPage() {
                           )}
                         </td>
                         <td className="px-6 py-4 text-right">
-                          <button
-                            onClick={() => handleDeleteClick(sponsor)}
-                            className="px-3 py-1.5 rounded-md text-sm font-medium transition-colors"
-                            style={{
-                              backgroundColor: '#991b1b',
-                              color: '#ffffff',
-                            }}
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.backgroundColor = '#7f1d1d';
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.backgroundColor = '#991b1b';
-                            }}
-                          >
-                            刪除
-                          </button>
+                          <div className="flex items-center justify-end gap-2">
+                            <button
+                              onClick={() => handleEditClick(sponsor)}
+                              className="px-3 py-1.5 rounded-md text-sm font-medium transition-colors"
+                              style={{
+                                backgroundColor: '#1a3a6e',
+                                color: '#ffffff',
+                              }}
+                              onMouseEnter={(e) => {
+                                e.currentTarget.style.backgroundColor = '#2a4a7e';
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.backgroundColor = '#1a3a6e';
+                              }}
+                            >
+                              編輯
+                            </button>
+                            <button
+                              onClick={() => handleDeleteClick(sponsor)}
+                              className="px-3 py-1.5 rounded-md text-sm font-medium transition-colors"
+                              style={{
+                                backgroundColor: '#991b1b',
+                                color: '#ffffff',
+                              }}
+                              onMouseEnter={(e) => {
+                                e.currentTarget.style.backgroundColor = '#7f1d1d';
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.backgroundColor = '#991b1b';
+                              }}
+                            >
+                              刪除
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))}
@@ -878,6 +1021,243 @@ export default function SponsorsPage() {
                 {isDeleting ? '刪除中...' : '確認刪除'}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Sponsor Modal */}
+      {showEditModal && editingSponsor && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+          onClick={() => !isEditing && setShowEditModal(false)}
+        >
+          <div
+            className="bg-white rounded-lg p-8 max-w-3xl w-full max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-2xl font-bold" style={{ color: '#1a3a6e' }}>
+                  編輯贊助商
+                </h2>
+                <p className="text-sm mt-1" style={{ color: '#6b7280' }}>
+                  更新贊助商資料，包含品牌素材
+                </p>
+              </div>
+              <button
+                onClick={() => !isEditing && setShowEditModal(false)}
+                className="p-2 rounded-lg hover:bg-gray-100"
+                disabled={isEditing}
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: '#6b7280' }}>
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <form onSubmit={handleEditSubmit} className="space-y-6">
+              {/* Sponsor ID (不可編輯) */}
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: '#374151' }}>
+                  Sponsor ID
+                </label>
+                <input
+                  type="text"
+                  value={editingSponsor.id}
+                  disabled
+                  className="w-full px-4 py-2 border rounded-lg bg-gray-100 cursor-not-allowed"
+                  style={{ borderColor: '#d1d5db', color: '#6b7280' }}
+                />
+              </div>
+
+              {/* Name */}
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: '#374151' }}>
+                  贊助商名稱 <span style={{ color: '#ef4444' }}>*</span>
+                </label>
+                <input
+                  type="text"
+                  value={editFormData.name}
+                  onChange={(e) => setEditFormData({ ...editFormData, name: e.target.value })}
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  style={{ borderColor: '#d1d5db' }}
+                  placeholder="例如：Oasis Protocol Foundation"
+                  required
+                  disabled={isEditing}
+                />
+              </div>
+
+              {/* Tier */}
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: '#374151' }}>
+                  贊助等級
+                </label>
+                <select
+                  value={editFormData.tier}
+                  onChange={(e) => setEditFormData({ ...editFormData, tier: e.target.value })}
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  style={{ borderColor: '#d1d5db' }}
+                  disabled={isEditing}
+                >
+                  <option value="title">Title Sponsor</option>
+                  <option value="platinum">Platinum</option>
+                  <option value="gold">Gold</option>
+                  <option value="silver">Silver</option>
+                  <option value="bronze">Bronze</option>
+                  <option value="track">Track Sponsor</option>
+                  <option value="partner">Partner</option>
+                </select>
+              </div>
+
+              {/* Description */}
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: '#374151' }}>
+                  描述
+                </label>
+                <textarea
+                  value={editFormData.description}
+                  onChange={(e) => setEditFormData({ ...editFormData, description: e.target.value })}
+                  rows={4}
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  style={{ borderColor: '#d1d5db' }}
+                  placeholder="簡短描述贊助商..."
+                  disabled={isEditing}
+                />
+              </div>
+
+              {/* Logo Upload */}
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: '#1a3a6e' }}>
+                  品牌Logo
+                </label>
+                <div className="space-y-2">
+                  {editLogoPreview && (
+                    <div className="relative w-32 h-32 border-2 border-gray-200 rounded-lg overflow-hidden">
+                      <img src={editLogoPreview} alt="Logo Preview" className="w-full h-full object-contain" />
+                    </div>
+                  )}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleEditLogoChange}
+                    className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                    disabled={isEditing}
+                  />
+                  <p className="text-xs text-gray-500">上傳品牌Logo图片（PNG/JPG格式，最大2MB）</p>
+                </div>
+              </div>
+
+              {/* KV Image Upload */}
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: '#1a3a6e' }}>
+                  賽道KV图
+                </label>
+                <div className="space-y-2">
+                  {editKvPreview && (
+                    <div className="relative w-full max-w-md h-48 border-2 border-gray-200 rounded-lg overflow-hidden">
+                      <img src={editKvPreview} alt="KV Preview" className="w-full h-full object-cover" />
+                    </div>
+                  )}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleEditKvChange}
+                    className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                    disabled={isEditing}
+                  />
+                  <p className="text-xs text-gray-500">上傳賽道宣傳主視覺图（PNG/JPG格式，最大5MB）</p>
+                </div>
+              </div>
+
+              {/* Contact Info */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-2" style={{ color: '#374151' }}>
+                    聯絡人姓名
+                  </label>
+                  <input
+                    type="text"
+                    value={editFormData.contactName}
+                    onChange={(e) => setEditFormData({ ...editFormData, contactName: e.target.value })}
+                    className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    style={{ borderColor: '#d1d5db' }}
+                    placeholder="例如：張三"
+                    disabled={isEditing}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2" style={{ color: '#374151' }}>
+                    聯絡人 Email
+                  </label>
+                  <input
+                    type="email"
+                    value={editFormData.contactEmail}
+                    onChange={(e) => setEditFormData({ ...editFormData, contactEmail: e.target.value })}
+                    className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    style={{ borderColor: '#d1d5db' }}
+                    placeholder="contact@example.com"
+                    disabled={isEditing}
+                  />
+                </div>
+              </div>
+
+              {/* Website */}
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: '#374151' }}>
+                  網站 URL
+                </label>
+                <input
+                  type="url"
+                  value={editFormData.websiteUrl}
+                  onChange={(e) => setEditFormData({ ...editFormData, websiteUrl: e.target.value })}
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  style={{ borderColor: '#d1d5db' }}
+                  placeholder="https://example.com"
+                  disabled={isEditing}
+                />
+              </div>
+
+              {/* Message */}
+              {editMessage && (
+                <div
+                  className="p-4 rounded-lg"
+                  style={{
+                    backgroundColor: editMessage.includes('✅') ? '#dcfce7' : '#fee2e2',
+                    border: `1px solid ${editMessage.includes('✅') ? '#86efac' : '#fecaca'}`,
+                    color: editMessage.includes('✅') ? '#166534' : '#991b1b',
+                  }}
+                >
+                  {editMessage}
+                </div>
+              )}
+
+              {/* Actions */}
+              <div className="flex gap-4 justify-end">
+                <button
+                  type="button"
+                  onClick={() => setShowEditModal(false)}
+                  className="px-6 py-2 rounded-lg font-medium border-2 transition-colors"
+                  style={{
+                    borderColor: '#d1d5db',
+                    color: '#6b7280',
+                  }}
+                  disabled={isEditing}
+                >
+                  取消
+                </button>
+                <button
+                  type="submit"
+                  className="px-6 py-2 rounded-lg font-medium transition-colors"
+                  style={{
+                    backgroundColor: isEditing ? '#9ca3af' : '#1a3a6e',
+                    color: '#ffffff',
+                  }}
+                  disabled={isEditing}
+                >
+                  {isEditing ? '更新中...' : '確認更新'}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

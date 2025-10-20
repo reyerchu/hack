@@ -246,33 +246,6 @@ export default function ChallengeEditPage() {
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium mb-2" style={{ color: '#1a3a6e' }}>
-                品牌Logo
-              </label>
-              <FileUpload
-                onFileSelect={(file) => handleFileUpload(file, 'logo')}
-                acceptedTypes="image/*"
-                maxSizeMB={2}
-                description="上傳品牌Logo图片（PNG/JPG格式，最大2MB）"
-                currentFileName={challenge?.brandAssets?.logoUrl ? '已上傳' : undefined}
-                currentFileUrl={challenge?.brandAssets?.logoUrl}
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-2" style={{ color: '#1a3a6e' }}>
-                賽道KV图
-              </label>
-              <FileUpload
-                onFileSelect={(file) => handleFileUpload(file, 'kv')}
-                acceptedTypes="image/*"
-                maxSizeMB={5}
-                description="上傳賽道宣傳主視覺图（PNG/JPG格式，最大5MB）"
-                currentFileName={challenge?.brandAssets?.kvImageUrl ? '已上傳' : undefined}
-                currentFileUrl={challenge?.brandAssets?.kvImageUrl}
-              />
-            </div>
           </div>
         </div>
       </div>
