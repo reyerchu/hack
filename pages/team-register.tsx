@@ -261,11 +261,11 @@ export default function TeamRegisterPage() {
     setTeamMembers(updated);
 
     try {
-      const response = await RequestHelper.post<{ isValid: boolean; name?: string }>(
+      const response = await RequestHelper.post(
         '/api/team-register/validate-email',
-        { email },
-        { headers: { Authorization: user.token } }
-      );
+        { headers: { Authorization: user.token } },
+        { email }
+      ) as any;
 
       const updatedAfter = [...teamMembers];
       updatedAfter[index].isValidating = false;
@@ -375,6 +375,7 @@ export default function TeamRegisterPage() {
     try {
       const response = await RequestHelper.post(
         '/api/team-register/submit',
+        { headers: { Authorization: user.token } },
         {
           teamName: teamName.trim(),
           teamLeader: {
@@ -391,12 +392,11 @@ export default function TeamRegisterPage() {
           })),
           tracks: selectedTracks,
           agreedToCommitment: hasAgreed,
-        },
-        { headers: { Authorization: user.token } }
-      );
+        }
+      ) as any;
 
-      if (response.error) {
-        setSubmitMessage(response.error || '報名失敗，請稍後再試');
+      if ((response as any).error) {
+        setSubmitMessage((response as any).error || '報名失敗，請稍後再試');
         setSubmitSuccess(false);
       } else {
         setSubmitMessage('報名成功！通知郵件已發送給所有團隊成員。');
