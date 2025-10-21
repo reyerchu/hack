@@ -350,7 +350,7 @@ export async function hasSponsorRole(
 export async function getUserSponsors(userId: string): Promise<string[]> {
   try {
     console.log('[getUserSponsors] 開始, userId:', userId);
-    // 獲取用戶數據以獲取 document ID
+    // 獲取用戶數據以獲取 document ID 和 email
     const userData = await getUserData(userId);
     console.log('[getUserSponsors] userData exists:', userData?.exists);
     
@@ -359,7 +359,11 @@ export async function getUserSponsors(userId: string): Promise<string[]> {
       return [];
     }
     
-    // 使用 document ID 查詢
+    const user = userData.data;
+    const userEmail = user?.email || user?.user?.email || user?.user?.preferredEmail || '';
+    console.log('[getUserSponsors] userEmail:', userEmail);
+    
+    // 使用 document ID 查詢 sponsor-user-mappings
     const docId = userData.ref.id;
     console.log('[getUserSponsors] docId:', docId);
     const mappingsSnapshot = await db
@@ -367,9 +371,34 @@ export async function getUserSponsors(userId: string): Promise<string[]> {
       .where('userId', '==', docId)
       .get();
     
-    const sponsorIds = mappingsSnapshot.docs.map((doc) => doc.data().sponsorId);
-    console.log('[getUserSponsors] 返回 sponsorIds:', sponsorIds);
-    return sponsorIds;
+    const sponsorIdsFromMappings = mappingsSnapshot.docs.map((doc) => doc.data().sponsorId);
+    console.log('[getUserSponsors] sponsorIds from mappings:', sponsorIdsFromMappings);
+    
+    // 查詢所有 sponsors，檢查 managers 字段
+    const sponsorsSnapshot = await db
+      .collection(SPONSOR_COLLECTIONS.EXTENDED_SPONSORS)
+      .get();
+    
+    const sponsorIdsFromManagers: string[] = [];
+    if (userEmail) {
+      const normalizedUserEmail = userEmail.toLowerCase();
+      sponsorsSnapshot.docs.forEach(doc => {
+        const sponsorData = doc.data();
+        const managers = sponsorData.managers || [];
+        const isManager = managers.some((m: any) => 
+          m.email && m.email.toLowerCase() === normalizedUserEmail
+        );
+        if (isManager) {
+          sponsorIdsFromManagers.push(doc.id);
+        }
+      });
+    }
+    console.log('[getUserSponsors] sponsorIds from managers:', sponsorIdsFromManagers);
+    
+    // 合併兩個來源的 sponsor IDs（去重）
+    const allSponsorIds = Array.from(new Set([...sponsorIdsFromMappings, ...sponsorIdsFromManagers]));
+    console.log('[getUserSponsors] 返回 allSponsorIds:', allSponsorIds);
+    return allSponsorIds;
   } catch (error) {
     console.error('[getUserSponsors] ❌ Error:', error);
     return [];

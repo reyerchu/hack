@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useAuthContext } from '../lib/user/AuthContext';
-import RequestHelper from '../lib/request-helper';
+import { RequestHelper } from '../lib/request-helper';
 
 /**
  * Team Management Component
@@ -57,6 +57,15 @@ const TeamManagement: React.FC = () => {
   const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  
+  // Edit form states
+  const [editFormData, setEditFormData] = useState({
+    teamName: '',
+    teamMembers: [] as TeamMember[],
+    tracks: [] as string[],
+  });
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveMessage, setSaveMessage] = useState('');
 
   // Fetch teams
   useEffect(() => {
@@ -84,6 +93,11 @@ const TeamManagement: React.FC = () => {
       }
 
       const teamsData = response.data?.data || [];
+      console.log('[TeamManagement] Fetched teams:', teamsData.map(t => ({
+        id: t.id,
+        name: t.teamName,
+        leader: t.teamLeader.name,
+      })));
       setTeams(teamsData);
     } catch (err: any) {
       console.error('[TeamManagement] Error:', err);
@@ -101,22 +115,70 @@ const TeamManagement: React.FC = () => {
   };
 
   const handleEditTeam = (team: Team) => {
+    console.log('[TeamManagement] Edit clicked for team:', {
+      id: team.id,
+      name: team.teamName,
+      leader: team.teamLeader.name,
+    });
     setSelectedTeam(team);
     setIsEditing(true);
     setShowModal(true);
+    
+    // Initialize form data
+    setEditFormData({
+      teamName: team.teamName,
+      teamMembers: team.teamMembers,
+      tracks: team.tracks.map(t => t.id),
+    });
+    setSaveMessage('');
   };
 
   const handleCloseModal = () => {
     setShowModal(false);
     setSelectedTeam(null);
     setIsEditing(false);
+    setSaveMessage('');
   };
 
   const handleSaveTeam = async () => {
-    // This would trigger a save operation
-    // For now, we'll just refresh and close
-    await fetchTeams();
-    handleCloseModal();
+    if (!user?.token || !selectedTeam) return;
+    
+    try {
+      setIsSaving(true);
+      setSaveMessage('');
+      
+      console.log('[TeamManagement] Saving team:', {
+        teamId: selectedTeam.id,
+        formData: editFormData,
+      });
+      
+      const response = await RequestHelper.put(
+        `/api/team-register/${selectedTeam.id}`,
+        { headers: { Authorization: user.token } },
+        editFormData
+      );
+      
+      if (response.data?.error) {
+        setSaveMessage(response.data.error);
+        return;
+      }
+      
+      setSaveMessage('保存成功！');
+      
+      // Refresh teams list
+      await fetchTeams();
+      
+      // Close modal after a short delay
+      setTimeout(() => {
+        handleCloseModal();
+      }, 1500);
+      
+    } catch (err: any) {
+      console.error('[TeamManagement] Save error:', err);
+      setSaveMessage('保存失敗：' + (err.message || '未知錯誤'));
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const formatDate = (timestamp: any) => {
@@ -183,6 +245,7 @@ const TeamManagement: React.FC = () => {
                   </span>
                 )}
               </h3>
+              <div className="text-xs text-gray-400 mb-2">團隊 ID: {team.id}</div>
               <div className="text-sm text-gray-600 space-y-1">
                 <div>我的角色：{team.myRole}</div>
                 <div>成員數：{team.teamMembers.length + 1} 人</div>
@@ -208,7 +271,14 @@ const TeamManagement: React.FC = () => {
               
               {team.canEdit && (
                 <button
-                  onClick={() => handleEditTeam(team)}
+                  onClick={() => {
+                    console.log('[TeamManagement] Navigate to edit page:', {
+                      teamId: team.id,
+                      teamName: team.teamName,
+                      url: `/team-register?edit=${team.id}`,
+                    });
+                    router.push(`/team-register?edit=${team.id}`);
+                  }}
                   className="px-4 py-2 rounded-lg font-medium transition-colors"
                   style={{ backgroundColor: '#1a3a6e', color: 'white' }}
                   onMouseEnter={(e) => {
@@ -250,9 +320,14 @@ const TeamManagement: React.FC = () => {
           <div className="bg-white rounded-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold" style={{ color: '#1a3a6e' }}>
-                  {isEditing ? '編輯團隊' : '團隊詳情'}
-                </h2>
+                <div>
+                  <h2 className="text-2xl font-bold" style={{ color: '#1a3a6e' }}>
+                    {isEditing ? '編輯團隊' : '團隊詳情'}
+                  </h2>
+                  <div className="text-xs text-gray-400 mt-1">
+                    團隊 ID: {selectedTeam.id}
+                  </div>
+                </div>
                 <button
                   onClick={handleCloseModal}
                   className="text-gray-500 hover:text-gray-700"
@@ -269,7 +344,18 @@ const TeamManagement: React.FC = () => {
                   <label className="block text-sm font-medium mb-2" style={{ color: '#374151' }}>
                     團隊名稱
                   </label>
-                  <div className="text-lg font-semibold">{selectedTeam.teamName}</div>
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      value={editFormData.teamName}
+                      onChange={(e) => setEditFormData({ ...editFormData, teamName: e.target.value })}
+                      className="w-full px-4 py-2 border rounded-lg"
+                      style={{ borderColor: '#d1d5db' }}
+                      placeholder="請輸入團隊名稱"
+                    />
+                  ) : (
+                    <div className="text-lg font-semibold">{selectedTeam.teamName}</div>
+                  )}
                 </div>
 
                 {/* Team Leader */}
@@ -287,20 +373,93 @@ const TeamManagement: React.FC = () => {
                 {/* Team Members */}
                 <div>
                   <label className="block text-sm font-medium mb-2" style={{ color: '#374151' }}>
-                    團隊成員 ({selectedTeam.teamMembers.length})
+                    團隊成員 ({isEditing ? editFormData.teamMembers.length : selectedTeam.teamMembers.length})
                   </label>
                   <div className="space-y-2">
-                    {selectedTeam.teamMembers.map((member, index) => (
+                    {(isEditing ? editFormData.teamMembers : selectedTeam.teamMembers).map((member, index) => (
                       <div key={index} className="p-4 bg-gray-50 rounded-lg">
-                        <div className="font-medium">{member.name || member.email}</div>
-                        <div className="text-sm text-gray-600">{member.email}</div>
-                        <div className="text-sm text-gray-600">角色：{member.role}</div>
-                        {member.hasEditRight && (
-                          <div className="text-sm text-blue-600 mt-1">✓ 擁有編輯權限</div>
+                        {isEditing ? (
+                          <div className="space-y-3">
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="email"
+                                value={member.email}
+                                onChange={(e) => {
+                                  const updated = [...editFormData.teamMembers];
+                                  updated[index].email = e.target.value;
+                                  setEditFormData({ ...editFormData, teamMembers: updated });
+                                }}
+                                className="flex-1 px-3 py-2 border rounded text-sm"
+                                style={{ borderColor: '#d1d5db' }}
+                                placeholder="成員 Email"
+                              />
+                              <button
+                                onClick={() => {
+                                  const updated = editFormData.teamMembers.filter((_, i) => i !== index);
+                                  setEditFormData({ ...editFormData, teamMembers: updated });
+                                }}
+                                className="px-3 py-2 text-sm rounded hover:bg-red-100"
+                                style={{ color: '#dc2626' }}
+                              >
+                                刪除
+                              </button>
+                            </div>
+                            <input
+                              type="text"
+                              value={member.role}
+                              onChange={(e) => {
+                                const updated = [...editFormData.teamMembers];
+                                updated[index].role = e.target.value;
+                                setEditFormData({ ...editFormData, teamMembers: updated });
+                              }}
+                              className="w-full px-3 py-2 border rounded text-sm"
+                              style={{ borderColor: '#d1d5db' }}
+                              placeholder="角色"
+                            />
+                            <label className="flex items-center gap-2 text-sm">
+                              <input
+                                type="checkbox"
+                                checked={member.hasEditRight}
+                                onChange={(e) => {
+                                  const updated = [...editFormData.teamMembers];
+                                  updated[index].hasEditRight = e.target.checked;
+                                  setEditFormData({ ...editFormData, teamMembers: updated });
+                                }}
+                                className="rounded"
+                              />
+                              <span style={{ color: '#374151' }}>擁有編輯權限</span>
+                            </label>
+                          </div>
+                        ) : (
+                          <>
+                            <div className="font-medium">{member.name || member.email}</div>
+                            <div className="text-sm text-gray-600">{member.email}</div>
+                            <div className="text-sm text-gray-600">角色：{member.role}</div>
+                            {member.hasEditRight && (
+                              <div className="text-sm text-blue-600 mt-1">✓ 擁有編輯權限</div>
+                            )}
+                          </>
                         )}
                       </div>
                     ))}
                   </div>
+                  {isEditing && (
+                    <button
+                      onClick={() => {
+                        setEditFormData({
+                          ...editFormData,
+                          teamMembers: [
+                            ...editFormData.teamMembers,
+                            { email: '', name: '', role: '', hasEditRight: false },
+                          ],
+                        });
+                      }}
+                      className="mt-2 px-4 py-2 text-sm rounded-lg border-2 font-medium transition-colors"
+                      style={{ borderColor: '#1a3a6e', color: '#1a3a6e' }}
+                    >
+                      + 新增成員
+                    </button>
+                  )}
                 </div>
 
                 {/* Tracks */}
@@ -323,29 +482,48 @@ const TeamManagement: React.FC = () => {
                   </div>
                 </div>
 
+                {/* Save Message */}
+                {saveMessage && (
+                  <div 
+                    className="p-3 rounded-lg text-sm text-center"
+                    style={{ 
+                      backgroundColor: saveMessage.includes('成功') ? '#d1fae5' : '#fee2e2',
+                      color: saveMessage.includes('成功') ? '#065f46' : '#991b1b',
+                    }}
+                  >
+                    {saveMessage}
+                  </div>
+                )}
+
                 {/* Action Buttons */}
                 <div className="flex justify-end gap-3 pt-4 border-t" style={{ borderColor: '#e5e7eb' }}>
                   {isEditing ? (
                     <>
                       <button
                         onClick={handleCloseModal}
+                        disabled={isSaving}
                         className="px-6 py-2 rounded-lg border-2 font-medium transition-colors"
                         style={{ borderColor: '#d1d5db', color: '#374151' }}
                       >
                         取消
                       </button>
                       <button
-                        onClick={() => router.push(`/team-register?edit=${selectedTeam.id}`)}
+                        onClick={handleSaveTeam}
+                        disabled={isSaving}
                         className="px-6 py-2 rounded-lg font-medium transition-colors"
-                        style={{ backgroundColor: '#1a3a6e', color: 'white' }}
+                        style={{ 
+                          backgroundColor: isSaving ? '#9ca3af' : '#1a3a6e', 
+                          color: 'white',
+                          cursor: isSaving ? 'not-allowed' : 'pointer',
+                        }}
                         onMouseEnter={(e) => {
-                          e.currentTarget.style.backgroundColor = '#2a4a7e';
+                          if (!isSaving) e.currentTarget.style.backgroundColor = '#2a4a7e';
                         }}
                         onMouseLeave={(e) => {
-                          e.currentTarget.style.backgroundColor = '#1a3a6e';
+                          if (!isSaving) e.currentTarget.style.backgroundColor = '#1a3a6e';
                         }}
                       >
-                        前往編輯頁面
+                        {isSaving ? '保存中...' : '保存'}
                       </button>
                     </>
                   ) : (

@@ -65,7 +65,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       .get();
 
     if (!userSnapshot.empty) {
-      const userData = userSnapshot.docs[0].data();
+      const doc = userSnapshot.docs[0];
+      const userData = doc.data();
       const firstName = userData.user?.firstName || '';
       const lastName = userData.user?.lastName || '';
       const name = `${firstName} ${lastName}`.trim() || userData.user?.nickname || '';
@@ -74,6 +75,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(200).json({
         isValid: true,
         name: name || normalizedEmail,
+        userId: doc.id,
       });
     }
 
@@ -85,7 +87,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       .get();
 
     if (!userSnapshot.empty) {
-      const userData = userSnapshot.docs[0].data();
+      const doc = userSnapshot.docs[0];
+      const userData = doc.data();
       const firstName = userData.user?.firstName || '';
       const lastName = userData.user?.lastName || '';
       const name = `${firstName} ${lastName}`.trim() || userData.user?.nickname || '';
@@ -94,6 +97,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(200).json({
         isValid: true,
         name: name || normalizedEmail,
+        userId: doc.id,
       });
     }
 
@@ -105,7 +109,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       .get();
 
     if (!userSnapshot.empty) {
-      const userData = userSnapshot.docs[0].data();
+      const doc = userSnapshot.docs[0];
+      const userData = doc.data();
       const firstName = userData.user?.firstName || userData.firstName || '';
       const lastName = userData.user?.lastName || userData.lastName || '';
       const name = `${firstName} ${lastName}`.trim() || userData.user?.nickname || userData.nickname || '';
@@ -114,6 +119,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(200).json({
         isValid: true,
         name: name || normalizedEmail,
+        userId: doc.id,
       });
     }
 
@@ -125,7 +131,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       .get();
 
     if (!usersSnapshot.empty) {
-      const userData = usersSnapshot.docs[0].data();
+      const doc = usersSnapshot.docs[0];
+      const userData = doc.data();
       const firstName = userData.firstName || '';
       const lastName = userData.lastName || '';
       const name = `${firstName} ${lastName}`.trim() || userData.nickname || '';
@@ -134,6 +141,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(200).json({
         isValid: true,
         name: name || normalizedEmail,
+        userId: doc.id,
       });
     }
 
@@ -145,7 +153,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       .get();
 
     if (!usersSnapshot.empty) {
-      const userData = usersSnapshot.docs[0].data();
+      const doc = usersSnapshot.docs[0];
+      const userData = doc.data();
       const firstName = userData.firstName || '';
       const lastName = userData.lastName || '';
       const name = `${firstName} ${lastName}`.trim() || userData.nickname || '';
@@ -154,6 +163,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(200).json({
         isValid: true,
         name: name || normalizedEmail,
+        userId: doc.id,
       });
     }
 
