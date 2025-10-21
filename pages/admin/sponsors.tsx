@@ -15,6 +15,14 @@ import 'firebase/auth';
 import { useAuthContext } from '../../lib/user/AuthContext';
 import AdminHeader from '../../components/adminComponents/AdminHeader';
 
+interface Manager {
+  email: string;
+  name?: string;
+  userId?: string;
+  isValid?: boolean;
+  isValidating?: boolean;
+}
+
 interface Sponsor {
   id: string;
   name: string;
@@ -25,6 +33,7 @@ interface Sponsor {
   contactName?: string;
   logoUrl?: string;
   iconUrl?: string;
+  managers?: Manager[];
 }
 
 export default function SponsorsPage() {
@@ -49,7 +58,9 @@ export default function SponsorsPage() {
     websiteUrl: '',
     contactEmail: '',
     contactName: '',
+    managers: [] as Manager[],
   });
+  const [newManagerEmail, setNewManagerEmail] = useState('');
   
   // 文件上傳
   const [logoFile, setLogoFile] = useState<File | null>(null);
@@ -80,7 +91,9 @@ export default function SponsorsPage() {
     websiteUrl: '',
     contactEmail: '',
     contactName: '',
+    managers: [] as Manager[],
   });
+  const [editNewManagerEmail, setEditNewManagerEmail] = useState('');
   const [editLogoFile, setEditLogoFile] = useState<File | null>(null);
   const [editKvFile, setEditKvFile] = useState<File | null>(null);
   const [editLogoPreview, setEditLogoPreview] = useState<string>('');
@@ -211,6 +224,112 @@ export default function SponsorsPage() {
     setDocuments((prev) => prev.filter((_, i) => i !== index));
   };
 
+  // 驗證管理者 Email（新增表單）
+  const validateManagerEmail = async (email: string): Promise<Manager | null> => {
+    if (!email.trim()) return null;
+
+    try {
+      const currentUser = firebase.auth().currentUser;
+      if (!currentUser) return null;
+
+      const token = await currentUser.getIdToken();
+      const response = await fetch('/api/team-register/validate-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ email: email.trim() }),
+      });
+
+      const data = await response.json();
+      
+      if (data.isValid) {
+        return {
+          email: email.trim(),
+          name: data.name,
+          userId: data.userId,
+          isValid: true,
+        };
+      }
+      return null;
+    } catch (error) {
+      console.error('Error validating manager email:', error);
+      return null;
+    }
+  };
+
+  // 添加管理者（新增表單）
+  const handleAddManager = async () => {
+    if (!newManagerEmail.trim()) {
+      setMessage('請輸入管理者 Email');
+      setMessageType('error');
+      return;
+    }
+
+    // 檢查是否已存在
+    if (formData.managers.some(m => m.email.toLowerCase() === newManagerEmail.toLowerCase())) {
+      setMessage('此管理者已存在');
+      setMessageType('error');
+      return;
+    }
+
+    const manager = await validateManagerEmail(newManagerEmail);
+    if (manager) {
+      setFormData(prev => ({
+        ...prev,
+        managers: [...prev.managers, manager],
+      }));
+      setNewManagerEmail('');
+      setMessage('');
+    } else {
+      setMessage('此 Email 尚未註冊');
+      setMessageType('error');
+    }
+  };
+
+  // 刪除管理者（新增表單）
+  const handleRemoveManager = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      managers: prev.managers.filter((_, i) => i !== index),
+    }));
+  };
+
+  // 添加管理者（編輯表單）
+  const handleAddEditManager = async () => {
+    if (!editNewManagerEmail.trim()) {
+      setEditMessage('請輸入管理者 Email');
+      return;
+    }
+
+    // 檢查是否已存在
+    if (editFormData.managers.some(m => m.email.toLowerCase() === editNewManagerEmail.toLowerCase())) {
+      setEditMessage('此管理者已存在');
+      return;
+    }
+
+    const manager = await validateManagerEmail(editNewManagerEmail);
+    if (manager) {
+      setEditFormData(prev => ({
+        ...prev,
+        managers: [...prev.managers, manager],
+      }));
+      setEditNewManagerEmail('');
+      setEditMessage('');
+    } else {
+      setEditMessage('此 Email 尚未註冊');
+    }
+  };
+
+  // 刪除管理者（編輯表單）
+  const handleRemoveEditManager = (index: number) => {
+    setEditFormData(prev => ({
+      ...prev,
+      managers: prev.managers.filter((_, i) => i !== index),
+    }));
+  };
+
   const handleDeleteClick = (sponsor: Sponsor) => {
     setSelectedSponsor(sponsor);
     setDeleteMessage('');
@@ -229,7 +348,9 @@ export default function SponsorsPage() {
       websiteUrl: sponsor.websiteUrl || '',
       contactEmail: sponsor.contactEmail || '',
       contactName: sponsor.contactName || '',
+      managers: sponsor.managers || [],
     });
+    setEditNewManagerEmail('');
     setEditLogoFile(null);
     setEditKvFile(null);
     setEditLogoPreview(sponsor.logoUrl || '');
@@ -423,7 +544,9 @@ export default function SponsorsPage() {
           websiteUrl: '',
           contactEmail: '',
           contactName: '',
+          managers: [],
         });
+        setNewManagerEmail('');
         setLogoFile(null);
         setIconFile(null);
         setDocuments([]);
@@ -760,6 +883,83 @@ export default function SponsorsPage() {
                     style={{ borderColor: '#d1d5db' }}
                     disabled={isSubmitting}
                   />
+                </div>
+
+                {/* 管理者 */}
+                <div>
+                  <label className="block text-sm font-medium mb-2" style={{ color: '#374151' }}>
+                    管理者
+                  </label>
+                  <p className="text-xs text-gray-500 mb-3">
+                    添加可管理此贊助商賽道的用戶（Email 必須已註冊）
+                  </p>
+                  
+                  {/* 已添加的管理者列表 */}
+                  {formData.managers.length > 0 && (
+                    <div className="mb-3 space-y-2">
+                      {formData.managers.map((manager, index) => (
+                        <div
+                          key={index}
+                          className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                        >
+                          <div className="flex-1">
+                            <div className="font-medium text-sm" style={{ color: '#1a3a6e' }}>
+                              {manager.name || manager.email}
+                            </div>
+                            <div className="text-xs text-gray-500">{manager.email}</div>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveManager(index)}
+                            disabled={isSubmitting}
+                            className="px-3 py-1 text-sm rounded hover:bg-red-100 transition-colors"
+                            style={{ color: '#dc2626' }}
+                          >
+                            移除
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* 添加管理者輸入 */}
+                  <div className="flex gap-2">
+                    <input
+                      type="email"
+                      value={newManagerEmail}
+                      onChange={(e) => setNewManagerEmail(e.target.value)}
+                      onKeyPress={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          handleAddManager();
+                        }
+                      }}
+                      placeholder="輸入管理者 Email"
+                      className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      style={{ borderColor: '#d1d5db' }}
+                      disabled={isSubmitting}
+                    />
+                    <button
+                      type="button"
+                      onClick={handleAddManager}
+                      disabled={isSubmitting || !newManagerEmail.trim()}
+                      className="px-4 py-2 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      style={{
+                        backgroundColor: '#1a3a6e',
+                        color: 'white',
+                      }}
+                      onMouseEnter={(e) => {
+                        if (!isSubmitting && newManagerEmail.trim()) {
+                          e.currentTarget.style.backgroundColor = '#2a4a7e';
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = '#1a3a6e';
+                      }}
+                    >
+                      添加
+                    </button>
+                  </div>
                 </div>
 
                 {/* 消息提示 */}
@@ -1217,6 +1417,83 @@ export default function SponsorsPage() {
                   placeholder="https://example.com"
                   disabled={isEditing}
                 />
+              </div>
+
+              {/* 管理者 */}
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: '#374151' }}>
+                  管理者
+                </label>
+                <p className="text-xs text-gray-500 mb-3">
+                  添加可管理此贊助商賽道的用戶（Email 必須已註冊）
+                </p>
+                
+                {/* 已添加的管理者列表 */}
+                {editFormData.managers.length > 0 && (
+                  <div className="mb-3 space-y-2">
+                    {editFormData.managers.map((manager, index) => (
+                      <div
+                        key={index}
+                        className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                      >
+                        <div className="flex-1">
+                          <div className="font-medium text-sm" style={{ color: '#1a3a6e' }}>
+                            {manager.name || manager.email}
+                          </div>
+                          <div className="text-xs text-gray-500">{manager.email}</div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveEditManager(index)}
+                          disabled={isEditing}
+                          className="px-3 py-1 text-sm rounded hover:bg-red-100 transition-colors"
+                          style={{ color: '#dc2626' }}
+                        >
+                          移除
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* 添加管理者輸入 */}
+                <div className="flex gap-2">
+                  <input
+                    type="email"
+                    value={editNewManagerEmail}
+                    onChange={(e) => setEditNewManagerEmail(e.target.value)}
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleAddEditManager();
+                      }
+                    }}
+                    placeholder="輸入管理者 Email"
+                    className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    style={{ borderColor: '#d1d5db' }}
+                    disabled={isEditing}
+                  />
+                  <button
+                    type="button"
+                    onClick={handleAddEditManager}
+                    disabled={isEditing || !editNewManagerEmail.trim()}
+                    className="px-4 py-2 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    style={{
+                      backgroundColor: '#1a3a6e',
+                      color: 'white',
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!isEditing && editNewManagerEmail.trim()) {
+                        e.currentTarget.style.backgroundColor = '#2a4a7e';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = '#1a3a6e';
+                    }}
+                  >
+                    添加
+                  </button>
+                </div>
               </div>
 
               {/* Message */}

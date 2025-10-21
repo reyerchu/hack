@@ -356,9 +356,9 @@ async function handlePut(req: NextApiRequest, res: NextApiResponse, teamId: stri
 
     // Send notification email to admin (reyer.chu@rwa.nexus)
     try {
-      // Get updated team data for email
-      const updatedTeamDoc = await db.collection('team-registrations').doc(teamId).get();
-      const updatedTeamData = updatedTeamDoc.data()!;
+      const { notifyAdminTeamEdit } = await import(
+        '../../../lib/teamRegister/email'
+      );
 
       // Prepare changed fields summary
       const changedFields: string[] = [];
@@ -366,38 +366,25 @@ async function handlePut(req: NextApiRequest, res: NextApiResponse, teamId: stri
       if (updates.teamMembers) changedFields.push(`團隊成員: ${updates.teamMembers.length} 人`);
       if (updates.tracks) changedFields.push(`賽道: ${updates.tracks.length} 個`);
 
-      // Prepare team members list
-      const allMembers = [
-        updatedTeamData.teamLeader,
-        ...(updatedTeamData.teamMembers || [])
-      ].filter(m => m);
+      // Get editor name
+      let editorName = userEmail;
+      const userDoc = await db.collection('registrations').doc(userId).get();
+      if (userDoc.exists) {
+        const userData = userDoc.data();
+        editorName = `${userData?.user?.firstName || ''} ${userData?.user?.lastName || ''}`.trim() || 
+                     userData?.user?.nickname || userEmail;
+      }
 
-      await db.collection('email-notifications').add({
-        to: 'reyer.chu@rwa.nexus',
-        type: 'team_registration_edit_notification',
-        teamId: teamId,
-        teamName: updatedTeamData.teamName,
-        teamLeader: {
-          email: updatedTeamData.teamLeader?.email,
-          name: updatedTeamData.teamLeader?.name,
-          role: updatedTeamData.teamLeader?.role,
-        },
-        editedBy: {
-          userId: userId,
-          email: userEmail,
-        },
-        changedFields: changedFields,
-        memberCount: allMembers.length,
-        teamMembers: allMembers.map((m: any) => `${m.name} (${m.email}) - ${m.role}`),
-        tracks: (updatedTeamData.tracks || []).map((t: any) => `${t.name} (${t.sponsorName || '無贊助商'})`),
-        trackCount: (updatedTeamData.tracks || []).length,
-        updateTime: new Date().toISOString(),
-        status: 'pending',
-        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-      });
-      console.log(`[UpdateTeam] Created admin notification email for reyer.chu@rwa.nexus`);
+      await notifyAdminTeamEdit(
+        teamId,
+        updates.teamName || teamData.teamName,
+        userEmail,
+        editorName,
+        changedFields
+      );
+      console.log(`[UpdateTeam] Sent admin notification email to reyer.chu@rwa.nexus`);
     } catch (emailError) {
-      console.error('[UpdateTeam] Failed to create admin notification email:', emailError);
+      console.error('[UpdateTeam] Failed to send admin notification email:', emailError);
       // Don't fail the update if email notification fails
     }
 

@@ -248,57 +248,70 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // Prepare all members list for notifications
     const allMembers = [
-      { email: leaderEmail, name: leaderName, role: teamLeader.role },
-      ...validatedMembers.map(m => ({ email: m.email, name: m.name || '', role: m.role }))
+      { 
+        email: leaderEmail, 
+        name: leaderName, 
+        role: teamLeader.role,
+        hasEditRight: true 
+      },
+      ...validatedMembers.map(m => ({ 
+        email: m.email, 
+        name: m.name || '', 
+        role: m.role,
+        hasEditRight: m.hasEditRight 
+      }))
     ];
 
     // Send notification emails to all team members
     try {
-      // Create notification records for team members
+      const { notifyTeamMemberConfirmation } = await import(
+        '../../../lib/teamRegister/email'
+      );
+
+      // Send email to each team member
       const emailPromises = allMembers.map(member => 
-        db.collection('email-notifications').add({
-          to: member.email,
-          type: 'team_registration_confirmation',
-          teamId: docRef.id,
-          teamName: teamName.trim(),
-          memberName: member.name,
-          memberRole: member.role,
-          trackCount: tracks.length,
-          status: 'pending',
-          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-        })
+        notifyTeamMemberConfirmation(
+          member.email,
+          member.name,
+          teamName.trim(),
+          docRef.id,
+          leaderName,
+          member.role,
+          tracks.length,
+          member.hasEditRight
+        )
       );
 
       await Promise.all(emailPromises);
-      console.log(`[SubmitTeamRegistration] Created ${allMembers.length} email notification records for team members`);
+      console.log(`[SubmitTeamRegistration] Sent ${allMembers.length} confirmation emails to team members`);
     } catch (emailError) {
-      console.error('[SubmitTeamRegistration] Failed to create email notifications for team members:', emailError);
+      console.error('[SubmitTeamRegistration] Failed to send confirmation emails:', emailError);
       // Don't fail the registration if email notifications fail
     }
 
     // Send notification email to admin (reyer.chu@rwa.nexus)
     try {
-      await db.collection('email-notifications').add({
-        to: 'reyer.chu@rwa.nexus',
-        type: 'team_registration_admin_notification',
-        teamId: docRef.id,
-        teamName: teamName.trim(),
-        teamLeader: {
-          email: leaderEmail,
-          name: leaderName,
-          role: teamLeader.role,
-        },
-        memberCount: validatedMembers.length + 1, // +1 for leader
-        teamMembers: allMembers.map(m => `${m.name} (${m.email}) - ${m.role}`),
-        tracks: trackDetails.map(t => `${t.name} (${t.sponsorName || '無贊助商'})`),
-        trackCount: tracks.length,
-        registrationTime: new Date().toISOString(),
-        status: 'pending',
-        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-      });
-      console.log(`[SubmitTeamRegistration] Created admin notification email for reyer.chu@rwa.nexus`);
+      const { notifyAdminNewTeamRegistration } = await import(
+        '../../../lib/teamRegister/email'
+      );
+
+      await notifyAdminNewTeamRegistration(
+        docRef.id,
+        teamName.trim(),
+        leaderEmail,
+        leaderName,
+        teamLeader.role,
+        validatedMembers.length + 1, // +1 for leader
+        allMembers.map(m => ({
+          name: m.name,
+          email: m.email,
+          role: m.role,
+        })),
+        trackDetails
+      );
+      console.log(`[SubmitTeamRegistration] Sent admin notification email to reyer.chu@rwa.nexus`);
     } catch (emailError) {
-      console.error('[SubmitTeamRegistration] Failed to create admin notification email:', emailError);
+      console.error('[SubmitTeamRegistration] Failed to send admin notification email:', emailError);
       // Don't fail the registration if email notifications fail
     }
 

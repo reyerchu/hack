@@ -193,6 +193,7 @@ async function handleUpdate(req: NextApiRequest, res: NextApiResponse) {
       websiteUrl,
       contactEmail,
       contactName,
+      managers,
     } = req.body;
 
     // 5. Validate required fields
@@ -223,6 +224,7 @@ async function handleUpdate(req: NextApiRequest, res: NextApiResponse) {
       websiteUrl: websiteUrl || '',
       contactEmail: contactEmail || '',
       contactName: contactName || '',
+      managers: managers || [],
       updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
       updatedBy: userId,
     };

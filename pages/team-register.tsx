@@ -62,6 +62,10 @@ export default function TeamRegisterPage() {
   const router = useRouter();
   const { isSignedIn, hasProfile, user, profile, loading } = useAuthContext();
   
+  // Edit mode detection
+  const editTeamId = router.query.edit as string | undefined;
+  const isEditMode = !!editTeamId;
+  
   // Form states
   const [teamName, setTeamName] = useState('');
   const [myEmail, setMyEmail] = useState('');
@@ -75,6 +79,7 @@ export default function TeamRegisterPage() {
   const [tracks, setTracks] = useState<Track[]>([]);
   const [isLoadingTracks, setIsLoadingTracks] = useState(false);
   const [expandedTracks, setExpandedTracks] = useState<Set<string>>(new Set());
+  const [isLoadingTeam, setIsLoadingTeam] = useState(false);
   
   // Submission states
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -112,6 +117,48 @@ export default function TeamRegisterPage() {
       }
     }
   }, [profile, user]);
+
+  // Load team data in edit mode
+  useEffect(() => {
+    if (isEditMode && editTeamId && user?.token && !isLoadingTeam) {
+      loadTeamData(editTeamId);
+    }
+  }, [isEditMode, editTeamId, user?.token]);
+
+  const loadTeamData = async (teamId: string) => {
+    if (!user?.token) return;
+
+    try {
+      setIsLoadingTeam(true);
+      console.log('[TeamRegister] Loading team data for edit:', teamId);
+
+      const response = await RequestHelper.get<any>(
+        `/api/team-register/${teamId}`,
+        { headers: { Authorization: user.token } }
+      );
+
+      if (response.data?.error) {
+        setSubmitMessage('載入團隊資料失敗：' + response.data.error);
+        return;
+      }
+
+      const teamData = response.data.data;
+      console.log('[TeamRegister] Loaded team data:', teamData);
+
+      // Populate form
+      setTeamName(teamData.teamName || '');
+      setMyRole(teamData.teamLeader?.role || '');
+      setTeamMembers(teamData.teamMembers || []);
+      setSelectedTracks(teamData.tracks?.map((t: any) => t.id) || []);
+      setHasAgreed(true); // Auto-agree for edit mode
+
+    } catch (err: any) {
+      console.error('[TeamRegister] Load error:', err);
+      setSubmitMessage('載入團隊資料失敗：' + (err.message || '未知錯誤'));
+    } finally {
+      setIsLoadingTeam(false);
+    }
+  };
 
   const fetchTracks = async (forceRefresh: boolean = false) => {
     if (!user?.token) {
@@ -214,6 +261,9 @@ export default function TeamRegisterPage() {
 
   // Handle email change with validation
   const handleEmailChange = async (index: number, email: string) => {
+    console.log(`[HandleEmailChange-${index}] Email changed to:`, email);
+    console.log(`[HandleEmailChange-${index}] Email format valid:`, validateEmail(email));
+    
     const updated = [...teamMembers];
     updated[index].email = email;
     updated[index].isValid = undefined;
@@ -222,6 +272,7 @@ export default function TeamRegisterPage() {
 
     // Validate email if it looks valid
     if (validateEmail(email)) {
+      console.log(`[HandleEmailChange-${index}] Triggering validation...`);
       await validateTeamMemberEmail(index, email);
     }
   };
@@ -250,9 +301,14 @@ export default function TeamRegisterPage() {
   const validateTeamMemberEmail = async (index: number, email: string) => {
     if (!user?.token) return;
 
-    const updated = [...teamMembers];
-    updated[index].isValidating = true;
-    setTeamMembers(updated);
+    console.log(`[ValidateEmail-${index}] Starting validation for:`, email);
+
+    // Set validating state using functional update
+    setTeamMembers(prev => {
+      const updated = [...prev];
+      updated[index].isValidating = true;
+      return updated;
+    });
 
     try {
       const response = await RequestHelper.post(
@@ -261,17 +317,36 @@ export default function TeamRegisterPage() {
         { email }
       ) as any;
 
-      const updatedAfter = [...teamMembers];
-      updatedAfter[index].isValidating = false;
-      updatedAfter[index].isValid = response.data?.isValid || false;
-      updatedAfter[index].name = response.data?.name;
-      setTeamMembers(updatedAfter);
+      console.log(`[ValidateEmail-${index}] API Response:`, {
+        status: response.status,
+        data: response.data,
+        isValid: response.data?.isValid,
+        name: response.data?.name,
+      });
+
+      // Use functional update to avoid race condition
+      setTeamMembers(prev => {
+        const updated = [...prev];
+        updated[index].isValidating = false;
+        updated[index].isValid = response.data?.isValid || false;
+        updated[index].name = response.data?.name;
+        
+        console.log(`[ValidateEmail-${index}] Setting state:`, {
+          isValid: updated[index].isValid,
+          name: updated[index].name,
+        });
+        
+        return updated;
+      });
     } catch (error) {
       console.error('[TeamRegister] Email validation error:', error);
-      const updatedAfter = [...teamMembers];
-      updatedAfter[index].isValidating = false;
-      updatedAfter[index].isValid = false;
-      setTeamMembers(updatedAfter);
+      // Use functional update in error case too
+      setTeamMembers(prev => {
+        const updated = [...prev];
+        updated[index].isValidating = false;
+        updated[index].isValid = false;
+        return updated;
+      });
     }
   };
 
@@ -367,39 +442,57 @@ export default function TeamRegisterPage() {
     setSubmitSuccess(false);
 
     try {
-      const response = await RequestHelper.post(
-        '/api/team-register/submit',
-        { headers: { Authorization: user.token } },
-        {
-          teamName: teamName.trim(),
-          teamLeader: {
-            email: myEmail,
-            name: `${(profile as any)?.user?.firstName || ''} ${(profile as any)?.user?.lastName || ''}`.trim() || (profile as any)?.nickname || '未提供',
-            role: myRole,
-            hasEditRight: true, // Team registrant always has edit rights
-          },
-          teamMembers: teamMembers.map(m => ({
-            email: m.email.trim(),
-            name: m.name,
-            role: m.role.trim(),
-            hasEditRight: m.hasEditRight,
-          })),
-          tracks: selectedTracks,
-          agreedToCommitment: hasAgreed,
-        }
-      ) as any;
+      const requestData = {
+        teamName: teamName.trim(),
+        teamMembers: teamMembers.map(m => ({
+          email: m.email.trim(),
+          name: m.name,
+          role: m.role.trim(),
+          hasEditRight: m.hasEditRight,
+        })),
+        tracks: selectedTracks,
+      };
 
-      if ((response as any).error) {
-        setSubmitMessage((response as any).error || '報名失敗，請稍後再試');
+      let response: any;
+
+      if (isEditMode && editTeamId) {
+        // Update existing team
+        console.log('[TeamRegister] Updating team:', editTeamId);
+        response = await RequestHelper.put(
+          `/api/team-register/${editTeamId}`,
+          { headers: { Authorization: user.token } },
+          requestData
+        );
+      } else {
+        // Create new team
+        console.log('[TeamRegister] Creating new team');
+        response = await RequestHelper.post(
+          '/api/team-register/submit',
+          { headers: { Authorization: user.token } },
+          {
+            ...requestData,
+            teamLeader: {
+              email: myEmail,
+              name: `${(profile as any)?.user?.firstName || ''} ${(profile as any)?.user?.lastName || ''}`.trim() || (profile as any)?.nickname || '未提供',
+              role: myRole,
+              hasEditRight: true, // Team registrant always has edit rights
+            },
+            agreedToCommitment: hasAgreed,
+          }
+        );
+      }
+
+      if ((response as any).error || response.data?.error) {
+        setSubmitMessage((response as any).error || response.data?.error || (isEditMode ? '更新失敗，請稍後再試' : '報名失敗，請稍後再試'));
         setSubmitSuccess(false);
       } else {
-        setSubmitMessage('報名成功！通知郵件已發送給所有團隊成員。');
+        setSubmitMessage(isEditMode ? '更新成功！' : '報名成功！通知郵件已發送給所有團隊成員。');
         setSubmitSuccess(true);
         
-        // Reset form after 3 seconds
+        // Redirect after 2 seconds
         setTimeout(() => {
           router.push('/profile');
-        }, 3000);
+        }, 2000);
       }
     } catch (error: any) {
       console.error('[TeamRegister] Submission error:', error);
@@ -428,7 +521,7 @@ export default function TeamRegisterPage() {
   return (
     <>
       <Head>
-        <title>團隊報名 - RWA 黑客松</title>
+        <title>{isEditMode ? '編輯團隊' : '團隊報名'} - RWA 黑客松</title>
         <meta name="description" content="黑客松團隊報名頁面" />
       </Head>
 
@@ -438,11 +531,19 @@ export default function TeamRegisterPage() {
             {/* Title */}
             <div className="mb-8">
               <h1 className="text-4xl font-bold text-left mb-4" style={{ color: '#1a3a6e' }}>
-                團隊報名
+                {isEditMode ? '編輯團隊' : '團隊報名'}
               </h1>
               <p className="text-lg text-gray-600">
-                報名您的團隊，選擇參賽賽道，開始您的黑客松之旅
+                {isEditMode 
+                  ? '更新您的團隊資訊、成員和參賽賽道'
+                  : '報名您的團隊，選擇參賽賽道，開始您的黑客松之旅'
+                }
               </p>
+              {isEditMode && editTeamId && (
+                <p className="text-xs text-gray-400 mt-2">
+                  團隊 ID: {editTeamId}
+                </p>
+              )}
             </div>
 
             {/* Registration Deadline Notice - At Top */}
@@ -911,27 +1012,44 @@ export default function TeamRegisterPage() {
               )}
 
               {/* Submit Button */}
-              <div className="flex justify-center">
+              <div className="flex justify-center gap-4">
+                {isEditMode && (
+                  <button
+                    type="button"
+                    onClick={() => router.push('/profile')}
+                    disabled={isSubmitting}
+                    className="px-8 py-3 rounded-lg border-2 font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    style={{
+                      borderColor: '#d1d5db',
+                      color: '#374151',
+                    }}
+                  >
+                    取消
+                  </button>
+                )}
                 <button
                   type="submit"
-                  disabled={isSubmitting || !hasAgreed}
+                  disabled={isSubmitting || (!isEditMode && !hasAgreed) || (isEditMode && isLoadingTeam)}
                   className="px-8 py-3 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   style={{
-                    backgroundColor: isSubmitting || !hasAgreed ? '#9ca3af' : '#1a3a6e',
+                    backgroundColor: (isSubmitting || (!isEditMode && !hasAgreed) || (isEditMode && isLoadingTeam)) ? '#9ca3af' : '#1a3a6e',
                     color: 'white',
                   }}
                   onMouseEnter={(e) => {
-                    if (!isSubmitting && hasAgreed) {
+                    if (!isSubmitting && (isEditMode || hasAgreed) && !isLoadingTeam) {
                       e.currentTarget.style.backgroundColor = '#2a4a7e';
                     }
                   }}
                   onMouseLeave={(e) => {
-                    if (!isSubmitting && hasAgreed) {
+                    if (!isSubmitting && (isEditMode || hasAgreed) && !isLoadingTeam) {
                       e.currentTarget.style.backgroundColor = '#1a3a6e';
                     }
                   }}
                 >
-                  {isSubmitting ? '提交中...' : '提交報名'}
+                  {isSubmitting 
+                    ? (isEditMode ? '更新中...' : '提交中...') 
+                    : (isEditMode ? '保存修改' : '提交報名')
+                  }
                 </button>
               </div>
             </form>

@@ -74,10 +74,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const normalizedEmail = userEmail.toLowerCase();
 
     // Find all teams where user is leader
+    // Note: We'll sort in memory to avoid requiring a composite index
     const leaderTeamsSnapshot = await db
       .collection('team-registrations')
       .where('teamLeader.userId', '==', userId)
-      .orderBy('createdAt', 'desc')
       .get();
 
     // Find all teams where user is a member (by email)

@@ -42,53 +42,133 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     // Get email from request
+    console.log('[ValidateEmail] Request body:', JSON.stringify(req.body));
+    console.log('[ValidateEmail] Request body type:', typeof req.body);
+    console.log('[ValidateEmail] Content-Type:', req.headers['content-type']);
+    
     const { email } = req.body;
+    console.log('[ValidateEmail] Extracted email:', email);
 
     if (!email || typeof email !== 'string' || !email.trim()) {
+      console.log('[ValidateEmail] Email validation failed:', { email, type: typeof email });
       return res.status(400).json({ error: 'Email is required' });
     }
 
     const normalizedEmail = email.trim().toLowerCase();
 
-    // Check if user exists in registrations collection
-    const userSnapshot = await db
+    // Check multiple possible email fields in registrations collection
+    // Try user.preferredEmail
+    let userSnapshot = await db
       .collection('registrations')
       .where('user.preferredEmail', '==', normalizedEmail)
       .limit(1)
       .get();
 
     if (!userSnapshot.empty) {
-      const userData = userSnapshot.docs[0].data();
+      const doc = userSnapshot.docs[0];
+      const userData = doc.data();
       const firstName = userData.user?.firstName || '';
       const lastName = userData.user?.lastName || '';
       const name = `${firstName} ${lastName}`.trim() || userData.user?.nickname || '';
 
+      console.log('[ValidateEmail] Found in registrations (user.preferredEmail):', normalizedEmail);
       return res.status(200).json({
         isValid: true,
         name: name || normalizedEmail,
+        userId: doc.id,
+      });
+    }
+
+    // Try user.email
+    userSnapshot = await db
+      .collection('registrations')
+      .where('user.email', '==', normalizedEmail)
+      .limit(1)
+      .get();
+
+    if (!userSnapshot.empty) {
+      const doc = userSnapshot.docs[0];
+      const userData = doc.data();
+      const firstName = userData.user?.firstName || '';
+      const lastName = userData.user?.lastName || '';
+      const name = `${firstName} ${lastName}`.trim() || userData.user?.nickname || '';
+
+      console.log('[ValidateEmail] Found in registrations (user.email):', normalizedEmail);
+      return res.status(200).json({
+        isValid: true,
+        name: name || normalizedEmail,
+        userId: doc.id,
+      });
+    }
+
+    // Try email field directly
+    userSnapshot = await db
+      .collection('registrations')
+      .where('email', '==', normalizedEmail)
+      .limit(1)
+      .get();
+
+    if (!userSnapshot.empty) {
+      const doc = userSnapshot.docs[0];
+      const userData = doc.data();
+      const firstName = userData.user?.firstName || userData.firstName || '';
+      const lastName = userData.user?.lastName || userData.lastName || '';
+      const name = `${firstName} ${lastName}`.trim() || userData.user?.nickname || userData.nickname || '';
+
+      console.log('[ValidateEmail] Found in registrations (email):', normalizedEmail);
+      return res.status(200).json({
+        isValid: true,
+        name: name || normalizedEmail,
+        userId: doc.id,
       });
     }
 
     // Also check users collection as fallback
-    const usersSnapshot = await db
+    let usersSnapshot = await db
       .collection('users')
       .where('preferredEmail', '==', normalizedEmail)
       .limit(1)
       .get();
 
     if (!usersSnapshot.empty) {
-      const userData = usersSnapshot.docs[0].data();
+      const doc = usersSnapshot.docs[0];
+      const userData = doc.data();
       const firstName = userData.firstName || '';
       const lastName = userData.lastName || '';
       const name = `${firstName} ${lastName}`.trim() || userData.nickname || '';
 
+      console.log('[ValidateEmail] Found in users (preferredEmail):', normalizedEmail);
       return res.status(200).json({
         isValid: true,
         name: name || normalizedEmail,
+        userId: doc.id,
+      });
+    }
+
+    // Try email field in users collection
+    usersSnapshot = await db
+      .collection('users')
+      .where('email', '==', normalizedEmail)
+      .limit(1)
+      .get();
+
+    if (!usersSnapshot.empty) {
+      const doc = usersSnapshot.docs[0];
+      const userData = doc.data();
+      const firstName = userData.firstName || '';
+      const lastName = userData.lastName || '';
+      const name = `${firstName} ${lastName}`.trim() || userData.nickname || '';
+
+      console.log('[ValidateEmail] Found in users (email):', normalizedEmail);
+      return res.status(200).json({
+        isValid: true,
+        name: name || normalizedEmail,
+        userId: doc.id,
       });
     }
 
     // User not found
+    console.log('[ValidateEmail] Email not found:', normalizedEmail);
     return res.status(200).json({
       isValid: false,
     });

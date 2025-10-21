@@ -26,6 +26,10 @@ export class RequestHelper {
       ...config,
       method: 'POST',
       mode: 'cors',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(config.headers || {}),
+      },
       body: JSON.stringify(body),
     });
     const data = await temp.json();
@@ -93,6 +97,10 @@ export class RequestHelper {
       ...config,
       method: 'PUT',
       mode: 'cors',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(config.headers || {}),
+      },
       body: JSON.stringify(body),
     });
     const data = await temp.json();
@@ -121,6 +129,10 @@ export class RequestHelper {
       ...config,
       method: 'DELETE',
       mode: 'cors',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(config.headers || {}),
+      },
       body: JSON.stringify(body),
     });
     const data = await temp.json();

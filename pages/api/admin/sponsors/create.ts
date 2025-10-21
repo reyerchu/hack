@@ -48,6 +48,7 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
     websiteUrl,
     contactEmail,
     contactName,
+    managers,
   } = req.body;
 
   // 驗證必填欄位
@@ -77,6 +78,7 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
       website: websiteUrl || '',
       contactEmail: contactEmail || '',
       contactPerson: contactName || '',
+      managers: managers || [],
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
       createdBy: userId,
       updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
