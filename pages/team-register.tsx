@@ -459,7 +459,7 @@ export default function TeamRegisterPage() {
               <div className="text-sm" style={{ color: '#92400e' }}>
                 <span className="font-semibold">報名截止日期：2025年10月27日 23:59</span>
                 <br />
-                截止前您可以隨時編輯或更改報名資料。您可以用不同團隊名稱多次報名。
+                截止前您可以隨時編輯或更改報名資料。
               </div>
             </div>
 
