@@ -153,8 +153,22 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
       if (track.challenges && track.challenges.length > 0) {
         track.challenges.forEach((challenge: any) => {
           if (challenge.prizes) {
-            // Parse prize if it's a string (e.g., "第一名：500u，第二名：300u")
-            if (typeof challenge.prizes === 'string') {
+            // New format: Array of objects with { currency, amount, description }
+            if (Array.isArray(challenge.prizes) && challenge.prizes.length > 0 && typeof challenge.prizes[0] === 'object' && challenge.prizes[0].amount !== undefined) {
+              challenge.prizes.forEach((prize: any) => {
+                if (prize.amount && typeof prize.amount === 'number') {
+                  // Convert TWD to USD equivalent (1 USD ≈ 30 TWD for prize comparison)
+                  if (prize.currency === 'TWD') {
+                    totalPrize += prize.amount / 30;
+                  } else {
+                    // USD or other currencies
+                    totalPrize += prize.amount;
+                  }
+                }
+              });
+            }
+            // Old format: Parse prize if it's a string (e.g., "第一名：500u，第二名：300u")
+            else if (typeof challenge.prizes === 'string') {
               const prizeMatches = challenge.prizes.match(/(\d+)u/g);
               if (prizeMatches) {
                 prizeMatches.forEach((match: string) => {
@@ -164,8 +178,9 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
                   }
                 });
               }
-            } else if (Array.isArray(challenge.prizes)) {
-              // If prizes is an array, try to sum numeric values
+            }
+            // Old format: Array of strings or numbers
+            else if (Array.isArray(challenge.prizes)) {
               challenge.prizes.forEach((prize: any) => {
                 if (typeof prize === 'number') {
                   totalPrize += prize;
@@ -181,7 +196,9 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
                   }
                 }
               });
-            } else if (typeof challenge.prizes === 'number') {
+            }
+            // Old format: Direct number
+            else if (typeof challenge.prizes === 'number') {
               totalPrize += challenge.prizes;
             }
           }
