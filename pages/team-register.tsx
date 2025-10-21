@@ -57,7 +57,6 @@ export default function TeamRegisterPage() {
   // Form states
   const [teamName, setTeamName] = useState('');
   const [myRole, setMyRole] = useState('');
-  const [myHasEditRight, setMyHasEditRight] = useState(true); // Leader defaults to having edit rights
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [selectedTracks, setSelectedTracks] = useState<string[]>([]);
   const [hasAgreed, setHasAgreed] = useState(false);
@@ -301,7 +300,7 @@ export default function TeamRegisterPage() {
             email: leaderEmail,
             name: profile?.user?.name || profile?.user?.displayName || '未提供',
             role: myRole,
-            hasEditRight: myHasEditRight,
+            hasEditRight: true, // Team registrant always has edit rights
           },
           teamMembers: teamMembers.map(m => ({
             email: m.email.trim(),
@@ -397,10 +396,10 @@ export default function TeamRegisterPage() {
                 </div>
               </div>
 
-              {/* Team Leader (Me) */}
+              {/* Team Registrant (Me) */}
               <div className="bg-white rounded-lg p-8 shadow-sm">
                 <h2 className="text-2xl font-bold mb-6" style={{ color: '#1a3a6e' }}>
-                  我的資訊（團隊領導者）
+                  我的資訊（團隊報名者）
                 </h2>
                 
                 <div className="space-y-4">
@@ -434,21 +433,6 @@ export default function TeamRegisterPage() {
                         <option key={role} value={role}>{role}</option>
                       ))}
                     </select>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      id="myEditRight"
-                      checked={myHasEditRight}
-                      onChange={(e) => setMyHasEditRight(e.target.checked)}
-                      className="w-5 h-5 rounded focus:ring-2 focus:ring-blue-500"
-                      style={{ accentColor: '#1a3a6e' }}
-                      disabled={isSubmitting}
-                    />
-                    <label htmlFor="myEditRight" className="text-sm" style={{ color: '#374151' }}>
-                      擁有編輯報名資料的權限
-                    </label>
                   </div>
                 </div>
               </div>
