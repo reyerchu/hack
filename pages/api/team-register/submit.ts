@@ -265,7 +265,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Send notification emails to all team members
     try {
       const { notifyTeamMemberConfirmation } = await import(
-        '../../lib/teamRegister/email'
+        '../../../lib/teamRegister/email'
       );
 
       // Send email to each team member
@@ -292,7 +292,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Send notification email to admin (reyer.chu@rwa.nexus)
     try {
       const { notifyAdminNewTeamRegistration } = await import(
-        '../../lib/teamRegister/email'
+        '../../../lib/teamRegister/email'
       );
 
       await notifyAdminNewTeamRegistration(

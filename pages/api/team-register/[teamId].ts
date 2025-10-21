@@ -357,7 +357,7 @@ async function handlePut(req: NextApiRequest, res: NextApiResponse, teamId: stri
     // Send notification email to admin (reyer.chu@rwa.nexus)
     try {
       const { notifyAdminTeamEdit } = await import(
-        '../../lib/teamRegister/email'
+        '../../../lib/teamRegister/email'
       );
 
       // Prepare changed fields summary
