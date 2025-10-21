@@ -262,9 +262,12 @@ export default function TeamRegisterPage() {
 
     console.log(`[ValidateEmail-${index}] Starting validation for:`, email);
 
-    const updated = [...teamMembers];
-    updated[index].isValidating = true;
-    setTeamMembers(updated);
+    // Set validating state using functional update
+    setTeamMembers(prev => {
+      const updated = [...prev];
+      updated[index].isValidating = true;
+      return updated;
+    });
 
     try {
       const response = await RequestHelper.post(
@@ -280,23 +283,29 @@ export default function TeamRegisterPage() {
         name: response.data?.name,
       });
 
-      const updatedAfter = [...teamMembers];
-      updatedAfter[index].isValidating = false;
-      updatedAfter[index].isValid = response.data?.isValid || false;
-      updatedAfter[index].name = response.data?.name;
-      
-      console.log(`[ValidateEmail-${index}] Setting state:`, {
-        isValid: updatedAfter[index].isValid,
-        name: updatedAfter[index].name,
+      // Use functional update to avoid race condition
+      setTeamMembers(prev => {
+        const updated = [...prev];
+        updated[index].isValidating = false;
+        updated[index].isValid = response.data?.isValid || false;
+        updated[index].name = response.data?.name;
+        
+        console.log(`[ValidateEmail-${index}] Setting state:`, {
+          isValid: updated[index].isValid,
+          name: updated[index].name,
+        });
+        
+        return updated;
       });
-      
-      setTeamMembers(updatedAfter);
     } catch (error) {
       console.error('[TeamRegister] Email validation error:', error);
-      const updatedAfter = [...teamMembers];
-      updatedAfter[index].isValidating = false;
-      updatedAfter[index].isValid = false;
-      setTeamMembers(updatedAfter);
+      // Use functional update in error case too
+      setTeamMembers(prev => {
+        const updated = [...prev];
+        updated[index].isValidating = false;
+        updated[index].isValid = false;
+        return updated;
+      });
     }
   };
 
