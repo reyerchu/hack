@@ -24,6 +24,14 @@ interface Track {
   description?: string;
   sponsorName?: string;
   trackId?: string;
+  totalPrize?: number;
+  challenges?: Array<{
+    id: string;
+    title: string;
+    description?: string;
+    prizes?: any;
+    submissionRequirements?: string;
+  }>;
 }
 
 interface TeamMember {
@@ -66,6 +74,7 @@ export default function TeamRegisterPage() {
   // Data states
   const [tracks, setTracks] = useState<Track[]>([]);
   const [isLoadingTracks, setIsLoadingTracks] = useState(false);
+  const [expandedTracks, setExpandedTracks] = useState<Set<string>>(new Set());
   
   // Submission states
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -88,16 +97,9 @@ export default function TeamRegisterPage() {
 
   // Extract email from profile when it's ready
   useEffect(() => {
-    console.log('[TeamRegister] useEffect triggered!', {
-      'profile': profile,
-      'user': user,
-      'hasProfile': !!profile,
-      'hasUser': !!user,
-    });
-    
     if (profile || user) {
       const email = 
-        (profile as any)?.user?.preferredEmail ||  // ✅ FIXED: Correct path!
+        (profile as any)?.user?.preferredEmail ||
         (profile as any)?.preferredEmail ||
         profile?.user?.email || 
         user?.email || 
@@ -105,31 +107,11 @@ export default function TeamRegisterPage() {
         (user as any)?.user?.email || 
         '';
       
-      console.log('[TeamRegister] Extracting email:', {
-        'profile?.user?.preferredEmail': (profile as any)?.user?.preferredEmail,
-        'profile?.preferredEmail': (profile as any)?.preferredEmail,
-        'profile?.user?.email': profile?.user?.email,
-        'user?.email': user?.email,
-        'extractedEmail': email,
-        'emailLength': email.length,
-        'willSetMyEmail': !!email,
-      });
-      
       if (email) {
-        console.log('[TeamRegister] ✅ Setting myEmail to:', email);
         setMyEmail(email);
-      } else {
-        console.log('[TeamRegister] ❌ No email found to set');
       }
-    } else {
-      console.log('[TeamRegister] ⏳ Waiting for profile or user...');
     }
   }, [profile, user]);
-
-  // Debug: Log myEmail state changes
-  useEffect(() => {
-    console.log('[TeamRegister] 📧 myEmail state updated to:', myEmail);
-  }, [myEmail]);
 
   const fetchTracks = async () => {
     if (!user?.token) {
@@ -174,6 +156,46 @@ export default function TeamRegisterPage() {
         ? prev.filter((id) => id !== trackId)
         : [...prev, trackId]
     );
+  };
+
+  // Toggle track expansion
+  const toggleTrackExpand = (trackId: string) => {
+    setExpandedTracks((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(trackId)) {
+        newSet.delete(trackId);
+      } else {
+        newSet.add(trackId);
+      }
+      return newSet;
+    });
+  };
+
+  // Format prize display
+  const formatPrizes = (prizes: any): string => {
+    if (!prizes) return '未設定';
+    
+    if (typeof prizes === 'string') {
+      return prizes;
+    }
+    
+    if (Array.isArray(prizes) && prizes.length > 0) {
+      if (typeof prizes[0] === 'object' && prizes[0].amount !== undefined) {
+        // New structured format
+        return prizes.map((p: any) => 
+          `${p.currency === 'TWD' ? '台幣' : 'USD'} ${p.amount.toLocaleString()} ${p.description}`
+        ).join('，');
+      } else {
+        // Old format: array of strings
+        return prizes.join(', ');
+      }
+    }
+    
+    if (typeof prizes === 'number') {
+      return prizes.toLocaleString();
+    }
+    
+    return '未設定';
   };
 
   // Add new team member
@@ -463,14 +485,6 @@ export default function TeamRegisterPage() {
                       style={{ borderColor: '#d1d5db' }}
                       disabled
                     />
-                    {/* Debug info */}
-                    <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded text-xs" style={{ fontFamily: 'monospace' }}>
-                      <div>✅ myEmail = "{myEmail}" (length: {myEmail.length})</div>
-                      <div>✅ profile?.user?.preferredEmail: {(profile as any)?.user?.preferredEmail || 'undefined'}</div>
-                      <div className="mt-1 text-green-700 font-semibold">
-                        {myEmail ? '✓ Email 已成功提取！' : '⚠ 等待 email 加載...'}
-                      </div>
-                    </div>
                   </div>
 
                   <div>
@@ -644,42 +658,113 @@ export default function TeamRegisterPage() {
                   </div>
                 ) : (
                   <div className="space-y-3">
-                    {tracks.map((track) => (
-                      <div
-                        key={track.id}
-                        className="border-2 rounded-lg transition-all"
-                        style={{
-                          borderColor: selectedTracks.includes(track.id) ? '#1a3a6e' : '#e5e7eb',
-                          backgroundColor: selectedTracks.includes(track.id) ? '#f0f4ff' : 'transparent',
-                        }}
-                      >
-                        <label className="flex items-start gap-3 p-4 cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={selectedTracks.includes(track.id)}
-                            onChange={() => toggleTrack(track.id)}
-                            disabled={isSubmitting}
-                            className="mt-1 w-5 h-5 rounded focus:ring-2 focus:ring-blue-500"
-                            style={{ accentColor: '#1a3a6e' }}
-                          />
-                          <div className="flex-grow">
-                            <div className="font-semibold" style={{ color: '#1a3a6e' }}>
-                              {track.name}
+                    {tracks.map((track) => {
+                      const isExpanded = expandedTracks.has(track.id);
+                      return (
+                        <div
+                          key={track.id}
+                          className="border-2 rounded-lg transition-all"
+                          style={{
+                            borderColor: selectedTracks.includes(track.id) ? '#1a3a6e' : '#e5e7eb',
+                            backgroundColor: selectedTracks.includes(track.id) ? '#f0f4ff' : 'transparent',
+                          }}
+                        >
+                          {/* Track Header */}
+                          <div className="flex items-start gap-3 p-4">
+                            <input
+                              type="checkbox"
+                              checked={selectedTracks.includes(track.id)}
+                              onChange={() => toggleTrack(track.id)}
+                              disabled={isSubmitting}
+                              className="mt-1 w-5 h-5 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                              style={{ accentColor: '#1a3a6e' }}
+                            />
+                            <div className="flex-grow">
+                              <div className="flex items-center justify-between">
+                                <div className="font-semibold" style={{ color: '#1a3a6e' }}>
+                                  {track.name}
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => toggleTrackExpand(track.id)}
+                                  className="ml-2 p-1 hover:bg-gray-100 rounded transition-colors"
+                                  disabled={isSubmitting}
+                                >
+                                  <svg
+                                    className={`w-5 h-5 transform transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+                                    style={{ color: '#1a3a6e' }}
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                  </svg>
+                                </button>
+                              </div>
+                              {track.description && (
+                                <div className="text-sm text-gray-600 mt-1">
+                                  {track.description}
+                                </div>
+                              )}
+                              <div className="flex items-center gap-4 mt-2 text-sm">
+                                {track.sponsorName && (
+                                  <div className="text-gray-500">
+                                    贊助商：{track.sponsorName}
+                                  </div>
+                                )}
+                                {track.totalPrize !== undefined && track.totalPrize > 0 && (
+                                  <div className="font-medium" style={{ color: '#059669' }}>
+                                    💰 總獎金: {track.totalPrize >= 1000 ? `${(track.totalPrize / 1000).toFixed(1)}k` : track.totalPrize} USD
+                                  </div>
+                                )}
+                                {track.challenges && track.challenges.length > 0 && (
+                                  <div className="text-gray-500">
+                                    {track.challenges.length} 個挑戰
+                                  </div>
+                                )}
+                              </div>
                             </div>
-                            {track.description && (
-                              <div className="text-sm text-gray-600 mt-1">
-                                {track.description}
-                              </div>
-                            )}
-                            {track.sponsorName && (
-                              <div className="text-sm text-gray-500 mt-1">
-                                贊助商：{track.sponsorName}
-                              </div>
-                            )}
                           </div>
-                        </label>
-                      </div>
-                    ))}
+
+                          {/* Expanded Track Details */}
+                          {isExpanded && track.challenges && track.challenges.length > 0 && (
+                            <div className="px-4 pb-4 border-t" style={{ borderColor: '#e5e7eb' }}>
+                              <div className="mt-4 space-y-3">
+                                <h4 className="font-medium text-sm" style={{ color: '#1a3a6e' }}>
+                                  包含的挑戰：
+                                </h4>
+                                {track.challenges.map((challenge, idx) => (
+                                  <div
+                                    key={challenge.id || idx}
+                                    className="p-3 rounded-lg"
+                                    style={{ backgroundColor: '#f9fafb', border: '1px solid #e5e7eb' }}
+                                  >
+                                    <div className="font-medium text-sm mb-1" style={{ color: '#1a3a6e' }}>
+                                      {challenge.title}
+                                    </div>
+                                    {challenge.description && (
+                                      <div className="text-xs text-gray-600 mb-2">
+                                        {challenge.description}
+                                      </div>
+                                    )}
+                                    {challenge.prizes && (
+                                      <div className="text-xs font-medium mb-1" style={{ color: '#059669' }}>
+                                        💰 {formatPrizes(challenge.prizes)}
+                                      </div>
+                                    )}
+                                    {challenge.submissionRequirements && (
+                                      <div className="text-xs text-gray-500">
+                                        📋 {challenge.submissionRequirements}
+                                      </div>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
 
