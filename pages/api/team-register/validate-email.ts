@@ -42,9 +42,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     // Get email from request
+    console.log('[ValidateEmail] Request body:', JSON.stringify(req.body));
+    console.log('[ValidateEmail] Request body type:', typeof req.body);
+    console.log('[ValidateEmail] Content-Type:', req.headers['content-type']);
+    
     const { email } = req.body;
+    console.log('[ValidateEmail] Extracted email:', email);
 
     if (!email || typeof email !== 'string' || !email.trim()) {
+      console.log('[ValidateEmail] Email validation failed:', { email, type: typeof email });
       return res.status(400).json({ error: 'Email is required' });
     }
 
