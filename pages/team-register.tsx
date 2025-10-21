@@ -56,6 +56,7 @@ export default function TeamRegisterPage() {
   
   // Form states
   const [teamName, setTeamName] = useState('');
+  const [myEmail, setMyEmail] = useState('');
   const [myRole, setMyRole] = useState('');
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [selectedTracks, setSelectedTracks] = useState<string[]>([]);
@@ -85,17 +86,30 @@ export default function TeamRegisterPage() {
     }
   }, [isSignedIn, user]);
 
-  // Debug: Log email paths
+  // Extract email from profile when it's ready
   useEffect(() => {
-    console.log('[TeamRegister] Debug email paths:', {
-      'profile?.preferredEmail': (profile as any)?.preferredEmail,
-      'profile?.user?.email': profile?.user?.email,
-      'user?.email': user?.email,
-      'profile?.email': (profile as any)?.email,
-      'user?.user?.email': (user as any)?.user?.email,
-      'profile object': profile,
-      'user object': user,
-    });
+    if (profile || user) {
+      const email = 
+        (profile as any)?.preferredEmail ||
+        profile?.user?.email || 
+        user?.email || 
+        (profile as any)?.email || 
+        (user as any)?.user?.email || 
+        '';
+      
+      console.log('[TeamRegister] Extracting email:', {
+        'profile?.preferredEmail': (profile as any)?.preferredEmail,
+        'profile?.user?.email': profile?.user?.email,
+        'user?.email': user?.email,
+        'extractedEmail': email,
+        'profile': profile,
+        'user': user,
+      });
+      
+      if (email) {
+        setMyEmail(email);
+      }
+    }
   }, [profile, user]);
 
   const fetchTracks = async () => {
@@ -284,14 +298,7 @@ export default function TeamRegisterPage() {
     }
 
     // Check if leader email is in team members
-    const leaderEmail = 
-      (profile as any)?.preferredEmail ||
-      profile?.user?.email || 
-      user?.email || 
-      (profile as any)?.email || 
-      (user as any)?.user?.email || 
-      '';
-    if (leaderEmail && emails.includes(leaderEmail.toLowerCase())) {
+    if (myEmail && emails.includes(myEmail.toLowerCase())) {
       setSubmitMessage('團隊成員中不應包含您自己的 Email');
       setSubmitSuccess(false);
       return;
@@ -320,8 +327,8 @@ export default function TeamRegisterPage() {
         {
           teamName: teamName.trim(),
           teamLeader: {
-            email: leaderEmail,
-            name: profile?.user?.name || profile?.user?.displayName || '未提供',
+            email: myEmail,
+            name: profile?.user?.name || profile?.user?.displayName || profile?.firstName || profile?.lastName || '未提供',
             role: myRole,
             hasEditRight: true, // Team registrant always has edit rights
           },
@@ -432,14 +439,7 @@ export default function TeamRegisterPage() {
                     </label>
                     <input
                       type="text"
-                      value={
-                        (profile as any)?.preferredEmail ||
-                        profile?.user?.email || 
-                        user?.email || 
-                        (profile as any)?.email || 
-                        (user as any)?.user?.email || 
-                        ''
-                      }
+                      value={myEmail}
                       className="w-full px-4 py-3 border rounded-lg bg-gray-50"
                       style={{ borderColor: '#d1d5db' }}
                       disabled
