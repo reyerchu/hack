@@ -123,7 +123,9 @@ export default function AppHeader() {
                 .filter(({ text }) => text !== 'Home')
                 .map((item) => (
                   <Link key={item.text} href={item.path}>
-                    <a className="px-5 py-3 hover:bg-primaryDark hover:text-white text-complementary border-b border-gray-100">
+                    <a className={`px-5 py-3 hover:bg-primaryDark hover:text-white border-b border-gray-100 ${
+                      item.text === '團隊報名' ? 'text-red-800' : 'text-complementary'
+                    }`}>
                       <p className="text-sm font-medium">{item.text}</p>
                     </a>
                   </Link>
@@ -142,7 +144,9 @@ export default function AppHeader() {
           {dynamicNavItems.map((item) => (
             <Link key={item.text} href={item.path}>
               <a>
-                <p className="md:mx-4 text-sm font-bold">{item.text}</p>
+                <p className={`md:mx-4 text-sm font-bold ${
+                  item.text === '團隊報名' ? 'text-red-800' : ''
+                }`}>{item.text}</p>
               </a>
             </Link>
           ))}
