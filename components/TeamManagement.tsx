@@ -150,7 +150,7 @@ const TeamManagement: React.FC = () => {
         `/api/team-register/${selectedTeam.id}`,
         { headers: { Authorization: user.token } },
         editFormData
-      );
+      ) as any;
       
       if (response.data?.error) {
         setSaveMessage(response.data.error);
