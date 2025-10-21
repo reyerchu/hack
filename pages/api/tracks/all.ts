@@ -16,12 +16,22 @@ const db = firebase.firestore();
  * }
  */
 
+interface Challenge {
+  id: string;
+  title: string;
+  description?: string;
+  prizes?: any;
+  submissionRequirements?: string;
+}
+
 interface Track {
   id: string;
   name: string;
   description?: string;
   sponsorName?: string;
   trackId?: string;
+  totalPrize?: number;
+  challenges?: Challenge[];
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -49,20 +59,110 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       .where('status', '==', 'active')
       .get();
 
-    // Build tracks list
+    // Fetch all challenges from extended-challenges collection
+    const challengesSnapshot = await db
+      .collection('extended-challenges')
+      .get();
+
+    // Group challenges by trackId
+    const challengesByTrack: { [key: string]: Challenge[] } = {};
+    challengesSnapshot.docs.forEach((doc) => {
+      const data = doc.data();
+      // Only include challenges with a valid title
+      if (data.title && data.trackId) {
+        const challenge: Challenge = {
+          id: doc.id,
+          title: data.title,
+          description: data.description || '',
+          prizes: data.prizes,
+          submissionRequirements: data.submissionRequirements || '',
+        };
+        
+        if (!challengesByTrack[data.trackId]) {
+          challengesByTrack[data.trackId] = [];
+        }
+        challengesByTrack[data.trackId].push(challenge);
+      }
+    });
+
+    // Build tracks list with challenges and totalPrize
     const tracks: Track[] = tracksSnapshot.docs.map((doc) => {
       const data = doc.data();
+      const trackId = data.trackId || doc.id;
+      const challenges = challengesByTrack[trackId] || [];
+      
+      // Calculate total prize
+      let totalPrize = 0;
+      challenges.forEach((challenge) => {
+        if (challenge.prizes) {
+          // New structured format: Array of objects with { currency, amount, description }
+          if (Array.isArray(challenge.prizes) && challenge.prizes.length > 0 && typeof challenge.prizes[0] === 'object' && challenge.prizes[0].amount !== undefined) {
+            challenge.prizes.forEach((prize: any) => {
+              if (prize.amount && typeof prize.amount === 'number') {
+                // Convert TWD to USD equivalent (1 USD ≈ 30 TWD)
+                if (prize.currency === 'TWD') {
+                  totalPrize += prize.amount / 30;
+                } else {
+                  totalPrize += prize.amount;
+                }
+              }
+            });
+          }
+          // Old format: Parse prize string
+          else if (typeof challenge.prizes === 'string') {
+            const prizeMatches = challenge.prizes.match(/(\d+)u?/gi);
+            if (prizeMatches) {
+              prizeMatches.forEach((match: string) => {
+                const amount = parseInt(match.replace(/u/gi, ''));
+                if (!isNaN(amount)) {
+                  totalPrize += amount;
+                }
+              });
+            }
+          }
+          // Old format: Array of strings or numbers
+          else if (Array.isArray(challenge.prizes)) {
+            challenge.prizes.forEach((prize: any) => {
+              if (typeof prize === 'number') {
+                totalPrize += prize;
+              } else if (typeof prize === 'string') {
+                const prizeMatches = prize.match(/(\d+)u?/gi);
+                if (prizeMatches) {
+                  prizeMatches.forEach((match: string) => {
+                    const amount = parseInt(match.replace(/u/gi, ''));
+                    if (!isNaN(amount)) {
+                      totalPrize += amount;
+                    }
+                  });
+                }
+              }
+            });
+          }
+          // Old format: Direct number
+          else if (typeof challenge.prizes === 'number') {
+            totalPrize += challenge.prizes;
+          }
+        }
+      });
+      
       return {
-        id: data.trackId || doc.id,
+        id: trackId,
         name: data.name || data.trackId || 'Unnamed Track',
         description: data.description || '',
         sponsorName: data.sponsorName || '',
-        trackId: data.trackId || doc.id,
+        trackId: trackId,
+        totalPrize: Math.round(totalPrize),
+        challenges: challenges,
       };
     }).filter(track => track.name && track.name !== 'Unnamed Track');
 
-    // Sort by name
-    tracks.sort((a, b) => a.name.localeCompare(b.name));
+    // Sort by total prize (highest first), then by name
+    tracks.sort((a, b) => {
+      if ((b.totalPrize || 0) !== (a.totalPrize || 0)) {
+        return (b.totalPrize || 0) - (a.totalPrize || 0);
+      }
+      return a.name.localeCompare(b.name);
+    });
 
     return res.status(200).json({
       data: tracks,

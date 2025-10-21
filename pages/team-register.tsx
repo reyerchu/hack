@@ -655,7 +655,7 @@ export default function TeamRegisterPage() {
                   選擇賽道 <span style={{ color: '#ef4444' }}>*</span>
                 </h2>
                 <p className="text-sm text-gray-600 mb-6">
-                  請選擇您的團隊想要參加的賽道（可多選）。稍後上傳交付物時，您可以選擇具體的挑戰。
+                  請選擇您的團隊想要參加的賽道（可多選）。之後上傳交付物時，您再選擇具體的挑戰。
                 </p>
 
                 {isLoadingTracks ? (
