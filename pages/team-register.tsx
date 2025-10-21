@@ -97,6 +97,7 @@ export default function TeamRegisterPage() {
     
     if (profile || user) {
       const email = 
+        (profile as any)?.user?.preferredEmail ||  // ✅ FIXED: Correct path!
         (profile as any)?.preferredEmail ||
         profile?.user?.email || 
         user?.email || 
@@ -105,6 +106,7 @@ export default function TeamRegisterPage() {
         '';
       
       console.log('[TeamRegister] Extracting email:', {
+        'profile?.user?.preferredEmail': (profile as any)?.user?.preferredEmail,
         'profile?.preferredEmail': (profile as any)?.preferredEmail,
         'profile?.user?.email': profile?.user?.email,
         'user?.email': user?.email,
@@ -345,7 +347,7 @@ export default function TeamRegisterPage() {
           teamName: teamName.trim(),
           teamLeader: {
             email: myEmail,
-            name: profile?.user?.name || profile?.user?.displayName || profile?.firstName || profile?.lastName || '未提供',
+            name: `${(profile as any)?.user?.firstName || ''} ${(profile as any)?.user?.lastName || ''}`.trim() || (profile as any)?.nickname || '未提供',
             role: myRole,
             hasEditRight: true, // Team registrant always has edit rights
           },
@@ -462,15 +464,11 @@ export default function TeamRegisterPage() {
                       disabled
                     />
                     {/* Debug info */}
-                    <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded text-xs overflow-auto max-h-40" style={{ fontFamily: 'monospace' }}>
-                      <div>🔍 Debug: myEmail = "{myEmail}" (length: {myEmail.length})</div>
-                      <div>hasProfile: {hasProfile ? 'true' : 'false'}</div>
-                      <div>profile?.preferredEmail: {(profile as any)?.preferredEmail || 'undefined'}</div>
-                      <div className="mt-2 pt-2 border-t border-yellow-300">
-                        <strong>Complete profile object:</strong>
-                        <pre className="mt-1 text-xs whitespace-pre-wrap">
-                          {JSON.stringify(profile, null, 2)}
-                        </pre>
+                    <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded text-xs" style={{ fontFamily: 'monospace' }}>
+                      <div>✅ myEmail = "{myEmail}" (length: {myEmail.length})</div>
+                      <div>✅ profile?.user?.preferredEmail: {(profile as any)?.user?.preferredEmail || 'undefined'}</div>
+                      <div className="mt-1 text-green-700 font-semibold">
+                        {myEmail ? '✓ Email 已成功提取！' : '⚠ 等待 email 加載...'}
                       </div>
                     </div>
                   </div>
