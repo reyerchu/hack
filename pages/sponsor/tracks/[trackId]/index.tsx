@@ -395,9 +395,17 @@ export default function TrackDetailPage() {
                         <p className="text-sm mb-4" style={{ color: '#6b7280' }}>
                           {challenge.description}
                         </p>
-                        {challenge.prizes && challenge.prizes.length > 0 && (
+                        {challenge.prizes && (
                           <div className="text-sm" style={{ color: '#059669' }}>
-                            💰 獎金: {challenge.prizes.join(', ')}
+                            💰 獎金: {typeof challenge.prizes === 'string' 
+                              ? challenge.prizes 
+                              : Array.isArray(challenge.prizes) && challenge.prizes.length > 0
+                                ? (typeof challenge.prizes[0] === 'object'
+                                  ? challenge.prizes.map((p: any) => 
+                                      `${p.currency === 'TWD' ? '台幣' : 'USD'} ${p.amount.toLocaleString()} ${p.description}`
+                                    ).join('，')
+                                  : challenge.prizes.join(', '))
+                                : ''}
                           </div>
                         )}
                         {/* 添加调试信息 */}

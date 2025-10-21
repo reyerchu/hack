@@ -628,6 +628,19 @@ export default function SponsorDashboard() {
                                 {challenge.description.substring(0, 100)}{challenge.description.length > 100 ? '...' : ''}
                               </p>
                             )}
+                            {challenge.prizes && (
+                              <p className="text-xs mt-1 font-medium" style={{ color: '#059669' }}>
+                                💰 獎金: {typeof challenge.prizes === 'string' 
+                                  ? challenge.prizes 
+                                  : Array.isArray(challenge.prizes) && challenge.prizes.length > 0
+                                    ? (typeof challenge.prizes[0] === 'object'
+                                      ? challenge.prizes.map((p: any) => 
+                                          `${p.currency === 'TWD' ? '台幣' : 'USD'} ${p.amount.toLocaleString()} ${p.description}`
+                                        ).join('，')
+                                      : challenge.prizes.join(', '))
+                                    : ''}
+                              </p>
+                            )}
                           </div>
                           <div className="flex items-center gap-2 ml-4">
                             <button

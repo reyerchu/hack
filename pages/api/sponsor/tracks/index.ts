@@ -144,11 +144,83 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
       });
     }
 
-    // 6. 返回賽道列表
-    const tracks = tracksData;
+    // 6. 計算每個賽道的總獎金並排序
+    // Calculate total prize for each track
+    const tracksWithPrizes = tracksData.map(track => {
+      let totalPrize = 0;
+      
+      // Sum up prizes from all challenges in this track
+      if (track.challenges && track.challenges.length > 0) {
+        track.challenges.forEach((challenge: any) => {
+          if (challenge.prizes) {
+            // New format: Array of objects with { currency, amount, description }
+            if (Array.isArray(challenge.prizes) && challenge.prizes.length > 0 && typeof challenge.prizes[0] === 'object' && challenge.prizes[0].amount !== undefined) {
+              challenge.prizes.forEach((prize: any) => {
+                if (prize.amount && typeof prize.amount === 'number') {
+                  // Convert TWD to USD equivalent (1 USD ≈ 30 TWD for prize comparison)
+                  if (prize.currency === 'TWD') {
+                    totalPrize += prize.amount / 30;
+                  } else {
+                    // USD or other currencies
+                    totalPrize += prize.amount;
+                  }
+                }
+              });
+            }
+            // Old format: Parse prize if it's a string (e.g., "第一名：500u，第二名：300u")
+            else if (typeof challenge.prizes === 'string') {
+              const prizeMatches = challenge.prizes.match(/(\d+)u/g);
+              if (prizeMatches) {
+                prizeMatches.forEach((match: string) => {
+                  const amount = parseInt(match.replace('u', ''));
+                  if (!isNaN(amount)) {
+                    totalPrize += amount;
+                  }
+                });
+              }
+            }
+            // Old format: Array of strings or numbers
+            else if (Array.isArray(challenge.prizes)) {
+              challenge.prizes.forEach((prize: any) => {
+                if (typeof prize === 'number') {
+                  totalPrize += prize;
+                } else if (typeof prize === 'string') {
+                  const prizeMatches = prize.match(/(\d+)u?/g);
+                  if (prizeMatches) {
+                    prizeMatches.forEach((match: string) => {
+                      const amount = parseInt(match.replace('u', ''));
+                      if (!isNaN(amount)) {
+                        totalPrize += amount;
+                      }
+                    });
+                  }
+                }
+              });
+            }
+            // Old format: Direct number
+            else if (typeof challenge.prizes === 'number') {
+              totalPrize += challenge.prizes;
+            }
+          }
+        });
+      }
+      
+      return {
+        ...track,
+        totalPrize: totalPrize,
+      };
+    });
+    
+    // Sort by totalPrize descending (higher prize first)
+    tracksWithPrizes.sort((a, b) => b.totalPrize - a.totalPrize);
+    
+    const tracks = tracksWithPrizes;
     
     console.log('[/api/sponsor/tracks] 最終 tracks 數量:', tracks.length);
-    console.log('[/api/sponsor/tracks] tracks:', JSON.stringify(tracks, null, 2));
+    console.log('[/api/sponsor/tracks] Tracks sorted by prize (high to low)');
+    tracks.forEach(track => {
+      console.log(`  - ${track.name}: ${track.totalPrize}u`);
+    });
 
     const response: TrackListResponse = {
       tracks: tracks,
