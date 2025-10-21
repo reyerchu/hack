@@ -88,6 +88,13 @@ export default function TeamRegisterPage() {
 
   // Extract email from profile when it's ready
   useEffect(() => {
+    console.log('[TeamRegister] useEffect triggered!', {
+      'profile': profile,
+      'user': user,
+      'hasProfile': !!profile,
+      'hasUser': !!user,
+    });
+    
     if (profile || user) {
       const email = 
         (profile as any)?.preferredEmail ||
@@ -102,15 +109,25 @@ export default function TeamRegisterPage() {
         'profile?.user?.email': profile?.user?.email,
         'user?.email': user?.email,
         'extractedEmail': email,
-        'profile': profile,
-        'user': user,
+        'emailLength': email.length,
+        'willSetMyEmail': !!email,
       });
       
       if (email) {
+        console.log('[TeamRegister] ✅ Setting myEmail to:', email);
         setMyEmail(email);
+      } else {
+        console.log('[TeamRegister] ❌ No email found to set');
       }
+    } else {
+      console.log('[TeamRegister] ⏳ Waiting for profile or user...');
     }
   }, [profile, user]);
+
+  // Debug: Log myEmail state changes
+  useEffect(() => {
+    console.log('[TeamRegister] 📧 myEmail state updated to:', myEmail);
+  }, [myEmail]);
 
   const fetchTracks = async () => {
     if (!user?.token) {
@@ -444,6 +461,13 @@ export default function TeamRegisterPage() {
                       style={{ borderColor: '#d1d5db' }}
                       disabled
                     />
+                    {/* Debug info */}
+                    <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded text-xs" style={{ fontFamily: 'monospace' }}>
+                      🔍 Debug: myEmail = "{myEmail}" (length: {myEmail.length})
+                      <br />
+                      hasProfile: {hasProfile ? 'true' : 'false'}, 
+                      profile?.preferredEmail: {(profile as any)?.preferredEmail || 'undefined'}
+                    </div>
                   </div>
 
                   <div>
