@@ -41,8 +41,8 @@ export default function AppHeader() {
       let updatedNavItems = [...navItems]; // Always start from base navItems
 
       if (isSignedIn && profile && profile.user) {
-        // Handle both flat and nested permission structures
-        const permissions = profile.user.permissions || profile.user.user?.permissions || [];
+        // Get user permissions
+        const permissions = profile.user.permissions || [];
         console.log('[AppHeader] User permissions:', permissions);
         console.log('[AppHeader] Profile structure:', profile.user);
 

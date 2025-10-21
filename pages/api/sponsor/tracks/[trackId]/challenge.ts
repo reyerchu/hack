@@ -162,7 +162,18 @@ async function handlePut(req: NextApiRequest, res: NextApiResponse) {
       attachments,
       prizes,
       prizeDetails,
+      evaluationCriteria,
+      resources,
     } = req.body;
+
+    console.log('[PUT /api/sponsor/tracks/[trackId]/challenge] Request body fields:', {
+      hasTitle: title !== undefined,
+      hasEvaluationCriteria: evaluationCriteria !== undefined,
+      evaluationCriteriaValue: evaluationCriteria,
+      hasResources: resources !== undefined,
+      resourcesValue: resources,
+      hasPrizes: prizes !== undefined,
+    });
 
     const updateData: Partial<ExtendedChallenge> = {
       updatedAt: firestore.Timestamp.now(),
@@ -181,6 +192,12 @@ async function handlePut(req: NextApiRequest, res: NextApiResponse) {
     if (prizeDetails !== undefined) updateData.prizes = prizeDetails;
     
     if (attachments !== undefined) updateData.attachments = attachments;
+    
+    // 評分標准
+    if (evaluationCriteria !== undefined) updateData.evaluationCriteria = evaluationCriteria;
+    
+    // 参考资源
+    if (resources !== undefined) updateData.resources = resources;
 
     // 處理時間线（转换為 Timestamp）
     if (timeline !== undefined) {

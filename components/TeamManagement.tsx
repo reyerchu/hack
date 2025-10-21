@@ -66,6 +66,11 @@ const TeamManagement: React.FC = () => {
   });
   const [isSaving, setIsSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState('');
+  
+  // Delete states
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [teamToDelete, setTeamToDelete] = useState<Team | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Fetch teams
   useEffect(() => {
@@ -86,13 +91,13 @@ const TeamManagement: React.FC = () => {
         { headers: { Authorization: user.token } }
       );
 
-      if (response.error) {
-        setError(response.error);
+      if (!response.data || !response.data.data) {
+        setError('載入團隊失敗');
         setTeams([]);
         return;
       }
 
-      const teamsData = response.data?.data || [];
+      const teamsData = response.data.data || [];
       console.log('[TeamManagement] Fetched teams:', teamsData.map(t => ({
         id: t.id,
         name: t.teamName,
@@ -140,6 +145,45 @@ const TeamManagement: React.FC = () => {
     setSaveMessage('');
   };
 
+  // Handle delete team
+  const handleDeleteTeam = (team: Team) => {
+    setTeamToDelete(team);
+    setShowDeleteConfirm(true);
+  };
+
+  const confirmDeleteTeam = async () => {
+    if (!teamToDelete || !user?.token) return;
+
+    try {
+      setIsDeleting(true);
+      console.log('[TeamManagement] Deleting team:', teamToDelete.id);
+
+      const response = await RequestHelper.delete(
+        `/api/team-register/${teamToDelete.id}`,
+        { headers: { Authorization: user.token } }
+      );
+
+      console.log('[TeamManagement] Delete response:', response);
+
+      // Refresh teams list
+      await fetchTeams();
+      
+      // Close modal
+      setShowDeleteConfirm(false);
+      setTeamToDelete(null);
+    } catch (error: any) {
+      console.error('[TeamManagement] Error deleting team:', error);
+      alert(`刪除失敗：${error.message || '未知錯誤'}`);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const cancelDelete = () => {
+    setShowDeleteConfirm(false);
+    setTeamToDelete(null);
+  };
+
   const handleSaveTeam = async () => {
     if (!user?.token || !selectedTeam) return;
     
@@ -158,8 +202,8 @@ const TeamManagement: React.FC = () => {
         editFormData
       );
       
-      if (response.data?.error) {
-        setSaveMessage(response.data.error);
+      if (!response.data || (response.data as any)?.error) {
+        setSaveMessage((response.data as any)?.error || '保存失敗');
         return;
       }
       
@@ -270,26 +314,42 @@ const TeamManagement: React.FC = () => {
               </button>
               
               {team.canEdit && (
-                <button
-                  onClick={() => {
-                    console.log('[TeamManagement] Navigate to edit page:', {
-                      teamId: team.id,
-                      teamName: team.teamName,
-                      url: `/team-register?edit=${team.id}`,
-                    });
-                    router.push(`/team-register?edit=${team.id}`);
-                  }}
-                  className="px-4 py-2 rounded-lg font-medium transition-colors"
-                  style={{ backgroundColor: '#1a3a6e', color: 'white' }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = '#2a4a7e';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = '#1a3a6e';
-                  }}
-                >
-                  編輯
-                </button>
+                <>
+                  <button
+                    onClick={() => {
+                      console.log('[TeamManagement] Navigate to edit page:', {
+                        teamId: team.id,
+                        teamName: team.teamName,
+                        url: `/team-register?edit=${team.id}`,
+                      });
+                      router.push(`/team-register?edit=${team.id}`);
+                    }}
+                    className="px-4 py-2 rounded-lg font-medium transition-colors"
+                    style={{ backgroundColor: '#1a3a6e', color: 'white' }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = '#2a4a7e';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = '#1a3a6e';
+                    }}
+                  >
+                    編輯
+                  </button>
+                  
+                  <button
+                    onClick={() => handleDeleteTeam(team)}
+                    className="px-4 py-2 rounded-lg font-medium transition-colors"
+                    style={{ backgroundColor: '#dc2626', color: 'white' }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = '#b91c1c';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = '#dc2626';
+                    }}
+                  >
+                    刪除
+                  </button>
+                </>
               )}
             </div>
           </div>
@@ -543,6 +603,62 @@ const TeamManagement: React.FC = () => {
                   )}
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirm && teamToDelete && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-md w-full p-6">
+            <h3 className="text-xl font-bold mb-4" style={{ color: '#dc2626' }}>
+              確認刪除團隊
+            </h3>
+            
+            <div className="mb-6">
+              <p className="text-gray-700 mb-2">
+                您確定要刪除以下團隊嗎？此操作無法撤銷。
+              </p>
+              <div className="p-4 bg-gray-50 rounded-lg mt-4">
+                <div className="font-semibold text-lg" style={{ color: '#1a3a6e' }}>
+                  {teamToDelete.teamName}
+                </div>
+                <div className="text-sm text-gray-600 mt-2">
+                  <div>成員數：{teamToDelete.teamMembers.length + 1} 人</div>
+                  <div>賽道數：{teamToDelete.tracks.length} 個</div>
+                  <div>團隊 ID：{teamToDelete.id}</div>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={cancelDelete}
+                disabled={isDeleting}
+                className="px-6 py-2 rounded-lg border-2 font-medium transition-colors"
+                style={{ borderColor: '#d1d5db', color: '#374151' }}
+              >
+                取消
+              </button>
+              <button
+                onClick={confirmDeleteTeam}
+                disabled={isDeleting}
+                className="px-6 py-2 rounded-lg font-medium transition-colors"
+                style={{ 
+                  backgroundColor: isDeleting ? '#9ca3af' : '#dc2626', 
+                  color: 'white',
+                  cursor: isDeleting ? 'not-allowed' : 'pointer',
+                }}
+                onMouseEnter={(e) => {
+                  if (!isDeleting) e.currentTarget.style.backgroundColor = '#b91c1c';
+                }}
+                onMouseLeave={(e) => {
+                  if (!isDeleting) e.currentTarget.style.backgroundColor = '#dc2626';
+                }}
+              >
+                {isDeleting ? '刪除中...' : '確認刪除'}
+              </button>
             </div>
           </div>
         </div>
