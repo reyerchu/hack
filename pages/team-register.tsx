@@ -183,6 +183,13 @@ export default function TeamRegisterPage() {
       const tracksData = response.data?.data || response.data || [];
       if (Array.isArray(tracksData)) {
         setTracks(tracksData);
+        
+        // Auto-select all tracks by default (only for new registration, not edit mode)
+        if (!isEditMode && tracksData.length > 0) {
+          const allTrackIds = tracksData.map((track: Track) => track.id);
+          setSelectedTracks(allTrackIds);
+          console.log('[TeamRegister] Auto-selected all tracks:', allTrackIds);
+        }
       } else {
         console.error('[TeamRegister] Tracks data is not an array:', tracksData);
         setTracks([]);
@@ -319,17 +326,16 @@ export default function TeamRegisterPage() {
 
       console.log(`[ValidateEmail-${index}] API Response:`, {
         status: response.status,
-        data: response.data,
-        isValid: response.data?.isValid,
-        name: response.data?.name,
+        isValid: response.isValid,
+        name: response.name,
       });
 
       // Use functional update to avoid race condition
       setTeamMembers(prev => {
         const updated = [...prev];
         updated[index].isValidating = false;
-        updated[index].isValid = response.data?.isValid || false;
-        updated[index].name = response.data?.name;
+        updated[index].isValid = response.isValid || false;
+        updated[index].name = response.name;
         
         console.log(`[ValidateEmail-${index}] Setting state:`, {
           isValid: updated[index].isValid,
