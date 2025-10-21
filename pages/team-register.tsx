@@ -88,12 +88,12 @@ export default function TeamRegisterPage() {
     }
   }, [loading, isSignedIn, hasProfile, router]);
 
-  // Fetch tracks on mount
+  // Fetch tracks immediately when auth is ready
   useEffect(() => {
-    if (isSignedIn && user) {
+    if (!loading && isSignedIn && user?.token) {
       fetchTracks();
     }
-  }, [isSignedIn, user]);
+  }, [loading, isSignedIn, user?.token]);
 
   // Extract email from profile when it's ready
   useEffect(() => {
@@ -113,18 +113,24 @@ export default function TeamRegisterPage() {
     }
   }, [profile, user]);
 
-  const fetchTracks = async () => {
+  const fetchTracks = async (forceRefresh: boolean = false) => {
     if (!user?.token) {
-      console.log('[TeamRegister] No user token, skipping track fetch');
       return;
     }
 
-    console.log('[TeamRegister] Fetching tracks with token');
     setIsLoadingTracks(true);
     try {
+      // Add cache-busting parameter to get fresh data
+      const cacheBuster = forceRefresh ? `?t=${Date.now()}` : '';
       const response = await RequestHelper.get<{ data: Track[] }>(
-        '/api/tracks/all',
-        { headers: { Authorization: user.token } }
+        `/api/tracks/all${cacheBuster}`,
+        { 
+          headers: { 
+            Authorization: user.token,
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache'
+          } 
+        }
       );
 
       if (response.error) {
@@ -136,7 +142,6 @@ export default function TeamRegisterPage() {
       const tracksData = response.data?.data || response.data || [];
       if (Array.isArray(tracksData)) {
         setTracks(tracksData);
-        console.log('[TeamRegister] Loaded tracks:', tracksData.length);
       } else {
         console.error('[TeamRegister] Tracks data is not an array:', tracksData);
         setTracks([]);
@@ -147,6 +152,11 @@ export default function TeamRegisterPage() {
     } finally {
       setIsLoadingTracks(false);
     }
+  };
+
+  // Refresh tracks data
+  const handleRefreshTracks = () => {
+    fetchTracks(true);
   };
 
   // Toggle track selection
@@ -651,9 +661,47 @@ export default function TeamRegisterPage() {
 
               {/* Select Tracks */}
               <div className="bg-white rounded-lg p-8 shadow-sm">
-                <h2 className="text-2xl font-bold mb-2" style={{ color: '#1a3a6e' }}>
-                  選擇賽道 <span style={{ color: '#ef4444' }}>*</span>
-                </h2>
+                <div className="flex items-center justify-between mb-2">
+                  <h2 className="text-2xl font-bold" style={{ color: '#1a3a6e' }}>
+                    選擇賽道 <span style={{ color: '#ef4444' }}>*</span>
+                  </h2>
+                  <button
+                    type="button"
+                    onClick={handleRefreshTracks}
+                    disabled={isLoadingTracks}
+                    className="flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors"
+                    style={{ 
+                      backgroundColor: isLoadingTracks ? '#9ca3af' : '#1a3a6e',
+                      color: '#ffffff',
+                      cursor: isLoadingTracks ? 'not-allowed' : 'pointer'
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!isLoadingTracks) {
+                        e.currentTarget.style.backgroundColor = '#2a4a7e';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!isLoadingTracks) {
+                        e.currentTarget.style.backgroundColor = '#1a3a6e';
+                      }
+                    }}
+                  >
+                    <svg 
+                      className={`w-4 h-4 ${isLoadingTracks ? 'animate-spin' : ''}`}
+                      fill="none" 
+                      stroke="currentColor" 
+                      viewBox="0 0 24 24"
+                    >
+                      <path 
+                        strokeLinecap="round" 
+                        strokeLinejoin="round" 
+                        strokeWidth={2} 
+                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" 
+                      />
+                    </svg>
+                    {isLoadingTracks ? '刷新中...' : '刷新'}
+                  </button>
+                </div>
                 <p className="text-sm text-gray-600 mb-6">
                   請選擇您的團隊想要參加的賽道（可多選）。之後上傳交付物時，您再選擇具體的挑戰。
                 </p>
