@@ -167,8 +167,66 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       });
     }
 
-    // User not found
-    console.log('[ValidateEmail] Email not found:', normalizedEmail);
+    // LAST RESORT: Scan all documents if indexed queries failed
+    console.log('[ValidateEmail] ⚠️ All indexed queries failed. Starting full collection scan...');
+    
+    // Scan registrations collection
+    const allRegistrations = await db.collection('registrations').get();
+    console.log(`[ValidateEmail] Scanning ${allRegistrations.size} registration documents...`);
+    
+    for (const doc of allRegistrations.docs) {
+      const data = doc.data();
+      const emails = [
+        data.email,
+        data.user?.email,
+        data.user?.preferredEmail,
+      ].filter(e => e).map(e => e.toLowerCase().trim());
+      
+      if (emails.includes(normalizedEmail)) {
+        const firstName = data.user?.firstName || data.firstName || '';
+        const lastName = data.user?.lastName || data.lastName || '';
+        const name = `${firstName} ${lastName}`.trim() || data.user?.nickname || data.nickname || '';
+        
+        console.log('[ValidateEmail] ✅ FOUND by full scan in registrations:', normalizedEmail);
+        console.log('[ValidateEmail] Document ID:', doc.id);
+        
+        return res.status(200).json({
+          isValid: true,
+          name: name || normalizedEmail,
+          userId: doc.id,
+        });
+      }
+    }
+    
+    // Scan users collection
+    const allUsers = await db.collection('users').get();
+    console.log(`[ValidateEmail] Scanning ${allUsers.size} user documents...`);
+    
+    for (const doc of allUsers.docs) {
+      const data = doc.data();
+      const emails = [
+        data.email,
+        data.preferredEmail,
+      ].filter(e => e).map(e => e.toLowerCase().trim());
+      
+      if (emails.includes(normalizedEmail)) {
+        const firstName = data.firstName || '';
+        const lastName = data.lastName || '';
+        const name = `${firstName} ${lastName}`.trim() || data.nickname || '';
+        
+        console.log('[ValidateEmail] ✅ FOUND by full scan in users:', normalizedEmail);
+        console.log('[ValidateEmail] Document ID:', doc.id);
+        
+        return res.status(200).json({
+          isValid: true,
+          name: name || normalizedEmail,
+          userId: doc.id,
+        });
+      }
+    }
+
+    // User not found even after full scan
+    console.log('[ValidateEmail] ❌ Email not found even after full collection scan:', normalizedEmail);
     return res.status(200).json({
       isValid: false,
     });

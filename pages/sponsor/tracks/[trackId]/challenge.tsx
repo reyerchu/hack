@@ -9,6 +9,7 @@ import { useRouter } from 'next/router';
 import Link from 'next/link';
 import firebase from 'firebase/app';
 import 'firebase/auth';
+import 'firebase/storage';
 import { useAuthContext } from '../../../../lib/user/AuthContext';
 import { useIsSponsor } from '../../../../lib/sponsor/hooks';
 import ChallengeEditor from '../../../../components/sponsor/ChallengeEditor';
@@ -149,9 +150,48 @@ export default function ChallengeEditPage() {
   };
 
   const handleFileUpload = async (file: File, field: string) => {
-    // TODO: 實現文件上傳到雲存儲
-    console.log('File upload:', file.name, 'for field:', field);
-    alert('文件上傳功能將在後續版本中實現');
+    try {
+      console.log('[ChallengeEdit] Uploading file:', file.name, 'for field:', field);
+      
+      // 生成唯一的文件名
+      const timestamp = Date.now();
+      const fileName = `challenges/${challengeId}/${field}/${timestamp}_${file.name}`;
+      
+      // 上傳到 Firebase Storage
+      const storage = firebase.storage();
+      const storageRef = storage.ref();
+      const fileRef = storageRef.child(fileName);
+      
+      // 上傳文件
+      const uploadTask = await fileRef.put(file);
+      
+      // 獲取下載 URL
+      const downloadURL = await uploadTask.ref.getDownloadURL();
+      
+      console.log('[ChallengeEdit] File uploaded successfully:', downloadURL);
+      
+      // 更新挑戰的 attachments
+      const currentAttachments = challenge?.attachments || [];
+      const newAttachment = {
+        name: file.name,
+        url: downloadURL,
+        field: field,
+        uploadedAt: new Date().toISOString(),
+      };
+      
+      const updatedAttachments = [...currentAttachments, newAttachment];
+      
+      // 保存到數據庫
+      await handleSave({ attachments: updatedAttachments });
+      
+      alert(`文件 "${file.name}" 上傳成功！`);
+      
+      return downloadURL;
+    } catch (error: any) {
+      console.error('[ChallengeEdit] Error uploading file:', error);
+      alert(`文件上傳失敗：${error.message}`);
+      throw error;
+    }
   };
 
   if (authLoading || loading) {

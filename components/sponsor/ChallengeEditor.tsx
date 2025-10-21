@@ -89,6 +89,12 @@ export default function ChallengeEditor({
     setSaving(true);
 
     try {
+      console.log('[ChallengeEditor] Submitting formData:', {
+        title: formData.title,
+        evaluationCriteria: formData.evaluationCriteria,
+        resources: formData.resources,
+        prizes: formData.prizes,
+      });
       await onSave(formData);
     } finally {
       setSaving(false);

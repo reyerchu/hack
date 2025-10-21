@@ -121,6 +121,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const trackId = data.trackId || doc.id;
       const challenges = challengesByTrack[trackId] || [];
       
+      console.log(`[GetAllTracks] Processing track: docId=${doc.id}, trackId=${trackId}, name=${data.name}`);
+      
       // Calculate total prize
       let totalPrize = 0;
       challenges.forEach((challenge) => {
@@ -176,11 +178,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       });
       
       return {
-        id: trackId,
+        id: doc.id, // 使用文档 ID 作为主 ID（用于 URL）
         name: data.name || data.trackId || 'Unnamed Track',
         description: data.description || '',
         sponsorName: data.sponsorName || '',
-        trackId: trackId,
+        trackId: trackId, // 保留 trackId 字段（用于查询挑战）
         totalPrize: Math.round(totalPrize),
         challenges: challenges,
       };
@@ -196,7 +198,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     console.log('[GetAllTracks] Returning tracks:', tracks.length);
     tracks.forEach(track => {
-      console.log(`  - ${track.name}: ${track.challenges?.length || 0} challenges, ${track.totalPrize} USD`);
+      console.log(`  - ${track.name}: ${track.challenges?.length || 0} challenges, ${track.totalPrize} USD (id: ${track.id}, trackId: ${track.trackId})`);
     });
 
     // Set cache control headers to ensure fresh data

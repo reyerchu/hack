@@ -180,6 +180,12 @@ export default function TeamRegisterPage() {
         }
       );
 
+      if ((response as any).error) {
+        console.error('[TeamRegister] Failed to fetch tracks:', (response as any).error);
+        setTracks([]);
+        return;
+      }
+
       const tracksData = response.data?.data || response.data || [];
       if (Array.isArray(tracksData)) {
         setTracks(tracksData);
@@ -256,9 +262,74 @@ export default function TeamRegisterPage() {
     return '未設定';
   };
 
-  // Add new team member
-  const addTeamMember = () => {
-    setTeamMembers([...teamMembers, { email: '', role: '', hasEditRight: false }]);
+  // State for new member being added
+  const [newMember, setNewMember] = useState({ email: '', role: '', hasEditRight: false });
+  const [isValidatingMember, setIsValidatingMember] = useState(false);
+  const [memberValidationError, setMemberValidationError] = useState('');
+
+  // Add new team member (with email validation)
+  const addTeamMember = async () => {
+    if (!newMember.email.trim() || !newMember.role.trim()) {
+      return;
+    }
+
+    // Basic email format validation
+    if (!validateEmail(newMember.email)) {
+      setMemberValidationError('Email 格式不正確');
+      return;
+    }
+
+    // Check for duplicate email in current team members
+    const normalizedEmail = newMember.email.trim().toLowerCase();
+    if (teamMembers.some(m => m.email.toLowerCase() === normalizedEmail)) {
+      setMemberValidationError('此 Email 已在團隊成員列表中');
+      return;
+    }
+
+    // Check if it's the leader's email
+    if (myEmail && myEmail.toLowerCase() === normalizedEmail) {
+      setMemberValidationError('團隊成員中不應包含您自己的 Email');
+      return;
+    }
+
+    // Validate email with backend
+    setIsValidatingMember(true);
+    setMemberValidationError('');
+
+    try {
+      if (!user?.token) {
+        setMemberValidationError('請先登入');
+        setIsValidatingMember(false);
+        return;
+      }
+
+      const response = await RequestHelper.post(
+        '/api/team-register/validate-email',
+        { headers: { Authorization: user.token } },
+        { email: normalizedEmail }
+      ) as any;
+
+      const data = response.data || response;
+
+      if (data.isValid) {
+        // Email is registered, add to team members
+        setTeamMembers([...teamMembers, { 
+          email: newMember.email.trim(), 
+          role: newMember.role.trim(), 
+          hasEditRight: newMember.hasEditRight 
+        }]);
+        // Reset new member form
+        setNewMember({ email: '', role: '', hasEditRight: false });
+        setMemberValidationError('');
+      } else {
+        setMemberValidationError('此 Email 尚未註冊');
+      }
+    } catch (error: any) {
+      console.error('[AddTeamMember] Validation error:', error);
+      setMemberValidationError('驗證失敗，請稍後再試');
+    } finally {
+      setIsValidatingMember(false);
+    }
   };
 
   // Remove team member
@@ -266,94 +337,10 @@ export default function TeamRegisterPage() {
     setTeamMembers(teamMembers.filter((_, i) => i !== index));
   };
 
-  // Handle email change with validation
-  const handleEmailChange = async (index: number, email: string) => {
-    console.log(`[HandleEmailChange-${index}] Email changed to:`, email);
-    console.log(`[HandleEmailChange-${index}] Email format valid:`, validateEmail(email));
-    
-    const updated = [...teamMembers];
-    updated[index].email = email;
-    updated[index].isValid = undefined;
-    updated[index].name = undefined;
-    setTeamMembers(updated);
-
-    // Validate email if it looks valid
-    if (validateEmail(email)) {
-      console.log(`[HandleEmailChange-${index}] Triggering validation...`);
-      await validateTeamMemberEmail(index, email);
-    }
-  };
-
-  // Handle role change
-  const handleRoleChange = (index: number, role: string) => {
-    const updated = [...teamMembers];
-    updated[index].role = role;
-    setTeamMembers(updated);
-  };
-
-  // Handle edit right change
-  const handleEditRightChange = (index: number, hasEditRight: boolean) => {
-    const updated = [...teamMembers];
-    updated[index].hasEditRight = hasEditRight;
-    setTeamMembers(updated);
-  };
-
   // Basic email validation
   const validateEmail = (email: string): boolean => {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return re.test(email);
-  };
-
-  // Validate if email is registered
-  const validateTeamMemberEmail = async (index: number, email: string) => {
-    if (!user?.token) return;
-
-    console.log(`[ValidateEmail-${index}] Starting validation for:`, email);
-
-    // Set validating state using functional update
-    setTeamMembers(prev => {
-      const updated = [...prev];
-      updated[index].isValidating = true;
-      return updated;
-    });
-
-    try {
-      const response = await RequestHelper.post(
-        '/api/team-register/validate-email',
-        { headers: { Authorization: user.token } },
-        { email }
-      ) as any;
-
-      console.log(`[ValidateEmail-${index}] API Response:`, {
-        status: response.status,
-        isValid: response.isValid,
-        name: response.name,
-      });
-
-      // Use functional update to avoid race condition
-      setTeamMembers(prev => {
-        const updated = [...prev];
-        updated[index].isValidating = false;
-        updated[index].isValid = response.isValid || false;
-        updated[index].name = response.name;
-        
-        console.log(`[ValidateEmail-${index}] Setting state:`, {
-          isValid: updated[index].isValid,
-          name: updated[index].name,
-        });
-        
-        return updated;
-      });
-    } catch (error) {
-      console.error('[TeamRegister] Email validation error:', error);
-      // Use functional update in error case too
-      setTeamMembers(prev => {
-        const updated = [...prev];
-        updated[index].isValidating = false;
-        updated[index].isValid = false;
-        return updated;
-      });
-    }
   };
 
   // Handle form submission
@@ -385,7 +372,7 @@ export default function TeamRegisterPage() {
       return;
     }
 
-    // Validate all team members
+    // Validate all team members (backend will validate if emails are registered)
     for (let i = 0; i < teamMembers.length; i++) {
       const member = teamMembers[i];
       
@@ -403,12 +390,6 @@ export default function TeamRegisterPage() {
 
       if (!member.role.trim()) {
         setSubmitMessage(`請選擇第 ${i + 1} 位成員的角色`);
-        setSubmitSuccess(false);
-        return;
-      }
-
-      if (member.isValid === false) {
-        setSubmitMessage(`第 ${i + 1} 位成員的 Email (${member.email}) 尚未註冊`);
         setSubmitSuccess(false);
         return;
       }
@@ -632,131 +613,154 @@ export default function TeamRegisterPage() {
 
               {/* Team Members */}
               <div className="bg-white rounded-lg p-8 shadow-sm">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold" style={{ color: '#1a3a6e' }}>
-                    團隊成員
-                  </h2>
+                <h2 className="text-2xl font-bold mb-6" style={{ color: '#1a3a6e' }}>
+                  團隊成員
+                </h2>
+
+                {/* 已添加的成員列表 */}
+                <div className="space-y-3 mb-6">
+                  {teamMembers.map((member, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center gap-3 p-4 rounded-lg"
+                      style={{ backgroundColor: '#f9fafb', border: '1px solid #e5e7eb' }}
+                    >
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-3 flex-wrap">
+                          <span className="text-sm font-semibold" style={{ color: '#1a3a6e' }}>
+                            {member.email}
+                          </span>
+                          <span className="text-sm px-2 py-1 rounded" style={{ backgroundColor: '#dbeafe', color: '#1e40af' }}>
+                            {member.role}
+                          </span>
+                          {member.hasEditRight && (
+                            <span className="text-xs px-2 py-1 rounded" style={{ backgroundColor: '#d1fae5', color: '#065f46' }}>
+                              ✓ 可編輯
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => removeTeamMember(index)}
+                        className="text-sm px-3 py-1 rounded hover:bg-red-100 flex-shrink-0"
+                        style={{ color: '#dc2626' }}
+                        disabled={isSubmitting}
+                      >
+                        刪除
+                      </button>
+                    </div>
+                  ))}
+                </div>
+
+                {/* 添加新成員的輸入區域 */}
+                <div className="space-y-4 p-4 rounded-lg" style={{ backgroundColor: '#f0f4ff', border: '2px dashed #1a3a6e' }}>
+                  <div className="text-sm font-medium mb-3" style={{ color: '#1a3a6e' }}>
+                    + 新增成員
+                  </div>
+                  
+                  {/* Email */}
+                  <div>
+                    <label className="block text-sm font-medium mb-2" style={{ color: '#374151' }}>
+                      Email <span style={{ color: '#ef4444' }}>*</span>
+                    </label>
+                    <input
+                      type="email"
+                      value={newMember.email}
+                      onChange={(e) => {
+                        setNewMember({ ...newMember, email: e.target.value });
+                        setMemberValidationError(''); // Clear error when typing
+                      }}
+                      className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      style={{ 
+                        borderColor: memberValidationError ? '#dc2626' : '#d1d5db', 
+                        backgroundColor: '#ffffff' 
+                      }}
+                      placeholder="member@example.com"
+                      disabled={isSubmitting || isValidatingMember}
+                    />
+                    {memberValidationError ? (
+                      <div className="mt-1 text-xs flex items-center gap-1" style={{ color: '#dc2626' }}>
+                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                        </svg>
+                        {memberValidationError}
+                      </div>
+                    ) : (
+                      <div className="mt-1 text-xs text-gray-500">
+                        成員必須已註冊本平台
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Role */}
+                  <div>
+                    <label className="block text-sm font-medium mb-2" style={{ color: '#374151' }}>
+                      角色 <span style={{ color: '#ef4444' }}>*</span>
+                    </label>
+                    <select
+                      value={newMember.role}
+                      onChange={(e) => setNewMember({ ...newMember, role: e.target.value })}
+                      className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      style={{ borderColor: '#d1d5db', backgroundColor: '#ffffff' }}
+                      disabled={isSubmitting || isValidatingMember}
+                    >
+                      <option value="">請選擇角色</option>
+                      {ROLE_OPTIONS.map((role) => (
+                        <option key={role} value={role}>{role}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Edit Right */}
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id="newMemberEditRight"
+                      checked={newMember.hasEditRight}
+                      onChange={(e) => setNewMember({ ...newMember, hasEditRight: e.target.checked })}
+                      className="w-5 h-5 rounded focus:ring-2 focus:ring-blue-500"
+                      style={{ accentColor: '#1a3a6e' }}
+                      disabled={isSubmitting || isValidatingMember}
+                    />
+                    <label htmlFor="newMemberEditRight" className="text-sm" style={{ color: '#374151' }}>
+                      擁有編輯報名資料的權限
+                    </label>
+                  </div>
+
+                  {/* 添加按鈕 */}
                   <button
                     type="button"
                     onClick={addTeamMember}
-                    className="px-4 py-2 rounded-lg font-medium transition-colors"
-                    style={{ backgroundColor: '#1a3a6e', color: 'white' }}
+                    className="w-full px-4 py-3 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+                    style={{ 
+                      backgroundColor: (newMember.email.trim() && newMember.role.trim() && !isValidatingMember) ? '#1a3a6e' : '#9ca3af',
+                      color: 'white',
+                      cursor: (newMember.email.trim() && newMember.role.trim() && !isValidatingMember) ? 'pointer' : 'not-allowed'
+                    }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = '#2a4a7e';
+                      if (newMember.email.trim() && newMember.role.trim() && !isValidatingMember) {
+                        e.currentTarget.style.backgroundColor = '#2a4a7e';
+                      }
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = '#1a3a6e';
+                      if (newMember.email.trim() && newMember.role.trim() && !isValidatingMember) {
+                        e.currentTarget.style.backgroundColor = '#1a3a6e';
+                      }
                     }}
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || isValidatingMember || !newMember.email.trim() || !newMember.role.trim()}
                   >
-                    + 新增成員
+                    {isValidatingMember && (
+                      <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></div>
+                    )}
+                    {isValidatingMember ? '驗證中...' : '添加成員'}
                   </button>
                 </div>
 
-                {teamMembers.length === 0 ? (
-                  <div className="text-center py-8 text-gray-500">
-                    請點擊「新增成員」按鈕添加您的團隊成員
-                    <br />
-                    <span className="text-sm">（團隊成員必須已註冊本平台）</span>
-                  </div>
-                ) : (
-                  <div className="space-y-6">
-                    {teamMembers.map((member, index) => (
-                      <div key={index} className="p-4 border-2 rounded-lg" style={{ borderColor: '#e5e7eb' }}>
-                        <div className="flex items-start justify-between mb-4">
-                          <h3 className="font-semibold" style={{ color: '#1a3a6e' }}>
-                            成員 {index + 1}
-                          </h3>
-                          <button
-                            type="button"
-                            onClick={() => removeTeamMember(index)}
-                            className="text-red-600 hover:text-red-800 text-sm"
-                            disabled={isSubmitting}
-                          >
-                            移除
-                          </button>
-                        </div>
-
-                        <div className="space-y-4">
-                          {/* Email */}
-                          <div>
-                            <label className="block text-sm font-medium mb-2" style={{ color: '#374151' }}>
-                              Email <span style={{ color: '#ef4444' }}>*</span>
-                            </label>
-                            <div className="relative">
-                              <input
-                                type="email"
-                                value={member.email}
-                                onChange={(e) => handleEmailChange(index, e.target.value)}
-                                className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                style={{ borderColor: '#d1d5db' }}
-                                placeholder="member@example.com"
-                                disabled={isSubmitting}
-                                required
-                              />
-                              {member.isValidating && (
-                                <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                                  <div className="animate-spin h-5 w-5 border-2 border-blue-500 border-t-transparent rounded-full"></div>
-                                </div>
-                              )}
-                            </div>
-                            {member.isValid === true && (
-                              <div className="mt-1 text-sm text-green-600 flex items-center gap-1">
-                                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                                </svg>
-                                {member.name ? `已驗證：${member.name}` : '此 Email 已註冊'}
-                              </div>
-                            )}
-                            {member.isValid === false && (
-                              <div className="mt-1 text-sm text-red-600 flex items-center gap-1">
-                                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                                </svg>
-                                此 Email 尚未註冊
-                              </div>
-                            )}
-                          </div>
-
-                          {/* Role */}
-                          <div>
-                            <label className="block text-sm font-medium mb-2" style={{ color: '#374151' }}>
-                              角色 <span style={{ color: '#ef4444' }}>*</span>
-                            </label>
-                            <select
-                              value={member.role}
-                              onChange={(e) => handleRoleChange(index, e.target.value)}
-                              className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                              style={{ borderColor: '#d1d5db' }}
-                              disabled={isSubmitting}
-                              required
-                            >
-                              <option value="">請選擇角色</option>
-                              {ROLE_OPTIONS.map((role) => (
-                                <option key={role} value={role}>{role}</option>
-                              ))}
-                            </select>
-                          </div>
-
-                          {/* Edit Right */}
-                          <div className="flex items-center gap-2">
-                            <input
-                              type="checkbox"
-                              id={`editRight-${index}`}
-                              checked={member.hasEditRight}
-                              onChange={(e) => handleEditRightChange(index, e.target.checked)}
-                              className="w-5 h-5 rounded focus:ring-2 focus:ring-blue-500"
-                              style={{ accentColor: '#1a3a6e' }}
-                              disabled={isSubmitting}
-                            />
-                            <label htmlFor={`editRight-${index}`} className="text-sm" style={{ color: '#374151' }}>
-                              擁有編輯報名資料的權限
-                            </label>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                {teamMembers.length === 0 && (
+                  <p className="text-xs mt-3 text-center" style={{ color: '#dc2626' }}>
+                    * 請至少添加一位團隊成員
+                  </p>
                 )}
               </div>
 
@@ -841,9 +845,19 @@ export default function TeamRegisterPage() {
                             />
                             <div className="flex-grow">
                               <div className="flex items-center justify-between">
-                                <div className="font-semibold" style={{ color: '#1a3a6e' }}>
+                                <a
+                                  href={`/tracks/${track.id}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="font-semibold hover:underline flex items-center gap-1"
+                                  style={{ color: '#1a3a6e' }}
+                                  onClick={(e) => e.stopPropagation()}
+                                >
                                   {track.name}
-                                </div>
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                  </svg>
+                                </a>
                                 <button
                                   type="button"
                                   onClick={() => toggleTrackExpand(track.id)}
