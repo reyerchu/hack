@@ -60,7 +60,7 @@ const ROLE_OPTIONS = [
 
 export default function TeamRegisterPage() {
   const router = useRouter();
-  const { isSignedIn, hasProfile, user, profile } = useAuthContext();
+  const { isSignedIn, hasProfile, user, profile, loading } = useAuthContext();
   
   // Form states
   const [teamName, setTeamName] = useState('');
@@ -81,12 +81,12 @@ export default function TeamRegisterPage() {
   const [submitMessage, setSubmitMessage] = useState('');
   const [submitSuccess, setSubmitSuccess] = useState(false);
 
-  // Redirect if not authenticated
+  // Redirect if not authenticated (wait for loading to complete)
   useEffect(() => {
-    if (!isSignedIn || !hasProfile) {
+    if (!loading && (!isSignedIn || !hasProfile)) {
       router.push('/auth');
     }
-  }, [isSignedIn, hasProfile, router]);
+  }, [loading, isSignedIn, hasProfile, router]);
 
   // Fetch tracks on mount
   useEffect(() => {
@@ -406,6 +406,17 @@ export default function TeamRegisterPage() {
     }
   };
 
+  // Show loading state while checking authentication
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50">
+        <div className="inline-block animate-spin h-12 w-12 border-4 border-blue-500 border-t-transparent rounded-full"></div>
+        <p className="mt-4 text-gray-600">載入中...</p>
+      </div>
+    );
+  }
+
+  // Redirect happening, show nothing
   if (!isSignedIn || !hasProfile) {
     return null;
   }
