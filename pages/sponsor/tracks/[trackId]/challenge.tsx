@@ -14,7 +14,7 @@ import { useAuthContext } from '../../../../lib/user/AuthContext';
 import { useIsSponsor } from '../../../../lib/sponsor/hooks';
 import ChallengeEditor from '../../../../components/sponsor/ChallengeEditor';
 import FileUpload from '../../../../components/sponsor/FileUpload';
-import type { ExtendedChallenge } from '../../../../lib/sponsor/types';
+import type { ExtendedChallenge, ChallengeAttachment } from '../../../../lib/sponsor/types';
 
 export default function ChallengeEditPage() {
   const router = useRouter();
@@ -172,11 +172,10 @@ export default function ChallengeEditPage() {
       
       // 更新挑戰的 attachments
       const currentAttachments = challenge?.attachments || [];
-      const newAttachment = {
+      const newAttachment: ChallengeAttachment = {
         name: file.name,
         url: downloadURL,
-        field: field,
-        uploadedAt: new Date().toISOString(),
+        type: 'pdf', // Default to pdf, can be customized based on file type
       };
       
       const updatedAttachments = [...currentAttachments, newAttachment];
