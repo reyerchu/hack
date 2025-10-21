@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useAuthContext } from '../lib/user/AuthContext';
-import RequestHelper from '../lib/request-helper';
+import { RequestHelper } from '../lib/request-helper';
 import CommitmentContent from '../components/CommitmentContent';
 
 /**
@@ -98,8 +98,12 @@ export default function TeamRegisterPage() {
   }, [profile, user]);
 
   const fetchTracks = async () => {
-    if (!user?.token) return;
+    if (!user?.token) {
+      console.log('[TeamRegister] No user token, skipping track fetch');
+      return;
+    }
 
+    console.log('[TeamRegister] Fetching tracks with token');
     setIsLoadingTracks(true);
     try {
       const response = await RequestHelper.get<{ data: Track[] }>(
@@ -372,7 +376,7 @@ export default function TeamRegisterPage() {
                 團隊報名
               </h1>
               <p className="text-lg text-gray-600">
-                組建您的團隊，選擇參賽賽道，開始您的黑客松之旅
+                報名您的團隊，選擇參賽賽道，開始您的黑客松之旅
               </p>
             </div>
 
@@ -464,7 +468,7 @@ export default function TeamRegisterPage() {
               <div className="bg-white rounded-lg p-8 shadow-sm">
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-2xl font-bold" style={{ color: '#1a3a6e' }}>
-                    團隊成員 <span style={{ color: '#ef4444' }}>*</span>
+                    團隊成員
                   </h2>
                   <button
                     type="button"
