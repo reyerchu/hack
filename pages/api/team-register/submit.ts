@@ -103,7 +103,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // Validate all team member emails are registered
     const memberEmails = teamMembers.map(m => m.email.trim().toLowerCase());
-    const uniqueEmails = [...new Set(memberEmails)];
+    const uniqueEmails = Array.from(new Set(memberEmails));
 
     if (uniqueEmails.length !== memberEmails.length) {
       return res.status(400).json({ error: '團隊成員 Email 不可重複' });

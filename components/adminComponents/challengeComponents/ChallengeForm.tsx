@@ -6,9 +6,17 @@ interface Prize {
   description: string;
 }
 
+interface ChallengeFormData {
+  description: string;
+  organization: string;
+  title: string;
+  prizes: Prize[];
+  rank: number;
+}
+
 interface ChallengeFormProps {
   challenge?: Challenge;
-  onSubmitClick: (challengeData: Challenge) => Promise<void>;
+  onSubmitClick: (challengeData: any) => Promise<void>;
   formAction: 'Edit' | 'Add';
 }
 
@@ -18,15 +26,13 @@ export default function ChallengeForm({
   formAction,
 }: ChallengeFormProps) {
   const [disableSubmit, setDisableSubmit] = useState<boolean>(false);
-  const [challengeForm, setChallengeForm] = useState<typeof challenge>(
-    challenge || {
-      description: '',
-      organization: '',
-      title: '',
-      prizes: [],
-      rank: -1,
-    },
-  );
+  const [challengeForm, setChallengeForm] = useState<ChallengeFormData>({
+    description: challenge?.description || '',
+    organization: challenge?.organization || '',
+    title: challenge?.title || '',
+    prizes: (challenge?.prizes as any) || [],
+    rank: challenge?.rank || -1,
+  });
   
   // State for new prize input
   const [newPrize, setNewPrize] = useState({ currency: 'USD', amount: '', description: '' });

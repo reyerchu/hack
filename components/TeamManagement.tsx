@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useAuthContext } from '../lib/user/AuthContext';
-import RequestHelper from '../lib/request-helper';
+import { RequestHelper } from '../lib/request-helper';
 
 /**
  * Team Management Component
@@ -77,17 +77,11 @@ const TeamManagement: React.FC = () => {
         { headers: { Authorization: user.token } }
       );
 
-      if (response.error) {
-        setError(response.error);
-        setTeams([]);
-        return;
-      }
-
       const teamsData = response.data?.data || [];
       setTeams(teamsData);
     } catch (err: any) {
       console.error('[TeamManagement] Error:', err);
-      setError('載入團隊失敗');
+      setError(err.message || '載入團隊失敗');
       setTeams([]);
     } finally {
       setIsLoading(false);
