@@ -85,6 +85,18 @@ export default function TeamRegisterPage() {
     }
   }, [isSignedIn, user]);
 
+  // Debug: Log email paths
+  useEffect(() => {
+    console.log('[TeamRegister] Debug email paths:', {
+      'profile?.user?.email': profile?.user?.email,
+      'user?.email': user?.email,
+      'profile?.email': (profile as any)?.email,
+      'user?.user?.email': (user as any)?.user?.email,
+      'profile object': profile,
+      'user object': user,
+    });
+  }, [profile, user]);
+
   const fetchTracks = async () => {
     if (!user?.token) return;
 
@@ -267,7 +279,12 @@ export default function TeamRegisterPage() {
     }
 
     // Check if leader email is in team members
-    const leaderEmail = profile?.user?.email || user.email;
+    const leaderEmail = 
+      profile?.user?.email || 
+      user?.email || 
+      (profile as any)?.email || 
+      (user as any)?.user?.email || 
+      '';
     if (leaderEmail && emails.includes(leaderEmail.toLowerCase())) {
       setSubmitMessage('團隊成員中不應包含您自己的 Email');
       setSubmitSuccess(false);
@@ -409,7 +426,13 @@ export default function TeamRegisterPage() {
                     </label>
                     <input
                       type="text"
-                      value={profile?.user?.email || user?.email || ''}
+                      value={
+                        profile?.user?.email || 
+                        user?.email || 
+                        (profile as any)?.email || 
+                        (user as any)?.user?.email || 
+                        ''
+                      }
                       className="w-full px-4 py-3 border rounded-lg bg-gray-50"
                       style={{ borderColor: '#d1d5db' }}
                       disabled
