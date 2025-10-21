@@ -42,7 +42,7 @@ export default function ChallengeEditor({
     // If prizes is already an array of objects with currency/amount/description
     if (Array.isArray(challenge.prizes) && challenge.prizes.length > 0 && typeof challenge.prizes[0] === 'object') {
       return challenge.prizes.map((p: any) => ({
-        currency: p.currency || 'TWD',
+        currency: p.currency || 'USD',
         amount: p.amount || 0,
         description: p.description || p.title || '',
       }));
@@ -67,7 +67,7 @@ export default function ChallengeEditor({
   });
 
   const [newCriterion, setNewCriterion] = useState({ name: '' });
-  const [newPrize, setNewPrize] = useState({ currency: 'TWD', amount: '', description: '' });
+  const [newPrize, setNewPrize] = useState({ currency: 'USD', amount: '', description: '' });
   const [newResource, setNewResource] = useState({ title: '', url: '' });
   const [saving, setSaving] = useState(false);
 
@@ -122,7 +122,7 @@ export default function ChallengeEditor({
           description: newPrize.description,
         }],
       }));
-      setNewPrize({ currency: 'TWD', amount: '', description: '' });
+      setNewPrize({ currency: 'USD', amount: '', description: '' });
     }
   };
 
@@ -246,8 +246,8 @@ export default function ChallengeEditor({
             className="px-3 py-2 rounded-lg border"
             style={{ borderColor: '#d1d5db', minWidth: '100px' }}
           >
-            <option value="TWD">台幣</option>
             <option value="USD">USD</option>
+            <option value="TWD">台幣</option>
           </select>
           <input
             type="number"
