@@ -246,14 +246,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       console.error('[SubmitTeamRegistration] Failed to log activity:', logError);
     }
 
+    // Prepare all members list for notifications
+    const allMembers = [
+      { email: leaderEmail, name: leaderName, role: teamLeader.role },
+      ...validatedMembers.map(m => ({ email: m.email, name: m.name || '', role: m.role }))
+    ];
+
     // Send notification emails to all team members
     try {
-      const allMembers = [
-        { email: leaderEmail, name: leaderName, role: teamLeader.role },
-        ...validatedMembers.map(m => ({ email: m.email, name: m.name || '', role: m.role }))
-      ];
-
-      // Create notification records (actual email sending can be implemented later)
+      // Create notification records for team members
       const emailPromises = allMembers.map(member => 
         db.collection('email-notifications').add({
           to: member.email,
@@ -269,9 +270,35 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       );
 
       await Promise.all(emailPromises);
-      console.log(`[SubmitTeamRegistration] Created ${allMembers.length} email notification records`);
+      console.log(`[SubmitTeamRegistration] Created ${allMembers.length} email notification records for team members`);
     } catch (emailError) {
-      console.error('[SubmitTeamRegistration] Failed to create email notifications:', emailError);
+      console.error('[SubmitTeamRegistration] Failed to create email notifications for team members:', emailError);
+      // Don't fail the registration if email notifications fail
+    }
+
+    // Send notification email to admin (reyer.chu@rwa.nexus)
+    try {
+      await db.collection('email-notifications').add({
+        to: 'reyer.chu@rwa.nexus',
+        type: 'team_registration_admin_notification',
+        teamId: docRef.id,
+        teamName: teamName.trim(),
+        teamLeader: {
+          email: leaderEmail,
+          name: leaderName,
+          role: teamLeader.role,
+        },
+        memberCount: validatedMembers.length + 1, // +1 for leader
+        teamMembers: allMembers.map(m => `${m.name} (${m.email}) - ${m.role}`),
+        tracks: trackDetails.map(t => `${t.name} (${t.sponsorName || '無贊助商'})`),
+        trackCount: tracks.length,
+        registrationTime: new Date().toISOString(),
+        status: 'pending',
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      });
+      console.log(`[SubmitTeamRegistration] Created admin notification email for reyer.chu@rwa.nexus`);
+    } catch (emailError) {
+      console.error('[SubmitTeamRegistration] Failed to create admin notification email:', emailError);
       // Don't fail the registration if email notifications fail
     }
 
