@@ -59,17 +59,30 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       .where('status', '==', 'active')
       .get();
 
+    console.log('[GetAllTracks] Found tracks:', tracksSnapshot.size);
+
     // Fetch all challenges from extended-challenges collection
+    // Note: Firestore doesn't support OR queries, so we fetch published or active
     const challengesSnapshot = await db
       .collection('extended-challenges')
       .get();
 
+    console.log('[GetAllTracks] Total challenges in DB:', challengesSnapshot.size);
+
     // Group challenges by trackId
     const challengesByTrack: { [key: string]: Challenge[] } = {};
+    let challengeCount = 0;
+    
     challengesSnapshot.docs.forEach((doc) => {
       const data = doc.data();
-      // Only include challenges with a valid title
-      if (data.title && data.trackId) {
+      
+      // Only include challenges with:
+      // 1. Valid title
+      // 2. Valid trackId
+      // 3. Status is 'published' or 'active'
+      const hasValidStatus = data.status === 'published' || data.status === 'active';
+      
+      if (data.title && data.trackId && hasValidStatus) {
         const challenge: Challenge = {
           id: doc.id,
           title: data.title,
@@ -82,8 +95,25 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           challengesByTrack[data.trackId] = [];
         }
         challengesByTrack[data.trackId].push(challenge);
+        challengeCount++;
+        
+        console.log(`[GetAllTracks] Added challenge "${data.title}" to track "${data.trackId}"`);
+      } else {
+        // Log why challenge was skipped
+        if (!data.title) {
+          console.log(`[GetAllTracks] Skipped challenge ${doc.id}: no title`);
+        } else if (!data.trackId) {
+          console.log(`[GetAllTracks] Skipped challenge "${data.title}": no trackId`);
+        } else if (!hasValidStatus) {
+          console.log(`[GetAllTracks] Skipped challenge "${data.title}": status is "${data.status}" (not published/active)`);
+        }
       }
     });
+    
+    console.log('[GetAllTracks] Total challenges added:', challengeCount);
+    console.log('[GetAllTracks] Challenges by track:', Object.keys(challengesByTrack).map(trackId => 
+      `${trackId}: ${challengesByTrack[trackId].length} challenges`
+    ).join(', '));
 
     // Build tracks list with challenges and totalPrize
     const tracks: Track[] = tracksSnapshot.docs.map((doc) => {
@@ -162,6 +192,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return (b.totalPrize || 0) - (a.totalPrize || 0);
       }
       return a.name.localeCompare(b.name);
+    });
+
+    console.log('[GetAllTracks] Returning tracks:', tracks.length);
+    tracks.forEach(track => {
+      console.log(`  - ${track.name}: ${track.challenges?.length || 0} challenges, ${track.totalPrize} USD`);
     });
 
     // Set cache control headers to ensure fresh data
