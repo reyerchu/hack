@@ -106,7 +106,7 @@ export default function TSMCAbout() {
                 </li>
                 <li className="flex items-start">
                   <span className="mr-2">•</span>
-                  <span>團隊需 2 ~ 5 人</span>
+                  <span>團隊需 1 ~ 5 人</span>
                 </li>
                 <li className="flex items-start">
                   <span className="mr-2">•</span>
