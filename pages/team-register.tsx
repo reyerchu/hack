@@ -88,6 +88,7 @@ export default function TeamRegisterPage() {
   // Debug: Log email paths
   useEffect(() => {
     console.log('[TeamRegister] Debug email paths:', {
+      'profile?.preferredEmail': (profile as any)?.preferredEmail,
       'profile?.user?.email': profile?.user?.email,
       'user?.email': user?.email,
       'profile?.email': (profile as any)?.email,
@@ -284,6 +285,7 @@ export default function TeamRegisterPage() {
 
     // Check if leader email is in team members
     const leaderEmail = 
+      (profile as any)?.preferredEmail ||
       profile?.user?.email || 
       user?.email || 
       (profile as any)?.email || 
@@ -431,6 +433,7 @@ export default function TeamRegisterPage() {
                     <input
                       type="text"
                       value={
+                        (profile as any)?.preferredEmail ||
                         profile?.user?.email || 
                         user?.email || 
                         (profile as any)?.email || 
