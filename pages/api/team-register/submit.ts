@@ -75,8 +75,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ error: '團隊領導者資訊不完整' });
     }
 
-    if (!Array.isArray(teamMembers) || teamMembers.length === 0) {
-      return res.status(400).json({ error: '請至少添加一位團隊成員' });
+    if (!Array.isArray(teamMembers)) {
+      return res.status(400).json({ error: '團隊成員格式錯誤' });
     }
 
     if (teamMembers.length > 10) {

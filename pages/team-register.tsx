@@ -366,12 +366,6 @@ export default function TeamRegisterPage() {
       return;
     }
 
-    if (teamMembers.length === 0) {
-      setSubmitMessage('請至少添加一位團隊成員');
-      setSubmitSuccess(false);
-      return;
-    }
-
     // Validate all team members (backend will validate if emails are registered)
     for (let i = 0; i < teamMembers.length; i++) {
       const member = teamMembers[i];
@@ -756,12 +750,6 @@ export default function TeamRegisterPage() {
                     {isValidatingMember ? '驗證中...' : '添加成員'}
                   </button>
                 </div>
-
-                {teamMembers.length === 0 && (
-                  <p className="text-xs mt-3 text-center" style={{ color: '#dc2626' }}>
-                    * 請至少添加一位團隊成員
-                  </p>
-                )}
               </div>
 
               {/* Select Tracks */}

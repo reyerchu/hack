@@ -3,7 +3,7 @@ import Image from 'next/image';
 
 export default function TSMCParticipationGuidelines() {
   const guidelines = [
-    '採 2–5 人團隊報名，個人可先報名，主辦方將協助組隊。',
+    '採 1–5 人團隊報名，個人可先報名，主辦方將協助組隊。',
     '參賽團隊需於期限內完成專案開發並提交簡報/原型/代碼（依題目而定）。',
     '評分面向含影響力、可行性、技術深度、法遵與隱私考量及使用者體驗等。',
     '團隊保有作品之智慧財產權，主辦與合作夥伴得於合理範圍內公開展示、媒體露出。程式碼需公開於 GitHub 或 GitLab，授權至少 MIT/Open Source。',
