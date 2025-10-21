@@ -220,6 +220,9 @@ export default function TeamRegisterPage() {
 
   // Handle email change with validation
   const handleEmailChange = async (index: number, email: string) => {
+    console.log(`[HandleEmailChange-${index}] Email changed to:`, email);
+    console.log(`[HandleEmailChange-${index}] Email format valid:`, validateEmail(email));
+    
     const updated = [...teamMembers];
     updated[index].email = email;
     updated[index].isValid = undefined;
@@ -228,6 +231,7 @@ export default function TeamRegisterPage() {
 
     // Validate email if it looks valid
     if (validateEmail(email)) {
+      console.log(`[HandleEmailChange-${index}] Triggering validation...`);
       await validateTeamMemberEmail(index, email);
     }
   };
@@ -256,6 +260,8 @@ export default function TeamRegisterPage() {
   const validateTeamMemberEmail = async (index: number, email: string) => {
     if (!user?.token) return;
 
+    console.log(`[ValidateEmail-${index}] Starting validation for:`, email);
+
     const updated = [...teamMembers];
     updated[index].isValidating = true;
     setTeamMembers(updated);
@@ -267,10 +273,23 @@ export default function TeamRegisterPage() {
         { email }
       ) as any;
 
+      console.log(`[ValidateEmail-${index}] API Response:`, {
+        status: response.status,
+        data: response.data,
+        isValid: response.data?.isValid,
+        name: response.data?.name,
+      });
+
       const updatedAfter = [...teamMembers];
       updatedAfter[index].isValidating = false;
       updatedAfter[index].isValid = response.data?.isValid || false;
       updatedAfter[index].name = response.data?.name;
+      
+      console.log(`[ValidateEmail-${index}] Setting state:`, {
+        isValid: updatedAfter[index].isValid,
+        name: updatedAfter[index].name,
+      });
+      
       setTeamMembers(updatedAfter);
     } catch (error) {
       console.error('[TeamRegister] Email validation error:', error);
