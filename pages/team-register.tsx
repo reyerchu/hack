@@ -462,11 +462,16 @@ export default function TeamRegisterPage() {
                       disabled
                     />
                     {/* Debug info */}
-                    <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded text-xs" style={{ fontFamily: 'monospace' }}>
-                      🔍 Debug: myEmail = "{myEmail}" (length: {myEmail.length})
-                      <br />
-                      hasProfile: {hasProfile ? 'true' : 'false'}, 
-                      profile?.preferredEmail: {(profile as any)?.preferredEmail || 'undefined'}
+                    <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded text-xs overflow-auto max-h-40" style={{ fontFamily: 'monospace' }}>
+                      <div>🔍 Debug: myEmail = "{myEmail}" (length: {myEmail.length})</div>
+                      <div>hasProfile: {hasProfile ? 'true' : 'false'}</div>
+                      <div>profile?.preferredEmail: {(profile as any)?.preferredEmail || 'undefined'}</div>
+                      <div className="mt-2 pt-2 border-t border-yellow-300">
+                        <strong>Complete profile object:</strong>
+                        <pre className="mt-1 text-xs whitespace-pre-wrap">
+                          {JSON.stringify(profile, null, 2)}
+                        </pre>
+                      </div>
                     </div>
                   </div>
 
