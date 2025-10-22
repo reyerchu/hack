@@ -145,42 +145,6 @@ export default function TracksChallengesPage() {
             <p className="text-xl mb-8" style={{ color: '#6b7280' }}>
               探索所有賽道及其挑戰，找到最適合您的參賽方向
             </p>
-            
-            {/* Sponsor Logos Section */}
-            {tracks.length > 0 && (
-              <div className="mt-8">
-                <p className="text-sm font-medium mb-6" style={{ color: '#6b7280' }}>
-                  感謝以下贊助商支持
-                </p>
-                <div className="flex flex-wrap items-center justify-center gap-8">
-                  {tracks
-                    .filter((track) => track.sponsorLogo)
-                    .reduce((uniqueSponsors, track) => {
-                      if (!uniqueSponsors.find(s => s.sponsorId === track.sponsorId)) {
-                        uniqueSponsors.push({
-                          sponsorId: track.sponsorId,
-                          sponsorName: track.sponsorName,
-                          sponsorLogo: track.sponsorLogo
-                        });
-                      }
-                      return uniqueSponsors;
-                    }, [] as Array<{ sponsorId: string; sponsorName: string; sponsorLogo: string }>)
-                    .map((sponsor) => (
-                      <div
-                        key={sponsor.sponsorId}
-                        className="group cursor-pointer transition-transform duration-300 hover:scale-110"
-                        title={sponsor.sponsorName}
-                      >
-                        <img
-                          src={sponsor.sponsorLogo}
-                          alt={sponsor.sponsorName}
-                          className="h-16 w-auto object-contain grayscale group-hover:grayscale-0 transition-all duration-300"
-                        />
-                      </div>
-                    ))}
-                </div>
-              </div>
-            )}
           </div>
 
           {/* Stats */}
@@ -243,23 +207,22 @@ export default function TracksChallengesPage() {
               >
                 {/* Track Header */}
                 <div className="p-6 border-b" style={{ borderColor: '#e5e7eb', backgroundColor: '#f8fafc' }}>
-                  <div className="flex items-start gap-4">
+                  <div className="flex items-center gap-3 mb-3">
+                    <h3 className="text-xl font-bold" style={{ color: '#1a3a6e' }}>
+                      {track.name}
+                    </h3>
                     {track.sponsorLogo && (
                       <img
                         src={track.sponsorLogo}
                         alt={track.sponsorName}
-                        className="w-16 h-16 object-contain rounded"
+                        className="h-8 w-auto object-contain"
+                        title={track.sponsorName}
                       />
                     )}
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-xl font-bold mb-1 truncate" style={{ color: '#1a3a6e' }}>
-                        {track.name}
-                      </h3>
-                      <p className="text-sm" style={{ color: '#6b7280' }}>
-                        {track.sponsorName}
-                      </p>
-                    </div>
                   </div>
+                  <p className="text-sm" style={{ color: '#6b7280' }}>
+                    {track.sponsorName}
+                  </p>
                 </div>
 
                 {/* Track Body */}
