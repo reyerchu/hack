@@ -18,7 +18,7 @@ import type { ExtendedChallenge } from '../../../../lib/sponsor/types';
 
 export default function ChallengeEditPage() {
   const router = useRouter();
-  const { trackId, challengeId } = router.query;
+  const { trackId, challengeId, mode } = router.query;
   const { isSignedIn, loading: authLoading } = useAuthContext();
   const isSponsor = useIsSponsor();
 
@@ -26,6 +26,9 @@ export default function ChallengeEditPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  
+  // 判断是否为只读模式
+  const isReadOnly = mode === 'view';
 
   // 權限檢查
   useEffect(() => {
@@ -221,12 +224,34 @@ export default function ChallengeEditPage() {
             </a>
           </Link>
 
-          <h1 className="text-3xl font-bold mb-2" style={{ color: '#1a3a6e' }}>
-            編輯挑戰內容
-          </h1>
-          <p className="text-sm" style={{ color: '#6b7280' }}>
-            设置挑戰的描述、要求、評分標准和獎金詳情
-          </p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold mb-2" style={{ color: '#1a3a6e' }}>
+                {isReadOnly ? '查看挑戰內容' : '編輯挑戰內容'}
+              </h1>
+              <p className="text-sm" style={{ color: '#6b7280' }}>
+                {isReadOnly ? '查看挑戰的詳細資訊' : '设置挑戰的描述、要求、評分標准和獎金詳情'}
+              </p>
+            </div>
+            {isReadOnly && isSponsor && (
+              <button
+                onClick={() => router.push(`/sponsor/tracks/${trackId}/challenge?challengeId=${challengeId}&mode=edit`)}
+                className="px-4 py-2 rounded-lg font-medium text-sm transition-colors"
+                style={{
+                  backgroundColor: '#059669',
+                  color: '#ffffff',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#047857';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = '#059669';
+                }}
+              >
+                編輯
+              </button>
+            )}
+          </div>
         </div>
 
         {/* 成功提示 */}
@@ -262,14 +287,16 @@ export default function ChallengeEditPage() {
             challenge={challenge || undefined}
             onSave={handleSave}
             loading={loading}
+            readOnly={isReadOnly}
           />
         </div>
 
-        {/* 文件上傳区域 */}
-        <div className="rounded-lg p-6" style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb' }}>
-          <h2 className="text-xl font-semibold mb-4" style={{ color: '#1a3a6e' }}>
-            挑戰附件
-          </h2>
+        {/* 文件上傳区域 - 只读模式下隐藏 */}
+        {!isReadOnly && (
+          <div className="rounded-lg p-6" style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb' }}>
+            <h2 className="text-xl font-semibold mb-4" style={{ color: '#1a3a6e' }}>
+              挑戰附件
+            </h2>
 
           <div className="space-y-6">
             <div>
@@ -287,7 +314,8 @@ export default function ChallengeEditPage() {
             </div>
 
           </div>
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );

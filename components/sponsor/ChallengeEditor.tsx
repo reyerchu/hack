@@ -12,12 +12,14 @@ interface ChallengeEditorProps {
   challenge?: ExtendedChallenge;
   onSave: (data: Partial<ExtendedChallenge>) => Promise<void>;
   loading?: boolean;
+  readOnly?: boolean;
 }
 
 export default function ChallengeEditor({
   challenge,
   onSave,
   loading,
+  readOnly = false,
 }: ChallengeEditorProps) {
   // Helper function to convert data to string format
   const getRequirementsString = (challenge: any) => {
@@ -167,7 +169,8 @@ export default function ChallengeEditor({
           type="text"
           value={formData.title}
           onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-          className="w-full px-4 py-2 rounded-lg border focus:outline-none focus:ring-2"
+          disabled={readOnly}
+          className="w-full px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 disabled:bg-gray-100 disabled:cursor-not-allowed"
           style={{
             borderColor: '#d1d5db',
           }}
@@ -430,30 +433,32 @@ export default function ChallengeEditor({
         </div>
       </div>
 
-      {/* 提交按钮 */}
-      <div className="flex gap-4 pt-6 border-t" style={{ borderColor: '#e5e7eb' }}>
-        <button
-          type="submit"
-          disabled={saving || loading}
-          className="px-6 py-3 rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          style={{
-            backgroundColor: '#1a3a6e',
-            color: '#ffffff',
-          }}
-          onMouseEnter={(e) => {
-            if (!saving && !loading) {
-              e.currentTarget.style.backgroundColor = '#2a4a7e';
-            }
-          }}
-          onMouseLeave={(e) => {
-            if (!saving && !loading) {
-              e.currentTarget.style.backgroundColor = '#1a3a6e';
-            }
-          }}
-        >
-          {saving ? '保存中...' : '保存修改'}
-        </button>
-      </div>
+      {/* 提交按钮 - 只读模式下隐藏 */}
+      {!readOnly && (
+        <div className="flex gap-4 pt-6 border-t" style={{ borderColor: '#e5e7eb' }}>
+          <button
+            type="submit"
+            disabled={saving || loading}
+            className="px-6 py-3 rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            style={{
+              backgroundColor: '#1a3a6e',
+              color: '#ffffff',
+            }}
+            onMouseEnter={(e) => {
+              if (!saving && !loading) {
+                e.currentTarget.style.backgroundColor = '#2a4a7e';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!saving && !loading) {
+                e.currentTarget.style.backgroundColor = '#1a3a6e';
+              }
+            }}
+          >
+            {saving ? '保存中...' : '保存修改'}
+          </button>
+        </div>
+      )}
     </form>
   );
 }
