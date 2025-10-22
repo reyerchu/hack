@@ -194,7 +194,7 @@ export default function TracksChallengesPage() {
                   <p className="text-3xl font-bold" style={{ color: '#1a3a6e' }}>
                     ${tracks.reduce((sum, t) => sum + t.totalPrize, 0).toLocaleString()}
                   </p>
-                  <p className="text-sm" style={{ color: '#6b7280' }}>總獎金池 (USD)</p>
+                  <p className="text-sm" style={{ color: '#6b7280' }}>總獎金池價值 (USD)</p>
                 </div>
               </div>
             </div>
