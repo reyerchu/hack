@@ -40,17 +40,19 @@ export default function AppHeader() {
     setDynamicNavItems(() => {
       let updatedNavItems = [...navItems]; // Always start from base navItems
 
+      // Add team registration link for ALL users (signed in or not)
+      if (updatedNavItems.filter(({ text }) => text === '團隊報名').length === 0) {
+        // If signed in, go to /team-register; if not signed in, go to /team-register-info
+        const teamRegisterPath = (isSignedIn && profile) ? '/team-register' : '/team-register-info';
+        updatedNavItems = [...updatedNavItems, { text: '團隊報名', path: teamRegisterPath }];
+        console.log('[AppHeader] Added 團隊報名 link with path:', teamRegisterPath);
+      }
+
       if (isSignedIn && profile && profile.user) {
         // Get user permissions
         const permissions = profile.user.permissions || [];
         console.log('[AppHeader] User permissions:', permissions);
         console.log('[AppHeader] Profile structure:', profile.user);
-
-        // Add team registration link for all signed-in users
-        if (updatedNavItems.filter(({ text }) => text === '團隊報名').length === 0) {
-          updatedNavItems = [...updatedNavItems, { text: '團隊報名', path: '/team-register' }];
-          console.log('[AppHeader] Added 團隊報名 link');
-        }
 
         // Check if user is admin or super_admin
         const isAdmin = 
