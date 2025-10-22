@@ -320,6 +320,21 @@ export async function getUserSponsorRole(
 }
 
 /**
+ * 檢查用戶是否有編輯權限
+ * 
+ * @param userId - 用戶 ID
+ * @param sponsorId - 贊助商 ID
+ * @returns 是否有編輯權限（admin 或 sponsor 角色）
+ */
+export async function canEditSponsor(
+  userId: string,
+  sponsorId: string,
+): Promise<boolean> {
+  const role = await getUserSponsorRole(userId, sponsorId);
+  return role === 'admin';
+}
+
+/**
  * 檢查用戶是否有指定的贊助商角色
  * 
  * @param userId - 用戶 ID

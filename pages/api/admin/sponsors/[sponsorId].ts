@@ -229,10 +229,78 @@ async function handleUpdate(req: NextApiRequest, res: NextApiResponse) {
       updatedBy: userId,
     };
 
-    // 8. Update sponsor
+    // 8. Update sponsor-user-mappings based on manager emails and their roles
+    if (managers && Array.isArray(managers)) {
+      console.log('[UpdateSponsor] Processing managers:', managers);
+      
+      // Delete existing mappings for this sponsor
+      const existingMappings = await db.collection('sponsor-user-mappings')
+        .where('sponsorId', '==', sponsorId)
+        .get();
+      
+      const deleteBatch = db.batch();
+      existingMappings.docs.forEach(doc => {
+        deleteBatch.delete(doc.ref);
+      });
+      await deleteBatch.commit();
+      console.log('[UpdateSponsor] Deleted', existingMappings.size, 'existing mappings');
+      
+      // Create new mappings
+      for (const email of managers) {
+        if (!email || typeof email !== 'string') continue;
+        
+        const normalizedEmail = email.trim().toLowerCase();
+        
+        // Find user by email in registrations collection
+        const userQuery = await db.collection('registrations')
+          .where('email', '==', normalizedEmail)
+          .limit(1)
+          .get();
+        
+        if (userQuery.empty) {
+          console.log('[UpdateSponsor] ⚠️ Manager email not found:', normalizedEmail);
+          continue;
+        }
+        
+        const userDoc = userQuery.docs[0];
+        const userData = userDoc.data();
+        const userPermissions = userData?.permissions || userData?.user?.permissions || [];
+        
+        // Determine role based on user's system permissions
+        // If user has 'sponsor', 'admin', or 'super_admin', they get 'admin' role
+        // Otherwise (hacker or no special permission), they get 'viewer' role
+        const hasEditPermission = userPermissions.includes('sponsor') || 
+                                  userPermissions.includes('admin') || 
+                                  userPermissions.includes('super_admin');
+        
+        const mappingRole = hasEditPermission ? 'admin' : 'viewer';
+        
+        console.log('[UpdateSponsor] Creating mapping:', {
+          email: normalizedEmail,
+          userId: userDoc.id,
+          sponsorId,
+          role: mappingRole,
+          userPermissions,
+        });
+        
+        // Create mapping
+        await db.collection('sponsor-user-mappings').add({
+          userId: userDoc.id,
+          sponsorId: sponsorId,
+          role: mappingRole,
+          email: normalizedEmail,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          createdBy: userId,
+        });
+      }
+      
+      console.log('[UpdateSponsor] Successfully processed', managers.length, 'managers');
+    }
+
+    // 9. Update sponsor document
     await sponsorDoc.ref.update(updateData);
 
-    // 9. Log activity
+    // 10. Log activity
     try {
       await db.collection('sponsor-activity-logs').add({
         userId: userId,
