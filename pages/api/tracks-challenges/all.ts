@@ -42,7 +42,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const sponsorsMap = new Map();
     sponsorsSnapshot.docs.forEach(doc => {
-      const sponsorData = { id: doc.id, ...doc.data() };
+      const sponsorData = { id: doc.id, ...doc.data() } as any;
       sponsorsMap.set(doc.id, sponsorData);
       console.log('[Sponsor]', doc.id, '- name:', sponsorData.name, '- logoUrl:', sponsorData.logoUrl, '- brandLogo:', sponsorData.brandLogo);
     });

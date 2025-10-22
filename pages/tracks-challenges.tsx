@@ -49,13 +49,13 @@ export default function TracksChallengesPage() {
       setLoading(true);
       setError(null);
 
-      const response = await RequestHelper.get<{ data: Track[] }>('/api/tracks-challenges/all');
+      const response = await RequestHelper.get<{ data: Track[] }>('/api/tracks-challenges/all', {});
 
-      if (response.error) {
-        throw new Error(response.error);
+      if (response.status !== 200) {
+        throw new Error('Failed to fetch tracks');
       }
 
-      setTracks(response.data?.data || []);
+      setTracks(response.data.data || []);
     } catch (err: any) {
       console.error('[TracksChallenges] Error:', err);
       setError(err.message || '載入失敗');
