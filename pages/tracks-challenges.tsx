@@ -142,13 +142,49 @@ export default function TracksChallengesPage() {
       <div className="min-h-screen" style={{ backgroundColor: '#f9fafb', paddingTop: '80px' }}>
         <div className="max-w-7xl mx-auto px-4 py-12">
           {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-4xl font-bold mb-4" style={{ color: '#1a3a6e' }}>
+          <div className="mb-12 text-center">
+            <h1 className="text-5xl font-bold mb-4" style={{ color: '#1a3a6e' }}>
               賽道挑戰
             </h1>
-            <p className="text-lg" style={{ color: '#6b7280' }}>
+            <p className="text-xl mb-8" style={{ color: '#6b7280' }}>
               探索所有賽道及其挑戰，找到最適合您的參賽方向
             </p>
+            
+            {/* Sponsor Logos Section */}
+            {tracks.length > 0 && (
+              <div className="mt-8">
+                <p className="text-sm font-medium mb-6" style={{ color: '#6b7280' }}>
+                  感謝以下贊助商支持
+                </p>
+                <div className="flex flex-wrap items-center justify-center gap-8">
+                  {tracks
+                    .filter((track) => track.sponsorLogo)
+                    .reduce((uniqueSponsors, track) => {
+                      if (!uniqueSponsors.find(s => s.sponsorId === track.sponsorId)) {
+                        uniqueSponsors.push({
+                          sponsorId: track.sponsorId,
+                          sponsorName: track.sponsorName,
+                          sponsorLogo: track.sponsorLogo
+                        });
+                      }
+                      return uniqueSponsors;
+                    }, [] as Array<{ sponsorId: string; sponsorName: string; sponsorLogo: string }>)
+                    .map((sponsor) => (
+                      <div
+                        key={sponsor.sponsorId}
+                        className="group cursor-pointer transition-transform duration-300 hover:scale-110"
+                        title={sponsor.sponsorName}
+                      >
+                        <img
+                          src={sponsor.sponsorLogo}
+                          alt={sponsor.sponsorName}
+                          className="h-16 w-auto object-contain grayscale group-hover:grayscale-0 transition-all duration-300"
+                        />
+                      </div>
+                    ))}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Stats */}
