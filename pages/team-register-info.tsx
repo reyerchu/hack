@@ -73,10 +73,9 @@ export default function TeamRegisterInfo() {
                     <ul className="list-disc list-inside space-y-2 ml-4">
                       <li>填寫個人基本資料（姓名、Email、學校/公司等）</li>
                       <li>完成 Email 驗證</li>
-                      <li>同意參賽者承諾書</li>
                     </ul>
                   </div>
-                  <div className="flex gap-4">
+                  <div>
                     <Link href="/register">
                       <a 
                         className="inline-block px-6 py-3 rounded-lg font-medium text-white transition-all duration-300 hover:shadow-lg"
@@ -88,18 +87,7 @@ export default function TeamRegisterInfo() {
                           e.currentTarget.style.backgroundColor = '#1a3a6e';
                         }}
                       >
-                        前往個人註冊
-                      </a>
-                    </Link>
-                    <Link href="/auth">
-                      <a 
-                        className="inline-block px-6 py-3 rounded-lg font-medium transition-all duration-300 hover:shadow-lg"
-                        style={{ 
-                          color: '#1a3a6e',
-                          border: '2px solid #1a3a6e'
-                        }}
-                      >
-                        已有帳號？登入
+                        前往註冊｜登入
                       </a>
                     </Link>
                   </div>
@@ -182,7 +170,7 @@ export default function TeamRegisterInfo() {
                     </p>
                     <ul className="list-disc list-inside space-y-2 ml-4">
                       <li>每位成員都會收到團隊報名確認信</li>
-                      <li>成員可以在個人 Profile 頁面查看團隊資訊</li>
+                      <li>成員可以在個人中心頁面查看團隊資訊</li>
                       <li>有編輯權限的成員可以修改團隊報名資料</li>
                       <li>每位成員可以參與多個團隊（用不同團隊名稱報名）</li>
                     </ul>
