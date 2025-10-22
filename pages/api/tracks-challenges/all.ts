@@ -52,7 +52,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // 將 challenges 按 trackId 分組
     const challengesByTrack = new Map<string, any[]>();
     challengesSnapshot.docs.forEach(doc => {
-      const challenge = { id: doc.id, ...doc.data() };
+      const challenge: any = { id: doc.id, ...doc.data() };
       const trackId = challenge.trackId;
       
       if (!challengesByTrack.has(trackId)) {

@@ -90,10 +90,6 @@ export default function AdminTeamsPage() {
         },
       });
 
-      if (response.error) {
-        throw new Error(response.error);
-      }
-
       console.log('[AdminTeams] Fetched teams:', response.data);
       
       // Ensure we always set an array

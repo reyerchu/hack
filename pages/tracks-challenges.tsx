@@ -48,11 +48,7 @@ export default function TracksChallengesPage() {
       setLoading(true);
       setError(null);
 
-      const response = await RequestHelper.get<{ data: Track[] }>('/api/tracks-challenges/all');
-
-      if (response.error) {
-        throw new Error(response.error);
-      }
+      const response = await RequestHelper.get<{ data: Track[] }>('/api/tracks-challenges/all', {});
 
       setTracks(response.data?.data || []);
     } catch (err: any) {
