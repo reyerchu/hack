@@ -97,9 +97,8 @@ function AuthProvider({ children }: React.PropsWithChildren<Record<string, any>>
       permissions: ['hacker'],
       university: '',
     });
-    const query = new URL(`http://localhost:3008/api/userinfo`);
-    query.searchParams.append('id', uid);
-    const data = await fetch(query.toString().replaceAll('http://localhost:3008', ''), {
+    // Use relative URL to work on any port
+    const data = await fetch(`/api/userinfo?id=${encodeURIComponent(uid)}`, {
       mode: 'cors',
       headers: { Authorization: token },
       method: 'GET',
