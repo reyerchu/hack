@@ -154,7 +154,10 @@ export default function AppHeader() {
           ))}
         </div>
         <div className="flex flex-row justify-center items-center order-2 md:order-3">
-          {!user || !isSignedIn ? (
+          {loading ? (
+            // Loading state - show nothing or a placeholder to prevent flickering
+            <div className="w-32 h-9"></div>
+          ) : !user || !isSignedIn ? (
             <Link href="/auth">
               <a
                 className="font-header font-bold rounded-full text-white text-sm px-10 py-1 transition duration-300 ease-in-out"
