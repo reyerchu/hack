@@ -42,7 +42,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const sponsorsMap = new Map();
     sponsorsSnapshot.docs.forEach(doc => {
-      sponsorsMap.set(doc.id, { id: doc.id, ...doc.data() });
+      const sponsorData = { id: doc.id, ...doc.data() };
+      sponsorsMap.set(doc.id, sponsorData);
+      console.log('[Sponsor]', doc.id, '- name:', sponsorData.name, '- logoUrl:', sponsorData.logoUrl, '- brandLogo:', sponsorData.brandLogo);
     });
 
     // 4. 組織數據
@@ -72,6 +74,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       
       // 獲取 sponsor 資訊
       const sponsor = trackData.sponsorId ? sponsorsMap.get(trackData.sponsorId) : null;
+      console.log('[Track]', trackId, '- sponsorId:', trackData.sponsorId, '- sponsor found:', !!sponsor, '- sponsor logo:', sponsor?.logoUrl || sponsor?.brandLogo || 'N/A');
 
       // 計算總獎金
       let totalPrize = 0;
@@ -92,7 +95,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         name: trackData.name || '',
         description: trackData.description || '',
         sponsorName: sponsor?.name || '',
-        sponsorLogo: sponsor?.logo || sponsor?.logoUrl || '',
+        sponsorLogo: sponsor?.logoUrl || sponsor?.brandLogo || sponsor?.logo || '',
+        sponsorId: trackData.sponsorId || '',
         totalPrize: Math.round(totalPrize),
         challengeCount: trackChallenges.length,
         challenges: trackChallenges.map(c => ({

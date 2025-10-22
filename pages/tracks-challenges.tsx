@@ -26,6 +26,7 @@ interface Track {
   description: string;
   sponsorName: string;
   sponsorLogo: string;
+  sponsorId: string;
   totalPrize: number;
   challengeCount: number;
   challenges: Challenge[];
