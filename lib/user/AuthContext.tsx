@@ -112,8 +112,8 @@ function AuthProvider({ children }: React.PropsWithChildren<Record<string, any>>
       return;
     }
     if (data.status !== 200) {
-      console.error('[AuthContext] Unexpected error when fetching user data, status:', data.status);
-      setProfile(null);
+      // API 调用失败，保留之前的状态，不要清空 profile
+      console.error('[AuthContext] API call failed, status:', data.status, '- keeping previous profile state');
       setLoading(false);
       return;
     }
