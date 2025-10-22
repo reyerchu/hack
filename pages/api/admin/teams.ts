@@ -1,8 +1,9 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { initializeApi } from '../../../lib/admin/init';
+import initializeApi from '../../../lib/admin/init';
+import firebase from 'firebase-admin';
 
 initializeApi();
-const db = require('../../../lib/admin/firebase').db;
+const db = firebase.firestore();
 
 /**
  * API endpoint to get all team registrations for admin
