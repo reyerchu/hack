@@ -47,7 +47,7 @@ interface Team {
  */
 export default function AdminTeamsPage() {
   const router = useRouter();
-  const { user, loading: authLoading, isSignedIn, profile } = useAuthContext();
+  const { user, loading: authLoading, isSignedIn } = useAuthContext();
 
   const [teams, setTeams] = useState<Team[]>([]);
   const [filteredTeams, setFilteredTeams] = useState<Team[]>([]);
@@ -68,10 +68,10 @@ export default function AdminTeamsPage() {
 
   // Check authorization
   useEffect(() => {
-    if (!authLoading && (!isSignedIn || !isAuthorized(profile))) {
+    if (!authLoading && (!isSignedIn || !isAuthorized(user))) {
       router.push('/');
     }
-  }, [authLoading, isSignedIn, profile, router]);
+  }, [authLoading, isSignedIn, user, router]);
 
   // Fetch teams
   const fetchTeams = async () => {
