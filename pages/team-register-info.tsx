@@ -183,34 +183,34 @@ export default function TeamRegisterInfo() {
           {/* 重要提醒 */}
           <div 
             className="mt-12 bg-gradient-to-r from-red-50 to-pink-50 rounded-xl p-8 border-2"
-            style={{ borderColor: '#dc2626' }}
+            style={{ borderColor: '#b91c1c' }}
           >
             <h3 
               className="text-2xl font-bold mb-4 flex items-center gap-3"
-              style={{ color: '#dc2626' }}
+              style={{ color: '#b91c1c' }}
             >
               <span className="text-3xl">⚠️</span>
               重要提醒
             </h3>
             <ul className="space-y-3 text-lg" style={{ color: '#4b5563' }}>
               <li className="flex items-start gap-3">
-                <span className="text-red-600 font-bold">•</span>
+                <span style={{ color: '#b91c1c' }} className="font-bold">•</span>
                 <span>團隊規模：<strong>1~5 人</strong></span>
               </li>
               <li className="flex items-start gap-3">
-                <span className="text-red-600 font-bold">•</span>
+                <span style={{ color: '#b91c1c' }} className="font-bold">•</span>
                 <span>報名截止時間：<strong>2025年10月27日 23:59</strong></span>
               </li>
               <li className="flex items-start gap-3">
-                <span className="text-red-600 font-bold">•</span>
+                <span style={{ color: '#b91c1c' }} className="font-bold">•</span>
                 <span>所有團隊成員的 Email 必須已完成個人註冊</span>
               </li>
               <li className="flex items-start gap-3">
-                <span className="text-red-600 font-bold">•</span>
+                <span style={{ color: '#b91c1c' }} className="font-bold">•</span>
                 <span>報名後可以在截止前進行編輯</span>
               </li>
               <li className="flex items-start gap-3">
-                <span className="text-red-600 font-bold">•</span>
+                <span style={{ color: '#b91c1c' }} className="font-bold">•</span>
                 <span>每位成員可以參與多個團隊</span>
               </li>
             </ul>
