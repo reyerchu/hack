@@ -104,20 +104,29 @@ function AuthProvider({ children }: React.PropsWithChildren<Record<string, any>>
       headers: { Authorization: token },
       method: 'GET',
     });
+    if (data.status === 404) {
+      // 用户已登入但未注册，明确设置 profile 为 null
+      console.log('[AuthContext] User is authenticated but not registered yet');
+      setProfile(null);
+      setLoading(false);
+      return;
+    }
     if (data.status !== 200) {
-      console.error('Unexpected error when fetching AuthContext permission data...');
+      console.error('[AuthContext] Unexpected error when fetching user data, status:', data.status);
+      setProfile(null);
       setLoading(false);
       return;
     }
     const userData = await data.json();
+    console.log('[AuthContext] User data fetched successfully:', userData);
     let permissions: UserPermission[] = userData.user?.permissions || ['hacker'];
     setUser((prev) => ({
       ...prev,
-      firstName: userData.user.firstName,
-      lastName: userData.user.lastName,
-      preferredEmail: userData.user.preferredEmail,
+      firstName: userData.user?.firstName || prev?.firstName || '',
+      lastName: userData.user?.lastName || prev?.lastName || '',
+      preferredEmail: userData.user?.preferredEmail || prev?.preferredEmail || email,
       permissions,
-      university: userData.university,
+      university: userData.university || prev?.university || '',
     }));
     setProfile(userData);
     setLoading(false);
