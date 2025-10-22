@@ -89,6 +89,83 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
       .doc(id)
       .set(newSponsor);
 
+    // Create sponsor-user-mappings and grant sponsor permissions
+    if (managers && Array.isArray(managers) && managers.length > 0) {
+      console.log('[create] Processing managers:', managers);
+      
+      for (const email of managers) {
+        if (!email || typeof email !== 'string') continue;
+        
+        const normalizedEmail = email.trim().toLowerCase();
+        
+        // Find user by email in registrations collection
+        const userQuery = await db.collection('registrations')
+          .where('email', '==', normalizedEmail)
+          .limit(1)
+          .get();
+        
+        if (userQuery.empty) {
+          console.log('[create] ⚠️ Manager email not found:', normalizedEmail);
+          continue;
+        }
+        
+        const userDoc = userQuery.docs[0];
+        const userData = userDoc.data();
+        
+        // Get user's current permissions (support both flat and nested structure)
+        let userPermissions = userData?.permissions || userData?.user?.permissions || [];
+        
+        // Ensure permissions is an array
+        if (!Array.isArray(userPermissions)) {
+          userPermissions = [];
+        }
+        
+        // Add 'sponsor' permission if not already present
+        if (!userPermissions.includes('sponsor')) {
+          userPermissions.push('sponsor');
+          
+          // Update user's permissions in Firestore
+          if (userData?.user) {
+            // Nested structure: update user.permissions
+            await userDoc.ref.update({
+              'user.permissions': userPermissions,
+              updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+            });
+          } else {
+            // Flat structure: update permissions directly
+            await userDoc.ref.update({
+              permissions: userPermissions,
+              updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+            });
+          }
+          
+          console.log('[create] ✅ Added sponsor permission to user:', normalizedEmail);
+        } else {
+          console.log('[create] ℹ️ User already has sponsor permission:', normalizedEmail);
+        }
+        
+        console.log('[create] Creating mapping:', {
+          email: normalizedEmail,
+          userId: userDoc.id,
+          sponsorId: id,
+          role: 'admin',
+          updatedPermissions: userPermissions,
+        });
+        
+        // Create mapping with 'admin' role (full edit permissions)
+        await db.collection('sponsor-user-mappings').add({
+          userId: userDoc.id,
+          sponsorId: id,
+          role: 'admin',
+          email: normalizedEmail,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          createdBy: userId,
+        });
+      }
+      
+      console.log('[create] Successfully processed', managers.length, 'managers');
+    }
+
     // 記錄活動日誌
     console.log('[create] 記錄活動日誌...');
     try {
