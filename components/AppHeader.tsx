@@ -14,7 +14,7 @@ import Image from 'next/image';
  */
 export default function AppHeader() {
   const [showMenu, setShowMenu] = useState(false);
-  const { isSignedIn, hasProfile, profile } = useAuthContext();
+  const { isSignedIn, hasProfile, profile, loading } = useAuthContext();
   const [mobileIcon, setMobileIcon] = useState(true);
   const [showProfileDialog, setShowProfileDialog] = useState(false);
   const [dynamicNavItems, setDynamicNavItems] = useState(navItems);
