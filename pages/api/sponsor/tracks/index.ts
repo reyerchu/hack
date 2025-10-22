@@ -51,15 +51,17 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
     const sponsorIds = await getUserSponsors(userId, true);
     console.log('[/api/sponsor/tracks] sponsorIds (editable only):', sponsorIds);
 
-    // 2. 獲取賽道列表（從 tracks 集合）
-    console.log('[/api/sponsor/tracks] 查詢 tracks...');
-    let tracksQuery = db.collection(SPONSOR_COLLECTIONS.TRACKS)
-      .where('status', '==', 'active');
-    
-    // 如果不是 super_admin，只顯示用戶關聯的贊助商的賽道
-    if (sponsorIds.length > 0 && !sponsorIds.includes('*')) {
-      tracksQuery = tracksQuery.where('sponsorId', 'in', sponsorIds) as any;
+    // 2. 如果用戶沒有管理任何贊助商，返回空數組
+    if (sponsorIds.length === 0) {
+      console.log('[/api/sponsor/tracks] ⚠️ 用戶沒有管理的贊助商，返回空數組');
+      return ApiResponse.success(res, { tracks: [] });
     }
+
+    // 3. 獲取賽道列表（從 tracks 集合）- 只查詢用戶管理的贊助商的賽道
+    console.log('[/api/sponsor/tracks] 查詢 tracks，過濾 sponsorId...');
+    const tracksQuery = db.collection(SPONSOR_COLLECTIONS.TRACKS)
+      .where('status', '==', 'active')
+      .where('sponsorId', 'in', sponsorIds);
     
     const tracksSnapshot = await tracksQuery.get();
     console.log('[/api/sponsor/tracks] 查詢結果: tracks.size =', tracksSnapshot.size);
@@ -69,7 +71,7 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
       return ApiResponse.success(res, { tracks: [] });
     }
 
-    // 3. 為每個賽道獲取關聯的挑戰
+    // 4. 為每個賽道獲取關聯的挑戰
     console.log('[/api/sponsor/tracks] 獲取關聯的挑戰...');
     const trackIds = tracksSnapshot.docs.map(doc => doc.data().trackId);
     
@@ -85,7 +87,7 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
       challengesSnapshot = { docs: [], empty: true, size: 0 };
     }
 
-    // 4. 獲取所有相關的贊助商資訊
+    // 5. 獲取所有相關的贊助商資訊
     const sponsorsMap = new Map<string, ExtendedSponsor>();
     if (sponsorIds.length > 0) {
       const sponsorsSnapshot = await db
@@ -98,7 +100,7 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
       });
     }
 
-    // 5. 按賽道组织數據 - 一個賽道可以有多個挑戰
+    // 6. 按賽道组织數據 - 一個賽道可以有多個挑戰
     const tracksData = [];
     
     // 將 challenges 按 trackId 分組
