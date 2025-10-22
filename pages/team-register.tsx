@@ -89,7 +89,8 @@ export default function TeamRegisterPage() {
   // Redirect if not authenticated (wait for loading to complete)
   useEffect(() => {
     if (!loading && (!isSignedIn || !hasProfile)) {
-      router.push('/auth');
+      // Redirect to info page for non-authenticated users
+      router.push('/team-register-info');
     }
   }, [loading, isSignedIn, hasProfile, router]);
 
