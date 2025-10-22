@@ -57,11 +57,21 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
       return ApiResponse.success(res, { tracks: [] });
     }
 
-    // 3. 獲取賽道列表（從 tracks 集合）- 只查詢用戶管理的贊助商的賽道
-    console.log('[/api/sponsor/tracks] 查詢 tracks，過濾 sponsorId...');
-    const tracksQuery = db.collection(SPONSOR_COLLECTIONS.TRACKS)
-      .where('status', '==', 'active')
-      .where('sponsorId', 'in', sponsorIds);
+    // 3. 獲取賽道列表（從 tracks 集合）
+    // 如果是 admin/super_admin（sponsorIds === ['*']），查詢所有 tracks
+    // 否則只查詢用戶管理的贊助商的 tracks
+    const isAdmin = sponsorIds.includes('*');
+    console.log('[/api/sponsor/tracks] isAdmin:', isAdmin);
+    
+    let tracksQuery = db.collection(SPONSOR_COLLECTIONS.TRACKS)
+      .where('status', '==', 'active');
+    
+    if (!isAdmin) {
+      console.log('[/api/sponsor/tracks] 非 admin，過濾 sponsorId...');
+      tracksQuery = tracksQuery.where('sponsorId', 'in', sponsorIds) as any;
+    } else {
+      console.log('[/api/sponsor/tracks] Admin 用戶，查詢所有 tracks...');
+    }
     
     const tracksSnapshot = await tracksQuery.get();
     console.log('[/api/sponsor/tracks] 查詢結果: tracks.size =', tracksSnapshot.size);
@@ -89,7 +99,17 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
 
     // 5. 獲取所有相關的贊助商資訊
     const sponsorsMap = new Map<string, ExtendedSponsor>();
-    if (sponsorIds.length > 0) {
+    if (isAdmin) {
+      // Admin 用戶：獲取所有 sponsors
+      const sponsorsSnapshot = await db
+        .collection(SPONSOR_COLLECTIONS.EXTENDED_SPONSORS)
+        .get();
+
+      sponsorsSnapshot.docs.forEach((doc) => {
+        sponsorsMap.set(doc.id, { id: doc.id, ...doc.data() } as ExtendedSponsor);
+      });
+    } else if (sponsorIds.length > 0) {
+      // 非 Admin 用戶：只獲取用戶管理的 sponsors
       const sponsorsSnapshot = await db
         .collection(SPONSOR_COLLECTIONS.EXTENDED_SPONSORS)
         .where(firestore.FieldPath.documentId(), 'in', sponsorIds)

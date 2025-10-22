@@ -362,7 +362,16 @@ export async function getUserSponsors(userId: string, editableOnly: boolean = fa
     
     const user = userData.data;
     const userEmail = user?.email || user?.user?.email || user?.user?.preferredEmail || '';
+    const permissions = user?.permissions || user?.user?.permissions || [];
     console.log('[getUserSponsors] userEmail:', userEmail);
+    console.log('[getUserSponsors] permissions:', permissions);
+    
+    // 如果是 super_admin 或 admin，返回特殊標記 '*' 表示所有權限
+    if (permissions.includes('super_admin') || permissions.includes('admin') ||
+        permissions[0] === 'super_admin' || permissions[0] === 'admin') {
+      console.log('[getUserSponsors] 用戶是 admin/super_admin，返回 ["*"]');
+      return ['*'];
+    }
     
     // 使用 document ID 查詢 sponsor-user-mappings
     const docId = userData.ref.id;
