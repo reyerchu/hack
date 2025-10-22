@@ -84,7 +84,7 @@ export default function AdminTeamsPage() {
       }
 
       console.log('[AdminTeams] Fetching teams...');
-      const response = await RequestHelper.get<Team[]>('/api/admin/teams', {
+      const response = await RequestHelper.get<{ data: Team[] }>('/api/admin/teams', {
         headers: {
           Authorization: user.token,
         },
@@ -95,11 +95,21 @@ export default function AdminTeamsPage() {
       }
 
       console.log('[AdminTeams] Fetched teams:', response.data);
-      setTeams(response.data || []);
-      setFilteredTeams(response.data || []);
+      
+      // Ensure we always set an array
+      const teamsData = Array.isArray(response.data?.data) 
+        ? response.data.data 
+        : Array.isArray(response.data) 
+        ? response.data 
+        : [];
+      
+      setTeams(teamsData);
+      setFilteredTeams(teamsData);
     } catch (err: any) {
       console.error('[AdminTeams] Error fetching teams:', err);
       setError(err.message || '獲取團隊列表失敗');
+      setTeams([]);
+      setFilteredTeams([]);
     } finally {
       setLoading(false);
     }
