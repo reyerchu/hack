@@ -61,9 +61,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       // Fetch track names
       const trackNames = [];
+      const trackIds = [];
       if (teamData.tracks && Array.isArray(teamData.tracks)) {
-        for (const trackId of teamData.tracks) {
+        for (const track of teamData.tracks) {
           try {
+            // Handle if track is already an object
+            if (typeof track === 'object' && track !== null) {
+              trackNames.push(track.name || track.id || 'Unknown Track');
+              trackIds.push(track.id || track.trackId || '');
+              continue;
+            }
+            
+            // Otherwise treat as ID
+            const trackId = track;
+            trackIds.push(trackId);
+            
             // Try tracks collection first
             let trackDoc = await db.collection('tracks').doc(trackId).get();
             if (trackDoc.exists) {
@@ -79,7 +91,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             }
           } catch (error) {
             console.error('[GET /api/admin/teams] Error fetching track:', error);
-            trackNames.push(trackId);
+            trackNames.push(typeof track === 'string' ? track : 'Unknown Track');
+            trackIds.push(typeof track === 'string' ? track : '');
           }
         }
       }
@@ -90,7 +103,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         teamLeader: leaderInfo || teamData.teamLeader,
         teamMembers: teamData.teamMembers || [],
         tracks: trackNames,
-        trackIds: teamData.tracks || [],
+        trackIds: trackIds,
         createdAt: teamData.createdAt,
         updatedAt: teamData.updatedAt,
       });
