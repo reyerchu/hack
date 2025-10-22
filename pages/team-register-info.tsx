@@ -98,19 +98,19 @@ export default function TeamRegisterInfo() {
             {/* 步驟 2 */}
             <div 
               className="bg-white rounded-xl p-8 shadow-lg border-l-8"
-              style={{ borderColor: '#059669' }}
+              style={{ borderColor: '#047857' }}
             >
               <div className="flex items-start gap-6">
                 <div 
                   className="flex-shrink-0 w-16 h-16 rounded-full flex items-center justify-center text-3xl font-bold text-white"
-                  style={{ backgroundColor: '#059669' }}
+                  style={{ backgroundColor: '#047857' }}
                 >
                   2
                 </div>
                 <div className="flex-1">
                   <h2 
                     className="text-2xl font-bold mb-4"
-                    style={{ color: '#059669' }}
+                    style={{ color: '#047857' }}
                   >
                     由領隊進行團隊報名
                   </h2>
@@ -145,19 +145,19 @@ export default function TeamRegisterInfo() {
             {/* 步驟 3 */}
             <div 
               className="bg-white rounded-xl p-8 shadow-lg border-l-8"
-              style={{ borderColor: '#f59e0b' }}
+              style={{ borderColor: '#d97706' }}
             >
               <div className="flex items-start gap-6">
                 <div 
                   className="flex-shrink-0 w-16 h-16 rounded-full flex items-center justify-center text-3xl font-bold text-white"
-                  style={{ backgroundColor: '#f59e0b' }}
+                  style={{ backgroundColor: '#d97706' }}
                 >
                   3
                 </div>
                 <div className="flex-1">
                   <h2 
                     className="text-2xl font-bold mb-4"
-                    style={{ color: '#f59e0b' }}
+                    style={{ color: '#d97706' }}
                   >
                     團隊成員收到通知
                   </h2>
