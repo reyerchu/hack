@@ -26,6 +26,7 @@ interface Track {
   description: string;
   sponsorName: string;
   sponsorLogo: string;
+  sponsorId: string;
   totalPrize: number;
   challengeCount: number;
   challenges: Challenge[];
@@ -48,7 +49,11 @@ export default function TracksChallengesPage() {
       setLoading(true);
       setError(null);
 
-      const response = await RequestHelper.get<{ data: Track[] }>('/api/tracks-challenges/all', {});
+      const response = await RequestHelper.get<{ data: Track[] }>('/api/tracks-challenges/all');
+
+      if (response.error) {
+        throw new Error(response.error);
+      }
 
       setTracks(response.data?.data || []);
     } catch (err: any) {
@@ -208,16 +213,19 @@ export default function TracksChallengesPage() {
                 {/* Track Header */}
                 <div className="p-6 border-b" style={{ borderColor: '#e5e7eb', backgroundColor: '#f8fafc' }}>
                   <div className="flex items-center gap-3 mb-3">
-                    <h3 className="text-xl font-bold" style={{ color: '#1a3a6e' }}>
-                      {track.name}
-                    </h3>
-                    {track.sponsorLogo && (
+                    {track.sponsorLogo ? (
+                      // 有 logo：只显示 logo
                       <img
                         src={track.sponsorLogo}
                         alt={track.sponsorName}
-                        className="h-8 w-auto object-contain"
-                        title={track.sponsorName}
+                        className="h-12 w-auto object-contain"
+                        title={track.name}
                       />
+                    ) : (
+                      // 无 logo（AWS 和 RWA）：只显示标题
+                      <h3 className="text-xl font-bold" style={{ color: '#1a3a6e' }}>
+                        {track.name}
+                      </h3>
                     )}
                   </div>
                   <p className="text-sm" style={{ color: '#6b7280' }}>
@@ -303,9 +311,25 @@ export default function TracksChallengesPage() {
             {/* Modal Header */}
             <div className="sticky top-0 bg-white border-b p-6 flex items-center justify-between" style={{ borderColor: '#e5e7eb' }}>
               <div className="flex-1 min-w-0">
-                <h2 className="text-2xl font-bold truncate" style={{ color: '#1a3a6e' }}>
-                  {selectedChallenge ? selectedChallenge.title : selectedTrack?.name}
-                </h2>
+                {selectedChallenge ? (
+                  // 显示挑战标题
+                  <h2 className="text-2xl font-bold truncate" style={{ color: '#1a3a6e' }}>
+                    {selectedChallenge.title}
+                  </h2>
+                ) : selectedTrack?.sponsorLogo ? (
+                  // 有 logo：显示 logo
+                  <img
+                    src={selectedTrack.sponsorLogo}
+                    alt={selectedTrack.sponsorName}
+                    className="h-16 w-auto object-contain"
+                    title={selectedTrack.name}
+                  />
+                ) : (
+                  // 无 logo：显示标题
+                  <h2 className="text-2xl font-bold truncate" style={{ color: '#1a3a6e' }}>
+                    {selectedTrack?.name}
+                  </h2>
+                )}
                 <p className="text-sm mt-1" style={{ color: '#6b7280' }}>
                   {selectedTrack?.sponsorName}
                 </p>
