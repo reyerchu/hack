@@ -46,10 +46,10 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
   console.log('[/api/sponsor/tracks] ✅ 認證成功, userId:', userId);
 
   try {
-    // 1. 獲取用戶的贊助商列表
-    console.log('[/api/sponsor/tracks] 獲取贊助商列表...');
-    const sponsorIds = await getUserSponsors(userId);
-    console.log('[/api/sponsor/tracks] sponsorIds:', sponsorIds);
+    // 1. 獲取用戶的贊助商列表（只返回有編輯權限的）
+    console.log('[/api/sponsor/tracks] 獲取贊助商列表（只返回可編輯的）...');
+    const sponsorIds = await getUserSponsors(userId, true);
+    console.log('[/api/sponsor/tracks] sponsorIds (editable only):', sponsorIds);
 
     // 2. 獲取賽道列表（從 tracks 集合）
     console.log('[/api/sponsor/tracks] 查詢 tracks...');

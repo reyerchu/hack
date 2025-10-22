@@ -345,11 +345,12 @@ export async function hasSponsorRole(
  * 獲取用戶所属的所有贊助商
  * 
  * @param userId - 用戶 ID
+ * @param editableOnly - 是否只返回有編輯權限的 sponsors（默認：false）
  * @returns 贊助商 ID 列表
  */
-export async function getUserSponsors(userId: string): Promise<string[]> {
+export async function getUserSponsors(userId: string, editableOnly: boolean = false): Promise<string[]> {
   try {
-    console.log('[getUserSponsors] 開始, userId:', userId);
+    console.log('[getUserSponsors] 開始, userId:', userId, 'editableOnly:', editableOnly);
     // 獲取用戶數據以獲取 document ID 和 email
     const userData = await getUserData(userId);
     console.log('[getUserSponsors] userData exists:', userData?.exists);
@@ -371,7 +372,12 @@ export async function getUserSponsors(userId: string): Promise<string[]> {
       .where('userId', '==', docId)
       .get();
     
-    const sponsorIdsFromMappings = mappingsSnapshot.docs.map((doc) => doc.data().sponsorId);
+    // 如果只要可編輯的，過濾出 role === 'admin' 的 mappings
+    const sponsorIdsFromMappings = editableOnly
+      ? mappingsSnapshot.docs
+          .filter(doc => doc.data().role === 'admin')
+          .map(doc => doc.data().sponsorId)
+      : mappingsSnapshot.docs.map(doc => doc.data().sponsorId);
     console.log('[getUserSponsors] sponsorIds from mappings:', sponsorIdsFromMappings);
     
     // 查詢所有 sponsors，檢查 managers 字段
@@ -385,9 +391,12 @@ export async function getUserSponsors(userId: string): Promise<string[]> {
       sponsorsSnapshot.docs.forEach(doc => {
         const sponsorData = doc.data();
         const managers = sponsorData.managers || [];
-        const isManager = managers.some((m: any) => 
-          m.email && m.email.toLowerCase() === normalizedUserEmail
-        );
+        const isManager = managers.some((m: any) => {
+          if (typeof m === 'string') {
+            return m.toLowerCase() === normalizedUserEmail;
+          }
+          return m.email && m.email.toLowerCase() === normalizedUserEmail;
+        });
         if (isManager) {
           sponsorIdsFromManagers.push(doc.id);
         }
