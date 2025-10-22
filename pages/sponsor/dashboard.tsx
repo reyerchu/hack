@@ -644,7 +644,7 @@ export default function SponsorDashboard() {
                           </div>
                           <div className="flex items-center gap-2 ml-4">
                             <button
-                              onClick={() => router.push(`/sponsor/tracks/${track.id}/challenge?challengeId=${challenge.id}`)}
+                              onClick={() => router.push(`/sponsor/tracks/${track.id}/challenge?challengeId=${challenge.id}&mode=view`)}
                               className="text-sm px-3 py-1.5 rounded-lg transition-colors"
                               style={{
                                 backgroundColor: '#1a3a6e',
@@ -660,38 +660,56 @@ export default function SponsorDashboard() {
                               查看
                             </button>
                             {track.permissions.canEdit && (
-                              <button
-                                className="text-sm px-2 py-1.5 rounded-lg transition-colors"
-                                style={{
-                                  backgroundColor: '#dc2626',
-                                  color: '#ffffff',
-                                }}
-                                onMouseEnter={(e) => {
-                                  e.currentTarget.style.backgroundColor = '#b91c1c';
-                                }}
-                                onMouseLeave={(e) => {
-                                  e.currentTarget.style.backgroundColor = '#dc2626';
-                                }}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleDeleteClick({ ...track, id: challenge.trackId, name: challenge.title || challenge.track }, e);
-                                }}
-                                title="刪除挑戰"
-                              >
-                                <svg
-                                  className="w-4 h-4"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  viewBox="0 0 24 24"
+                              <>
+                                <button
+                                  onClick={() => router.push(`/sponsor/tracks/${track.id}/challenge?challengeId=${challenge.id}&mode=edit`)}
+                                  className="text-sm px-3 py-1.5 rounded-lg transition-colors"
+                                  style={{
+                                    backgroundColor: '#059669',
+                                    color: '#ffffff',
+                                  }}
+                                  onMouseEnter={(e) => {
+                                    e.currentTarget.style.backgroundColor = '#047857';
+                                  }}
+                                  onMouseLeave={(e) => {
+                                    e.currentTarget.style.backgroundColor = '#059669';
+                                  }}
                                 >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                                  />
-                                </svg>
-                              </button>
+                                  編輯
+                                </button>
+                                <button
+                                  className="text-sm px-2 py-1.5 rounded-lg transition-colors"
+                                  style={{
+                                    backgroundColor: '#dc2626',
+                                    color: '#ffffff',
+                                  }}
+                                  onMouseEnter={(e) => {
+                                    e.currentTarget.style.backgroundColor = '#b91c1c';
+                                  }}
+                                  onMouseLeave={(e) => {
+                                    e.currentTarget.style.backgroundColor = '#dc2626';
+                                  }}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDeleteClick({ ...track, id: challenge.trackId, name: challenge.title || challenge.track }, e);
+                                  }}
+                                  title="刪除挑戰"
+                                >
+                                  <svg
+                                    className="w-4 h-4"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth={2}
+                                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                    />
+                                  </svg>
+                                </button>
+                              </>
                             )}
                           </div>
                         </div>

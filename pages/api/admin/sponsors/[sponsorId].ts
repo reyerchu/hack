@@ -229,10 +229,100 @@ async function handleUpdate(req: NextApiRequest, res: NextApiResponse) {
       updatedBy: userId,
     };
 
-    // 8. Update sponsor
+    // 8. Update sponsor-user-mappings and grant sponsor permissions
+    if (managers && Array.isArray(managers)) {
+      console.log('[UpdateSponsor] Processing managers:', managers);
+      
+      // Delete existing mappings for this sponsor
+      const existingMappings = await db.collection('sponsor-user-mappings')
+        .where('sponsorId', '==', sponsorId)
+        .get();
+      
+      const deleteBatch = db.batch();
+      existingMappings.docs.forEach(doc => {
+        deleteBatch.delete(doc.ref);
+      });
+      await deleteBatch.commit();
+      console.log('[UpdateSponsor] Deleted', existingMappings.size, 'existing mappings');
+      
+      // Create new mappings and grant sponsor permissions
+      for (const email of managers) {
+        if (!email || typeof email !== 'string') continue;
+        
+        const normalizedEmail = email.trim().toLowerCase();
+        
+        // Find user by email in registrations collection
+        const userQuery = await db.collection('registrations')
+          .where('email', '==', normalizedEmail)
+          .limit(1)
+          .get();
+        
+        if (userQuery.empty) {
+          console.log('[UpdateSponsor] ⚠️ Manager email not found:', normalizedEmail);
+          continue;
+        }
+        
+        const userDoc = userQuery.docs[0];
+        const userData = userDoc.data();
+        
+        // Get user's current permissions (support both flat and nested structure)
+        let userPermissions = userData?.permissions || userData?.user?.permissions || [];
+        
+        // Ensure permissions is an array
+        if (!Array.isArray(userPermissions)) {
+          userPermissions = [];
+        }
+        
+        // Add 'sponsor' permission if not already present
+        if (!userPermissions.includes('sponsor')) {
+          userPermissions.push('sponsor');
+          
+          // Update user's permissions in Firestore
+          if (userData?.user) {
+            // Nested structure: update user.permissions
+            await userDoc.ref.update({
+              'user.permissions': userPermissions,
+              updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+            });
+          } else {
+            // Flat structure: update permissions directly
+            await userDoc.ref.update({
+              permissions: userPermissions,
+              updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+            });
+          }
+          
+          console.log('[UpdateSponsor] ✅ Added sponsor permission to user:', normalizedEmail);
+        } else {
+          console.log('[UpdateSponsor] ℹ️ User already has sponsor permission:', normalizedEmail);
+        }
+        
+        console.log('[UpdateSponsor] Creating mapping:', {
+          email: normalizedEmail,
+          userId: userDoc.id,
+          sponsorId,
+          role: 'admin',
+          updatedPermissions: userPermissions,
+        });
+        
+        // Create mapping with 'admin' role (full edit permissions)
+        await db.collection('sponsor-user-mappings').add({
+          userId: userDoc.id,
+          sponsorId: sponsorId,
+          role: 'admin',
+          email: normalizedEmail,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          createdBy: userId,
+        });
+      }
+      
+      console.log('[UpdateSponsor] Successfully processed', managers.length, 'managers');
+    }
+
+    // 9. Update sponsor document
     await sponsorDoc.ref.update(updateData);
 
-    // 9. Log activity
+    // 10. Log activity
     try {
       await db.collection('sponsor-activity-logs').add({
         userId: userId,

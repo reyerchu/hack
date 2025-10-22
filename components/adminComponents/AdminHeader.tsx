@@ -16,6 +16,7 @@ export default function AdminHeader() {
 
   const tabs = [
     { name: '用戶管理', href: '/admin/users', exactMatch: false },
+    { name: '團隊管理', href: '/admin/teams', exactMatch: false },
     { name: '贊助商管理', href: '/admin/sponsors', exactMatch: false },
     { name: '公告與問題', href: '/admin/announcements', exactMatch: false },
     { name: '統計', href: '/admin/stats', exactMatch: false, superAdminOnly: true },

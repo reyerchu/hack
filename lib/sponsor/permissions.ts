@@ -345,11 +345,12 @@ export async function hasSponsorRole(
  * 獲取用戶所属的所有贊助商
  * 
  * @param userId - 用戶 ID
+ * @param editableOnly - 是否只返回有編輯權限的 sponsors（默認：false）
  * @returns 贊助商 ID 列表
  */
-export async function getUserSponsors(userId: string): Promise<string[]> {
+export async function getUserSponsors(userId: string, editableOnly: boolean = false): Promise<string[]> {
   try {
-    console.log('[getUserSponsors] 開始, userId:', userId);
+    console.log('[getUserSponsors] 開始, userId:', userId, 'editableOnly:', editableOnly);
     // 獲取用戶數據以獲取 document ID 和 email
     const userData = await getUserData(userId);
     console.log('[getUserSponsors] userData exists:', userData?.exists);
@@ -361,7 +362,16 @@ export async function getUserSponsors(userId: string): Promise<string[]> {
     
     const user = userData.data;
     const userEmail = user?.email || user?.user?.email || user?.user?.preferredEmail || '';
+    const permissions = user?.permissions || user?.user?.permissions || [];
     console.log('[getUserSponsors] userEmail:', userEmail);
+    console.log('[getUserSponsors] permissions:', permissions);
+    
+    // 如果是 super_admin 或 admin，返回特殊標記 '*' 表示所有權限
+    if (permissions.includes('super_admin') || permissions.includes('admin') ||
+        permissions[0] === 'super_admin' || permissions[0] === 'admin') {
+      console.log('[getUserSponsors] 用戶是 admin/super_admin，返回 ["*"]');
+      return ['*'];
+    }
     
     // 使用 document ID 查詢 sponsor-user-mappings
     const docId = userData.ref.id;
@@ -371,7 +381,12 @@ export async function getUserSponsors(userId: string): Promise<string[]> {
       .where('userId', '==', docId)
       .get();
     
-    const sponsorIdsFromMappings = mappingsSnapshot.docs.map((doc) => doc.data().sponsorId);
+    // 如果只要可編輯的，過濾出 role === 'admin' 的 mappings
+    const sponsorIdsFromMappings = editableOnly
+      ? mappingsSnapshot.docs
+          .filter(doc => doc.data().role === 'admin')
+          .map(doc => doc.data().sponsorId)
+      : mappingsSnapshot.docs.map(doc => doc.data().sponsorId);
     console.log('[getUserSponsors] sponsorIds from mappings:', sponsorIdsFromMappings);
     
     // 查詢所有 sponsors，檢查 managers 字段
@@ -385,9 +400,12 @@ export async function getUserSponsors(userId: string): Promise<string[]> {
       sponsorsSnapshot.docs.forEach(doc => {
         const sponsorData = doc.data();
         const managers = sponsorData.managers || [];
-        const isManager = managers.some((m: any) => 
-          m.email && m.email.toLowerCase() === normalizedUserEmail
-        );
+        const isManager = managers.some((m: any) => {
+          if (typeof m === 'string') {
+            return m.toLowerCase() === normalizedUserEmail;
+          }
+          return m.email && m.email.toLowerCase() === normalizedUserEmail;
+        });
         if (isManager) {
           sponsorIdsFromManagers.push(doc.id);
         }
