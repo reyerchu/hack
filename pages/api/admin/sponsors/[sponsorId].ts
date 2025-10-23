@@ -1,6 +1,6 @@
 /**
  * API: /api/admin/sponsors/[sponsorId]
- * 
+ *
  * 处理单个 sponsor 的操作（GET, DELETE 等）
  */
 
@@ -15,11 +15,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (req.method === 'DELETE') {
     return handleDelete(req, res);
   }
-  
+
   if (req.method === 'PUT') {
     return handleUpdate(req, res);
   }
-  
+
   return res.status(405).json({ error: 'Method not allowed' });
 }
 
@@ -54,7 +54,7 @@ async function handleDelete(req: NextApiRequest, res: NextApiResponse) {
 
     // 3. Get sponsorId from query
     const { sponsorId } = req.query;
-    
+
     if (!sponsorId || typeof sponsorId !== 'string') {
       return res.status(400).json({ error: 'Invalid sponsor ID' });
     }
@@ -63,7 +63,8 @@ async function handleDelete(req: NextApiRequest, res: NextApiResponse) {
 
     // 4. Check if sponsor exists
     console.log('[DeleteSponsor] Checking if sponsor exists...');
-    const sponsorSnapshot = await db.collection('extended-sponsors')
+    const sponsorSnapshot = await db
+      .collection('extended-sponsors')
       .where('id', '==', sponsorId)
       .limit(1)
       .get();
@@ -80,35 +81,36 @@ async function handleDelete(req: NextApiRequest, res: NextApiResponse) {
 
     // 5. Check if sponsor has associated tracks
     console.log('[DeleteSponsor] Checking for associated tracks...');
-    const tracksSnapshot = await db.collection('tracks')
-      .where('sponsorId', '==', sponsorId)
-      .get();
+    const tracksSnapshot = await db.collection('tracks').where('sponsorId', '==', sponsorId).get();
 
     console.log('[DeleteSponsor] Associated tracks count:', tracksSnapshot.size);
     if (!tracksSnapshot.empty) {
-      const trackNames = tracksSnapshot.docs.map(d => d.data().name || d.data().trackId);
+      const trackNames = tracksSnapshot.docs.map((d) => d.data().name || d.data().trackId);
       console.log('[DeleteSponsor] ❌ Cannot delete: has tracks:', trackNames);
-      return res.status(400).json({ 
+      return res.status(400).json({
         error: '無法刪除：此贊助商還有關聯的賽道',
         details: `此贊助商有 ${tracksSnapshot.size} 個賽道，請先重新分配這些賽道`,
-        tracks: trackNames
+        tracks: trackNames,
       });
     }
 
     // 6. Check if sponsor has associated challenges
     console.log('[DeleteSponsor] Checking for associated challenges...');
-    const challengesSnapshot = await db.collection('extended-challenges')
+    const challengesSnapshot = await db
+      .collection('extended-challenges')
       .where('sponsorId', '==', sponsorId)
       .get();
 
     console.log('[DeleteSponsor] Associated challenges count:', challengesSnapshot.size);
     if (!challengesSnapshot.empty) {
-      const challengeNames = challengesSnapshot.docs.map(d => d.data().title || d.data().challengeId);
+      const challengeNames = challengesSnapshot.docs.map(
+        (d) => d.data().title || d.data().challengeId,
+      );
       console.log('[DeleteSponsor] ❌ Cannot delete: has challenges:', challengeNames);
-      return res.status(400).json({ 
+      return res.status(400).json({
         error: '無法刪除：此贊助商還有關聯的挑戰',
         details: `此贊助商有 ${challengesSnapshot.size} 個挑戰，請先重新分配這些挑戰`,
-        challenges: challengeNames
+        challenges: challengeNames,
       });
     }
 
@@ -135,7 +137,6 @@ async function handleDelete(req: NextApiRequest, res: NextApiResponse) {
       success: true,
       message: `贊助商 ${sponsorName} 已成功刪除`,
     });
-
   } catch (error: any) {
     console.error('[DeleteSponsor] Error:', error);
     return res.status(500).json({
@@ -176,7 +177,7 @@ async function handleUpdate(req: NextApiRequest, res: NextApiResponse) {
 
     // 3. Get sponsorId from query
     const { sponsorId } = req.query;
-    
+
     if (!sponsorId || typeof sponsorId !== 'string') {
       return res.status(400).json({ error: 'Invalid sponsor ID' });
     }
@@ -203,9 +204,7 @@ async function handleUpdate(req: NextApiRequest, res: NextApiResponse) {
 
     // 6. Check if sponsor exists
     console.log('[UpdateSponsor] Checking if sponsor exists...');
-    const sponsorDoc = await db.collection('extended-sponsors')
-      .doc(sponsorId)
-      .get();
+    const sponsorDoc = await db.collection('extended-sponsors').doc(sponsorId).get();
 
     if (!sponsorDoc.exists) {
       console.log('[UpdateSponsor] ❌ Sponsor not found:', sponsorId);
@@ -232,51 +231,89 @@ async function handleUpdate(req: NextApiRequest, res: NextApiResponse) {
     // 8. Update sponsor-user-mappings and grant sponsor permissions
     if (managers && Array.isArray(managers)) {
       console.log('[UpdateSponsor] Processing managers:', managers);
-      
+
       // Delete existing mappings for this sponsor
-      const existingMappings = await db.collection('sponsor-user-mappings')
+      const existingMappings = await db
+        .collection('sponsor-user-mappings')
         .where('sponsorId', '==', sponsorId)
         .get();
-      
+
       const deleteBatch = db.batch();
-      existingMappings.docs.forEach(doc => {
+      existingMappings.docs.forEach((doc) => {
         deleteBatch.delete(doc.ref);
       });
       await deleteBatch.commit();
       console.log('[UpdateSponsor] Deleted', existingMappings.size, 'existing mappings');
-      
+
       // Create new mappings and grant sponsor permissions
-      for (const email of managers) {
+      for (const manager of managers) {
+        // Handle both string and object formats
+        const email = typeof manager === 'string' ? manager : manager?.email;
         if (!email || typeof email !== 'string') continue;
-        
+
         const normalizedEmail = email.trim().toLowerCase();
-        
+
         // Find user by email in registrations collection
-        const userQuery = await db.collection('registrations')
+        // Try multiple approaches to find the user
+        let userQuery = await db
+          .collection('registrations')
           .where('email', '==', normalizedEmail)
           .limit(1)
           .get();
-        
+
+        // If not found, try preferredEmail
+        if (userQuery.empty) {
+          userQuery = await db
+            .collection('registrations')
+            .where('preferredEmail', '==', normalizedEmail)
+            .limit(1)
+            .get();
+        }
+
+        // If still not found, search through all registrations (for nested email fields)
+        if (userQuery.empty) {
+          console.log(
+            '[UpdateSponsor] Searching through all registrations for nested email fields...',
+          );
+          const allUsers = await db.collection('registrations').get();
+          let foundUser = null;
+
+          for (const doc of allUsers.docs) {
+            const data = doc.data();
+            const userEmail =
+              data.email || data.preferredEmail || data.user?.email || data.user?.preferredEmail;
+
+            if (userEmail && userEmail.toLowerCase() === normalizedEmail) {
+              foundUser = doc;
+              break;
+            }
+          }
+
+          if (foundUser) {
+            userQuery = { docs: [foundUser], empty: false } as any;
+          }
+        }
+
         if (userQuery.empty) {
           console.log('[UpdateSponsor] ⚠️ Manager email not found:', normalizedEmail);
           continue;
         }
-        
+
         const userDoc = userQuery.docs[0];
         const userData = userDoc.data();
-        
+
         // Get user's current permissions (support both flat and nested structure)
         let userPermissions = userData?.permissions || userData?.user?.permissions || [];
-        
+
         // Ensure permissions is an array
         if (!Array.isArray(userPermissions)) {
           userPermissions = [];
         }
-        
+
         // Add 'sponsor' permission if not already present
         if (!userPermissions.includes('sponsor')) {
           userPermissions.push('sponsor');
-          
+
           // Update user's permissions in Firestore
           if (userData?.user) {
             // Nested structure: update user.permissions
@@ -291,12 +328,12 @@ async function handleUpdate(req: NextApiRequest, res: NextApiResponse) {
               updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
             });
           }
-          
+
           console.log('[UpdateSponsor] ✅ Added sponsor permission to user:', normalizedEmail);
         } else {
           console.log('[UpdateSponsor] ℹ️ User already has sponsor permission:', normalizedEmail);
         }
-        
+
         console.log('[UpdateSponsor] Creating mapping:', {
           email: normalizedEmail,
           userId: userDoc.id,
@@ -304,7 +341,7 @@ async function handleUpdate(req: NextApiRequest, res: NextApiResponse) {
           role: 'admin',
           updatedPermissions: userPermissions,
         });
-        
+
         // Create mapping with 'admin' role (full edit permissions)
         await db.collection('sponsor-user-mappings').add({
           userId: userDoc.id,
@@ -315,7 +352,7 @@ async function handleUpdate(req: NextApiRequest, res: NextApiResponse) {
           createdBy: userId,
         });
       }
-      
+
       console.log('[UpdateSponsor] Successfully processed', managers.length, 'managers');
     }
 
@@ -347,7 +384,6 @@ async function handleUpdate(req: NextApiRequest, res: NextApiResponse) {
         ...updateData,
       },
     });
-
   } catch (error: any) {
     console.error('[UpdateSponsor] Error:', error);
     return res.status(500).json({
@@ -356,4 +392,3 @@ async function handleUpdate(req: NextApiRequest, res: NextApiResponse) {
     });
   }
 }
-
