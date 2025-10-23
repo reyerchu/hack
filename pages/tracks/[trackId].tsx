@@ -91,7 +91,7 @@ export default function PublicTrackDetailPage() {
     if (Array.isArray(criteria) && criteria.length > 0) {
       return criteria.map((c: any) => 
         typeof c === 'object' ? c.name : c
-      ).join('、');
+      ).join('\n');
     }
     return '';
   };
