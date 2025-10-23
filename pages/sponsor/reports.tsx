@@ -1,6 +1,6 @@
 /**
  * 報告與分析頁面
- * 
+ *
  * 顯示贊助商的數據報告和分析
  */
 
@@ -29,9 +29,10 @@ export default function ReportsPage() {
   // 計算汇总數據
   const totalSubmissions = tracks.reduce((sum, track) => sum + track.stats.submissionCount, 0);
   const totalTeams = tracks.reduce((sum, track) => sum + track.stats.teamCount, 0);
-  const avgScore = tracks.length > 0
-    ? tracks.reduce((sum, track) => sum + (track.stats.averageScore || 0), 0) / tracks.length
-    : 0;
+  const avgScore =
+    tracks.length > 0
+      ? tracks.reduce((sum, track) => sum + (track.stats.averageScore || 0), 0) / tracks.length
+      : 0;
 
   const handleDownload = (reportType: string, format: 'pdf' | 'csv') => {
     // TODO: 實現實際的報告生成和下载
@@ -62,9 +63,17 @@ export default function ReportsPage() {
         {/* Header */}
         <div className="mb-6">
           <Link href="/sponsor/dashboard">
-            <a className="inline-flex items-center gap-1 text-sm font-medium mb-4 hover:underline" style={{ color: '#1a3a6e' }}>
+            <a
+              className="inline-flex items-center gap-1 text-sm font-medium mb-4 hover:underline"
+              style={{ color: '#1a3a6e' }}
+            >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15 19l-7-7 7-7"
+                />
               </svg>
               返回儀表板
             </a>
@@ -80,7 +89,10 @@ export default function ReportsPage() {
 
         {/* 關键指標 */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="rounded-lg p-6" style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb' }}>
+          <div
+            className="rounded-lg p-6"
+            style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb' }}
+          >
             <h3 className="text-sm font-medium mb-2" style={{ color: '#6b7280' }}>
               总項目提交
             </h3>
@@ -92,7 +104,10 @@ export default function ReportsPage() {
             </p>
           </div>
 
-          <div className="rounded-lg p-6" style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb' }}>
+          <div
+            className="rounded-lg p-6"
+            style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb' }}
+          >
             <h3 className="text-sm font-medium mb-2" style={{ color: '#6b7280' }}>
               赞助賽道
             </h3>
@@ -100,11 +115,14 @@ export default function ReportsPage() {
               {tracks.length}
             </p>
             <p className="text-xs mt-2" style={{ color: '#9ca3af' }}>
-              {tracks.filter(t => t.stats.submissionCount > 0).length} 個有提交
+              {tracks.filter((t) => t.stats.submissionCount > 0).length} 個有提交
             </p>
           </div>
 
-          <div className="rounded-lg p-6" style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb' }}>
+          <div
+            className="rounded-lg p-6"
+            style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb' }}
+          >
             <h3 className="text-sm font-medium mb-2" style={{ color: '#6b7280' }}>
               平均质量分
             </h3>
@@ -134,9 +152,10 @@ export default function ReportsPage() {
               </svg>
             }
             data={{
-              '隊伍数': `${totalTeams} 队`,
-              '提交数': `${totalSubmissions} 個`,
-              '参與率': totalTeams > 0 ? `${((totalSubmissions / totalTeams) * 100).toFixed(0)}%` : '-',
+              隊伍数: `${totalTeams} 队`,
+              提交数: `${totalSubmissions} 個`,
+              参與率:
+                totalTeams > 0 ? `${((totalSubmissions / totalTeams) * 100).toFixed(0)}%` : '-',
             }}
             onDownload={(format) => handleDownload('参與度報告', format)}
           />
@@ -156,9 +175,12 @@ export default function ReportsPage() {
               </svg>
             }
             data={{
-              '平均分': avgScore > 0 ? avgScore.toFixed(1) : '-',
-              '最高分': tracks.length > 0 ? Math.max(...tracks.map(t => t.stats.averageScore || 0)).toFixed(1) : '-',
-              '入围数': tracks.reduce((sum, t) => sum + (t.stats.shortlistedCount || 0), 0),
+              平均分: avgScore > 0 ? avgScore.toFixed(1) : '-',
+              最高分:
+                tracks.length > 0
+                  ? Math.max(...tracks.map((t) => t.stats.averageScore || 0)).toFixed(1)
+                  : '-',
+              入围数: tracks.reduce((sum, t) => sum + (t.stats.shortlistedCount || 0), 0),
             }}
             onDownload={(format) => handleDownload('項目质量報告', format)}
           />
@@ -184,9 +206,9 @@ export default function ReportsPage() {
               </svg>
             }
             data={{
-              '頁面访问': '待統計',
-              '社交互动': '待統計',
-              '媒體报道': '待統計',
+              頁面访问: '待統計',
+              社交互动: '待統計',
+              媒體报道: '待統計',
             }}
             onDownload={(format) => handleDownload('品牌曝光報告', format)}
           />
@@ -206,9 +228,9 @@ export default function ReportsPage() {
               </svg>
             }
             data={{
-              '目標達成': '待评估',
-              '满意度': '待调查',
-              '投资回报': '待計算',
+              目標達成: '待评估',
+              满意度: '待调查',
+              投资回报: '待計算',
             }}
             onDownload={(format) => handleDownload('活动效果報告', format)}
           />
@@ -318,4 +340,3 @@ export default function ReportsPage() {
     </div>
   );
 }
-

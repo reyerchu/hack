@@ -18,14 +18,17 @@ const envContent = fs.readFileSync(envPath, 'utf8');
 
 // 解析環境變數
 const envVars = {};
-envContent.split('\n').forEach(line => {
+envContent.split('\n').forEach((line) => {
   const trimmed = line.trim();
   if (trimmed && !trimmed.startsWith('#') && trimmed.includes('=')) {
     const [key, ...valueParts] = trimmed.split('=');
     if (key && valueParts.length > 0) {
       let value = valueParts.join('=').trim();
       // 移除引號
-      if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
+      if (
+        (value.startsWith('"') && value.endsWith('"')) ||
+        (value.startsWith("'") && value.endsWith("'"))
+      ) {
         value = value.slice(1, -1);
       }
       envVars[key.trim()] = value;
@@ -43,7 +46,9 @@ if (!admin.apps.length) {
     const clientEmail = envVars.SERVICE_ACCOUNT_CLIENT_EMAIL;
 
     if (!privateKey || !projectId || !clientEmail) {
-      throw new Error(`Missing Firebase credentials: privateKey=${!!privateKey}, projectId=${!!projectId}, clientEmail=${!!clientEmail}`);
+      throw new Error(
+        `Missing Firebase credentials: privateKey=${!!privateKey}, projectId=${!!projectId}, clientEmail=${!!clientEmail}`,
+      );
     }
 
     admin.initializeApp({
@@ -64,13 +69,13 @@ const db = admin.firestore();
 
 // Logo 映射表（从 Home 页面的 TSMCPrizePool.tsx 获取）
 const logoMapping = {
-  'imToken': '/sponsor-media/imToken-logo.svg',
-  '國泰金控': '/sponsor-media/Cathay-logo.png',
+  imToken: '/sponsor-media/imToken-logo.svg',
+  國泰金控: '/sponsor-media/Cathay-logo.png',
   'Oasis Protocol': '/sponsor-media/Oasis-logo.svg',
   'Self Protocol': '/sponsor-media/Self-logo.svg',
-  'Zircuit': '/sponsor-media/Zircuit-logo.svg',
-  'Sui': '/sponsor-media/Sui-logo.svg',
-  'AWS': '/sponsor-media/AWS-logo.svg',
+  Zircuit: '/sponsor-media/Zircuit-logo.svg',
+  Sui: '/sponsor-media/Sui-logo.svg',
+  AWS: '/sponsor-media/AWS-logo.svg',
   'RWA 黑客松台灣': '/sponsor-media/RWA-logo.svg',
 };
 
@@ -120,7 +125,6 @@ async function updateSponsorLogos() {
     console.log(`   更新: ${updatedCount} 個`);
     console.log(`   跳過: ${skippedCount} 個`);
     console.log(`${'='.repeat(60)}\n`);
-
   } catch (error) {
     console.error('❌ 錯誤:', error);
     process.exit(1);

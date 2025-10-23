@@ -30,20 +30,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // Search registrations
     const registrationsSnapshot = await db.collection('registrations').get();
-    
-    registrationsSnapshot.forEach(doc => {
+
+    registrationsSnapshot.forEach((doc) => {
       const data = doc.data();
       const emails = {
         email: data.email,
         'user.email': data.user?.email,
         'user.preferredEmail': data.user?.preferredEmail,
       };
-      
+
       const matchingFields: string[] = [];
       if (emails.email?.toLowerCase() === normalizedEmail) matchingFields.push('email');
-      if (emails['user.email']?.toLowerCase() === normalizedEmail) matchingFields.push('user.email');
-      if (emails['user.preferredEmail']?.toLowerCase() === normalizedEmail) matchingFields.push('user.preferredEmail');
-      
+      if (emails['user.email']?.toLowerCase() === normalizedEmail)
+        matchingFields.push('user.email');
+      if (emails['user.preferredEmail']?.toLowerCase() === normalizedEmail)
+        matchingFields.push('user.preferredEmail');
+
       if (matchingFields.length > 0) {
         results.registrations.push({
           docId: doc.id,
@@ -62,18 +64,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // Search users
     const usersSnapshot = await db.collection('users').get();
-    
-    usersSnapshot.forEach(doc => {
+
+    usersSnapshot.forEach((doc) => {
       const data = doc.data();
       const emails = {
         email: data.email,
         preferredEmail: data.preferredEmail,
       };
-      
+
       const matchingFields: string[] = [];
       if (emails.email?.toLowerCase() === normalizedEmail) matchingFields.push('email');
-      if (emails.preferredEmail?.toLowerCase() === normalizedEmail) matchingFields.push('preferredEmail');
-      
+      if (emails.preferredEmail?.toLowerCase() === normalizedEmail)
+        matchingFields.push('preferredEmail');
+
       if (matchingFields.length > 0) {
         results.users.push({
           docId: doc.id,
@@ -90,7 +93,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
 
     return res.status(200).json(results);
-
   } catch (error: any) {
     console.error('[Debug Find Email] Error:', error);
     return res.status(500).json({
@@ -99,4 +101,3 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
   }
 }
-

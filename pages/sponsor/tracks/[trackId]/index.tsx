@@ -1,6 +1,6 @@
 /**
  * 賽道詳情頁面
- * 
+ *
  * 顯示單個賽道的详细資訊、統計數據和管理選項
  */
 
@@ -21,7 +21,7 @@ export default function TrackDetailPage() {
   const [track, setTrack] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Add Challenge Modal
   const [showAddChallengeModal, setShowAddChallengeModal] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
@@ -126,7 +126,7 @@ export default function TrackDetailPage() {
       }
 
       const token = await currentUser.getIdToken();
-      
+
       const response = await fetch(`/api/sponsor/tracks/${trackId}/challenges/create`, {
         method: 'POST',
         headers: {
@@ -185,7 +185,7 @@ export default function TrackDetailPage() {
       }
 
       const token = await currentUser.getIdToken();
-      
+
       const response = await fetch(`/api/sponsor/tracks/${trackId}`, {
         method: 'PUT',
         headers: {
@@ -242,7 +242,10 @@ export default function TrackDetailPage() {
               {error || '找不到該賽道'}
             </p>
             <Link href="/sponsor/dashboard">
-              <a className="inline-block mt-4 text-sm font-medium hover:underline" style={{ color: '#991b1b' }}>
+              <a
+                className="inline-block mt-4 text-sm font-medium hover:underline"
+                style={{ color: '#991b1b' }}
+              >
                 返回儀表板
               </a>
             </Link>
@@ -258,9 +261,17 @@ export default function TrackDetailPage() {
         {/* Header */}
         <div className="mb-6">
           <Link href="/sponsor/dashboard">
-            <a className="inline-flex items-center gap-1 text-sm font-medium mb-4 hover:underline" style={{ color: '#1a3a6e' }}>
+            <a
+              className="inline-flex items-center gap-1 text-sm font-medium mb-4 hover:underline"
+              style={{ color: '#1a3a6e' }}
+            >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15 19l-7-7 7-7"
+                />
               </svg>
               返回儀表板
             </a>
@@ -378,9 +389,9 @@ export default function TrackDetailPage() {
                   title: challenge.title,
                   trackId: challenge.trackId,
                   currentPageTrackId: trackId,
-                  match: challenge.trackId === trackId
+                  match: challenge.trackId === trackId,
                 });
-                
+
                 return (
                   <div
                     key={challenge.id}
@@ -397,15 +408,21 @@ export default function TrackDetailPage() {
                         </p>
                         {challenge.prizes && (
                           <div className="text-sm" style={{ color: '#059669' }}>
-                            💰 獎金: {typeof challenge.prizes === 'string' 
-                              ? challenge.prizes 
+                            💰 獎金:{' '}
+                            {typeof challenge.prizes === 'string'
+                              ? challenge.prizes
                               : Array.isArray(challenge.prizes) && challenge.prizes.length > 0
-                                ? (typeof challenge.prizes[0] === 'object'
-                                  ? challenge.prizes.map((p: any) => 
-                                      `${p.currency === 'TWD' ? '台幣' : 'USD'} ${p.amount.toLocaleString()} ${p.description}`
-                                    ).join('，')
-                                  : challenge.prizes.join(', '))
-                                : ''}
+                              ? typeof challenge.prizes[0] === 'object'
+                                ? challenge.prizes
+                                    .map(
+                                      (p: any) =>
+                                        `${
+                                          p.currency === 'TWD' ? '台幣' : 'USD'
+                                        } ${p.amount.toLocaleString()} ${p.description}`,
+                                    )
+                                    .join('，')
+                                : challenge.prizes.join(', ')
+                              : ''}
                           </div>
                         )}
                         {/* 添加调试信息 */}
@@ -415,7 +432,9 @@ export default function TrackDetailPage() {
                           </div>
                         )}
                       </div>
-                      <Link href={`/sponsor/tracks/${trackId}/challenge?challengeId=${challenge.id}`}>
+                      <Link
+                        href={`/sponsor/tracks/${trackId}/challenge?challengeId=${challenge.id}`}
+                      >
                         <a
                           onClick={() => {
                             console.log('[Track Detail] Navigating to challenge:', {
@@ -423,7 +442,7 @@ export default function TrackDetailPage() {
                               challengeId: challenge.id,
                               challengeTitle: challenge.title,
                               challengeTrackId: challenge.trackId,
-                              expectedTrackId: trackId
+                              expectedTrackId: trackId,
                             });
                           }}
                           className="ml-4 px-4 py-2 rounded-lg text-sm font-medium border-2 transition-colors"
@@ -480,9 +499,23 @@ export default function TrackDetailPage() {
         {/* 快速操作 */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <Link href={`/sponsor/tracks/${trackId}/submissions`}>
-            <a className="block rounded-lg p-6 border-2 transition-all hover:shadow-lg" style={{ borderColor: '#e5e7eb', backgroundColor: '#ffffff' }}>
-              <svg className="w-8 h-8 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: '#1a3a6e' }}>
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            <a
+              className="block rounded-lg p-6 border-2 transition-all hover:shadow-lg"
+              style={{ borderColor: '#e5e7eb', backgroundColor: '#ffffff' }}
+            >
+              <svg
+                className="w-8 h-8 mb-3"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                style={{ color: '#1a3a6e' }}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                />
               </svg>
               <h3 className="text-lg font-semibold mb-2" style={{ color: '#1a3a6e' }}>
                 查看提交
@@ -494,9 +527,23 @@ export default function TrackDetailPage() {
           </Link>
 
           <Link href={`/sponsor/tracks/${trackId}/judging`}>
-            <a className="block rounded-lg p-6 border-2 transition-all hover:shadow-lg" style={{ borderColor: '#e5e7eb', backgroundColor: '#ffffff' }}>
-              <svg className="w-8 h-8 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: '#1a3a6e' }}>
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+            <a
+              className="block rounded-lg p-6 border-2 transition-all hover:shadow-lg"
+              style={{ borderColor: '#e5e7eb', backgroundColor: '#ffffff' }}
+            >
+              <svg
+                className="w-8 h-8 mb-3"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                style={{ color: '#1a3a6e' }}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
+                />
               </svg>
               <h3 className="text-lg font-semibold mb-2" style={{ color: '#1a3a6e' }}>
                 評審與決選
@@ -508,9 +555,23 @@ export default function TrackDetailPage() {
           </Link>
 
           <Link href="/sponsor/reports">
-            <a className="block rounded-lg p-6 border-2 transition-all hover:shadow-lg" style={{ borderColor: '#e5e7eb', backgroundColor: '#ffffff' }}>
-              <svg className="w-8 h-8 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: '#1a3a6e' }}>
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            <a
+              className="block rounded-lg p-6 border-2 transition-all hover:shadow-lg"
+              style={{ borderColor: '#e5e7eb', backgroundColor: '#ffffff' }}
+            >
+              <svg
+                className="w-8 h-8 mb-3"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                style={{ color: '#1a3a6e' }}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                />
               </svg>
               <h3 className="text-lg font-semibold mb-2" style={{ color: '#1a3a6e' }}>
                 數據報告
@@ -544,8 +605,19 @@ export default function TrackDetailPage() {
                 className="p-2 rounded-lg hover:bg-gray-100"
                 disabled={isCreating}
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: '#6b7280' }}>
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  style={{ color: '#6b7280' }}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
                 </svg>
               </button>
             </div>
@@ -690,8 +762,19 @@ export default function TrackDetailPage() {
                 className="p-2 rounded-lg hover:bg-gray-100"
                 disabled={isEditingTrack}
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: '#6b7280' }}>
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  style={{ color: '#6b7280' }}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
                 </svg>
               </button>
             </div>
@@ -705,9 +788,7 @@ export default function TrackDetailPage() {
                 <input
                   type="text"
                   value={editTrackData.name}
-                  onChange={(e) =>
-                    setEditTrackData({ ...editTrackData, name: e.target.value })
-                  }
+                  onChange={(e) => setEditTrackData({ ...editTrackData, name: e.target.value })}
                   className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   style={{ borderColor: '#d1d5db' }}
                   placeholder="例如：Sui 賽道"
@@ -779,4 +860,3 @@ export default function TrackDetailPage() {
     </div>
   );
 }
-

@@ -1,6 +1,6 @@
 /**
  * 報告卡片组件
- * 
+ *
  * 顯示單個報告的摘要和下载按钮
  */
 
@@ -105,4 +105,3 @@ export default function ReportCard({
     </div>
   );
 }
-

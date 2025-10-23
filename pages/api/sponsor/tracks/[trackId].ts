@@ -1,6 +1,6 @@
 /**
  * API: /api/sponsor/tracks/[trackId]
- * 
+ *
  * GET - 獲取單個賽道的詳細資訊
  */
 
@@ -12,10 +12,7 @@ import {
   ApiResponse,
   AuthenticatedRequest,
 } from '../../../../lib/sponsor/middleware';
-import {
-  checkTrackAccess,
-  getUserSponsorRole,
-} from '../../../../lib/sponsor/permissions';
+import { checkTrackAccess, getUserSponsorRole } from '../../../../lib/sponsor/permissions';
 import { SPONSOR_COLLECTIONS } from '../../../../lib/sponsor/collections';
 import type { ExtendedChallenge } from '../../../../lib/sponsor/types';
 
@@ -28,10 +25,7 @@ const db = firestore();
  */
 async function getTrackStats(trackId: string) {
   try {
-    const statsDoc = await db
-      .collection(SPONSOR_COLLECTIONS.TRACK_STATS)
-      .doc(trackId)
-      .get();
+    const statsDoc = await db.collection(SPONSOR_COLLECTIONS.TRACK_STATS).doc(trackId).get();
 
     if (statsDoc.exists) {
       return statsDoc.data();
@@ -58,7 +52,7 @@ async function getTrackStats(trackId: string) {
  */
 async function handleGet(req: NextApiRequest, res: NextApiResponse) {
   console.log('[/api/sponsor/tracks/[trackId]] ========== GET 請求開始 ==========');
-  
+
   if (!(await requireSponsorAuth(req, res))) {
     console.log('[/api/sponsor/tracks/[trackId]] ❌ 認證失敗');
     return;
@@ -81,15 +75,15 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
     console.log('[/api/sponsor/tracks/[trackId]] userId:', userId);
     console.log('[/api/sponsor/tracks/[trackId]] trackId:', trackId);
     console.log('[/api/sponsor/tracks/[trackId]] userPermissions:', authReq.userPermissions);
-    
+
     const hasAccess = await checkTrackAccess(userId, trackId);
     console.log('[/api/sponsor/tracks/[trackId]] hasAccess:', hasAccess);
-    
+
     if (!hasAccess) {
       console.log('[/api/sponsor/tracks/[trackId]] ❌ 權限檢查失敗');
       return ApiResponse.forbidden(res, '您沒有權限訪問此賽道');
     }
-    
+
     console.log('[/api/sponsor/tracks/[trackId]] ✅ 權限檢查通過');
 
     // 2. 獲取賽道資訊（從 tracks 集合）
@@ -117,9 +111,9 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
       .where('status', '==', 'published')
       .get();
 
-    const challenges = challengesSnapshot.docs.map(doc => ({
+    const challenges = challengesSnapshot.docs.map((doc) => ({
       id: doc.id,
-      ...doc.data()
+      ...doc.data(),
     })) as ExtendedChallenge[];
     console.log('[/api/sponsor/tracks/[trackId]] 找到 challenges 數量:', challenges.length);
 
@@ -130,7 +124,7 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
     // 5. 獲取用戶對此賽道的權限
     const userRole = await getUserSponsorRole(userId, track.sponsorId);
     console.log('[/api/sponsor/tracks/[trackId]] userRole:', userRole);
-    
+
     const permissions = {
       canEdit: userRole === 'admin',
       canViewSubmissions: ['admin', 'viewer', 'judge'].includes(userRole || ''),
@@ -164,7 +158,7 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
  */
 async function handlePut(req: NextApiRequest, res: NextApiResponse) {
   console.log('[/api/sponsor/tracks/[trackId]] ========== PUT 請求開始 ==========');
-  
+
   if (!(await requireSponsorAuth(req, res))) {
     console.log('[/api/sponsor/tracks/[trackId]] ❌ 認證失敗');
     return;
@@ -191,7 +185,7 @@ async function handlePut(req: NextApiRequest, res: NextApiResponse) {
     // 1. 檢查用戶是否有權限編輯此賽道
     const hasAccess = await checkTrackAccess(userId, trackId);
     console.log('[/api/sponsor/tracks/[trackId]] hasAccess:', hasAccess);
-    
+
     if (!hasAccess) {
       return ApiResponse.forbidden(res, '您沒有權限編輯此賽道');
     }
@@ -259,4 +253,3 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   return res.status(405).json({ error: 'Method not allowed' });
 }
-

@@ -1,6 +1,6 @@
 /**
  * 提交詳情頁面
- * 
+ *
  * 顯示單個隊伍提交的完整資訊
  */
 
@@ -118,7 +118,10 @@ export default function SubmissionDetailPage() {
               {error || '找不到該提交'}
             </p>
             <Link href="/sponsor/dashboard">
-              <a className="inline-block mt-4 text-sm font-medium hover:underline" style={{ color: '#991b1b' }}>
+              <a
+                className="inline-block mt-4 text-sm font-medium hover:underline"
+                style={{ color: '#991b1b' }}
+              >
                 返回儀表板
               </a>
             </Link>
@@ -146,9 +149,17 @@ export default function SubmissionDetailPage() {
         {/* Header */}
         <div className="mb-6">
           <Link href={`/sponsor/tracks/${submission.trackId}/submissions`}>
-            <a className="inline-flex items-center gap-1 text-sm font-medium mb-4 hover:underline" style={{ color: '#1a3a6e' }}>
+            <a
+              className="inline-flex items-center gap-1 text-sm font-medium mb-4 hover:underline"
+              style={{ color: '#1a3a6e' }}
+            >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15 19l-7-7 7-7"
+                />
               </svg>
               返回提交列表
             </a>
@@ -211,7 +222,10 @@ export default function SubmissionDetailPage() {
         </div>
 
         {/* Basic Info */}
-        <div className="rounded-lg p-6 mb-6" style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb' }}>
+        <div
+          className="rounded-lg p-6 mb-6"
+          style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb' }}
+        >
           <h2 className="text-xl font-semibold mb-4" style={{ color: '#1a3a6e' }}>
             基本資訊
           </h2>
@@ -276,7 +290,10 @@ export default function SubmissionDetailPage() {
 
         {/* Project Description */}
         {submission.projectDescription && (
-          <div className="rounded-lg p-6 mb-6" style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb' }}>
+          <div
+            className="rounded-lg p-6 mb-6"
+            style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb' }}
+          >
             <h2 className="text-xl font-semibold mb-4" style={{ color: '#1a3a6e' }}>
               項目描述
             </h2>
@@ -289,7 +306,10 @@ export default function SubmissionDetailPage() {
         )}
 
         {/* Links */}
-        <div className="rounded-lg p-6 mb-6" style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb' }}>
+        <div
+          className="rounded-lg p-6 mb-6"
+          style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb' }}
+        >
           <h2 className="text-xl font-semibold mb-4" style={{ color: '#1a3a6e' }}>
             相關链接
           </h2>
@@ -349,7 +369,10 @@ export default function SubmissionDetailPage() {
 
         {/* Team Members */}
         {submission.teamMembers && submission.teamMembers.length > 0 && (
-          <div className="rounded-lg p-6" style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb' }}>
+          <div
+            className="rounded-lg p-6"
+            style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb' }}
+          >
             <h2 className="text-xl font-semibold mb-4" style={{ color: '#1a3a6e' }}>
               隊伍成员 ({submission.teamMembers.length})
             </h2>
@@ -388,4 +411,3 @@ export default function SubmissionDetailPage() {
     </div>
   );
 }
-

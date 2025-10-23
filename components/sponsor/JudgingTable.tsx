@@ -1,6 +1,6 @@
 /**
  * 評分表格组件
- * 
+ *
  * 顯示所有提交的評分和排名
  */
 
@@ -113,7 +113,11 @@ export default function JudgingTable({
               隊伍名称
             </th>
             {criteria.map((c) => (
-              <th key={c.name} className="px-4 py-3 text-center text-sm font-semibold" style={{ color: '#1a3a6e' }}>
+              <th
+                key={c.name}
+                className="px-4 py-3 text-center text-sm font-semibold"
+                style={{ color: '#1a3a6e' }}
+              >
                 {c.name}
                 <br />
                 <span className="text-xs font-normal" style={{ color: '#6b7280' }}>
@@ -121,13 +125,22 @@ export default function JudgingTable({
                 </span>
               </th>
             ))}
-            <th className="px-4 py-3 text-center text-sm font-semibold" style={{ color: '#1a3a6e' }}>
+            <th
+              className="px-4 py-3 text-center text-sm font-semibold"
+              style={{ color: '#1a3a6e' }}
+            >
               总分
             </th>
-            <th className="px-4 py-3 text-center text-sm font-semibold" style={{ color: '#1a3a6e' }}>
+            <th
+              className="px-4 py-3 text-center text-sm font-semibold"
+              style={{ color: '#1a3a6e' }}
+            >
               狀態
             </th>
-            <th className="px-4 py-3 text-center text-sm font-semibold" style={{ color: '#1a3a6e' }}>
+            <th
+              className="px-4 py-3 text-center text-sm font-semibold"
+              style={{ color: '#1a3a6e' }}
+            >
               操作
             </th>
           </tr>
@@ -279,4 +292,3 @@ export default function JudgingTable({
     </div>
   );
 }
-

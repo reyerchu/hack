@@ -112,7 +112,11 @@ function AuthProvider({ children }: React.PropsWithChildren<Record<string, any>>
     }
     if (data.status !== 200) {
       // API 调用失败，保留之前的状态，不要清空 profile
-      console.error('[AuthContext] API call failed, status:', data.status, '- keeping previous profile state');
+      console.error(
+        '[AuthContext] API call failed, status:',
+        data.status,
+        '- keeping previous profile state',
+      );
       setLoading(false);
       return;
     }
@@ -241,9 +245,7 @@ function AuthProvider({ children }: React.PropsWithChildren<Record<string, any>>
     updateUser,
   };
 
-  return (
-    <AuthContext.Provider value={authContextValue}>{children}</AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={authContextValue}>{children}</AuthContext.Provider>;
 }
 
 export { AuthContext, AuthProvider, useAuthContext };

@@ -43,7 +43,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // 2. Get user data and check permissions
     const userDoc = await db.collection('registrations').doc(userId).get();
-    
+
     if (!userDoc.exists) {
       return res.status(403).json({ error: '用戶不存在' });
     }
@@ -112,7 +112,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     console.log('[AssignTrack] Updating', challengesSnapshot.size, 'challenges');
 
     const batch = db.batch();
-    challengesSnapshot.docs.forEach(doc => {
+    challengesSnapshot.docs.forEach((doc) => {
       batch.update(doc.ref, {
         sponsorId: sponsorId,
         sponsorName: sponsorName,
@@ -157,7 +157,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         challengesUpdated: challengesSnapshot.size,
       },
     });
-
   } catch (error: any) {
     console.error('[AssignTrack] Error:', error);
     return res.status(500).json({
@@ -166,4 +165,3 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
   }
 }
-

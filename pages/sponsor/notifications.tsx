@@ -1,6 +1,6 @@
 /**
  * 通知管理頁面
- * 
+ *
  * 查看和管理所有通知
  */
 
@@ -92,9 +92,17 @@ export default function NotificationsPage() {
         {/* Header */}
         <div className="mb-6">
           <Link href="/sponsor/dashboard">
-            <a className="inline-flex items-center gap-1 text-sm font-medium mb-4 hover:underline" style={{ color: '#1a3a6e' }}>
+            <a
+              className="inline-flex items-center gap-1 text-sm font-medium mb-4 hover:underline"
+              style={{ color: '#1a3a6e' }}
+            >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15 19l-7-7 7-7"
+                />
               </svg>
               返回儀表板
             </a>
@@ -106,9 +114,7 @@ export default function NotificationsPage() {
                 通知中心
               </h1>
               <p className="text-sm" style={{ color: '#6b7280' }}>
-                {unreadCount > 0
-                  ? `您有 ${unreadCount} 条未读通知`
-                  : '所有通知已读'}
+                {unreadCount > 0 ? `您有 ${unreadCount} 条未读通知` : '所有通知已读'}
               </p>
             </div>
           </div>
@@ -177,9 +183,7 @@ export default function NotificationsPage() {
               {showUnreadOnly ? '暂无未读通知' : '暂无通知'}
             </h2>
             <p className="text-sm" style={{ color: '#6b7280' }}>
-              {showUnreadOnly
-                ? '所有通知已读，做得好！'
-                : '当有新的提交或活动时，您會收到通知'}
+              {showUnreadOnly ? '所有通知已读，做得好！' : '当有新的提交或活动时，您會收到通知'}
             </p>
           </div>
         ) : (
@@ -205,17 +209,15 @@ export default function NotificationsPage() {
                 <div className="flex items-start gap-3">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-2 mb-2">
-                      <h3
-                        className="text-sm font-semibold"
-                        style={{ color: '#1a3a6e' }}
-                      >
+                      <h3 className="text-sm font-semibold" style={{ color: '#1a3a6e' }}>
                         {notification.title}
                       </h3>
                       <span className="text-xs flex-shrink-0" style={{ color: '#9ca3af' }}>
                         {(() => {
-                          const date = notification.createdAt instanceof Date
-                            ? notification.createdAt
-                            : new Date((notification.createdAt as any)._seconds * 1000);
+                          const date =
+                            notification.createdAt instanceof Date
+                              ? notification.createdAt
+                              : new Date((notification.createdAt as any)._seconds * 1000);
                           return date.toLocaleDateString('zh-TW', {
                             month: '2-digit',
                             day: '2-digit',
@@ -291,4 +293,3 @@ export default function NotificationsPage() {
     </div>
   );
 }
-

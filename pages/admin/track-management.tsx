@@ -1,6 +1,6 @@
 /**
  * Admin Track Management 頁面
- * 
+ *
  * Super_admin 可以：
  * - 查看所有 tracks
  * - 將 tracks 分配給不同的 sponsors
@@ -70,12 +70,12 @@ export default function TrackManagementPage() {
           if (response.ok) {
             const data = await response.json();
             console.log('[TrackManagement] API 響應:', data);
-            
+
             // 支持多種數據格式
             const profile = data.data || data;
             const permissions = profile.permissions || profile.user?.permissions || [];
             console.log('[TrackManagement] permissions:', permissions);
-            
+
             const hasAdminAccess =
               permissions.includes('super_admin') ||
               permissions.includes('admin') ||
@@ -142,13 +142,13 @@ export default function TrackManagementPage() {
         console.log('[TrackManagement] data object:', tracksData.data);
         console.log('[TrackManagement] tracks array:', tracksData.data?.tracks);
         console.log('[TrackManagement] tracks count:', tracksData.data?.tracks?.length || 0);
-        
+
         if (tracksData.data?.tracks) {
           console.log('[TrackManagement] Sample track:', tracksData.data.tracks[0]);
         }
-        
+
         console.log('[TrackManagement] ========================');
-        
+
         setTracks(tracksData.data?.tracks || []);
 
         // 獲取 sponsors
@@ -203,20 +203,17 @@ export default function TrackManagementPage() {
       }
       const token = await currentUser.getIdToken();
 
-      const response = await fetch(
-        `/api/admin/tracks/${selectedTrack.trackId}/assign`,
-        {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            sponsorId: selectedSponsorId,
-            sponsorName: selectedSponsor.name,
-          }),
-        }
-      );
+      const response = await fetch(`/api/admin/tracks/${selectedTrack.trackId}/assign`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          sponsorId: selectedSponsorId,
+          sponsorName: selectedSponsor.name,
+        }),
+      });
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -231,8 +228,8 @@ export default function TrackManagementPage() {
         prev.map((t) =>
           t.trackId === selectedTrack.trackId
             ? { ...t, sponsorId: selectedSponsorId, sponsorName: selectedSponsor.name }
-            : t
-        )
+            : t,
+        ),
       );
 
       // 2 秒後關閉 modal
@@ -318,7 +315,7 @@ export default function TrackManagementPage() {
               管理儀表板
             </h1>
           </div>
-          
+
           <AdminHeader />
 
           {/* Track Management Section */}
@@ -379,24 +376,45 @@ export default function TrackManagementPage() {
               </p>
             </div>
           ) : (
-            <div className="bg-white rounded-lg shadow-sm border-2" style={{ borderColor: '#e5e7eb' }}>
+            <div
+              className="bg-white rounded-lg shadow-sm border-2"
+              style={{ borderColor: '#e5e7eb' }}
+            >
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr className="border-b-2" style={{ borderColor: '#e5e7eb', backgroundColor: '#f9fafb' }}>
-                      <th className="px-6 py-4 text-left text-sm font-semibold" style={{ color: '#374151' }}>
+                    <tr
+                      className="border-b-2"
+                      style={{ borderColor: '#e5e7eb', backgroundColor: '#f9fafb' }}
+                    >
+                      <th
+                        className="px-6 py-4 text-left text-sm font-semibold"
+                        style={{ color: '#374151' }}
+                      >
                         Track ID
                       </th>
-                      <th className="px-6 py-4 text-left text-sm font-semibold" style={{ color: '#374151' }}>
+                      <th
+                        className="px-6 py-4 text-left text-sm font-semibold"
+                        style={{ color: '#374151' }}
+                      >
                         賽道名稱
                       </th>
-                      <th className="px-6 py-4 text-left text-sm font-semibold" style={{ color: '#374151' }}>
+                      <th
+                        className="px-6 py-4 text-left text-sm font-semibold"
+                        style={{ color: '#374151' }}
+                      >
                         當前 Sponsor
                       </th>
-                      <th className="px-6 py-4 text-left text-sm font-semibold" style={{ color: '#374151' }}>
+                      <th
+                        className="px-6 py-4 text-left text-sm font-semibold"
+                        style={{ color: '#374151' }}
+                      >
                         狀態
                       </th>
-                      <th className="px-6 py-4 text-right text-sm font-semibold" style={{ color: '#374151' }}>
+                      <th
+                        className="px-6 py-4 text-right text-sm font-semibold"
+                        style={{ color: '#374151' }}
+                      >
                         操作
                       </th>
                     </tr>
@@ -405,7 +423,9 @@ export default function TrackManagementPage() {
                     {tracks.map((track) => (
                       <tr key={track.id} className="border-b" style={{ borderColor: '#e5e7eb' }}>
                         <td className="px-6 py-4 text-sm" style={{ color: '#1a3a6e' }}>
-                          <code className="px-2 py-1 bg-gray-100 rounded text-xs">{track.trackId}</code>
+                          <code className="px-2 py-1 bg-gray-100 rounded text-xs">
+                            {track.trackId}
+                          </code>
                         </td>
                         <td className="px-6 py-4 text-sm font-medium" style={{ color: '#1a3a6e' }}>
                           <div>{track.name}</div>
@@ -562,4 +582,3 @@ export default function TrackManagementPage() {
     </div>
   );
 }
-

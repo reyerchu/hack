@@ -1,6 +1,6 @@
 /**
  * 文件上傳组件
- * 
+ *
  * 支持拖拽上傳和点击選择
  */
 
@@ -134,7 +134,10 @@ export default function FileUpload({
 
       {/* 當前文件 */}
       {currentFileName && (
-        <div className="mt-3 flex items-center gap-2 p-3 rounded-lg" style={{ backgroundColor: '#e8eef5' }}>
+        <div
+          className="mt-3 flex items-center gap-2 p-3 rounded-lg"
+          style={{ backgroundColor: '#e8eef5' }}
+        >
           <svg
             className="w-5 h-5 flex-shrink-0"
             fill="none"
@@ -169,4 +172,3 @@ export default function FileUpload({
     </div>
   );
 }
-

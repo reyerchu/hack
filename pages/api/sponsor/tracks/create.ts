@@ -39,14 +39,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // 2. Get user data and check permissions
     const userDoc = await db.collection('registrations').doc(userId).get();
-    
+
     if (!userDoc.exists) {
       return res.status(403).json({ error: '用戶不存在' });
     }
 
     const userData = userDoc.data();
     const permissions = userData?.permissions || userData?.user?.permissions || [];
-    
+
     console.log('[CreateTrack] User permissions:', permissions);
 
     // Check if user is super_admin or admin
@@ -73,12 +73,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     // 4. Generate trackId
-    const trackId = name
-      .trim()
-      .toLowerCase()
-      .replace(/\s+/g, '-')
-      .replace(/[^a-z0-9\u4e00-\u9fa5-]/g, '')
-      + '-' + Date.now().toString().slice(-6);
+    const trackId =
+      name
+        .trim()
+        .toLowerCase()
+        .replace(/\s+/g, '-')
+        .replace(/[^a-z0-9\u4e00-\u9fa5-]/g, '') +
+      '-' +
+      Date.now().toString().slice(-6);
 
     console.log('[CreateTrack] Generated trackId:', trackId);
 
@@ -90,7 +92,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       sponsorId: sponsorId.trim(),
       sponsorName: sponsorName.trim(),
       status: 'active',
-      
+
       // Metadata
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
       createdBy: userId,
@@ -131,7 +133,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       },
       message: '賽道創建成功。您可以在賽道頁面中添加挑戰。',
     });
-
   } catch (error: any) {
     console.error('[CreateTrack] Error:', error);
     return res.status(500).json({
@@ -140,4 +141,3 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
   }
 }
-

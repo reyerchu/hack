@@ -10,7 +10,7 @@ const path = require('path');
 const envPath = path.resolve(__dirname, '../.env');
 if (fs.existsSync(envPath)) {
   const envContent = fs.readFileSync(envPath, 'utf-8');
-  envContent.split('\n').forEach(line => {
+  envContent.split('\n').forEach((line) => {
     const match = line.match(/^([^=]+)=(.*)$/);
     if (match) {
       const key = match[1].trim();
@@ -29,7 +29,9 @@ let privateKey = process.env.SERVICE_ACCOUNT_PRIVATE_KEY || process.env.FIREBASE
 
 if (!projectId || !clientEmail || !privateKey) {
   console.error('❌ Missing Firebase credentials in environment variables');
-  console.error('Required: SERVICE_ACCOUNT_PROJECT_ID, SERVICE_ACCOUNT_CLIENT_EMAIL, SERVICE_ACCOUNT_PRIVATE_KEY');
+  console.error(
+    'Required: SERVICE_ACCOUNT_PROJECT_ID, SERVICE_ACCOUNT_CLIENT_EMAIL, SERVICE_ACCOUNT_PRIVATE_KEY',
+  );
   process.exit(1);
 }
 
@@ -60,7 +62,7 @@ async function checkEmail(email) {
   // Check registrations collection
   console.log('📂 檢查 registrations collection...');
   console.log('   查詢條件: user.preferredEmail == ' + normalizedEmail);
-  
+
   const regSnapshot = await db
     .collection('registrations')
     .where('user.preferredEmail', '==', normalizedEmail)
@@ -84,7 +86,7 @@ async function checkEmail(email) {
   // Check users collection
   console.log('📂 檢查 users collection...');
   console.log('   查詢條件: preferredEmail == ' + normalizedEmail);
-  
+
   const usersSnapshot = await db
     .collection('users')
     .where('preferredEmail', '==', normalizedEmail)
@@ -108,19 +110,22 @@ async function checkEmail(email) {
   // Search in registrations with other email fields
   console.log('📂 搜索 registrations 中的其他郵箱字段...');
   const allRegs = await db.collection('registrations').limit(100).get();
-  
+
   let found = false;
-  allRegs.docs.forEach(doc => {
+  allRegs.docs.forEach((doc) => {
     const data = doc.data();
     const emails = [];
-    
+
     // Collect all possible email fields
-    if (data.user?.preferredEmail) emails.push({ field: 'user.preferredEmail', value: data.user.preferredEmail });
+    if (data.user?.preferredEmail)
+      emails.push({ field: 'user.preferredEmail', value: data.user.preferredEmail });
     if (data.user?.email) emails.push({ field: 'user.email', value: data.user.email });
     if (data.email) emails.push({ field: 'email', value: data.email });
-    if (data.user?.user?.email) emails.push({ field: 'user.user.email', value: data.user.user.email });
-    if (data.user?.user?.preferredEmail) emails.push({ field: 'user.user.preferredEmail', value: data.user.user.preferredEmail });
-    
+    if (data.user?.user?.email)
+      emails.push({ field: 'user.user.email', value: data.user.user.email });
+    if (data.user?.user?.preferredEmail)
+      emails.push({ field: 'user.user.preferredEmail', value: data.user.user.preferredEmail });
+
     // Check if any email matches
     emails.forEach(({ field, value }) => {
       if (value && value.toLowerCase() === normalizedEmail) {
@@ -140,11 +145,11 @@ async function checkEmail(email) {
 
   if (!found) {
     console.log('   ❌ 在所有郵箱字段中都未找到此郵箱\n');
-    
+
     // Show sample of what's in the database
     console.log('📋 數據庫中的郵箱樣本（前10個）:');
     let count = 0;
-    allRegs.docs.forEach(doc => {
+    allRegs.docs.forEach((doc) => {
       if (count >= 10) return;
       const data = doc.data();
       const email = data.user?.preferredEmail || data.user?.email || data.email || 'N/A';
@@ -164,8 +169,7 @@ checkEmail(emailToCheck)
     console.log('\n✅ 檢查完成');
     process.exit(0);
   })
-  .catch(error => {
+  .catch((error) => {
     console.error('\n❌ 錯誤:', error);
     process.exit(1);
   });
-

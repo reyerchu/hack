@@ -7,10 +7,10 @@ const db = firebase.firestore();
 
 /**
  * API endpoint to get all team registrations for admin
- * 
+ *
  * GET /api/admin/teams
  * - Returns all team registrations with expanded user information
- * 
+ *
  * Authorization: Requires super_admin permission
  */
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -36,22 +36,26 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     const teams = [];
-    
+
     for (const doc of teamsSnapshot.docs) {
       const teamData = doc.data();
-      
+
       // Fetch team leader info
       let leaderInfo = null;
       if (teamData.teamLeader?.userId) {
         try {
-          const userSnapshot = await db.collection('registrations').doc(teamData.teamLeader.userId).get();
+          const userSnapshot = await db
+            .collection('registrations')
+            .doc(teamData.teamLeader.userId)
+            .get();
           if (userSnapshot.exists) {
             const userData = userSnapshot.data();
             leaderInfo = {
               ...teamData.teamLeader,
               firstName: userData.user?.firstName || '',
               lastName: userData.user?.lastName || '',
-              preferredEmail: userData.user?.preferredEmail || userData.user?.email || teamData.teamLeader.email,
+              preferredEmail:
+                userData.user?.preferredEmail || userData.user?.email || teamData.teamLeader.email,
             };
           }
         } catch (error) {
@@ -71,11 +75,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
               trackIds.push(track.id || track.trackId || '');
               continue;
             }
-            
+
             // Otherwise treat as ID
             const trackId = track;
             trackIds.push(trackId);
-            
+
             // Try tracks collection first
             let trackDoc = await db.collection('tracks').doc(trackId).get();
             if (trackDoc.exists) {
@@ -118,10 +122,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     console.log(`[GET /api/admin/teams] Found ${teams.length} teams`);
     return res.status(200).json({ data: teams });
-
   } catch (error: any) {
     console.error('[GET /api/admin/teams] Error:', error);
     return res.status(500).json({ error: error.message || '獲取團隊列表失敗' });
   }
 }
-

@@ -33,7 +33,7 @@ export default function ChallengeForm({
     prizes: (challenge?.prizes as any) || [],
     rank: challenge?.rank || -1,
   });
-  
+
   // State for new prize input
   const [newPrize, setNewPrize] = useState({ currency: 'USD', amount: '', description: '' });
 
@@ -92,7 +92,7 @@ export default function ChallengeForm({
         <label className="block text-sm font-medium mb-2" style={{ color: '#1a3a6e' }}>
           獎金（多個獎項請用下方按鈕添加） *
         </label>
-        
+
         {/* Existing prizes list */}
         <div className="space-y-2 mb-3">
           {challengeForm.prizes?.map((prize: Prize, idx: number) => (
@@ -104,7 +104,10 @@ export default function ChallengeForm({
               <span className="text-sm font-medium" style={{ color: '#059669', minWidth: '60px' }}>
                 {prize.currency === 'TWD' ? '台幣' : 'USD'}
               </span>
-              <span className="text-sm font-semibold" style={{ color: '#1a3a6e', minWidth: '100px' }}>
+              <span
+                className="text-sm font-semibold"
+                style={{ color: '#1a3a6e', minWidth: '100px' }}
+              >
                 {prize.amount.toLocaleString()}
               </span>
               <span className="flex-1 text-sm" style={{ color: '#6b7280' }}>

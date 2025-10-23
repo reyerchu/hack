@@ -1,6 +1,6 @@
 /**
  * Admin Sponsors Management 頁面
- * 
+ *
  * 管理所有贊助商，包括：
  * - 查看所有 sponsors
  * - 新增 sponsor
@@ -40,12 +40,12 @@ export default function SponsorsPage() {
   const router = useRouter();
   const { isSignedIn, loading: authLoading } = useAuthContext();
   const [isAdmin, setIsAdmin] = useState(false);
-  
+
   // 狀態管理
   const [sponsors, setSponsors] = useState<Sponsor[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  
+
   // 新增 Sponsor 表單
   const [showAddForm, setShowAddForm] = useState(false);
   const [formData, setFormData] = useState({
@@ -61,18 +61,18 @@ export default function SponsorsPage() {
     managers: [] as Manager[],
   });
   const [newManagerEmail, setNewManagerEmail] = useState('');
-  
+
   // 文件上傳
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [iconFile, setIconFile] = useState<File | null>(null);
   const [documents, setDocuments] = useState<File[]>([]);
   const [logoPreview, setLogoPreview] = useState<string>('');
   const [iconPreview, setIconPreview] = useState<string>('');
-  
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState<'success' | 'error' | ''>('');
-  
+
   // 刪除功能
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedSponsor, setSelectedSponsor] = useState<Sponsor | null>(null);
@@ -122,7 +122,7 @@ export default function SponsorsPage() {
             const data = await response.json();
             const profile = data.data || data;
             const permissions = profile.permissions || profile.user?.permissions || [];
-            
+
             const hasAdminAccess =
               permissions.includes('super_admin') ||
               permissions.includes('admin') ||
@@ -179,7 +179,9 @@ export default function SponsorsPage() {
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
+  ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
@@ -243,7 +245,7 @@ export default function SponsorsPage() {
       });
 
       const data = await response.json();
-      
+
       if (data.isValid) {
         return {
           email: email.trim(),
@@ -268,7 +270,7 @@ export default function SponsorsPage() {
     }
 
     // 檢查是否已存在
-    if (formData.managers.some(m => m.email.toLowerCase() === newManagerEmail.toLowerCase())) {
+    if (formData.managers.some((m) => m.email.toLowerCase() === newManagerEmail.toLowerCase())) {
       setMessage('此管理者已存在');
       setMessageType('error');
       return;
@@ -276,7 +278,7 @@ export default function SponsorsPage() {
 
     const manager = await validateManagerEmail(newManagerEmail);
     if (manager) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
         managers: [...prev.managers, manager],
       }));
@@ -290,7 +292,7 @@ export default function SponsorsPage() {
 
   // 刪除管理者（新增表單）
   const handleRemoveManager = (index: number) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       managers: prev.managers.filter((_, i) => i !== index),
     }));
@@ -304,14 +306,16 @@ export default function SponsorsPage() {
     }
 
     // 檢查是否已存在
-    if (editFormData.managers.some(m => m.email.toLowerCase() === editNewManagerEmail.toLowerCase())) {
+    if (
+      editFormData.managers.some((m) => m.email.toLowerCase() === editNewManagerEmail.toLowerCase())
+    ) {
       setEditMessage('此管理者已存在');
       return;
     }
 
     const manager = await validateManagerEmail(editNewManagerEmail);
     if (manager) {
-      setEditFormData(prev => ({
+      setEditFormData((prev) => ({
         ...prev,
         managers: [...prev.managers, manager],
       }));
@@ -324,7 +328,7 @@ export default function SponsorsPage() {
 
   // 刪除管理者（編輯表單）
   const handleRemoveEditManager = (index: number) => {
-    setEditFormData(prev => ({
+    setEditFormData((prev) => ({
       ...prev,
       managers: prev.managers.filter((_, i) => i !== index),
     }));
@@ -388,7 +392,7 @@ export default function SponsorsPage() {
   // 提交編輯
   const handleEditSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!editingSponsor) return;
 
     // 驗證
@@ -422,10 +426,10 @@ export default function SponsorsPage() {
 
       if (response.ok && data.success) {
         setEditMessage('✅ 贊助商更新成功！');
-        
+
         // 刷新列表
         fetchSponsors();
-        
+
         // 2秒後關閉 modal
         setTimeout(() => {
           setShowEditModal(false);
@@ -463,7 +467,7 @@ export default function SponsorsPage() {
         headers: {
           Authorization: `Bearer ${token}`,
           'Cache-Control': 'no-cache, no-store, must-revalidate',
-          'Pragma': 'no-cache',
+          Pragma: 'no-cache',
         },
       });
 
@@ -471,10 +475,10 @@ export default function SponsorsPage() {
 
       if (response.ok && data.success) {
         setDeleteMessage('✅ 刪除成功！');
-        
+
         // 刷新列表
         fetchSponsors();
-        
+
         // 2秒後關閉 modal
         setTimeout(() => {
           setShowDeleteModal(false);
@@ -497,7 +501,7 @@ export default function SponsorsPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // 驗證
     if (!formData.id.trim() || !formData.name.trim()) {
       setMessage('❌ 請填寫 ID 和名稱');
@@ -532,7 +536,7 @@ export default function SponsorsPage() {
       if (response.ok && data.success) {
         setMessage('✅ 贊助商創建成功！');
         setMessageType('success');
-        
+
         // 重置表單
         setFormData({
           id: '',
@@ -552,10 +556,10 @@ export default function SponsorsPage() {
         setDocuments([]);
         setLogoPreview('');
         setIconPreview('');
-        
+
         // 刷新列表
         fetchSponsors();
-        
+
         // 關閉表單
         setTimeout(() => {
           setShowAddForm(false);
@@ -580,8 +584,13 @@ export default function SponsorsPage() {
       <div className="flex flex-col flex-grow">
         <div className="min-h-screen bg-gray-50 flex items-center justify-center">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 mx-auto mb-4" style={{ borderColor: '#1a3a6e' }}></div>
-            <p className="text-base" style={{ color: '#6b7280' }}>載入中...</p>
+            <div
+              className="animate-spin rounded-full h-12 w-12 border-b-2 mx-auto mb-4"
+              style={{ borderColor: '#1a3a6e' }}
+            ></div>
+            <p className="text-base" style={{ color: '#6b7280' }}>
+              載入中...
+            </p>
           </div>
         </div>
       </div>
@@ -631,7 +640,7 @@ export default function SponsorsPage() {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth={2}
-                  d={showAddForm ? "M6 18L18 6M6 6l12 12" : "M12 4v16m8-8H4"}
+                  d={showAddForm ? 'M6 18L18 6M6 6l12 12' : 'M12 4v16m8-8H4'}
                 />
               </svg>
               {showAddForm ? '取消' : '新增贊助商'}
@@ -640,7 +649,10 @@ export default function SponsorsPage() {
 
           {/* 新增 Sponsor 表單 */}
           {showAddForm && (
-            <div className="bg-white rounded-lg p-8 shadow-sm border-2 mb-8" style={{ borderColor: '#e5e7eb' }}>
+            <div
+              className="bg-white rounded-lg p-8 shadow-sm border-2 mb-8"
+              style={{ borderColor: '#e5e7eb' }}
+            >
               <h3 className="text-xl font-bold mb-6" style={{ color: '#1a3a6e' }}>
                 新增贊助商
               </h3>
@@ -730,10 +742,17 @@ export default function SponsorsPage() {
                     <label className="block text-sm font-medium mb-2" style={{ color: '#374151' }}>
                       Logo (大圖)
                     </label>
-                    <div className="border-2 border-dashed rounded-lg p-4 text-center" style={{ borderColor: '#d1d5db' }}>
+                    <div
+                      className="border-2 border-dashed rounded-lg p-4 text-center"
+                      style={{ borderColor: '#d1d5db' }}
+                    >
                       {logoPreview ? (
                         <div className="relative">
-                          <img src={logoPreview} alt="Logo Preview" className="max-h-32 mx-auto mb-2" />
+                          <img
+                            src={logoPreview}
+                            alt="Logo Preview"
+                            className="max-h-32 mx-auto mb-2"
+                          />
                           <button
                             type="button"
                             onClick={() => {
@@ -747,8 +766,18 @@ export default function SponsorsPage() {
                         </div>
                       ) : (
                         <div>
-                          <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          <svg
+                            className="mx-auto h-12 w-12 text-gray-400"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                            />
                           </svg>
                           <p className="mt-2 text-sm text-gray-600">點擊上傳 Logo</p>
                         </div>
@@ -768,10 +797,17 @@ export default function SponsorsPage() {
                     <label className="block text-sm font-medium mb-2" style={{ color: '#374151' }}>
                       Icon (小圖示)
                     </label>
-                    <div className="border-2 border-dashed rounded-lg p-4 text-center" style={{ borderColor: '#d1d5db' }}>
+                    <div
+                      className="border-2 border-dashed rounded-lg p-4 text-center"
+                      style={{ borderColor: '#d1d5db' }}
+                    >
                       {iconPreview ? (
                         <div className="relative">
-                          <img src={iconPreview} alt="Icon Preview" className="max-h-32 mx-auto mb-2" />
+                          <img
+                            src={iconPreview}
+                            alt="Icon Preview"
+                            className="max-h-32 mx-auto mb-2"
+                          />
                           <button
                             type="button"
                             onClick={() => {
@@ -785,8 +821,18 @@ export default function SponsorsPage() {
                         </div>
                       ) : (
                         <div>
-                          <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          <svg
+                            className="mx-auto h-12 w-12 text-gray-400"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                            />
                           </svg>
                           <p className="mt-2 text-sm text-gray-600">點擊上傳 Icon</p>
                         </div>
@@ -818,7 +864,10 @@ export default function SponsorsPage() {
                   {documents.length > 0 && (
                     <div className="mt-2 space-y-2">
                       {documents.map((doc, index) => (
-                        <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                        <div
+                          key={index}
+                          className="flex items-center justify-between p-2 bg-gray-50 rounded"
+                        >
                           <span className="text-sm text-gray-700">{doc.name}</span>
                           <button
                             type="button"
@@ -893,7 +942,7 @@ export default function SponsorsPage() {
                   <p className="text-xs text-gray-500 mb-3">
                     添加可管理此贊助商賽道的用戶（Email 必須已註冊）
                   </p>
-                  
+
                   {/* 已添加的管理者列表 */}
                   {formData.managers.length > 0 && (
                     <div className="mb-3 space-y-2">
@@ -966,7 +1015,9 @@ export default function SponsorsPage() {
                 {message && (
                   <div
                     className={`p-4 rounded-lg ${
-                      messageType === 'success' ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'
+                      messageType === 'success'
+                        ? 'bg-green-50 text-green-800'
+                        : 'bg-red-50 text-red-800'
                     }`}
                   >
                     {message}
@@ -1005,8 +1056,13 @@ export default function SponsorsPage() {
           {/* Sponsors 列表 */}
           {loading ? (
             <div className="text-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 mx-auto mb-4" style={{ borderColor: '#1a3a6e' }}></div>
-              <p className="text-base" style={{ color: '#6b7280' }}>載入贊助商列表...</p>
+              <div
+                className="animate-spin rounded-full h-12 w-12 border-b-2 mx-auto mb-4"
+                style={{ borderColor: '#1a3a6e' }}
+              ></div>
+              <p className="text-base" style={{ color: '#6b7280' }}>
+                載入贊助商列表...
+              </p>
             </div>
           ) : error ? (
             <div className="bg-red-50 border-2 border-red-200 rounded-lg p-6 text-center">
@@ -1039,40 +1095,62 @@ export default function SponsorsPage() {
               </p>
             </div>
           ) : (
-            <div className="bg-white rounded-lg shadow-sm border-2" style={{ borderColor: '#e5e7eb' }}>
+            <div
+              className="bg-white rounded-lg shadow-sm border-2"
+              style={{ borderColor: '#e5e7eb' }}
+            >
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr className="border-b-2" style={{ borderColor: '#e5e7eb', backgroundColor: '#f9fafb' }}>
-                      <th className="px-6 py-4 text-left text-sm font-semibold" style={{ color: '#374151' }}>
+                    <tr
+                      className="border-b-2"
+                      style={{ borderColor: '#e5e7eb', backgroundColor: '#f9fafb' }}
+                    >
+                      <th
+                        className="px-6 py-4 text-left text-sm font-semibold"
+                        style={{ color: '#374151' }}
+                      >
                         ID
                       </th>
-                      <th className="px-6 py-4 text-left text-sm font-semibold" style={{ color: '#374151' }}>
+                      <th
+                        className="px-6 py-4 text-left text-sm font-semibold"
+                        style={{ color: '#374151' }}
+                      >
                         名稱
                       </th>
-                      <th className="px-6 py-4 text-left text-sm font-semibold" style={{ color: '#374151' }}>
+                      <th
+                        className="px-6 py-4 text-left text-sm font-semibold"
+                        style={{ color: '#374151' }}
+                      >
                         等級
                       </th>
-                      <th className="px-6 py-4 text-left text-sm font-semibold" style={{ color: '#374151' }}>
+                      <th
+                        className="px-6 py-4 text-left text-sm font-semibold"
+                        style={{ color: '#374151' }}
+                      >
                         聯絡人
                       </th>
-                      <th className="px-6 py-4 text-left text-sm font-semibold" style={{ color: '#374151' }}>
+                      <th
+                        className="px-6 py-4 text-left text-sm font-semibold"
+                        style={{ color: '#374151' }}
+                      >
                         網站
                       </th>
-                      <th className="px-6 py-4 text-right text-sm font-semibold" style={{ color: '#374151' }}>
+                      <th
+                        className="px-6 py-4 text-right text-sm font-semibold"
+                        style={{ color: '#374151' }}
+                      >
                         操作
                       </th>
                     </tr>
                   </thead>
                   <tbody>
                     {sponsors.map((sponsor, index) => (
-                      <tr
-                        key={sponsor.id}
-                        className="border-b"
-                        style={{ borderColor: '#e5e7eb' }}
-                      >
+                      <tr key={sponsor.id} className="border-b" style={{ borderColor: '#e5e7eb' }}>
                         <td className="px-6 py-4 text-sm" style={{ color: '#1a3a6e' }}>
-                          <code className="px-2 py-1 bg-gray-100 rounded text-xs">{sponsor.id}</code>
+                          <code className="px-2 py-1 bg-gray-100 rounded text-xs">
+                            {sponsor.id}
+                          </code>
                         </td>
                         <td className="px-6 py-4 text-sm font-medium" style={{ color: '#1a3a6e' }}>
                           {sponsor.name}
@@ -1164,7 +1242,10 @@ export default function SponsorsPage() {
               確定要刪除贊助商「<strong>{selectedSponsor.name}</strong>」嗎？
             </p>
 
-            <div className="mb-4 p-3 rounded-lg" style={{ backgroundColor: '#fef2f2', borderLeft: '4px solid #991b1b' }}>
+            <div
+              className="mb-4 p-3 rounded-lg"
+              style={{ backgroundColor: '#fef2f2', borderLeft: '4px solid #991b1b' }}
+            >
               <p className="text-sm" style={{ color: '#991b1b' }}>
                 ⚠️ 此操作無法撤銷！
               </p>
@@ -1251,8 +1332,19 @@ export default function SponsorsPage() {
                 className="p-2 rounded-lg hover:bg-gray-100"
                 disabled={isEditing}
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: '#6b7280' }}>
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  style={{ color: '#6b7280' }}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
                 </svg>
               </button>
             </div>
@@ -1318,7 +1410,9 @@ export default function SponsorsPage() {
                 </label>
                 <textarea
                   value={editFormData.description}
-                  onChange={(e) => setEditFormData({ ...editFormData, description: e.target.value })}
+                  onChange={(e) =>
+                    setEditFormData({ ...editFormData, description: e.target.value })
+                  }
                   rows={4}
                   className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   style={{ borderColor: '#d1d5db' }}
@@ -1335,7 +1429,11 @@ export default function SponsorsPage() {
                 <div className="space-y-2">
                   {editLogoPreview && (
                     <div className="relative w-32 h-32 border-2 border-gray-200 rounded-lg overflow-hidden">
-                      <img src={editLogoPreview} alt="Logo Preview" className="w-full h-full object-contain" />
+                      <img
+                        src={editLogoPreview}
+                        alt="Logo Preview"
+                        className="w-full h-full object-contain"
+                      />
                     </div>
                   )}
                   <input
@@ -1357,7 +1455,11 @@ export default function SponsorsPage() {
                 <div className="space-y-2">
                   {editKvPreview && (
                     <div className="relative w-full max-w-md h-48 border-2 border-gray-200 rounded-lg overflow-hidden">
-                      <img src={editKvPreview} alt="KV Preview" className="w-full h-full object-cover" />
+                      <img
+                        src={editKvPreview}
+                        alt="KV Preview"
+                        className="w-full h-full object-cover"
+                      />
                     </div>
                   )}
                   <input
@@ -1367,7 +1469,9 @@ export default function SponsorsPage() {
                     className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                     disabled={isEditing}
                   />
-                  <p className="text-xs text-gray-500">上傳賽道宣傳主視覺图（PNG/JPG格式，最大5MB）</p>
+                  <p className="text-xs text-gray-500">
+                    上傳賽道宣傳主視覺图（PNG/JPG格式，最大5MB）
+                  </p>
                 </div>
               </div>
 
@@ -1380,7 +1484,9 @@ export default function SponsorsPage() {
                   <input
                     type="text"
                     value={editFormData.contactName}
-                    onChange={(e) => setEditFormData({ ...editFormData, contactName: e.target.value })}
+                    onChange={(e) =>
+                      setEditFormData({ ...editFormData, contactName: e.target.value })
+                    }
                     className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     style={{ borderColor: '#d1d5db' }}
                     placeholder="例如：張三"
@@ -1394,7 +1500,9 @@ export default function SponsorsPage() {
                   <input
                     type="email"
                     value={editFormData.contactEmail}
-                    onChange={(e) => setEditFormData({ ...editFormData, contactEmail: e.target.value })}
+                    onChange={(e) =>
+                      setEditFormData({ ...editFormData, contactEmail: e.target.value })
+                    }
                     className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     style={{ borderColor: '#d1d5db' }}
                     placeholder="contact@example.com"
@@ -1427,7 +1535,7 @@ export default function SponsorsPage() {
                 <p className="text-xs text-gray-500 mb-3">
                   添加可管理此贊助商賽道的用戶（Email 必須已註冊）
                 </p>
-                
+
                 {/* 已添加的管理者列表 */}
                 {editFormData.managers.length > 0 && (
                   <div className="mb-3 space-y-2">
@@ -1543,4 +1651,3 @@ export default function SponsorsPage() {
     </div>
   );
 }
-

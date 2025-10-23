@@ -65,10 +65,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       if (!trackQuery.empty) {
         const trackData = trackQuery.docs[0].data();
         const assignedSponsors = trackData.assignedSponsors || [];
-        
+
         // Check if user is in assignedSponsors
-        hasPermission = assignedSponsors.some((sponsor: any) => 
-          sponsor.userId === userId || sponsor.id === userId
+        hasPermission = assignedSponsors.some(
+          (sponsor: any) => sponsor.userId === userId || sponsor.id === userId,
         );
 
         console.log('[Delete Track] Assigned sponsors:', assignedSponsors);
@@ -126,4 +126,3 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
   }
 }
-

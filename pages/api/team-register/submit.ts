@@ -7,9 +7,9 @@ const db = firebase.firestore();
 
 /**
  * API endpoint to submit team registration
- * 
+ *
  * POST /api/team-register/submit
- * 
+ *
  * Request body:
  * {
  *   teamName: string,
@@ -18,7 +18,7 @@ const db = firebase.firestore();
  *   tracks: string[],  // array of track IDs
  *   agreedToCommitment: boolean
  * }
- * 
+ *
  * Response:
  * {
  *   success: boolean,
@@ -56,7 +56,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const token = authHeader.replace('Bearer ', '');
     const decodedToken = await firebase.auth().verifyIdToken(token);
-    
+
     if (!decodedToken || !decodedToken.uid) {
       return res.status(401).json({ error: 'Invalid token' });
     }
@@ -64,7 +64,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const userId = decodedToken.uid;
 
     // Get request body
-    const { teamName, teamLeader, teamMembers, tracks, agreedToCommitment } = req.body as SubmitRequest;
+    const { teamName, teamLeader, teamMembers, tracks, agreedToCommitment } =
+      req.body as SubmitRequest;
 
     // Validation
     if (!teamName || !teamName.trim()) {
@@ -87,8 +88,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     for (let i = 0; i < teamMembers.length; i++) {
       const member = teamMembers[i];
       if (!member.email || !member.role) {
-        return res.status(400).json({ 
-          error: `第 ${i + 1} 位成員的資訊不完整（需要 Email 和角色）` 
+        return res.status(400).json({
+          error: `第 ${i + 1} 位成員的資訊不完整（需要 Email 和角色）`,
         });
       }
     }
@@ -102,7 +103,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     // Validate all team member emails are registered
-    const memberEmails = teamMembers.map(m => m.email.trim().toLowerCase());
+    const memberEmails = teamMembers.map((m) => m.email.trim().toLowerCase());
     const uniqueEmails = Array.from(new Set(memberEmails));
 
     if (uniqueEmails.length !== memberEmails.length) {
@@ -117,10 +118,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // Validate each team member email is registered
     const validatedMembers: TeamMember[] = [];
-    
+
     for (const member of teamMembers) {
       const email = member.email.trim().toLowerCase();
-      
+
       // Check registrations collection first
       let userSnapshot = await db
         .collection('registrations')
@@ -133,8 +134,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       if (!userSnapshot.empty) {
         userData = userSnapshot.docs[0].data();
-        userName = userName || `${userData?.user?.firstName || ''} ${userData?.user?.lastName || ''}`.trim() || 
-                   userData?.user?.nickname || email;
+        userName =
+          userName ||
+          `${userData?.user?.firstName || ''} ${userData?.user?.lastName || ''}`.trim() ||
+          userData?.user?.nickname ||
+          email;
       } else {
         // Check users collection
         userSnapshot = await db
@@ -144,8 +148,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           .get();
 
         if (userSnapshot.empty) {
-          return res.status(400).json({ 
-            error: `團隊成員 Email ${email} 尚未註冊` 
+          return res.status(400).json({
+            error: `團隊成員 Email ${email} 尚未註冊`,
           });
         }
 
@@ -164,12 +168,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Get leader user info
     let leaderName = teamLeader.name || '';
     const leaderUserDoc = await db.collection('registrations').doc(userId).get();
-    
+
     if (leaderUserDoc.exists) {
       const leaderData = leaderUserDoc.data();
       if (!leaderName) {
-        leaderName = `${leaderData?.user?.firstName || ''} ${leaderData?.user?.lastName || ''}`.trim() || 
-                     leaderData?.user?.nickname || leaderEmail;
+        leaderName =
+          `${leaderData?.user?.firstName || ''} ${leaderData?.user?.lastName || ''}`.trim() ||
+          leaderData?.user?.nickname ||
+          leaderEmail;
       }
     }
 
@@ -182,20 +188,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         .where('trackId', '==', trackId)
         .limit(1)
         .get();
-      
+
       let trackData: any = null;
-      
+
       if (!trackSnapshot.empty) {
         trackData = trackSnapshot.docs[0].data();
       } else {
         // Try to find by document ID
         const trackDoc = await db.collection('tracks').doc(trackId).get();
-        
+
         if (trackDoc.exists) {
           trackData = trackDoc.data();
         } else {
-          return res.status(400).json({ 
-            error: `賽道 ${trackId} 不存在` 
+          return res.status(400).json({
+            error: `賽道 ${trackId} 不存在`,
           });
         }
       }
@@ -248,28 +254,26 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // Prepare all members list for notifications
     const allMembers = [
-      { 
-        email: leaderEmail, 
-        name: leaderName, 
+      {
+        email: leaderEmail,
+        name: leaderName,
         role: teamLeader.role,
-        hasEditRight: true 
+        hasEditRight: true,
       },
-      ...validatedMembers.map(m => ({ 
-        email: m.email, 
-        name: m.name || '', 
+      ...validatedMembers.map((m) => ({
+        email: m.email,
+        name: m.name || '',
         role: m.role,
-        hasEditRight: m.hasEditRight 
-      }))
+        hasEditRight: m.hasEditRight,
+      })),
     ];
 
     // Send notification emails to all team members
     try {
-      const { notifyTeamMemberConfirmation } = await import(
-        '../../../lib/teamRegister/email'
-      );
+      const { notifyTeamMemberConfirmation } = await import('../../../lib/teamRegister/email');
 
       // Send email to each team member
-      const emailPromises = allMembers.map(member => 
+      const emailPromises = allMembers.map((member) =>
         notifyTeamMemberConfirmation(
           member.email,
           member.name,
@@ -278,12 +282,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           leaderName,
           member.role,
           tracks.length,
-          member.hasEditRight
-        )
+          member.hasEditRight,
+        ),
       );
 
       await Promise.all(emailPromises);
-      console.log(`[SubmitTeamRegistration] Sent ${allMembers.length} confirmation emails to team members`);
+      console.log(
+        `[SubmitTeamRegistration] Sent ${allMembers.length} confirmation emails to team members`,
+      );
     } catch (emailError) {
       console.error('[SubmitTeamRegistration] Failed to send confirmation emails:', emailError);
       // Don't fail the registration if email notifications fail
@@ -291,9 +297,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // Send notification email to admin (reyer.chu@rwa.nexus)
     try {
-      const { notifyAdminNewTeamRegistration } = await import(
-        '../../../lib/teamRegister/email'
-      );
+      const { notifyAdminNewTeamRegistration } = await import('../../../lib/teamRegister/email');
 
       await notifyAdminNewTeamRegistration(
         docRef.id,
@@ -302,16 +306,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         leaderName,
         teamLeader.role,
         validatedMembers.length + 1, // +1 for leader
-        allMembers.map(m => ({
+        allMembers.map((m) => ({
           name: m.name,
           email: m.email,
           role: m.role,
         })),
-        trackDetails
+        trackDetails,
       );
       console.log(`[SubmitTeamRegistration] Sent admin notification email to reyer.chu@rwa.nexus`);
     } catch (emailError) {
-      console.error('[SubmitTeamRegistration] Failed to send admin notification email:', emailError);
+      console.error(
+        '[SubmitTeamRegistration] Failed to send admin notification email:',
+        emailError,
+      );
       // Don't fail the registration if email notifications fail
     }
 
@@ -320,7 +327,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       registrationId: docRef.id,
       message: '團隊報名成功！通知郵件將發送給所有團隊成員。',
     });
-
   } catch (error: any) {
     console.error('[SubmitTeamRegistration] Error:', error);
     return res.status(500).json({

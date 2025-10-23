@@ -209,12 +209,16 @@ export async function notifyTeamMemberConfirmation(
         <strong>參賽賽道：</strong>${trackCount} 個賽道
       </div>
       
-      ${hasEditRight ? `
+      ${
+        hasEditRight
+          ? `
       <div class="tip">
         <strong>✏️ 編輯權限：</strong><br>
         您擁有編輯團隊報名資料的權限，可以在報名截止前修改團隊資訊。
       </div>
-      ` : ''}
+      `
+          : ''
+      }
       
       <div class="tip">
         <strong>📋 重要提醒：</strong>
@@ -316,7 +320,9 @@ export async function notifyAdminNewTeamRegistration(
       <div class="highlight">
         <strong>團隊名稱：</strong>${teamName}<br>
         <strong>團隊 ID：</strong>${teamId}<br>
-        <strong>報名時間：</strong>${new Date().toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' })}
+        <strong>報名時間：</strong>${new Date().toLocaleString('zh-TW', {
+          timeZone: 'Asia/Taipei',
+        })}
       </div>
       
       <div class="highlight">
@@ -329,14 +335,16 @@ export async function notifyAdminNewTeamRegistration(
       <div class="highlight">
         <strong>團隊成員：</strong>共 ${memberCount} 人（含領導者）<br>
         <div class="member-list">
-          ${teamMembers.map(m => `• ${m.name} (${m.email}) - ${m.role}`).join('<br>')}
+          ${teamMembers.map((m) => `• ${m.name} (${m.email}) - ${m.role}`).join('<br>')}
         </div>
       </div>
       
       <div class="highlight">
         <strong>參賽賽道：</strong>共 ${tracks.length} 個<br>
         <div class="member-list">
-          ${tracks.map(t => `• ${t.name}${t.sponsorName ? ` (${t.sponsorName})` : ''}`).join('<br>')}
+          ${tracks
+            .map((t) => `• ${t.name}${t.sponsorName ? ` (${t.sponsorName})` : ''}`)
+            .join('<br>')}
         </div>
       </div>
       
@@ -368,10 +376,10 @@ Email：${teamLeaderEmail}
 角色：${teamLeaderRole}
 
 團隊成員：共 ${memberCount} 人（含領導者）
-${teamMembers.map(m => `• ${m.name} (${m.email}) - ${m.role}`).join('\n')}
+${teamMembers.map((m) => `• ${m.name} (${m.email}) - ${m.role}`).join('\n')}
 
 參賽賽道：共 ${tracks.length} 個
-${tracks.map(t => `• ${t.name}${t.sponsorName ? ` (${t.sponsorName})` : ''}`).join('\n')}
+${tracks.map((t) => `• ${t.name}${t.sponsorName ? ` (${t.sponsorName})` : ''}`).join('\n')}
 
 此為系統自動通知，無需回覆。
 
@@ -421,7 +429,9 @@ export async function notifyAdminTeamEdit(
       <div class="highlight">
         <strong>團隊名稱：</strong>${teamName}<br>
         <strong>團隊 ID：</strong>${teamId}<br>
-        <strong>修改時間：</strong>${new Date().toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' })}
+        <strong>修改時間：</strong>${new Date().toLocaleString('zh-TW', {
+          timeZone: 'Asia/Taipei',
+        })}
       </div>
       
       <div class="highlight">
@@ -432,7 +442,7 @@ export async function notifyAdminTeamEdit(
       
       <div class="highlight">
         <strong>修改內容：</strong><br>
-        ${changedFields.map(f => `• ${f}`).join('<br>')}
+        ${changedFields.map((f) => `• ${f}`).join('<br>')}
       </div>
       
       <p style="color: #666; font-size: 14px; margin-top: 20px;">
@@ -462,7 +472,7 @@ export async function notifyAdminTeamEdit(
 Email：${editorEmail}
 
 修改內容：
-${changedFields.map(f => `• ${f}`).join('\n')}
+${changedFields.map((f) => `• ${f}`).join('\n')}
 
 此為系統自動通知，無需回覆。
 
@@ -472,4 +482,3 @@ ${BASE_URL}
 
   return sendEmail(adminEmail, subject, html, text);
 }
-

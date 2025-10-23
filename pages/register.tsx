@@ -90,16 +90,25 @@ export default function Register() {
   }, [user]);
 
   const handleSubmit = async (registrationData) => {
+    console.log('========================================');
+    console.log('[Register] 🚀 STEP 1: 開始註冊流程');
+    console.log('[Register] User ID:', user?.id);
+    console.log('[Register] User Email:', user?.preferredEmail);
+    console.log('[Register] Registration Data Keys:', Object.keys(registrationData));
+    console.log('========================================');
+
     try {
       // Upload resume file if provided
       if (resumeFile) {
+        console.log('[Register] 📄 STEP 2: 開始上傳履歷...');
+        console.log('[Register] Resume file name:', resumeFile.name);
+        console.log('[Register] Resume file size:', resumeFile.size);
+
         const formData = new FormData();
         formData.append('resume', resumeFile);
         formData.append('fileName', `${user.id}_${resumeFile.name}`);
         formData.append('studyLevel', registrationData.studyLevel || 'Unknown');
         formData.append('major', registrationData.major || 'Unknown');
-
-        console.log('[Register] 開始上傳履歷...');
 
         try {
           const uploadResponse = await fetch('/api/resume/upload', {
@@ -129,17 +138,29 @@ export default function Register() {
           // Store filename anyway
           registrationData.resume = `${user.id}_${resumeFile.name}`;
         }
+      } else {
+        console.log('[Register] ⏭️ STEP 2: 跳過履歷上傳（無檔案）');
       }
 
       // Get the user's auth token
+      console.log('[Register] 🔑 STEP 3: 獲取認證 token...');
       const token = user?.token || (await firebase.auth().currentUser?.getIdToken());
 
+      console.log('[Register] Token 來源:', user?.token ? 'user.token' : 'firebase.auth()');
+      console.log('[Register] Token 長度:', token?.length || 0);
+      console.log('[Register] Token 前50字元:', token?.substring(0, 50));
+
       if (!token) {
+        console.error('[Register] ❌ 無法獲取 token');
         alert('無法獲取認證 token，請重新登入。');
         return;
       }
 
-      console.log('[Register] 開始提交註冊資料...');
+      console.log('[Register] ✅ Token 獲取成功');
+      console.log('[Register] 📤 STEP 4: 準備發送 API 請求...');
+      console.log('[Register] API URL:', '/api/applications');
+      console.log('[Register] Authorization Header:', `Bearer ${token.substring(0, 30)}...`);
+      console.log('[Register] 註冊資料:', JSON.stringify(registrationData, null, 2));
 
       const response = await RequestHelper.post<Registration, any>(
         '/api/applications',
@@ -151,28 +172,50 @@ export default function Register() {
         registrationData,
       );
 
-      console.log('[Register] API 響應狀態:', response.status);
-      console.log('[Register] API 響應數據:', response.data);
+      console.log('[Register] 📥 STEP 5: 收到 API 響應');
+      console.log('[Register] 響應狀態碼:', response.status);
+      console.log('[Register] 響應數據:', JSON.stringify(response.data, null, 2));
 
       // Check if the registration was successful
       if (response.status !== 200) {
-        console.error('[Register] ❌ 註冊失敗，狀態碼:', response.status);
+        console.error('========================================');
+        console.error('[Register] ❌ STEP 6: 註冊失敗');
+        console.error('[Register] 狀態碼:', response.status);
+        console.error('[Register] 錯誤訊息:', response.data?.message);
+        console.error('[Register] 完整響應:', JSON.stringify(response, null, 2));
+        console.error('========================================');
         alert(
           `註冊失敗：${response.data?.message || '請稍後再試'}\n\n如果問題持續，請聯繫管理員。`,
         );
         return;
       }
 
-      console.log('[Register] ✅ 註冊成功！');
+      console.log('========================================');
+      console.log('[Register] ✅ STEP 6: 註冊成功！');
+      console.log('[Register] 用戶 ID:', response.data?.userId);
+      console.log('[Register] Profile:', response.data?.profile);
+      console.log('========================================');
+
       alert('註冊成功！');
       updateProfile(registrationData);
 
+      console.log('[Register] 🕐 等待 500ms 讓後端處理完成...');
       // Wait a moment for the backend to fully process the data
       await new Promise((resolve) => setTimeout(resolve, 500));
 
+      console.log('[Register] 🔄 重定向到 /profile');
       router.push('/profile');
     } catch (error: any) {
-      console.error('[Register] ❌ 註冊錯誤:', error);
+      console.error('========================================');
+      console.error('[Register] ❌❌❌ CRITICAL ERROR ❌❌❌');
+      console.error('[Register] Error name:', error.name);
+      console.error('[Register] Error message:', error.message);
+      console.error('[Register] Error stack:', error.stack);
+      console.error(
+        '[Register] Full error:',
+        JSON.stringify(error, Object.getOwnPropertyNames(error), 2),
+      );
+      console.error('========================================');
       alert(`註冊失敗：${error.message || '請稍後再試'}\n\n如果問題持續，請聯繫管理員。`);
     }
   };

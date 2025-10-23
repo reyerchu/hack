@@ -7,9 +7,9 @@ const db = firebase.firestore();
 
 /**
  * API endpoint to get all available challenges for team registration
- * 
+ *
  * GET /api/challenges/all
- * 
+ *
  * Response:
  * {
  *   data: Challenge[]
@@ -39,7 +39,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const token = authHeader.replace('Bearer ', '');
     const decodedToken = await firebase.auth().verifyIdToken(token);
-    
+
     if (!decodedToken || !decodedToken.uid) {
       return res.status(401).json({ error: 'Invalid token' });
     }
@@ -79,7 +79,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(200).json({
       data: challenges,
     });
-
   } catch (error: any) {
     console.error('[GetAllChallenges] Error:', error);
     return res.status(500).json({
@@ -88,4 +87,3 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
   }
 }
-

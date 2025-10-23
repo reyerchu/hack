@@ -136,15 +136,15 @@ export default function SingleEventPage({ event, error }: SingleEventPageProps) 
   // Convert URLs in text to clickable links
   const linkifyText = (text: string) => {
     if (!text) return null;
-    
+
     // Split by line breaks first
     const lines = text.split('\n');
-    
+
     return lines.map((line, lineIndex) => {
       // URL regex pattern
       const urlRegex = /(https?:\/\/[^\s]+)/g;
       const parts = line.split(urlRegex);
-      
+
       return (
         <React.Fragment key={lineIndex}>
           {parts.map((part, partIndex) => {
@@ -181,7 +181,7 @@ export default function SingleEventPage({ event, error }: SingleEventPageProps) 
 
   const handleApplicationSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!definitekEmail.trim()) {
       setApplicationMessage({
         type: 'error',
@@ -218,14 +218,17 @@ export default function SingleEventPage({ event, error }: SingleEventPageProps) 
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': token,
+          Authorization: token,
         },
         body: JSON.stringify({
           eventId: event.id,
           eventTitle: event.title,
           definitekEmail: definitekEmail.trim(),
           userEmail: currentUser.email || '',
-          userName: `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || currentUser.email || 'Unknown',
+          userName:
+            `${user?.firstName || ''} ${user?.lastName || ''}`.trim() ||
+            currentUser.email ||
+            'Unknown',
           firstName: user?.firstName || '',
           lastName: user?.lastName || '',
         }),
@@ -279,7 +282,7 @@ export default function SingleEventPage({ event, error }: SingleEventPageProps) 
     // Check if user has already applied
     setIsCheckingApplication(true);
     setApplicationMessage(null);
-    
+
     try {
       const currentUser = firebase.auth().currentUser;
       if (!currentUser) {
@@ -295,7 +298,7 @@ export default function SingleEventPage({ event, error }: SingleEventPageProps) 
       const response = await fetch(`/api/event-application?eventId=${event.id}&checkOnly=true`, {
         method: 'GET',
         headers: {
-          'Authorization': token,
+          Authorization: token,
         },
       });
 
@@ -439,7 +442,8 @@ export default function SingleEventPage({ event, error }: SingleEventPageProps) 
                   )}
                 </div>
                 {/* 线上活动显示 Google Meet 链接 */}
-                {(event.location === '線上' || event.location?.toLowerCase().includes('online')) && (
+                {(event.location === '線上' ||
+                  event.location?.toLowerCase().includes('online')) && (
                   <div className="mt-2 ml-7">
                     <a
                       href="https://meet.google.com/xqk-afqm-sfw"
@@ -481,7 +485,10 @@ export default function SingleEventPage({ event, error }: SingleEventPageProps) 
 
             {/* 课程链接 - 仅显示给特定活动 */}
             {requiresApplication && (
-              <div className="mb-6 p-6 rounded-lg border-2" style={{ borderColor: '#1a3a6e', backgroundColor: '#f0f4f8' }}>
+              <div
+                className="mb-6 p-6 rounded-lg border-2"
+                style={{ borderColor: '#1a3a6e', backgroundColor: '#f0f4f8' }}
+              >
                 <h2 className="text-xl font-bold mb-3" style={{ color: '#1a3a6e' }}>
                   📚 課程資訊
                 </h2>
@@ -592,8 +599,12 @@ export default function SingleEventPage({ event, error }: SingleEventPageProps) 
                   disabled={isCheckingApplication}
                   className="inline-flex items-center gap-2 px-6 py-3 text-white font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   style={{ backgroundColor: '#8B4049' }}
-                  onMouseEnter={(e) => !isCheckingApplication && (e.currentTarget.style.backgroundColor = '#9B5059')}
-                  onMouseLeave={(e) => !isCheckingApplication && (e.currentTarget.style.backgroundColor = '#8B4049')}
+                  onMouseEnter={(e) =>
+                    !isCheckingApplication && (e.currentTarget.style.backgroundColor = '#9B5059')
+                  }
+                  onMouseLeave={(e) =>
+                    !isCheckingApplication && (e.currentTarget.style.backgroundColor = '#8B4049')
+                  }
                 >
                   <AssignmentIcon style={{ fontSize: '20px' }} />
                   {isCheckingApplication ? '檢查中...' : '申請參加'}

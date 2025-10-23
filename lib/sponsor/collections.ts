@@ -1,6 +1,6 @@
 /**
  * Track Sponsor Feature - Firestore Collections
- * 
+ *
  * 所有贊助商相關的 Firestore collection 名称
  */
 
@@ -8,7 +8,7 @@ export const SPONSOR_COLLECTIONS = {
   // 现有的（保持兼容）
   SPONSORS: '/sponsors',
   CHALLENGES: '/challenges',
-  
+
   // 新增的
   TRACKS: '/tracks',
   EXTENDED_SPONSORS: '/extended-sponsors',

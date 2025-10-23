@@ -54,7 +54,7 @@ export default function AddChallengePage() {
               管理儀表板
             </h1>
           </div>
-          
+
           <AdminHeader />
 
           <div className="mb-8">
@@ -63,7 +63,10 @@ export default function AddChallengePage() {
             </h2>
           </div>
 
-          <div className="bg-white rounded-lg shadow-sm border-2 p-6 mb-6" style={{ borderColor: '#e5e7eb' }}>
+          <div
+            className="bg-white rounded-lg shadow-sm border-2 p-6 mb-6"
+            style={{ borderColor: '#e5e7eb' }}
+          >
             <ChallengeForm
               onSubmitClick={async (challenge) => {
                 await submitAddChallengeRequest(challenge);

@@ -24,12 +24,7 @@ export default function QuickActions({ trackId }: QuickActionsProps) {
       description: '上傳或編輯賽道挑戰內容',
       href: trackId ? `/sponsor/tracks/${trackId}/challenge` : '/sponsor/tracks',
       icon: (
-        <svg
-          className="w-6 h-6"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -44,12 +39,7 @@ export default function QuickActions({ trackId }: QuickActionsProps) {
       description: '浏览隊伍的項目提交',
       href: trackId ? `/sponsor/tracks/${trackId}/submissions` : '/sponsor/submissions',
       icon: (
-        <svg
-          className="w-6 h-6"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -64,12 +54,7 @@ export default function QuickActions({ trackId }: QuickActionsProps) {
       description: '對提交進行評分和排名',
       href: trackId ? `/sponsor/tracks/${trackId}/judging` : '/sponsor/judging',
       icon: (
-        <svg
-          className="w-6 h-6"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -84,12 +69,7 @@ export default function QuickActions({ trackId }: QuickActionsProps) {
       description: '查看参與度與品牌曝光',
       href: '/sponsor/reports',
       icon: (
-        <svg
-          className="w-6 h-6"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -155,4 +135,3 @@ export default function QuickActions({ trackId }: QuickActionsProps) {
     </div>
   );
 }
-

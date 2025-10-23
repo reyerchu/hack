@@ -1,6 +1,6 @@
 /**
  * Admin Announcements & Questions Page
- * 
+ *
  * 管理公告和問題的頁面
  */
 
@@ -29,7 +29,7 @@ export function isAuthorized(user): boolean {
 
 export default function AnnouncementsPage({ questions }: { questions: QADocument[] }) {
   const { user, isSignedIn } = useAuthContext();
-  
+
   const [announcement, setAnnouncement] = useState('');
   const [errors, setErrors] = useState<string[]>([]);
   const [showSuccessMsg, setShowSuccessMsg] = useState(false);
@@ -74,9 +74,7 @@ export default function AnnouncementsPage({ questions }: { questions: QADocument
           <h1 className="text-4xl font-bold mb-4" style={{ color: '#1a3a6e' }}>
             未授權
           </h1>
-          <p className="text-base text-gray-600 mb-8">
-            您沒有權限訪問此頁面
-          </p>
+          <p className="text-base text-gray-600 mb-8">您沒有權限訪問此頁面</p>
           <Link href="/">
             <a
               className="inline-block border-2 px-8 py-3 text-sm font-medium uppercase tracking-wider transition-colors duration-300"
@@ -113,10 +111,7 @@ export default function AnnouncementsPage({ questions }: { questions: QADocument
         <div className="max-w-5xl mx-auto px-4 py-20">
           {/* Header */}
           <div className="mb-12">
-            <h1
-              className="text-4xl font-bold mb-2 text-left"
-              style={{ color: '#1a3a6e' }}
-            >
+            <h1 className="text-4xl font-bold mb-2 text-left" style={{ color: '#1a3a6e' }}>
               管理儀表板
             </h1>
           </div>
@@ -127,10 +122,7 @@ export default function AnnouncementsPage({ questions }: { questions: QADocument
           {/* Announcements Section */}
           {user.permissions.includes('super_admin') && (
             <div id="announcements" className="mb-12">
-              <h2
-                className="text-2xl font-bold mb-6"
-                style={{ color: '#1a3a6e' }}
-              >
+              <h2 className="text-2xl font-bold mb-6" style={{ color: '#1a3a6e' }}>
                 發布公告
               </h2>
 
@@ -176,10 +168,7 @@ export default function AnnouncementsPage({ questions }: { questions: QADocument
 
           {/* Questions Section */}
           <div id="questions" className="mb-12">
-            <h2
-              className="text-2xl font-bold mb-6"
-              style={{ color: '#1a3a6e' }}
-            >
+            <h2 className="text-2xl font-bold mb-6" style={{ color: '#1a3a6e' }}>
               待處理問題
             </h2>
 
@@ -192,9 +181,7 @@ export default function AnnouncementsPage({ questions }: { questions: QADocument
                         className="bg-white rounded-lg p-4 border-2 hover:border-blue-500 transition-colors cursor-pointer"
                         style={{ borderColor: '#e5e7eb' }}
                       >
-                        <p className="text-sm text-gray-700 font-medium">
-                          {question.question}
-                        </p>
+                        <p className="text-sm text-gray-700 font-medium">{question.question}</p>
                         <div className="flex items-center gap-4 text-xs text-gray-500 mt-2">
                           <span>From: {(question as any).author || 'Anonymous'}</span>
                           {(question as any).timestamp && (
@@ -209,7 +196,10 @@ export default function AnnouncementsPage({ questions }: { questions: QADocument
                 ))}
               </div>
             ) : (
-              <div className="bg-white rounded-lg p-8 border-2 text-center" style={{ borderColor: '#e5e7eb' }}>
+              <div
+                className="bg-white rounded-lg p-8 border-2 text-center"
+                style={{ borderColor: '#e5e7eb' }}
+              >
                 <p className="text-base text-gray-600">目前沒有待處理的問題</p>
               </div>
             )}
@@ -241,4 +231,3 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     };
   }
 };
-

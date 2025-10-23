@@ -1,8 +1,8 @@
 /**
  * API: 獲取贊助商通知列表
- * 
+ *
  * GET /api/sponsor/notifications
- * 
+ *
  * Query参数：
  * - unreadOnly: boolean - 只返回未读通知
  * - limit: number - 限制返回數量
@@ -68,4 +68,3 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(500).json({ error: 'Internal server error' });
   }
 }
-

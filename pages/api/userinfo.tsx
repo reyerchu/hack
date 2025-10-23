@@ -63,91 +63,119 @@ async function handleUserInfo(req: NextApiRequest, res: NextApiResponse) {
   try {
     // 首先通过 UID 查找用户
     let snapshot = await db.collection(REGISTRATION_COLLECTION).doc(userID).get();
-    
+
     if (!snapshot.exists) {
       // 如果通过 UID 找不到，尝试获取用户的 email 并通过 email 查找
       console.log('[/api/userinfo] User not found by UID, trying to find by email...');
-      
+
       try {
         // 从 Firebase Auth token 中获取 email
         const payload = await auth().verifyIdToken(userToken);
         const userEmail = payload.email;
-        
+
         if (userEmail) {
           console.log('[/api/userinfo] Searching for email:', userEmail);
-          
+
           // 通过 email 查找用户（检查多个字段）
-          const emailQuery1 = await db.collection(REGISTRATION_COLLECTION)
+          const emailQuery1 = await db
+            .collection(REGISTRATION_COLLECTION)
             .where('email', '==', userEmail)
             .limit(1)
             .get();
-          
+
           if (!emailQuery1.empty) {
             const existingDoc = emailQuery1.docs[0];
             const existingData = existingDoc.data();
-            
+
             console.log('[/api/userinfo] Found existing user by email, migrating to new UID...');
-            
+
             // 将现有用户数据复制到新的 UID
-            await db.collection(REGISTRATION_COLLECTION).doc(userID).set({
-              ...existingData,
-              id: userID,
-              migratedFrom: existingDoc.id,
-              migratedAt: firestore.FieldValue.serverTimestamp(),
-            }, { merge: true });
-            
+            await db
+              .collection(REGISTRATION_COLLECTION)
+              .doc(userID)
+              .set(
+                {
+                  ...existingData,
+                  id: userID,
+                  migratedFrom: existingDoc.id,
+                  migratedAt: firestore.FieldValue.serverTimestamp(),
+                },
+                { merge: true },
+              );
+
             // 同时更新 users collection
-            await db.collection('users').doc(userID).set({
-              ...existingData,
-              id: userID,
-              user: {
-                ...(existingData.user || {}),
-                id: userID,
-              },
-              migratedFrom: existingDoc.id,
-              migratedAt: firestore.FieldValue.serverTimestamp(),
-            }, { merge: true });
-            
+            await db
+              .collection('users')
+              .doc(userID)
+              .set(
+                {
+                  ...existingData,
+                  id: userID,
+                  user: {
+                    ...(existingData.user || {}),
+                    id: userID,
+                  },
+                  migratedFrom: existingDoc.id,
+                  migratedAt: firestore.FieldValue.serverTimestamp(),
+                },
+                { merge: true },
+              );
+
             // 重新获取刚创建的用户数据
             snapshot = await db.collection(REGISTRATION_COLLECTION).doc(userID).get();
-            
+
             console.log('[/api/userinfo] ✅ User data migrated successfully');
           } else {
             // 尝试通过 preferredEmail 查找
-            const emailQuery2 = await db.collection(REGISTRATION_COLLECTION)
+            const emailQuery2 = await db
+              .collection(REGISTRATION_COLLECTION)
               .where('preferredEmail', '==', userEmail)
               .limit(1)
               .get();
-            
+
             if (!emailQuery2.empty) {
               const existingDoc = emailQuery2.docs[0];
               const existingData = existingDoc.data();
-              
-              console.log('[/api/userinfo] Found existing user by preferredEmail, migrating to new UID...');
-              
+
+              console.log(
+                '[/api/userinfo] Found existing user by preferredEmail, migrating to new UID...',
+              );
+
               // 将现有用户数据复制到新的 UID
-              await db.collection(REGISTRATION_COLLECTION).doc(userID).set({
-                ...existingData,
-                id: userID,
-                migratedFrom: existingDoc.id,
-                migratedAt: firestore.FieldValue.serverTimestamp(),
-              }, { merge: true });
-              
+              await db
+                .collection(REGISTRATION_COLLECTION)
+                .doc(userID)
+                .set(
+                  {
+                    ...existingData,
+                    id: userID,
+                    migratedFrom: existingDoc.id,
+                    migratedAt: firestore.FieldValue.serverTimestamp(),
+                  },
+                  { merge: true },
+                );
+
               // 同时更新 users collection
-              await db.collection('users').doc(userID).set({
-                ...existingData,
-                id: userID,
-                user: {
-                  ...(existingData.user || {}),
-                  id: userID,
-                },
-                migratedFrom: existingDoc.id,
-                migratedAt: firestore.FieldValue.serverTimestamp(),
-              }, { merge: true });
-              
+              await db
+                .collection('users')
+                .doc(userID)
+                .set(
+                  {
+                    ...existingData,
+                    id: userID,
+                    user: {
+                      ...(existingData.user || {}),
+                      id: userID,
+                    },
+                    migratedFrom: existingDoc.id,
+                    migratedAt: firestore.FieldValue.serverTimestamp(),
+                  },
+                  { merge: true },
+                );
+
               // 重新获取刚创建的用户数据
               snapshot = await db.collection(REGISTRATION_COLLECTION).doc(userID).get();
-              
+
               console.log('[/api/userinfo] ✅ User data migrated successfully');
             }
           }
@@ -156,11 +184,11 @@ async function handleUserInfo(req: NextApiRequest, res: NextApiResponse) {
         console.error('[/api/userinfo] Error verifying token or migrating user:', tokenError);
       }
     }
-    
+
     if (!snapshot.exists) {
       return res.status(404).json({ code: 'not found', message: "User doesn't exist..." });
     }
-    
+
     res.status(200).json(snapshot.data());
   } catch (error) {
     console.error('Error when fetching applications', error);

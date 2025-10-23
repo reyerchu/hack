@@ -1,6 +1,6 @@
 /**
  * 迁移脚本：将现有 sponsors 迁移到 extended-sponsors
- * 
+ *
  * 用法：
  *   node scripts/migrations/migrate-sponsors.js
  */
@@ -24,22 +24,22 @@ const db = admin.firestore();
 async function migrateSponsorToExtended(sponsorDoc) {
   const sponsorData = sponsorDoc.data();
   const sponsorId = sponsorDoc.id;
-  
+
   console.log(`  迁移 sponsor: ${sponsorId}`);
-  
+
   // 构建扩展的赞助商数据
   const extendedSponsor = {
     // 基本信息（从原数据推断）
     name: extractNameFromReference(sponsorData.reference),
     logo: sponsorData.reference, // 原来的 reference 字段现在作为 logo
     website: sponsorData.link || '',
-    
+
     // 默认为一般赞助商
     tier: 'general',
-    
+
     // 联系人（需要手动填充）
     contacts: [],
-    
+
     // 默认权限
     permissions: {
       canEditTrackChallenge: false,
@@ -47,18 +47,18 @@ async function migrateSponsorToExtended(sponsorDoc) {
       canJudge: false,
       canContactTeams: false,
     },
-    
+
     // 状态
     status: 'active',
-    
+
     // 时间戳
     createdAt: admin.firestore.Timestamp.now(),
     updatedAt: admin.firestore.Timestamp.now(),
   };
-  
+
   // 写入到 extended-sponsors
   await db.collection('extended-sponsors').doc(sponsorId).set(extendedSponsor);
-  
+
   return extendedSponsor;
 }
 
@@ -66,7 +66,7 @@ function extractNameFromReference(reference) {
   // 从文件名提取赞助商名称
   // 例如: "cathay-logo.png" -> "Cathay"
   if (!reference) return 'Unknown Sponsor';
-  
+
   const filename = reference.split('/').pop();
   const nameWithoutExt = filename.split('.')[0];
   const name = nameWithoutExt
@@ -74,28 +74,28 @@ function extractNameFromReference(reference) {
     .split('_')[0]
     .replace(/logo|icon|img/gi, '')
     .trim();
-  
+
   return name.charAt(0).toUpperCase() + name.slice(1);
 }
 
 async function main() {
   console.log('🚀 开始迁移 sponsors 到 extended-sponsors...\n');
-  
+
   try {
     // 获取所有现有的 sponsors
     const sponsorsSnapshot = await db.collection('sponsors').get();
-    
+
     if (sponsorsSnapshot.empty) {
       console.log('⚠️  没有找到任何 sponsors 数据');
       return;
     }
-    
+
     console.log(`找到 ${sponsorsSnapshot.size} 个 sponsors\n`);
-    
+
     // 迁移每个 sponsor
     let successCount = 0;
     let errorCount = 0;
-    
+
     for (const doc of sponsorsSnapshot.docs) {
       try {
         await migrateSponsorToExtended(doc);
@@ -105,7 +105,7 @@ async function main() {
         errorCount++;
       }
     }
-    
+
     console.log('\n════════════════════════════════════════');
     console.log('  迁移完成！');
     console.log('════════════════════════════════════════');
@@ -119,7 +119,6 @@ async function main() {
     console.log('   - 赛道关联');
     console.log('   - 权限设置');
     console.log('');
-    
   } catch (error) {
     console.error('❌ 迁移过程出错:', error);
     process.exit(1);
@@ -136,4 +135,3 @@ main()
     console.error('❌ 脚本执行失败:', error);
     process.exit(1);
   });
-

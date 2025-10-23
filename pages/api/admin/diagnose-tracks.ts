@@ -1,6 +1,6 @@
 /**
  * API: /api/admin/diagnose-tracks
- * 
+ *
  * 诊断 tracks 数据状态
  */
 
@@ -32,7 +32,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // 2. Check /tracks collection
     const tracksSnapshot = await db.collection(SPONSOR_COLLECTIONS.TRACKS).get();
-    const tracksData = tracksSnapshot.docs.map(doc => {
+    const tracksData = tracksSnapshot.docs.map((doc) => {
       const data = doc.data();
       return {
         id: doc.id,
@@ -47,15 +47,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // 3. Check /extended-challenges collection
     const challengesSnapshot = await db.collection(SPONSOR_COLLECTIONS.EXTENDED_CHALLENGES).get();
-    
+
     const trackOnlyRecords = [];
     const realChallenges = [];
 
-    challengesSnapshot.docs.forEach(doc => {
+    challengesSnapshot.docs.forEach((doc) => {
       const data = doc.data();
       const hasTitle = data.title && data.title.trim() !== '';
       const hasChallengeId = data.challengeId && data.challengeId.trim() !== '';
-      
+
       if (!hasTitle && !hasChallengeId) {
         trackOnlyRecords.push({
           id: doc.id,
@@ -97,13 +97,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           },
         },
       },
-      recommendations: tracksSnapshot.size === 0 && trackOnlyRecords.length > 0 
-        ? ['需要執行數據遷移', '使用 POST /api/admin/migrate-tracks 進行遷移']
-        : tracksSnapshot.size === 0 && trackOnlyRecords.length === 0
-        ? ['沒有找到任何 tracks 數據', '請使用「新增賽道」功能創建 tracks']
-        : ['數據狀態正常'],
+      recommendations:
+        tracksSnapshot.size === 0 && trackOnlyRecords.length > 0
+          ? ['需要執行數據遷移', '使用 POST /api/admin/migrate-tracks 進行遷移']
+          : tracksSnapshot.size === 0 && trackOnlyRecords.length === 0
+          ? ['沒有找到任何 tracks 數據', '請使用「新增賽道」功能創建 tracks']
+          : ['數據狀態正常'],
     });
-
   } catch (error: any) {
     console.error('[DiagnoseTracks] Error:', error);
     return res.status(500).json({
@@ -112,4 +112,3 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
   }
 }
-

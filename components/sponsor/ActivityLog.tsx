@@ -35,12 +35,7 @@ export default function ActivityLog({ logs, maxItems = 10 }: ActivityLogProps) {
     switch (action) {
       case 'view_submission':
         return (
-          <svg
-            className="w-4 h-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -57,12 +52,7 @@ export default function ActivityLog({ logs, maxItems = 10 }: ActivityLogProps) {
         );
       case 'update_challenge':
         return (
-          <svg
-            className="w-4 h-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -73,12 +63,7 @@ export default function ActivityLog({ logs, maxItems = 10 }: ActivityLogProps) {
         );
       case 'score_submission':
         return (
-          <svg
-            className="w-4 h-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -89,12 +74,7 @@ export default function ActivityLog({ logs, maxItems = 10 }: ActivityLogProps) {
         );
       case 'download_report':
         return (
-          <svg
-            className="w-4 h-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -105,12 +85,7 @@ export default function ActivityLog({ logs, maxItems = 10 }: ActivityLogProps) {
         );
       default:
         return (
-          <svg
-            className="w-4 h-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -199,10 +174,7 @@ export default function ActivityLog({ logs, maxItems = 10 }: ActivityLogProps) {
                       )}
                     </div>
 
-                    <span
-                      className="text-xs flex-shrink-0"
-                      style={{ color: '#9ca3af' }}
-                    >
+                    <span className="text-xs flex-shrink-0" style={{ color: '#9ca3af' }}>
                       {formatTimestamp(log.timestamp)}
                     </span>
                   </div>
@@ -215,10 +187,7 @@ export default function ActivityLog({ logs, maxItems = 10 }: ActivityLogProps) {
 
       {logs.length > maxItems && (
         <div className="mt-4 text-center">
-          <button
-            className="text-sm font-medium hover:underline"
-            style={{ color: '#1a3a6e' }}
-          >
+          <button className="text-sm font-medium hover:underline" style={{ color: '#1a3a6e' }}>
             查看更多活动 ({logs.length - maxItems} 条)
           </button>
         </div>
@@ -226,4 +195,3 @@ export default function ActivityLog({ logs, maxItems = 10 }: ActivityLogProps) {
     </div>
   );
 }
-

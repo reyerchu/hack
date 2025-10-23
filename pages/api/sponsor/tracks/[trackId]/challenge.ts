@@ -1,6 +1,6 @@
 /**
  * API: /api/sponsor/tracks/[trackId]/challenge
- * 
+ *
  * GET - 獲取賽道的挑戰題目
  * PUT - 更新賽道挑戰題目（需要權限）
  */
@@ -13,10 +13,7 @@ import {
   ApiResponse,
   AuthenticatedRequest,
 } from '../../../../../lib/sponsor/middleware';
-import {
-  getUserSponsorRole,
-  checkTrackAccess,
-} from '../../../../../lib/sponsor/permissions';
+import { getUserSponsorRole, checkTrackAccess } from '../../../../../lib/sponsor/permissions';
 import { logSponsorActivity } from '../../../../../lib/sponsor/activity-log';
 import { SPONSOR_COLLECTIONS } from '../../../../../lib/sponsor/collections';
 import type { ExtendedChallenge } from '../../../../../lib/sponsor/types';
@@ -32,7 +29,10 @@ const db = firestore();
 async function handleGet(req: NextApiRequest, res: NextApiResponse) {
   const { trackId, challengeId } = req.query;
 
-  console.log('[GET /api/sponsor/tracks/[trackId]/challenge] Query params:', { trackId, challengeId });
+  console.log('[GET /api/sponsor/tracks/[trackId]/challenge] Query params:', {
+    trackId,
+    challengeId,
+  });
 
   if (!trackId || typeof trackId !== 'string') {
     return ApiResponse.error(res, 'Invalid track ID', 400);
@@ -51,14 +51,20 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
       .doc(challengeId)
       .get();
 
-    console.log('[GET /api/sponsor/tracks/[trackId]/challenge] Challenge exists:', challengeDoc.exists);
+    console.log(
+      '[GET /api/sponsor/tracks/[trackId]/challenge] Challenge exists:',
+      challengeDoc.exists,
+    );
 
     if (!challengeDoc.exists) {
       return ApiResponse.notFound(res, 'Challenge not found');
     }
 
     const challengeData = challengeDoc.data();
-    console.log('[GET /api/sponsor/tracks/[trackId]/challenge] Challenge trackId:', challengeData?.trackId);
+    console.log(
+      '[GET /api/sponsor/tracks/[trackId]/challenge] Challenge trackId:',
+      challengeData?.trackId,
+    );
 
     // 驗證挑戰是否屬於該賽道
     if (challengeData?.trackId !== trackId) {
@@ -70,7 +76,10 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
       ...challengeData,
     } as ExtendedChallenge;
 
-    console.log('[GET /api/sponsor/tracks/[trackId]/challenge] Returning challenge:', challenge.title);
+    console.log(
+      '[GET /api/sponsor/tracks/[trackId]/challenge] Returning challenge:',
+      challenge.title,
+    );
 
     return ApiResponse.success(res, challenge);
   } catch (error: any) {
@@ -86,7 +95,10 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
 async function handlePut(req: NextApiRequest, res: NextApiResponse) {
   const { trackId, challengeId } = req.query;
 
-  console.log('[PUT /api/sponsor/tracks/[trackId]/challenge] Query params:', { trackId, challengeId });
+  console.log('[PUT /api/sponsor/tracks/[trackId]/challenge] Query params:', {
+    trackId,
+    challengeId,
+  });
 
   if (!trackId || typeof trackId !== 'string') {
     return ApiResponse.error(res, 'Invalid track ID', 400);
@@ -108,7 +120,10 @@ async function handlePut(req: NextApiRequest, res: NextApiResponse) {
       .doc(challengeId)
       .get();
 
-    console.log('[PUT /api/sponsor/tracks/[trackId]/challenge] Challenge exists:', challengeDoc.exists);
+    console.log(
+      '[PUT /api/sponsor/tracks/[trackId]/challenge] Challenge exists:',
+      challengeDoc.exists,
+    );
 
     if (!challengeDoc.exists) {
       return ApiResponse.notFound(res, 'Challenge not found');
@@ -116,7 +131,10 @@ async function handlePut(req: NextApiRequest, res: NextApiResponse) {
 
     const existingChallenge = challengeDoc.data();
 
-    console.log('[PUT /api/sponsor/tracks/[trackId]/challenge] Challenge trackId:', existingChallenge?.trackId);
+    console.log(
+      '[PUT /api/sponsor/tracks/[trackId]/challenge] Challenge trackId:',
+      existingChallenge?.trackId,
+    );
 
     // 驗證挑戰是否屬於該賽道
     if (existingChallenge?.trackId !== trackId) {
@@ -145,10 +163,7 @@ async function handlePut(req: NextApiRequest, res: NextApiResponse) {
       (userRole === 'admin' && sponsor?.permissions?.canEditTrackChallenge);
 
     if (!canEdit) {
-      return ApiResponse.forbidden(
-        res,
-        'You do not have permission to edit this challenge',
-      );
+      return ApiResponse.forbidden(res, 'You do not have permission to edit this challenge');
     }
 
     // 3. 驗證並准备更新數據
@@ -186,16 +201,16 @@ async function handlePut(req: NextApiRequest, res: NextApiResponse) {
     if (requirements !== undefined) updateData.requirements = requirements;
     if (submissionRequirements !== undefined)
       updateData.submissionRequirements = submissionRequirements;
-    
+
     // Support both 'prizes' and 'prizeDetails' for backward compatibility
     if (prizes !== undefined) updateData.prizes = prizes;
     if (prizeDetails !== undefined) updateData.prizes = prizeDetails;
-    
+
     if (attachments !== undefined) updateData.attachments = attachments;
-    
+
     // 評分標准
     if (evaluationCriteria !== undefined) updateData.evaluationCriteria = evaluationCriteria;
-    
+
     // 参考资源
     if (resources !== undefined) updateData.resources = resources;
 
@@ -237,7 +252,10 @@ async function handlePut(req: NextApiRequest, res: NextApiResponse) {
       ...updateData,
     } as ExtendedChallenge;
 
-    console.log('[PUT /api/sponsor/tracks/[trackId]/challenge] Returning updated challenge:', updatedChallenge.title);
+    console.log(
+      '[PUT /api/sponsor/tracks/[trackId]/challenge] Returning updated challenge:',
+      updatedChallenge.title,
+    );
 
     return ApiResponse.success(res, updatedChallenge, 'Challenge updated successfully');
   } catch (error: any) {
@@ -260,4 +278,3 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return ApiResponse.error(res, 'Method not allowed', 405);
   }
 }
-

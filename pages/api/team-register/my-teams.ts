@@ -7,13 +7,13 @@ const db = firebase.firestore();
 
 /**
  * API endpoint to get all teams for the current user
- * 
+ *
  * GET /api/team-register/my-teams
- * 
+ *
  * Returns all teams where the user is either:
  * - Team leader
  * - Team member
- * 
+ *
  * Response:
  * {
  *   data: [{
@@ -46,7 +46,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const token = authHeader.replace('Bearer ', '');
     const decodedToken = await firebase.auth().verifyIdToken(token);
-    
+
     if (!decodedToken || !decodedToken.uid) {
       return res.status(401).json({ error: 'Invalid token' });
     }
@@ -56,7 +56,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Get user email
     const userDoc = await db.collection('registrations').doc(userId).get();
     let userEmail = '';
-    
+
     if (userDoc.exists) {
       const userData = userDoc.data();
       userEmail = userData?.user?.preferredEmail || '';
@@ -81,9 +81,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       .get();
 
     // Find all teams where user is a member (by email)
-    const memberTeamsSnapshot = await db
-      .collection('team-registrations')
-      .get(); // We'll filter in memory since we need to check array
+    const memberTeamsSnapshot = await db.collection('team-registrations').get(); // We'll filter in memory since we need to check array
 
     const teams: any[] = [];
     const processedTeamIds = new Set<string>();
@@ -92,7 +90,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     leaderTeamsSnapshot.docs.forEach((doc) => {
       const data = doc.data();
       processedTeamIds.add(doc.id);
-      
+
       teams.push({
         id: doc.id,
         teamName: data.teamName,
@@ -116,10 +114,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       const data = doc.data();
       const teamMembers = data.teamMembers || [];
-      
+
       // Check if user is in team members
-      const memberInfo = teamMembers.find((m: any) => 
-        m.email && m.email.toLowerCase() === normalizedEmail
+      const memberInfo = teamMembers.find(
+        (m: any) => m.email && m.email.toLowerCase() === normalizedEmail,
       );
 
       if (memberInfo) {
@@ -152,7 +150,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(200).json({
       data: teams,
     });
-
   } catch (error: any) {
     console.error('[GetMyTeams] Error:', error);
     return res.status(500).json({
@@ -161,4 +158,3 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
   }
 }
-

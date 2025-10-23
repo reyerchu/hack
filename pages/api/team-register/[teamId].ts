@@ -7,17 +7,17 @@ const db = firebase.firestore();
 
 /**
  * API endpoint for team registration operations
- * 
+ *
  * GET /api/team-register/[teamId]
  * - Get team details
  * - Returns full team information
  * - Only accessible to team members
- * 
+ *
  * PUT /api/team-register/[teamId]
  * - Update team information
  * - Only accessible to members with edit rights
  * - Validates all changes
- * 
+ *
  * DELETE /api/team-register/[teamId]
  * - Delete team registration
  * - Only accessible to team leader before deadline
@@ -68,7 +68,7 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse, teamId: stri
 
     const token = authHeader.replace('Bearer ', '');
     const decodedToken = await firebase.auth().verifyIdToken(token);
-    
+
     if (!decodedToken || !decodedToken.uid) {
       return res.status(401).json({ error: 'Invalid token' });
     }
@@ -87,7 +87,7 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse, teamId: stri
     // Get user email for permission check
     const userDoc = await db.collection('registrations').doc(userId).get();
     let userEmail = '';
-    
+
     if (userDoc.exists) {
       const userData = userDoc.data();
       userEmail = userData?.user?.preferredEmail || '';
@@ -101,8 +101,8 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse, teamId: stri
 
     // Check if user is part of this team
     const isLeader = teamData.teamLeader?.userId === userId;
-    const isMember = teamData.teamMembers?.some((m: any) => 
-      m.email && m.email.toLowerCase() === normalizedEmail
+    const isMember = teamData.teamMembers?.some(
+      (m: any) => m.email && m.email.toLowerCase() === normalizedEmail,
     );
 
     if (!isLeader && !isMember) {
@@ -117,8 +117,8 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse, teamId: stri
       myRole = teamData.teamLeader?.role || '';
       canEdit = teamData.teamLeader?.hasEditRight !== false;
     } else {
-      const memberInfo = teamData.teamMembers?.find((m: any) => 
-        m.email && m.email.toLowerCase() === normalizedEmail
+      const memberInfo = teamData.teamMembers?.find(
+        (m: any) => m.email && m.email.toLowerCase() === normalizedEmail,
       );
       if (memberInfo) {
         myRole = memberInfo.role || '';
@@ -143,7 +143,6 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse, teamId: stri
         agreedToCommitment: teamData.agreedToCommitment,
       },
     });
-
   } catch (error: any) {
     console.error('[GetTeamDetails] Error:', error);
     return res.status(500).json({
@@ -166,7 +165,7 @@ async function handlePut(req: NextApiRequest, res: NextApiResponse, teamId: stri
 
     const token = authHeader.replace('Bearer ', '');
     const decodedToken = await firebase.auth().verifyIdToken(token);
-    
+
     if (!decodedToken || !decodedToken.uid) {
       return res.status(401).json({ error: 'Invalid token' });
     }
@@ -185,7 +184,7 @@ async function handlePut(req: NextApiRequest, res: NextApiResponse, teamId: stri
     // Get user email for permission check
     const userDoc = await db.collection('registrations').doc(userId).get();
     let userEmail = '';
-    
+
     if (userDoc.exists) {
       const userData = userDoc.data();
       userEmail = userData?.user?.preferredEmail || '';
@@ -204,8 +203,8 @@ async function handlePut(req: NextApiRequest, res: NextApiResponse, teamId: stri
     if (isLeader) {
       canEdit = teamData.teamLeader?.hasEditRight !== false;
     } else {
-      const memberInfo = teamData.teamMembers?.find((m: any) => 
-        m.email && m.email.toLowerCase() === normalizedEmail
+      const memberInfo = teamData.teamMembers?.find(
+        (m: any) => m.email && m.email.toLowerCase() === normalizedEmail,
       );
       if (memberInfo) {
         canEdit = memberInfo.hasEditRight === true;
@@ -238,18 +237,18 @@ async function handlePut(req: NextApiRequest, res: NextApiResponse, teamId: stri
 
       // Validate all team members
       const validatedMembers: TeamMember[] = [];
-      
+
       for (let i = 0; i < updateData.teamMembers.length; i++) {
         const member = updateData.teamMembers[i];
-        
+
         if (!member.email || !member.role) {
-          return res.status(400).json({ 
-            error: `第 ${i + 1} 位成員的資訊不完整` 
+          return res.status(400).json({
+            error: `第 ${i + 1} 位成員的資訊不完整`,
           });
         }
 
         const email = member.email.trim().toLowerCase();
-        
+
         // Validate email is registered
         let userSnapshot = await db
           .collection('registrations')
@@ -265,8 +264,8 @@ async function handlePut(req: NextApiRequest, res: NextApiResponse, teamId: stri
             .get();
 
           if (userSnapshot.empty) {
-            return res.status(400).json({ 
-              error: `Email ${email} 尚未註冊` 
+            return res.status(400).json({
+              error: `Email ${email} 尚未註冊`,
             });
           }
         }
@@ -280,7 +279,7 @@ async function handlePut(req: NextApiRequest, res: NextApiResponse, teamId: stri
       }
 
       // Check for duplicate emails
-      const emails = validatedMembers.map(m => m.email);
+      const emails = validatedMembers.map((m) => m.email);
       const uniqueEmails = new Set(emails);
       if (emails.length !== uniqueEmails.size) {
         return res.status(400).json({ error: '團隊成員 Email 不可重複' });
@@ -289,8 +288,8 @@ async function handlePut(req: NextApiRequest, res: NextApiResponse, teamId: stri
       // Check if leader email is in members
       const leaderEmail = teamData.teamLeader?.email?.toLowerCase();
       if (leaderEmail && emails.includes(leaderEmail)) {
-        return res.status(400).json({ 
-          error: '團隊成員中不應包含領導者的 Email' 
+        return res.status(400).json({
+          error: '團隊成員中不應包含領導者的 Email',
         });
       }
 
@@ -310,9 +309,9 @@ async function handlePut(req: NextApiRequest, res: NextApiResponse, teamId: stri
           .where('trackId', '==', trackId)
           .limit(1)
           .get();
-        
+
         let trackData: any = null;
-        
+
         if (!trackSnapshot.empty) {
           trackData = trackSnapshot.docs[0].data();
         } else {
@@ -320,8 +319,8 @@ async function handlePut(req: NextApiRequest, res: NextApiResponse, teamId: stri
           if (trackDoc.exists) {
             trackData = trackDoc.data();
           } else {
-            return res.status(400).json({ 
-              error: `賽道 ${trackId} 不存在` 
+            return res.status(400).json({
+              error: `賽道 ${trackId} 不存在`,
             });
           }
         }
@@ -356,9 +355,7 @@ async function handlePut(req: NextApiRequest, res: NextApiResponse, teamId: stri
 
     // Send notification email to admin (reyer.chu@rwa.nexus)
     try {
-      const { notifyAdminTeamEdit } = await import(
-        '../../../lib/teamRegister/email'
-      );
+      const { notifyAdminTeamEdit } = await import('../../../lib/teamRegister/email');
 
       // Prepare changed fields summary
       const changedFields: string[] = [];
@@ -371,8 +368,10 @@ async function handlePut(req: NextApiRequest, res: NextApiResponse, teamId: stri
       const userDoc = await db.collection('registrations').doc(userId).get();
       if (userDoc.exists) {
         const userData = userDoc.data();
-        editorName = `${userData?.user?.firstName || ''} ${userData?.user?.lastName || ''}`.trim() || 
-                     userData?.user?.nickname || userEmail;
+        editorName =
+          `${userData?.user?.firstName || ''} ${userData?.user?.lastName || ''}`.trim() ||
+          userData?.user?.nickname ||
+          userEmail;
       }
 
       await notifyAdminTeamEdit(
@@ -380,7 +379,7 @@ async function handlePut(req: NextApiRequest, res: NextApiResponse, teamId: stri
         updates.teamName || teamData.teamName,
         userEmail,
         editorName,
-        changedFields
+        changedFields,
       );
       console.log(`[UpdateTeam] Sent admin notification email to reyer.chu@rwa.nexus`);
     } catch (emailError) {
@@ -392,7 +391,6 @@ async function handlePut(req: NextApiRequest, res: NextApiResponse, teamId: stri
       success: true,
       message: '團隊資料已更新',
     });
-
   } catch (error: any) {
     console.error('[UpdateTeam] Error:', error);
     return res.status(500).json({
@@ -415,7 +413,7 @@ async function handleDelete(req: NextApiRequest, res: NextApiResponse, teamId: s
 
     const token = authHeader.replace('Bearer ', '');
     const decodedToken = await firebase.auth().verifyIdToken(token);
-    
+
     if (!decodedToken || !decodedToken.uid) {
       return res.status(401).json({ error: 'Invalid token' });
     }
@@ -441,8 +439,8 @@ async function handleDelete(req: NextApiRequest, res: NextApiResponse, teamId: s
     const now = new Date();
 
     if (now > deadline) {
-      return res.status(403).json({ 
-        error: '報名截止日期已過，無法刪除團隊' 
+      return res.status(403).json({
+        error: '報名截止日期已過，無法刪除團隊',
       });
     }
 
@@ -467,7 +465,6 @@ async function handleDelete(req: NextApiRequest, res: NextApiResponse, teamId: s
       success: true,
       message: '團隊已刪除',
     });
-
   } catch (error: any) {
     console.error('[DeleteTeam] Error:', error);
     return res.status(500).json({
@@ -476,4 +473,3 @@ async function handleDelete(req: NextApiRequest, res: NextApiResponse, teamId: s
     });
   }
 }
-

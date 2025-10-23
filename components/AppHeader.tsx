@@ -54,8 +54,8 @@ export default function AppHeader() {
         console.log('[AppHeader] Profile structure:', profile.user);
 
         // Check if user is admin or super_admin
-        const isAdmin = 
-          permissions.includes('admin') || 
+        const isAdmin =
+          permissions.includes('admin') ||
           permissions.includes('super_admin') ||
           permissions[0] === 'admin' ||
           permissions[0] === 'super_admin';
@@ -67,7 +67,7 @@ export default function AppHeader() {
         }
 
         // Check if user is sponsor, admin, or super_admin
-        const isSponsor = 
+        const isSponsor =
           permissions.includes('sponsor') ||
           permissions.includes('admin') ||
           permissions.includes('super_admin');
@@ -124,9 +124,11 @@ export default function AppHeader() {
                 .filter(({ text }) => text !== 'Home')
                 .map((item) => (
                   <Link key={item.text} href={item.path}>
-                    <a className={`px-5 py-3 hover:bg-primaryDark hover:text-white border-b border-gray-100 ${
-                      item.text === '團隊報名' ? 'text-red-800' : 'text-complementary'
-                    }`}>
+                    <a
+                      className={`px-5 py-3 hover:bg-primaryDark hover:text-white border-b border-gray-100 ${
+                        item.text === '團隊報名' ? 'text-red-800' : 'text-complementary'
+                      }`}
+                    >
                       <p className="text-sm font-medium">{item.text}</p>
                     </a>
                   </Link>
@@ -145,9 +147,13 @@ export default function AppHeader() {
           {dynamicNavItems.map((item) => (
             <Link key={item.text} href={item.path}>
               <a>
-                <p className={`md:mx-4 text-sm font-bold ${
-                  item.text === '團隊報名' ? 'text-red-800' : ''
-                }`}>{item.text}</p>
+                <p
+                  className={`md:mx-4 text-sm font-bold ${
+                    item.text === '團隊報名' ? 'text-red-800' : ''
+                  }`}
+                >
+                  {item.text}
+                </p>
               </a>
             </Link>
           ))}

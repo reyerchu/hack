@@ -1,9 +1,9 @@
 /**
  * 测试数据生成脚本：生成示例数据用于开发和测试
- * 
+ *
  * 用法：
  *   node scripts/migrations/seed-test-data.js
- * 
+ *
  * 警告：仅用于开发环境！不要在生产环境运行！
  */
 
@@ -222,54 +222,57 @@ const TEST_SPONSOR_USER_MAPPINGS = [
 
 async function seedCollection(collectionName, data) {
   console.log(`  ✍️  写入 ${collectionName}: ${data.id}`);
-  await db.collection(collectionName).doc(data.id).set({
-    ...data,
-    id: undefined, // 移除 id 字段（已在 doc 路径中）
-    createdAt: admin.firestore.Timestamp.now(),
-    updatedAt: admin.firestore.Timestamp.now(),
-  });
+  await db
+    .collection(collectionName)
+    .doc(data.id)
+    .set({
+      ...data,
+      id: undefined, // 移除 id 字段（已在 doc 路径中）
+      createdAt: admin.firestore.Timestamp.now(),
+      updatedAt: admin.firestore.Timestamp.now(),
+    });
 }
 
 async function main() {
   console.log('🌱 开始生成测试数据...\n');
-  
+
   // 确认操作
   if (process.env.NODE_ENV === 'production') {
     console.error('❌ 错误：不能在生产环境运行此脚本！');
     process.exit(1);
   }
-  
+
   try {
     // 1. 生成赞助商数据
     console.log('1️⃣ 生成赞助商数据...');
     for (const sponsor of TEST_SPONSORS) {
       await seedCollection('extended-sponsors', sponsor);
     }
-    
+
     // 2. 生成挑战数据
     console.log('\n2️⃣ 生成挑战数据...');
     for (const challenge of TEST_CHALLENGES) {
       await seedCollection('extended-challenges', challenge);
     }
-    
+
     // 3. 生成提交数据
     console.log('\n3️⃣ 生成提交数据...');
     for (const submission of TEST_SUBMISSIONS) {
       await seedCollection('team-submissions', submission);
     }
-    
+
     // 4. 生成评审标准
     console.log('\n4️⃣ 生成评审标准...');
     for (const criteria of TEST_JUDGING_CRITERIA) {
       await seedCollection('judging-criteria', criteria);
     }
-    
+
     // 5. 生成用户映射
     console.log('\n5️⃣ 生成用户映射...');
     for (const mapping of TEST_SPONSOR_USER_MAPPINGS) {
       await seedCollection('sponsor-user-mappings', mapping);
     }
-    
+
     console.log('\n════════════════════════════════════════');
     console.log('  ✅ 测试数据生成完成！');
     console.log('════════════════════════════════════════');
@@ -284,7 +287,6 @@ async function main() {
     console.log('   - 测试赞助商 ID: cathay-test, sui-test');
     console.log('   - 测试挑战 ID: cathay-challenge-test');
     console.log('');
-    
   } catch (error) {
     console.error('❌ 生成测试数据失败:', error);
     process.exit(1);
@@ -301,4 +303,3 @@ main()
     console.error('❌ 脚本执行失败:', error);
     process.exit(1);
   });
-

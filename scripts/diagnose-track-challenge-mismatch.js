@@ -26,7 +26,7 @@ async function diagnose(trackId, challengeId) {
     // 1. 查询赛道
     console.log(`📍 查詢賽道: ${trackId}`);
     const trackSnap = await db.collection('tracks').where('trackId', '==', trackId).limit(1).get();
-    
+
     if (trackSnap.empty) {
       console.log('❌ 找不到該賽道\n');
       return;
@@ -39,7 +39,7 @@ async function diagnose(trackId, challengeId) {
     // 2. 查询挑战
     console.log(`📍 查詢挑戰: ${challengeId}`);
     const challengeDoc = await db.collection('extended-challenges').doc(challengeId).get();
-    
+
     if (!challengeDoc.exists) {
       console.log('❌ 找不到該挑戰\n');
       return;
@@ -80,8 +80,12 @@ async function diagnose(trackId, challengeId) {
     // 5. 如果不匹配，查找实际赛道
     if (challenge.trackId !== trackId) {
       console.log(`📍 查詢挑戰實際所屬的賽道...`);
-      const actualTrackSnap = await db.collection('tracks').where('trackId', '==', challenge.trackId).limit(1).get();
-      
+      const actualTrackSnap = await db
+        .collection('tracks')
+        .where('trackId', '==', challenge.trackId)
+        .limit(1)
+        .get();
+
       if (!actualTrackSnap.empty) {
         const actualTrack = actualTrackSnap.docs[0].data();
         console.log(`✅ 挑戰實際屬於: ${actualTrack.name}`);
@@ -92,7 +96,6 @@ async function diagnose(trackId, challengeId) {
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     console.log(challenge.trackId !== trackId ? '❌ 數據不一致' : '✅ 數據一致');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
-
   } catch (error) {
     console.error('❌ 錯誤:', error.message);
   }
@@ -102,7 +105,9 @@ const trackId = process.argv[2];
 const challengeId = process.argv[3];
 
 if (!trackId || !challengeId) {
-  console.log('\n使用方法: node scripts/diagnose-track-challenge-mismatch.js <trackId> <challengeId>\n');
+  console.log(
+    '\n使用方法: node scripts/diagnose-track-challenge-mismatch.js <trackId> <challengeId>\n',
+  );
   process.exit(1);
 }
 

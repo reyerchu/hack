@@ -23,7 +23,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const token = authHeader.replace('Bearer ', '');
     const decodedToken = await firebase.auth().verifyIdToken(token);
-    
+
     if (!decodedToken || !decodedToken.uid) {
       return res.status(401).json({ error: 'Invalid token' });
     }
@@ -52,7 +52,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // 检查权限：只有团队领导者或有编辑权限的成员可以删除
     const isLeader = teamData?.teamLeader?.userId === userId;
     const hasMemberEditRight = teamData?.teamMembers?.some(
-      (member: any) => member.userId === userId && member.hasEditRight
+      (member: any) => member.userId === userId && member.hasEditRight,
     );
 
     if (!isLeader && !hasMemberEditRight) {
@@ -100,4 +100,3 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
   }
 }
-

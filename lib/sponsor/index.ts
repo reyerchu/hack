@@ -1,6 +1,6 @@
 /**
  * Track Sponsor Feature - Main Export
- * 
+ *
  * 统一導出所有贊助商相關的功能
  */
 
@@ -26,4 +26,3 @@ export {
 
 // Activity Logging
 export * from './activity-log';
-

@@ -88,12 +88,7 @@ export default function DashboardStats({ stats, loading }: DashboardStatsProps) 
         value={stats.totalTracks}
         description="負責的賽道數量"
         icon={
-          <svg
-            className="w-6 h-6"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -109,12 +104,7 @@ export default function DashboardStats({ stats, loading }: DashboardStatsProps) 
         value={stats.totalSubmissions}
         description="总提交數量"
         icon={
-          <svg
-            className="w-6 h-6"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -130,12 +120,7 @@ export default function DashboardStats({ stats, loading }: DashboardStatsProps) 
         value={stats.totalTeams}
         description="参與的隊伍数"
         icon={
-          <svg
-            className="w-6 h-6"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -151,12 +136,7 @@ export default function DashboardStats({ stats, loading }: DashboardStatsProps) 
         value={stats.averageScore > 0 ? stats.averageScore.toFixed(1) : '-'}
         description="提交項目平均分"
         icon={
-          <svg
-            className="w-6 h-6"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -169,4 +149,3 @@ export default function DashboardStats({ stats, loading }: DashboardStatsProps) 
     </div>
   );
 }
-

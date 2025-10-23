@@ -1,6 +1,6 @@
 /**
  * Script to set sponsor permission for a user
- * 
+ *
  * Usage:
  *   node scripts/set-sponsor-permission.js <email>
  *   node scripts/set-sponsor-permission.js alphareyer@gmail.com
@@ -27,10 +27,7 @@ async function setSponsorPermission(email) {
     console.log(`\n🔍 Searching for user: ${email}...`);
 
     // 1. Find user by email
-    const usersSnapshot = await db.collection('users')
-      .where('email', '==', email)
-      .limit(1)
-      .get();
+    const usersSnapshot = await db.collection('users').where('email', '==', email).limit(1).get();
 
     if (usersSnapshot.empty) {
       console.error(`\n❌ Error: User not found with email: ${email}`);
@@ -78,7 +75,6 @@ async function setSponsorPermission(email) {
     console.log(`   4. Assign tracks to this sponsor in extended-sponsors collection\n`);
 
     return true;
-
   } catch (error) {
     console.error(`\n❌ Error updating permissions:`, error);
     console.log(`\n💡 Possible causes:`);
@@ -128,4 +124,3 @@ Description:
 }
 
 main();
-

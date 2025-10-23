@@ -1,17 +1,13 @@
 /**
  * API: /api/user/profile
- * 
+ *
  * GET - 獲取當前用戶的個人資料和權限
  */
 
 import { NextApiRequest, NextApiResponse } from 'next';
 import { firestore } from 'firebase-admin';
 import initializeApi from '../../../lib/admin/init';
-import {
-  requireAuth,
-  ApiResponse,
-  AuthenticatedRequest,
-} from '../../../lib/sponsor/middleware';
+import { requireAuth, ApiResponse, AuthenticatedRequest } from '../../../lib/sponsor/middleware';
 
 initializeApi();
 const db = firestore();
@@ -32,7 +28,11 @@ async function getUserData(userId: string): Promise<{
     }
 
     // 2. 嘗試透過 email 查詢 registrations
-    const regByEmail = await db.collection('registrations').where('email', '==', userId).limit(1).get();
+    const regByEmail = await db
+      .collection('registrations')
+      .where('email', '==', userId)
+      .limit(1)
+      .get();
     if (!regByEmail.empty) {
       const doc = regByEmail.docs[0];
       return { exists: true, data: doc.data(), ref: doc.ref };
@@ -56,7 +56,7 @@ async function getUserData(userId: string): Promise<{
  */
 async function handleGet(req: NextApiRequest, res: NextApiResponse) {
   console.log('[/api/user/profile] ========== GET 請求開始 ==========');
-  
+
   if (!(await requireAuth(req, res))) {
     return;
   }
@@ -71,7 +71,7 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
   try {
     // 獲取用戶資料
     const userData = await getUserData(userId);
-    
+
     if (!userData || !userData.exists) {
       console.log('[/api/user/profile] ❌ 用戶不存在');
       return ApiResponse.notFound(res, '找不到用戶資料');
@@ -97,10 +97,12 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
       preferredName: preferredName,
       permissions: permissions,
       // 保持原始的嵌套結構（如果存在）以保持兼容性
-      user: user?.user ? {
-        ...user.user,
-        permissions: permissions,
-      } : undefined,
+      user: user?.user
+        ? {
+            ...user.user,
+            permissions: permissions,
+          }
+        : undefined,
     };
 
     console.log('[/api/user/profile] ✅ 返回資料, permissions:', permissions);
@@ -121,4 +123,3 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   return res.status(405).json({ error: 'Method not allowed' });
 }
-

@@ -24,7 +24,7 @@ export default function AdminHeader() {
   ];
 
   // Filter tabs based on permissions
-  const filteredTabs = tabs.filter(tab => {
+  const filteredTabs = tabs.filter((tab) => {
     if (tab.superAdminOnly) {
       return isAuthorized(user);
     }

@@ -1,17 +1,13 @@
 /**
  * API: /api/admin/sponsors
- * 
+ *
  * GET - 獲取所有 sponsors 列表（僅供 admin 使用）
  */
 
 import { NextApiRequest, NextApiResponse } from 'next';
 import { firestore } from 'firebase-admin';
 import initializeApi from '../../../../lib/admin/init';
-import {
-  requireAuth,
-  ApiResponse,
-  AuthenticatedRequest,
-} from '../../../../lib/sponsor/middleware';
+import { requireAuth, ApiResponse, AuthenticatedRequest } from '../../../../lib/sponsor/middleware';
 import { SPONSOR_COLLECTIONS } from '../../../../lib/sponsor/collections';
 
 initializeApi();
@@ -22,7 +18,7 @@ const db = firestore();
  */
 async function handleGet(req: NextApiRequest, res: NextApiResponse) {
   console.log('[/api/admin/sponsors] ========== GET 請求開始 ==========');
-  
+
   if (!(await requireAuth(req, res))) {
     return;
   }
@@ -31,10 +27,12 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
   const userPermissions = authReq.userPermissions || [];
 
   // 檢查權限：只有 super_admin 和 admin 可以查看所有 sponsors
-  if (!userPermissions.includes('super_admin') && 
-      !userPermissions.includes('admin') &&
-      userPermissions[0] !== 'super_admin' && 
-      userPermissions[0] !== 'admin') {
+  if (
+    !userPermissions.includes('super_admin') &&
+    !userPermissions.includes('admin') &&
+    userPermissions[0] !== 'super_admin' &&
+    userPermissions[0] !== 'admin'
+  ) {
     return ApiResponse.forbidden(res, '只有 admin 可以查看所有 sponsors');
   }
 
@@ -68,4 +66,3 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   return res.status(405).json({ error: 'Method not allowed' });
 }
-

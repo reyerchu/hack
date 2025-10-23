@@ -1,6 +1,6 @@
 /**
  * Track Sponsor Feature - React Hooks
- * 
+ *
  * 贊助商功能的自定義 React Hooks
  */
 
@@ -52,7 +52,7 @@ export function useSponsorTracks() {
 
   const fetchTracks = useCallback(async () => {
     console.log('[useSponsorTracks] fetchTracks called, isSignedIn:', isSignedIn);
-    
+
     if (!isSignedIn) {
       console.log('[useSponsorTracks] 用戶未登入，跳過');
       setLoading(false);
@@ -69,7 +69,7 @@ export function useSponsorTracks() {
         console.error('[useSponsorTracks] 無法獲取 token');
         throw new Error('無法獲取認證令牌');
       }
-      
+
       console.log('[useSponsorTracks] Token 獲取成功，發送請求到 /api/sponsor/tracks');
 
       const response = await fetch('/api/sponsor/tracks', {
@@ -77,7 +77,7 @@ export function useSponsorTracks() {
           Authorization: `Bearer ${token}`,
         },
       });
-      
+
       console.log('[useSponsorTracks] Response status:', response.status);
 
       if (!response.ok) {
@@ -122,11 +122,12 @@ export function useTrackStats() {
     totalTracks: tracks.length,
     totalSubmissions: tracks.reduce((sum, track) => sum + track.stats.submissionCount, 0),
     totalTeams: tracks.reduce((sum, track) => sum + track.stats.teamCount, 0),
-    averageScore: tracks.length > 0
-      ? tracks.reduce((sum, track) => {
-          return sum + (track.stats.averageScore || 0);
-        }, 0) / tracks.length
-      : 0,
+    averageScore:
+      tracks.length > 0
+        ? tracks.reduce((sum, track) => {
+            return sum + (track.stats.averageScore || 0);
+          }, 0) / tracks.length
+        : 0,
   };
 
   return {
@@ -216,14 +217,11 @@ export function useSponsorNotifications(unreadOnly = false) {
         throw new Error('無法獲取認證令牌');
       }
 
-      const response = await fetch(
-        `/api/sponsor/notifications?unreadOnly=${unreadOnly}&limit=50`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+      const response = await fetch(`/api/sponsor/notifications?unreadOnly=${unreadOnly}&limit=50`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
         },
-      );
+      });
 
       if (!response.ok) {
         throw new Error('Failed to fetch notifications');
@@ -244,66 +242,60 @@ export function useSponsorNotifications(unreadOnly = false) {
     fetchNotifications();
   }, [fetchNotifications]);
 
-  const markAsRead = useCallback(
-    async (notificationId: string) => {
-      try {
-        const token = await getAuthToken();
+  const markAsRead = useCallback(async (notificationId: string) => {
+    try {
+      const token = await getAuthToken();
       if (!token) {
         throw new Error('無法獲取認證令牌');
       }
 
-        const response = await fetch(`/api/sponsor/notifications/${notificationId}`, {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ isRead: true }),
-        });
+      const response = await fetch(`/api/sponsor/notifications/${notificationId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ isRead: true }),
+      });
 
-        if (!response.ok) {
-          throw new Error('Failed to mark notification as read');
-        }
-
-        // 更新本地狀態
-        setNotifications((prev) =>
-          prev.map((n) => (n.id === notificationId ? { ...n, isRead: true } : n)),
-        );
-        setUnreadCount((prev) => Math.max(0, prev - 1));
-      } catch (err: any) {
-        console.error('Error marking notification as read:', err);
+      if (!response.ok) {
+        throw new Error('Failed to mark notification as read');
       }
-    },
-    [],
-  );
 
-  const deleteNotification = useCallback(
-    async (notificationId: string) => {
-      try {
-        const token = await getAuthToken();
+      // 更新本地狀態
+      setNotifications((prev) =>
+        prev.map((n) => (n.id === notificationId ? { ...n, isRead: true } : n)),
+      );
+      setUnreadCount((prev) => Math.max(0, prev - 1));
+    } catch (err: any) {
+      console.error('Error marking notification as read:', err);
+    }
+  }, []);
+
+  const deleteNotification = useCallback(async (notificationId: string) => {
+    try {
+      const token = await getAuthToken();
       if (!token) {
         throw new Error('無法獲取認證令牌');
       }
 
-        const response = await fetch(`/api/sponsor/notifications/${notificationId}`, {
-          method: 'DELETE',
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+      const response = await fetch(`/api/sponsor/notifications/${notificationId}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-        if (!response.ok) {
-          throw new Error('Failed to delete notification');
-        }
-
-        // 更新本地狀態
-        setNotifications((prev) => prev.filter((n) => n.id !== notificationId));
-      } catch (err: any) {
-        console.error('Error deleting notification:', err);
+      if (!response.ok) {
+        throw new Error('Failed to delete notification');
       }
-    },
-    [],
-  );
+
+      // 更新本地狀態
+      setNotifications((prev) => prev.filter((n) => n.id !== notificationId));
+    } catch (err: any) {
+      console.error('Error deleting notification:', err);
+    }
+  }, []);
 
   return {
     notifications,
@@ -333,10 +325,7 @@ export function useIsSponsor() {
 /**
  * 通用的异步操作 hook
  */
-export function useAsync<T>(
-  asyncFunction: () => Promise<T>,
-  immediate = true,
-) {
+export function useAsync<T>(asyncFunction: () => Promise<T>, immediate = true) {
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<T | null>(null);
   const [error, setError] = useState<Error | null>(null);
@@ -370,4 +359,3 @@ export function useAsync<T>(
     execute,
   };
 }
-

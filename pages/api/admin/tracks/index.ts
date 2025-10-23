@@ -31,7 +31,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // 2. Get user data and check permissions
     const userDoc = await db.collection('registrations').doc(userId).get();
-    
+
     if (!userDoc.exists) {
       return res.status(403).json({ error: '用戶不存在' });
     }
@@ -50,16 +50,23 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // 3. Fetch all tracks
     console.log('[GetTracks] Fetching from collection:', SPONSOR_COLLECTIONS.TRACKS);
     const tracksSnapshot = await db.collection(SPONSOR_COLLECTIONS.TRACKS).get();
-    
+
     console.log('[GetTracks] Snapshot size:', tracksSnapshot.size);
     console.log('[GetTracks] Snapshot empty:', tracksSnapshot.empty);
 
-    const tracks = tracksSnapshot.docs.map(doc => {
+    const tracks = tracksSnapshot.docs.map((doc) => {
       const data = doc.data();
-      console.log('[GetTracks] Processing doc:', doc.id, 'trackId:', data.trackId, 'name:', data.name);
+      console.log(
+        '[GetTracks] Processing doc:',
+        doc.id,
+        'trackId:',
+        data.trackId,
+        'name:',
+        data.name,
+      );
       return {
         id: doc.id,
-        ...data
+        ...data,
       };
     });
 
@@ -73,7 +80,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         count: tracks.length,
       },
     });
-
   } catch (error: any) {
     console.error('[GetTracks] Error:', error);
     return res.status(500).json({
@@ -82,4 +88,3 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
   }
 }
-

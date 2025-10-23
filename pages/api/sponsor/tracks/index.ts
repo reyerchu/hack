@@ -1,6 +1,6 @@
 /**
  * API: /api/sponsor/tracks
- * 
+ *
  * GET - 獲取贊助商的賽道列表
  */
 
@@ -34,7 +34,7 @@ const db = firestore();
  */
 async function handleGet(req: NextApiRequest, res: NextApiResponse) {
   console.log('[/api/sponsor/tracks] ========== GET 請求開始 ==========');
-  
+
   if (!(await requireSponsorAuth(req, res))) {
     console.log('[/api/sponsor/tracks] ❌ 認證失敗');
     return;
@@ -42,7 +42,7 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
 
   const authReq = req as AuthenticatedRequest;
   const userId = authReq.userId!;
-  
+
   console.log('[/api/sponsor/tracks] ✅ 認證成功, userId:', userId);
 
   try {
@@ -62,17 +62,16 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
     // 否則只查詢用戶管理的贊助商的 tracks
     const isAdmin = sponsorIds.includes('*');
     console.log('[/api/sponsor/tracks] isAdmin:', isAdmin);
-    
-    let tracksQuery = db.collection(SPONSOR_COLLECTIONS.TRACKS)
-      .where('status', '==', 'active');
-    
+
+    let tracksQuery = db.collection(SPONSOR_COLLECTIONS.TRACKS).where('status', '==', 'active');
+
     if (!isAdmin) {
       console.log('[/api/sponsor/tracks] 非 admin，過濾 sponsorId...');
       tracksQuery = tracksQuery.where('sponsorId', 'in', sponsorIds) as any;
     } else {
       console.log('[/api/sponsor/tracks] Admin 用戶，查詢所有 tracks...');
     }
-    
+
     const tracksSnapshot = await tracksQuery.get();
     console.log('[/api/sponsor/tracks] 查詢結果: tracks.size =', tracksSnapshot.size);
 
@@ -83,8 +82,8 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
 
     // 4. 為每個賽道獲取關聯的挑戰
     console.log('[/api/sponsor/tracks] 獲取關聯的挑戰...');
-    const trackIds = tracksSnapshot.docs.map(doc => doc.data().trackId);
-    
+    const trackIds = tracksSnapshot.docs.map((doc) => doc.data().trackId);
+
     let challengesSnapshot;
     if (trackIds.length > 0) {
       challengesSnapshot = await db
@@ -101,9 +100,7 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
     const sponsorsMap = new Map<string, ExtendedSponsor>();
     if (isAdmin) {
       // Admin 用戶：獲取所有 sponsors
-      const sponsorsSnapshot = await db
-        .collection(SPONSOR_COLLECTIONS.EXTENDED_SPONSORS)
-        .get();
+      const sponsorsSnapshot = await db.collection(SPONSOR_COLLECTIONS.EXTENDED_SPONSORS).get();
 
       sponsorsSnapshot.docs.forEach((doc) => {
         sponsorsMap.set(doc.id, { id: doc.id, ...doc.data() } as ExtendedSponsor);
@@ -122,7 +119,7 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
 
     // 6. 按賽道组织數據 - 一個賽道可以有多個挑戰
     const tracksData = [];
-    
+
     // 將 challenges 按 trackId 分組
     const challengesByTrack = new Map<string, ExtendedChallenge[]>();
     if (challengesSnapshot && !challengesSnapshot.empty) {
@@ -140,7 +137,7 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
       const trackData = doc.data();
       const trackId = trackData.trackId;
       const trackDocId = doc.id; // Document ID for team counting
-      
+
       // 獲取該賽道的統計數據（傳入 trackId 和 docId）
       const stats = await getTrackStats(trackId, trackDocId);
 
@@ -169,15 +166,20 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
 
     // 6. 計算每個賽道的總獎金並排序
     // Calculate total prize for each track
-    const tracksWithPrizes = tracksData.map(track => {
+    const tracksWithPrizes = tracksData.map((track) => {
       let totalPrize = 0;
-      
+
       // Sum up prizes from all challenges in this track
       if (track.challenges && track.challenges.length > 0) {
         track.challenges.forEach((challenge: any) => {
           if (challenge.prizes) {
             // New format: Array of objects with { currency, amount, description }
-            if (Array.isArray(challenge.prizes) && challenge.prizes.length > 0 && typeof challenge.prizes[0] === 'object' && challenge.prizes[0].amount !== undefined) {
+            if (
+              Array.isArray(challenge.prizes) &&
+              challenge.prizes.length > 0 &&
+              typeof challenge.prizes[0] === 'object' &&
+              challenge.prizes[0].amount !== undefined
+            ) {
               challenge.prizes.forEach((prize: any) => {
                 if (prize.amount && typeof prize.amount === 'number') {
                   // Convert TWD to USD equivalent (1 USD ≈ 30 TWD for prize comparison)
@@ -227,28 +229,28 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
           }
         });
       }
-      
+
       return {
         ...track,
         totalPrize: totalPrize,
       };
     });
-    
+
     // Sort by totalPrize descending (higher prize first)
     tracksWithPrizes.sort((a, b) => b.totalPrize - a.totalPrize);
-    
+
     const tracks = tracksWithPrizes;
-    
+
     console.log('[/api/sponsor/tracks] 最終 tracks 數量:', tracks.length);
     console.log('[/api/sponsor/tracks] Tracks sorted by prize (high to low)');
-    tracks.forEach(track => {
+    tracks.forEach((track) => {
       console.log(`  - ${track.name}: ${track.totalPrize}u`);
     });
 
     const response: TrackListResponse = {
       tracks: tracks,
     };
-    
+
     console.log('[/api/sponsor/tracks] ========== 返回成功 ==========');
     return ApiResponse.success(res, response);
   } catch (error: any) {
@@ -262,7 +264,10 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
  * @param trackId - trackId 字段（用於查詢 submissions）
  * @param trackDocId - Document ID（用於查詢 team-registrations）
  */
-async function getTrackStats(trackId: string, trackDocId: string): Promise<{
+async function getTrackStats(
+  trackId: string,
+  trackDocId: string,
+): Promise<{
   submissionCount: number;
   teamCount: number;
   averageScore?: number;
@@ -310,7 +315,9 @@ async function getTrackStats(trackId: string, trackDocId: string): Promise<{
       }
     });
 
-    console.log(`[getTrackStats] trackId: ${trackId}, trackDocId: ${trackDocId}, teamCount: ${teamCount}, submissionCount: ${submissionCount}`);
+    console.log(
+      `[getTrackStats] trackId: ${trackId}, trackDocId: ${trackDocId}, teamCount: ${teamCount}, submissionCount: ${submissionCount}`,
+    );
 
     return {
       submissionCount,
@@ -337,4 +344,3 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return ApiResponse.error(res, 'Method not allowed', 405);
   }
 }
-

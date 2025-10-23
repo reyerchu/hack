@@ -125,7 +125,7 @@ export default function TeamUpDetail({ need, isOwner: ssrIsOwner, error }: TeamU
 
     try {
       console.log('[Team-up Apply] Submitting application for need:', currentNeed!.id);
-      
+
       const response = await fetch('/api/team-up/applications', {
         method: 'POST',
         headers: {

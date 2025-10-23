@@ -118,7 +118,7 @@ export default function ChallengePage({ challenges_ }: ChallengePageProps) {
               管理儀表板
             </h1>
           </div>
-          
+
           <AdminHeader />
 
           {/* Challenges List Section */}
@@ -155,7 +155,10 @@ export default function ChallengePage({ challenges_ }: ChallengePageProps) {
             )}
           </div>
 
-          <div className="bg-white rounded-lg shadow-sm border-2 p-6" style={{ borderColor: '#e5e7eb' }}>
+          <div
+            className="bg-white rounded-lg shadow-sm border-2 p-6"
+            style={{ borderColor: '#e5e7eb' }}
+          >
             {currentChallengeEditIndex !== -1 ? (
               <div>
                 <ChallengeForm
@@ -201,7 +204,10 @@ export default function ChallengePage({ challenges_ }: ChallengePageProps) {
                   }}
                 />
                 {orderChanged && (
-                  <div className="flex gap-3 pt-6 mt-6 border-t-2" style={{ borderColor: '#e5e7eb' }}>
+                  <div
+                    className="flex gap-3 pt-6 mt-6 border-t-2"
+                    style={{ borderColor: '#e5e7eb' }}
+                  >
                     <button
                       onClick={async () => {
                         await submitReorderChallengesRequest();
@@ -257,7 +263,10 @@ export default function ChallengePage({ challenges_ }: ChallengePageProps) {
                         leaveTo="opacity-0 scale-95"
                       >
                         <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
-                          <Dialog.Title as="h3" className="text-lg font-medium leading-6 text-gray-900">
+                          <Dialog.Title
+                            as="h3"
+                            className="text-lg font-medium leading-6 text-gray-900"
+                          >
                             Delete Challenge
                           </Dialog.Title>
                           <div className="mt-2">

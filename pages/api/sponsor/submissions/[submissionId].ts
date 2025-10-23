@@ -1,6 +1,6 @@
 /**
  * API: /api/sponsor/submissions/[submissionId]
- * 
+ *
  * GET - 獲取單個提交的详细資訊
  */
 
@@ -105,4 +105,3 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return ApiResponse.error(res, 'Method not allowed', 405);
   }
 }
-

@@ -1,6 +1,6 @@
 /**
  * Sponsor 賽道管理頁面
- * 
+ *
  * 顯示和管理贊助商負責的所有賽道
  */
 
@@ -18,7 +18,12 @@ export default function SponsorTracksPage() {
   const { isSignedIn, loading: authLoading } = useAuthContext();
   const isSponsor = useIsSponsor();
 
-  const { tracks, loading: tracksLoading, error: tracksError, refetch: refetchTracks } = useSponsorTracks();
+  const {
+    tracks,
+    loading: tracksLoading,
+    error: tracksError,
+    refetch: refetchTracks,
+  } = useSponsorTracks();
 
   // Add track modal state
   const [showAddTrackModal, setShowAddTrackModal] = useState(false);
@@ -64,7 +69,7 @@ export default function SponsorTracksPage() {
       setLoadingSponsors(true);
       const currentUser = firebase.auth().currentUser;
       if (!currentUser) return;
-      
+
       const token = await currentUser.getIdToken();
       const response = await fetch('/api/admin/sponsors', {
         headers: {
@@ -182,8 +187,13 @@ export default function SponsorTracksPage() {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-50">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 mx-auto mb-4" style={{ borderColor: '#1a3a6e' }}></div>
-          <p className="text-base" style={{ color: '#6b7280' }}>載入中...</p>
+          <div
+            className="animate-spin rounded-full h-12 w-12 border-b-2 mx-auto mb-4"
+            style={{ borderColor: '#1a3a6e' }}
+          ></div>
+          <p className="text-base" style={{ color: '#6b7280' }}>
+            載入中...
+          </p>
         </div>
       </div>
     );
@@ -206,7 +216,7 @@ export default function SponsorTracksPage() {
               贊助商儀表板
             </h1>
           </div>
-          
+
           <SponsorHeader />
 
           {/* Tracks List Section */}
@@ -242,8 +252,13 @@ export default function SponsorTracksPage() {
 
           {loading && (
             <div className="text-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 mx-auto mb-4" style={{ borderColor: '#1a3a6e' }}></div>
-              <p className="text-base" style={{ color: '#6b7280' }}>載入賽道資料中...</p>
+              <div
+                className="animate-spin rounded-full h-12 w-12 border-b-2 mx-auto mb-4"
+                style={{ borderColor: '#1a3a6e' }}
+              ></div>
+              <p className="text-base" style={{ color: '#6b7280' }}>
+                載入賽道資料中...
+              </p>
             </div>
           )}
 
@@ -255,7 +270,10 @@ export default function SponsorTracksPage() {
           )}
 
           {!loading && !error && tracks.length === 0 && (
-            <div className="bg-white rounded-lg shadow-sm border-2 p-12 text-center" style={{ borderColor: '#e5e7eb' }}>
+            <div
+              className="bg-white rounded-lg shadow-sm border-2 p-12 text-center"
+              style={{ borderColor: '#e5e7eb' }}
+            >
               <svg
                 className="mx-auto mb-4 w-16 h-16"
                 fill="none"
@@ -270,7 +288,9 @@ export default function SponsorTracksPage() {
                   d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                 />
               </svg>
-              <h3 className="text-xl font-bold mb-2" style={{ color: '#1a3a6e' }}>尚無賽道</h3>
+              <h3 className="text-xl font-bold mb-2" style={{ color: '#1a3a6e' }}>
+                尚無賽道
+              </h3>
               <p className="text-base mb-4" style={{ color: '#6b7280' }}>
                 點擊上方「新增賽道」按鈕開始創建您的第一個賽道
               </p>
@@ -359,7 +379,9 @@ export default function SponsorTracksPage() {
                 </label>
                 <textarea
                   value={newTrackData.description}
-                  onChange={(e) => setNewTrackData({ ...newTrackData, description: e.target.value })}
+                  onChange={(e) =>
+                    setNewTrackData({ ...newTrackData, description: e.target.value })
+                  }
                   className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   style={{ borderColor: '#d1d5db' }}
                   rows={4}
@@ -373,18 +395,23 @@ export default function SponsorTracksPage() {
                   贊助商 *
                 </label>
                 {loadingSponsors ? (
-                  <div className="w-full px-4 py-2 border rounded-lg" style={{ borderColor: '#d1d5db' }}>
-                    <span className="text-sm" style={{ color: '#6b7280' }}>載入贊助商列表...</span>
+                  <div
+                    className="w-full px-4 py-2 border rounded-lg"
+                    style={{ borderColor: '#d1d5db' }}
+                  >
+                    <span className="text-sm" style={{ color: '#6b7280' }}>
+                      載入贊助商列表...
+                    </span>
                   </div>
                 ) : (
                   <select
                     value={newTrackData.sponsorId}
                     onChange={(e) => {
-                      const selectedSponsor = sponsors.find(s => s.id === e.target.value);
-                      setNewTrackData({ 
-                        ...newTrackData, 
+                      const selectedSponsor = sponsors.find((s) => s.id === e.target.value);
+                      setNewTrackData({
+                        ...newTrackData,
                         sponsorId: e.target.value,
-                        sponsorName: selectedSponsor?.name || ''
+                        sponsorName: selectedSponsor?.name || '',
                       });
                     }}
                     className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -403,7 +430,13 @@ export default function SponsorTracksPage() {
             </div>
 
             {createMessage && (
-              <div className={`p-4 rounded-lg mb-4 ${createMessage.includes('✅') ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'} border-2`}>
+              <div
+                className={`p-4 rounded-lg mb-4 ${
+                  createMessage.includes('✅')
+                    ? 'bg-green-50 border-green-200'
+                    : 'bg-red-50 border-red-200'
+                } border-2`}
+              >
                 <p className="text-sm font-medium">{createMessage}</p>
               </div>
             )}
@@ -466,7 +499,13 @@ export default function SponsorTracksPage() {
             </div>
 
             {deleteMessage && (
-              <div className={`p-4 rounded-lg mb-4 ${deleteMessage.includes('✅') ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'} border-2`}>
+              <div
+                className={`p-4 rounded-lg mb-4 ${
+                  deleteMessage.includes('✅')
+                    ? 'bg-green-50 border-green-200'
+                    : 'bg-red-50 border-red-200'
+                } border-2`}
+              >
                 <p className="text-sm font-medium">{deleteMessage}</p>
               </div>
             )}
@@ -514,4 +553,3 @@ export default function SponsorTracksPage() {
     </div>
   );
 }
-

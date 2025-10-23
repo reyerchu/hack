@@ -18,14 +18,17 @@ const envContent = fs.readFileSync(envPath, 'utf8');
 
 // 解析環境變數
 const envVars = {};
-envContent.split('\n').forEach(line => {
+envContent.split('\n').forEach((line) => {
   const trimmed = line.trim();
   if (trimmed && !trimmed.startsWith('#') && trimmed.includes('=')) {
     const [key, ...valueParts] = trimmed.split('=');
     if (key && valueParts.length > 0) {
       let value = valueParts.join('=').trim();
       // 移除引號
-      if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
+      if (
+        (value.startsWith('"') && value.endsWith('"')) ||
+        (value.startsWith("'") && value.endsWith("'"))
+      ) {
         value = value.slice(1, -1);
       }
       envVars[key.trim()] = value;
@@ -107,7 +110,6 @@ async function removeSpecificLogos() {
     console.log(`   移除 logo: ${updatedCount} 個`);
     console.log(`   跳過: ${skippedCount} 個`);
     console.log(`${'='.repeat(60)}\n`);
-
   } catch (error) {
     console.error('❌ 錯誤:', error);
     process.exit(1);
@@ -123,4 +125,3 @@ removeSpecificLogos()
     console.error('❌ 腳本執行失敗:', error);
     process.exit(1);
   });
-

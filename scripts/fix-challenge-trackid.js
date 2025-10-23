@@ -1,6 +1,6 @@
 /**
  * 修复工具：更新挑战的 trackId
- * 
+ *
  * 使用方法：
  * node scripts/fix-challenge-trackid.js <challengeId> <newTrackId>
  */
@@ -34,7 +34,7 @@ async function fixChallengeTrackId(challengeId, newTrackId) {
     console.log(`📍 查詢挑戰: ${challengeId}`);
     const challengeRef = db.collection('extended-challenges').doc(challengeId);
     const challengeDoc = await challengeRef.get();
-    
+
     if (!challengeDoc.exists) {
       console.log('❌ 找不到該挑戰\n');
       return;
@@ -47,8 +47,12 @@ async function fixChallengeTrackId(challengeId, newTrackId) {
 
     // 2. 确认新的赛道存在
     console.log(`📍 驗證新賽道: ${newTrackId}`);
-    const trackSnap = await db.collection('tracks').where('trackId', '==', newTrackId).limit(1).get();
-    
+    const trackSnap = await db
+      .collection('tracks')
+      .where('trackId', '==', newTrackId)
+      .limit(1)
+      .get();
+
     if (trackSnap.empty) {
       console.log('❌ 找不到該賽道！請確認 trackId 正確。\n');
       return;
@@ -83,7 +87,6 @@ async function fixChallengeTrackId(challengeId, newTrackId) {
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     console.log('✅ 修復完成！');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
-
   } catch (error) {
     console.error('❌ 錯誤:', error.message);
   }

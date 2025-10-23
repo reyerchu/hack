@@ -8,7 +8,7 @@ import CommitmentContent from '../components/CommitmentContent';
 
 /**
  * Team Registration Page
- * 
+ *
  * Features:
  * - Team name input
  * - Team members must be registered (validate by email)
@@ -61,11 +61,11 @@ const ROLE_OPTIONS = [
 export default function TeamRegisterPage() {
   const router = useRouter();
   const { isSignedIn, hasProfile, user, profile, loading } = useAuthContext();
-  
+
   // Edit mode detection
   const editTeamId = router.query.edit as string | undefined;
   const isEditMode = !!editTeamId;
-  
+
   // Form states
   const [teamName, setTeamName] = useState('');
   const [myEmail, setMyEmail] = useState('');
@@ -74,13 +74,13 @@ export default function TeamRegisterPage() {
   const [selectedTracks, setSelectedTracks] = useState<string[]>([]);
   const [hasAgreed, setHasAgreed] = useState(false);
   const [showCommitment, setShowCommitment] = useState(false);
-  
+
   // Data states
   const [tracks, setTracks] = useState<Track[]>([]);
   const [isLoadingTracks, setIsLoadingTracks] = useState(false);
   const [expandedTracks, setExpandedTracks] = useState<Set<string>>(new Set());
   const [isLoadingTeam, setIsLoadingTeam] = useState(false);
-  
+
   // Submission states
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState('');
@@ -104,15 +104,15 @@ export default function TeamRegisterPage() {
   // Extract email from profile when it's ready
   useEffect(() => {
     if (profile || user) {
-      const email = 
+      const email =
         (profile as any)?.user?.preferredEmail ||
         (profile as any)?.preferredEmail ||
-        (profile as any)?.user?.email || 
-        (user as any)?.email || 
-        (profile as any)?.email || 
-        (user as any)?.user?.email || 
+        (profile as any)?.user?.email ||
+        (user as any)?.email ||
+        (profile as any)?.email ||
+        (user as any)?.user?.email ||
         '';
-      
+
       if (email) {
         setMyEmail(email);
       }
@@ -133,10 +133,9 @@ export default function TeamRegisterPage() {
       setIsLoadingTeam(true);
       console.log('[TeamRegister] Loading team data for edit:', teamId);
 
-      const response = await RequestHelper.get<any>(
-        `/api/team-register/${teamId}`,
-        { headers: { Authorization: user.token } }
-      );
+      const response = await RequestHelper.get<any>(`/api/team-register/${teamId}`, {
+        headers: { Authorization: user.token },
+      });
 
       if (response.data?.error) {
         setSubmitMessage('載入團隊資料失敗：' + response.data.error);
@@ -152,7 +151,6 @@ export default function TeamRegisterPage() {
       setTeamMembers(teamData.teamMembers || []);
       setSelectedTracks(teamData.tracks?.map((t: any) => t.id) || []);
       setHasAgreed(true); // Auto-agree for edit mode
-
     } catch (err: any) {
       console.error('[TeamRegister] Load error:', err);
       setSubmitMessage('載入團隊資料失敗：' + (err.message || '未知錯誤'));
@@ -170,16 +168,13 @@ export default function TeamRegisterPage() {
     try {
       // Add cache-busting parameter to get fresh data
       const cacheBuster = forceRefresh ? `?t=${Date.now()}` : '';
-      const response = await RequestHelper.get<{ data: Track[] }>(
-        `/api/tracks/all${cacheBuster}`,
-        { 
-          headers: { 
-            Authorization: user.token,
-            'Cache-Control': 'no-cache, no-store, must-revalidate',
-            'Pragma': 'no-cache'
-          } 
-        }
-      );
+      const response = await RequestHelper.get<{ data: Track[] }>(`/api/tracks/all${cacheBuster}`, {
+        headers: {
+          Authorization: user.token,
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          Pragma: 'no-cache',
+        },
+      });
 
       if ((response as any).error) {
         console.error('[TeamRegister] Failed to fetch tracks:', (response as any).error);
@@ -190,7 +185,7 @@ export default function TeamRegisterPage() {
       const tracksData = response.data?.data || response.data || [];
       if (Array.isArray(tracksData)) {
         setTracks(tracksData);
-        
+
         // Auto-select all tracks by default (only for new registration, not edit mode)
         if (!isEditMode && tracksData.length > 0) {
           const allTrackIds = tracksData.map((track: Track) => track.id);
@@ -217,9 +212,7 @@ export default function TeamRegisterPage() {
   // Toggle track selection
   const toggleTrack = (trackId: string) => {
     setSelectedTracks((prev) =>
-      prev.includes(trackId)
-        ? prev.filter((id) => id !== trackId)
-        : [...prev, trackId]
+      prev.includes(trackId) ? prev.filter((id) => id !== trackId) : [...prev, trackId],
     );
   };
 
@@ -239,27 +232,32 @@ export default function TeamRegisterPage() {
   // Format prize display
   const formatPrizes = (prizes: any): string => {
     if (!prizes) return '未設定';
-    
+
     if (typeof prizes === 'string') {
       return prizes;
     }
-    
+
     if (Array.isArray(prizes) && prizes.length > 0) {
       if (typeof prizes[0] === 'object' && prizes[0].amount !== undefined) {
         // New structured format
-        return prizes.map((p: any) => 
-          `${p.currency === 'TWD' ? '台幣' : 'USD'} ${p.amount.toLocaleString()} ${p.description}`
-        ).join('，');
+        return prizes
+          .map(
+            (p: any) =>
+              `${p.currency === 'TWD' ? '台幣' : 'USD'} ${p.amount.toLocaleString()} ${
+                p.description
+              }`,
+          )
+          .join('，');
       } else {
         // Old format: array of strings
         return prizes.join(', ');
       }
     }
-    
+
     if (typeof prizes === 'number') {
       return prizes.toLocaleString();
     }
-    
+
     return '未設定';
   };
 
@@ -282,7 +280,7 @@ export default function TeamRegisterPage() {
 
     // Check for duplicate email in current team members
     const normalizedEmail = newMember.email.trim().toLowerCase();
-    if (teamMembers.some(m => m.email.toLowerCase() === normalizedEmail)) {
+    if (teamMembers.some((m) => m.email.toLowerCase() === normalizedEmail)) {
       setMemberValidationError('此 Email 已在團隊成員列表中');
       return;
     }
@@ -304,21 +302,24 @@ export default function TeamRegisterPage() {
         return;
       }
 
-      const response = await RequestHelper.post(
+      const response = (await RequestHelper.post(
         '/api/team-register/validate-email',
         { headers: { Authorization: user.token } },
-        { email: normalizedEmail }
-      ) as any;
+        { email: normalizedEmail },
+      )) as any;
 
       const data = response.data || response;
 
       if (data.isValid) {
         // Email is registered, add to team members
-        setTeamMembers([...teamMembers, { 
-          email: newMember.email.trim(), 
-          role: newMember.role.trim(), 
-          hasEditRight: newMember.hasEditRight 
-        }]);
+        setTeamMembers([
+          ...teamMembers,
+          {
+            email: newMember.email.trim(),
+            role: newMember.role.trim(),
+            hasEditRight: newMember.hasEditRight,
+          },
+        ]);
         // Reset new member form
         setNewMember({ email: '', role: '', hasEditRight: false });
         setMemberValidationError('');
@@ -347,7 +348,7 @@ export default function TeamRegisterPage() {
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!user?.token) {
       setSubmitMessage('請先登入');
       setSubmitSuccess(false);
@@ -370,7 +371,7 @@ export default function TeamRegisterPage() {
     // Validate all team members (backend will validate if emails are registered)
     for (let i = 0; i < teamMembers.length; i++) {
       const member = teamMembers[i];
-      
+
       if (!member.email.trim()) {
         setSubmitMessage(`請輸入第 ${i + 1} 位成員的 Email`);
         setSubmitSuccess(false);
@@ -391,7 +392,7 @@ export default function TeamRegisterPage() {
     }
 
     // Check for duplicate emails
-    const emails = teamMembers.map(m => m.email.toLowerCase());
+    const emails = teamMembers.map((m) => m.email.toLowerCase());
     const uniqueEmails = new Set(emails);
     if (emails.length !== uniqueEmails.size) {
       setSubmitMessage('團隊成員 Email 不能重複');
@@ -426,7 +427,7 @@ export default function TeamRegisterPage() {
     try {
       const requestData = {
         teamName: teamName.trim(),
-        teamMembers: teamMembers.map(m => ({
+        teamMembers: teamMembers.map((m) => ({
           email: m.email.trim(),
           name: m.name,
           role: m.role.trim(),
@@ -443,7 +444,7 @@ export default function TeamRegisterPage() {
         response = await RequestHelper.put(
           `/api/team-register/${editTeamId}`,
           { headers: { Authorization: user.token } },
-          requestData
+          requestData,
         );
       } else {
         // Create new team
@@ -455,22 +456,31 @@ export default function TeamRegisterPage() {
             ...requestData,
             teamLeader: {
               email: myEmail,
-              name: `${(profile as any)?.user?.firstName || ''} ${(profile as any)?.user?.lastName || ''}`.trim() || (profile as any)?.nickname || '未提供',
+              name:
+                `${(profile as any)?.user?.firstName || ''} ${
+                  (profile as any)?.user?.lastName || ''
+                }`.trim() ||
+                (profile as any)?.nickname ||
+                '未提供',
               role: myRole,
               hasEditRight: true, // Team registrant always has edit rights
             },
             agreedToCommitment: hasAgreed,
-          }
+          },
         );
       }
 
       if ((response as any).error || response.data?.error) {
-        setSubmitMessage((response as any).error || response.data?.error || (isEditMode ? '更新失敗，請稍後再試' : '報名失敗，請稍後再試'));
+        setSubmitMessage(
+          (response as any).error ||
+            response.data?.error ||
+            (isEditMode ? '更新失敗，請稍後再試' : '報名失敗，請稍後再試'),
+        );
         setSubmitSuccess(false);
       } else {
         setSubmitMessage(isEditMode ? '更新成功！' : '報名成功！通知郵件已發送給所有團隊成員。');
         setSubmitSuccess(true);
-        
+
         // Redirect after 2 seconds
         setTimeout(() => {
           router.push('/profile');
@@ -516,22 +526,31 @@ export default function TeamRegisterPage() {
                 {isEditMode ? '編輯團隊' : '團隊報名'}
               </h1>
               <p className="text-lg text-gray-600">
-                {isEditMode 
+                {isEditMode
                   ? '更新您的團隊資訊、成員和參賽賽道'
-                  : '報名您的團隊，選擇參賽賽道，開始您的黑客松之旅'
-                }
+                  : '報名您的團隊，選擇參賽賽道，開始您的黑客松之旅'}
               </p>
               {isEditMode && editTeamId && (
-                <p className="text-xs text-gray-400 mt-2">
-                  團隊 ID: {editTeamId}
-                </p>
+                <p className="text-xs text-gray-400 mt-2">團隊 ID: {editTeamId}</p>
               )}
             </div>
 
             {/* Registration Deadline Notice - At Top */}
-            <div className="mb-8 flex items-start gap-2 p-4 rounded-lg" style={{ backgroundColor: '#fef3c7', border: '1px solid #fbbf24' }}>
-              <svg className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: '#92400e' }} fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+            <div
+              className="mb-8 flex items-start gap-2 p-4 rounded-lg"
+              style={{ backgroundColor: '#fef3c7', border: '1px solid #fbbf24' }}
+            >
+              <svg
+                className="w-5 h-5 flex-shrink-0 mt-0.5"
+                style={{ color: '#92400e' }}
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                  clipRule="evenodd"
+                />
               </svg>
               <div className="text-sm" style={{ color: '#92400e' }}>
                 <span className="font-semibold">報名截止日期：2025年10月27日 23:59</span>
@@ -547,7 +566,7 @@ export default function TeamRegisterPage() {
                 <h2 className="text-2xl font-bold mb-6" style={{ color: '#1a3a6e' }}>
                   團隊資訊
                 </h2>
-                
+
                 <div>
                   <label className="block text-sm font-medium mb-2" style={{ color: '#374151' }}>
                     團隊名稱 <span style={{ color: '#ef4444' }}>*</span>
@@ -570,7 +589,7 @@ export default function TeamRegisterPage() {
                 <h2 className="text-2xl font-bold mb-6" style={{ color: '#1a3a6e' }}>
                   我的資訊（團隊報名者）
                 </h2>
-                
+
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium mb-2" style={{ color: '#374151' }}>
@@ -599,7 +618,9 @@ export default function TeamRegisterPage() {
                     >
                       <option value="">請選擇角色</option>
                       {ROLE_OPTIONS.map((role) => (
-                        <option key={role} value={role}>{role}</option>
+                        <option key={role} value={role}>
+                          {role}
+                        </option>
                       ))}
                     </select>
                   </div>
@@ -625,11 +646,17 @@ export default function TeamRegisterPage() {
                           <span className="text-sm font-semibold" style={{ color: '#1a3a6e' }}>
                             {member.email}
                           </span>
-                          <span className="text-sm px-2 py-1 rounded" style={{ backgroundColor: '#dbeafe', color: '#1e40af' }}>
+                          <span
+                            className="text-sm px-2 py-1 rounded"
+                            style={{ backgroundColor: '#dbeafe', color: '#1e40af' }}
+                          >
                             {member.role}
                           </span>
                           {member.hasEditRight && (
-                            <span className="text-xs px-2 py-1 rounded" style={{ backgroundColor: '#d1fae5', color: '#065f46' }}>
+                            <span
+                              className="text-xs px-2 py-1 rounded"
+                              style={{ backgroundColor: '#d1fae5', color: '#065f46' }}
+                            >
                               ✓ 可編輯
                             </span>
                           )}
@@ -649,11 +676,14 @@ export default function TeamRegisterPage() {
                 </div>
 
                 {/* 添加新成員的輸入區域 */}
-                <div className="space-y-4 p-4 rounded-lg" style={{ backgroundColor: '#f0f4ff', border: '2px dashed #1a3a6e' }}>
+                <div
+                  className="space-y-4 p-4 rounded-lg"
+                  style={{ backgroundColor: '#f0f4ff', border: '2px dashed #1a3a6e' }}
+                >
                   <div className="text-sm font-medium mb-3" style={{ color: '#1a3a6e' }}>
                     + 新增成員
                   </div>
-                  
+
                   {/* Email */}
                   <div>
                     <label className="block text-sm font-medium mb-2" style={{ color: '#374151' }}>
@@ -667,24 +697,29 @@ export default function TeamRegisterPage() {
                         setMemberValidationError(''); // Clear error when typing
                       }}
                       className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      style={{ 
-                        borderColor: memberValidationError ? '#dc2626' : '#d1d5db', 
-                        backgroundColor: '#ffffff' 
+                      style={{
+                        borderColor: memberValidationError ? '#dc2626' : '#d1d5db',
+                        backgroundColor: '#ffffff',
                       }}
                       placeholder="member@example.com"
                       disabled={isSubmitting || isValidatingMember}
                     />
                     {memberValidationError ? (
-                      <div className="mt-1 text-xs flex items-center gap-1" style={{ color: '#dc2626' }}>
+                      <div
+                        className="mt-1 text-xs flex items-center gap-1"
+                        style={{ color: '#dc2626' }}
+                      >
                         <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                          <path
+                            fillRule="evenodd"
+                            d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                            clipRule="evenodd"
+                          />
                         </svg>
                         {memberValidationError}
                       </div>
                     ) : (
-                      <div className="mt-1 text-xs text-gray-500">
-                        成員必須已註冊本平台
-                      </div>
+                      <div className="mt-1 text-xs text-gray-500">成員必須已註冊本平台</div>
                     )}
                   </div>
 
@@ -702,7 +737,9 @@ export default function TeamRegisterPage() {
                     >
                       <option value="">請選擇角色</option>
                       {ROLE_OPTIONS.map((role) => (
-                        <option key={role} value={role}>{role}</option>
+                        <option key={role} value={role}>
+                          {role}
+                        </option>
                       ))}
                     </select>
                   </div>
@@ -713,12 +750,18 @@ export default function TeamRegisterPage() {
                       type="checkbox"
                       id="newMemberEditRight"
                       checked={newMember.hasEditRight}
-                      onChange={(e) => setNewMember({ ...newMember, hasEditRight: e.target.checked })}
+                      onChange={(e) =>
+                        setNewMember({ ...newMember, hasEditRight: e.target.checked })
+                      }
                       className="w-5 h-5 rounded focus:ring-2 focus:ring-blue-500"
                       style={{ accentColor: '#1a3a6e' }}
                       disabled={isSubmitting || isValidatingMember}
                     />
-                    <label htmlFor="newMemberEditRight" className="text-sm" style={{ color: '#374151' }}>
+                    <label
+                      htmlFor="newMemberEditRight"
+                      className="text-sm"
+                      style={{ color: '#374151' }}
+                    >
                       擁有編輯報名資料的權限
                     </label>
                   </div>
@@ -728,10 +771,16 @@ export default function TeamRegisterPage() {
                     type="button"
                     onClick={addTeamMember}
                     className="w-full px-4 py-3 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
-                    style={{ 
-                      backgroundColor: (newMember.email.trim() && newMember.role.trim() && !isValidatingMember) ? '#1a3a6e' : '#9ca3af',
+                    style={{
+                      backgroundColor:
+                        newMember.email.trim() && newMember.role.trim() && !isValidatingMember
+                          ? '#1a3a6e'
+                          : '#9ca3af',
                       color: 'white',
-                      cursor: (newMember.email.trim() && newMember.role.trim() && !isValidatingMember) ? 'pointer' : 'not-allowed'
+                      cursor:
+                        newMember.email.trim() && newMember.role.trim() && !isValidatingMember
+                          ? 'pointer'
+                          : 'not-allowed',
                     }}
                     onMouseEnter={(e) => {
                       if (newMember.email.trim() && newMember.role.trim() && !isValidatingMember) {
@@ -743,7 +792,12 @@ export default function TeamRegisterPage() {
                         e.currentTarget.style.backgroundColor = '#1a3a6e';
                       }
                     }}
-                    disabled={isSubmitting || isValidatingMember || !newMember.email.trim() || !newMember.role.trim()}
+                    disabled={
+                      isSubmitting ||
+                      isValidatingMember ||
+                      !newMember.email.trim() ||
+                      !newMember.role.trim()
+                    }
                   >
                     {isValidatingMember && (
                       <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></div>
@@ -764,10 +818,10 @@ export default function TeamRegisterPage() {
                     onClick={handleRefreshTracks}
                     disabled={isLoadingTracks}
                     className="flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors"
-                    style={{ 
+                    style={{
                       backgroundColor: isLoadingTracks ? '#9ca3af' : '#1a3a6e',
                       color: '#ffffff',
-                      cursor: isLoadingTracks ? 'not-allowed' : 'pointer'
+                      cursor: isLoadingTracks ? 'not-allowed' : 'pointer',
                     }}
                     onMouseEnter={(e) => {
                       if (!isLoadingTracks) {
@@ -780,17 +834,17 @@ export default function TeamRegisterPage() {
                       }
                     }}
                   >
-                    <svg 
+                    <svg
                       className={`w-4 h-4 ${isLoadingTracks ? 'animate-spin' : ''}`}
-                      fill="none" 
-                      stroke="currentColor" 
+                      fill="none"
+                      stroke="currentColor"
                       viewBox="0 0 24 24"
                     >
-                      <path 
-                        strokeLinecap="round" 
-                        strokeLinejoin="round" 
-                        strokeWidth={2} 
-                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" 
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
                       />
                     </svg>
                     {isLoadingTracks ? '刷新中...' : '刷新'}
@@ -806,9 +860,7 @@ export default function TeamRegisterPage() {
                     <p className="mt-4 text-gray-600">載入賽道中...</p>
                   </div>
                 ) : tracks.length === 0 ? (
-                  <div className="text-center py-12 text-gray-500">
-                    目前沒有可用的賽道
-                  </div>
+                  <div className="text-center py-12 text-gray-500">目前沒有可用的賽道</div>
                 ) : (
                   <div className="space-y-3">
                     {tracks.map((track) => {
@@ -819,7 +871,9 @@ export default function TeamRegisterPage() {
                           className="border-2 rounded-lg transition-all"
                           style={{
                             borderColor: selectedTracks.includes(track.id) ? '#1a3a6e' : '#e5e7eb',
-                            backgroundColor: selectedTracks.includes(track.id) ? '#f0f4ff' : 'transparent',
+                            backgroundColor: selectedTracks.includes(track.id)
+                              ? '#f0f4ff'
+                              : 'transparent',
                           }}
                         >
                           {/* Track Header */}
@@ -843,8 +897,18 @@ export default function TeamRegisterPage() {
                                   onClick={(e) => e.stopPropagation()}
                                 >
                                   {track.name}
-                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                  <svg
+                                    className="w-4 h-4"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth={2}
+                                      d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                                    />
                                   </svg>
                                 </a>
                                 <button
@@ -854,24 +918,31 @@ export default function TeamRegisterPage() {
                                   disabled={isSubmitting}
                                 >
                                   <svg
-                                    className={`w-5 h-5 transform transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+                                    className={`w-5 h-5 transform transition-transform ${
+                                      isExpanded ? 'rotate-180' : ''
+                                    }`}
                                     style={{ color: '#1a3a6e' }}
                                     fill="none"
                                     stroke="currentColor"
                                     viewBox="0 0 24 24"
                                   >
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth={2}
+                                      d="M19 9l-7 7-7-7"
+                                    />
                                   </svg>
                                 </button>
                               </div>
                               {track.description && (
-                                <div 
+                                <div
                                   className="text-sm text-gray-600 mt-1"
                                   style={{
                                     whiteSpace: 'pre-wrap',
                                     wordBreak: 'break-word',
                                     overflowWrap: 'break-word',
-                                    lineHeight: '1.75'
+                                    lineHeight: '1.75',
                                   }}
                                 >
                                   {track.description}
@@ -879,13 +950,15 @@ export default function TeamRegisterPage() {
                               )}
                               <div className="flex items-center gap-4 mt-2 text-sm">
                                 {track.sponsorName && (
-                                  <div className="text-gray-500">
-                                    贊助商：{track.sponsorName}
-                                  </div>
+                                  <div className="text-gray-500">贊助商：{track.sponsorName}</div>
                                 )}
                                 {track.totalPrize !== undefined && track.totalPrize > 0 && (
                                   <div className="font-medium" style={{ color: '#059669' }}>
-                                    💰 總獎金: {track.totalPrize >= 1000 ? `${(track.totalPrize / 1000).toFixed(1)}k` : track.totalPrize} USD
+                                    💰 總獎金:{' '}
+                                    {track.totalPrize >= 1000
+                                      ? `${(track.totalPrize / 1000).toFixed(1)}k`
+                                      : track.totalPrize}{' '}
+                                    USD
                                   </div>
                                 )}
                                 {track.challenges && track.challenges.length > 0 && (
@@ -908,37 +981,46 @@ export default function TeamRegisterPage() {
                                   <div
                                     key={challenge.id || idx}
                                     className="p-3 rounded-lg"
-                                    style={{ backgroundColor: '#f9fafb', border: '1px solid #e5e7eb' }}
+                                    style={{
+                                      backgroundColor: '#f9fafb',
+                                      border: '1px solid #e5e7eb',
+                                    }}
                                   >
-                                    <div className="font-medium text-sm mb-1" style={{ color: '#1a3a6e' }}>
+                                    <div
+                                      className="font-medium text-sm mb-1"
+                                      style={{ color: '#1a3a6e' }}
+                                    >
                                       {challenge.title}
                                     </div>
                                     {challenge.description && (
-                                      <div 
+                                      <div
                                         className="text-xs text-gray-600 mb-2"
                                         style={{
                                           whiteSpace: 'pre-wrap',
                                           wordBreak: 'break-word',
                                           overflowWrap: 'break-word',
-                                          lineHeight: '1.75'
+                                          lineHeight: '1.75',
                                         }}
                                       >
                                         {challenge.description}
                                       </div>
                                     )}
                                     {challenge.prizes && (
-                                      <div className="text-xs font-medium mb-1" style={{ color: '#059669' }}>
+                                      <div
+                                        className="text-xs font-medium mb-1"
+                                        style={{ color: '#059669' }}
+                                      >
                                         💰 {formatPrizes(challenge.prizes)}
                                       </div>
                                     )}
                                     {challenge.submissionRequirements && (
-                                      <div 
+                                      <div
                                         className="text-xs text-gray-500"
                                         style={{
                                           whiteSpace: 'pre-wrap',
                                           wordBreak: 'break-word',
                                           overflowWrap: 'break-word',
-                                          lineHeight: '1.75'
+                                          lineHeight: '1.75',
                                         }}
                                       >
                                         📋 {challenge.submissionRequirements}
@@ -979,25 +1061,53 @@ export default function TeamRegisterPage() {
                   >
                     {showCommitment ? '收起' : '展開'}參賽者承諾書
                     <svg
-                      className={`w-5 h-5 transform transition-transform ${showCommitment ? 'rotate-180' : ''}`}
+                      className={`w-5 h-5 transform transition-transform ${
+                        showCommitment ? 'rotate-180' : ''
+                      }`}
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
                     >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 9l-7 7-7-7"
+                      />
                     </svg>
                   </button>
                 </div>
 
                 {showCommitment && (
-                  <div className="mb-6 p-6 border rounded-lg max-h-96 overflow-y-auto" style={{ borderColor: '#e5e7eb', backgroundColor: '#f9fafb' }}>
+                  <div
+                    className="mb-6 p-6 border rounded-lg max-h-96 overflow-y-auto"
+                    style={{ borderColor: '#e5e7eb', backgroundColor: '#f9fafb' }}
+                  >
                     <CommitmentContent />
-                    <div className="mt-6 pt-4 border-t text-center" style={{ borderColor: '#e5e7eb' }}>
+                    <div
+                      className="mt-6 pt-4 border-t text-center"
+                      style={{ borderColor: '#e5e7eb' }}
+                    >
                       <Link href="/commitment">
-                        <a target="_blank" rel="noopener noreferrer" className="text-sm hover:underline inline-flex items-center gap-1" style={{ color: '#1a3a6e' }}>
+                        <a
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-sm hover:underline inline-flex items-center gap-1"
+                          style={{ color: '#1a3a6e' }}
+                        >
                           在新視窗中開啟完整內容
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                            />
                           </svg>
                         </a>
                       </Link>
@@ -1005,9 +1115,21 @@ export default function TeamRegisterPage() {
                   </div>
                 )}
 
-                <div className="flex items-start gap-2 p-3 rounded-lg" style={{ backgroundColor: '#fef3c7', border: '1px solid #fbbf24' }}>
-                  <svg className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: '#92400e' }} fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                <div
+                  className="flex items-start gap-2 p-3 rounded-lg"
+                  style={{ backgroundColor: '#fef3c7', border: '1px solid #fbbf24' }}
+                >
+                  <svg
+                    className="w-5 h-5 flex-shrink-0 mt-0.5"
+                    style={{ color: '#92400e' }}
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                      clipRule="evenodd"
+                    />
                   </svg>
                   <div className="text-sm" style={{ color: '#92400e' }}>
                     ⚠️ 請務必詳細閱讀參賽者承諾書，確認了解所有條款後再勾選同意。
@@ -1025,8 +1147,13 @@ export default function TeamRegisterPage() {
                     disabled={isSubmitting}
                     required
                   />
-                  <label htmlFor="hasAgreed" className="text-sm font-medium cursor-pointer" style={{ color: '#374151' }}>
-                    我已詳細閱讀並同意遵守參賽者承諾書的所有條款 <span style={{ color: '#ef4444' }}>*</span>
+                  <label
+                    htmlFor="hasAgreed"
+                    className="text-sm font-medium cursor-pointer"
+                    style={{ color: '#374151' }}
+                  >
+                    我已詳細閱讀並同意遵守參賽者承諾書的所有條款{' '}
+                    <span style={{ color: '#ef4444' }}>*</span>
                   </label>
                 </div>
               </div>
@@ -1035,7 +1162,9 @@ export default function TeamRegisterPage() {
               {submitMessage && (
                 <div
                   className={`p-4 rounded-lg ${
-                    submitSuccess ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'
+                    submitSuccess
+                      ? 'bg-green-50 border border-green-200'
+                      : 'bg-red-50 border border-red-200'
                   }`}
                 >
                   <p className={submitSuccess ? 'text-green-800' : 'text-red-800'}>
@@ -1062,10 +1191,15 @@ export default function TeamRegisterPage() {
                 )}
                 <button
                   type="submit"
-                  disabled={isSubmitting || (!isEditMode && !hasAgreed) || (isEditMode && isLoadingTeam)}
+                  disabled={
+                    isSubmitting || (!isEditMode && !hasAgreed) || (isEditMode && isLoadingTeam)
+                  }
                   className="px-8 py-3 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   style={{
-                    backgroundColor: (isSubmitting || (!isEditMode && !hasAgreed) || (isEditMode && isLoadingTeam)) ? '#9ca3af' : '#1a3a6e',
+                    backgroundColor:
+                      isSubmitting || (!isEditMode && !hasAgreed) || (isEditMode && isLoadingTeam)
+                        ? '#9ca3af'
+                        : '#1a3a6e',
                     color: 'white',
                   }}
                   onMouseEnter={(e) => {
@@ -1079,10 +1213,13 @@ export default function TeamRegisterPage() {
                     }
                   }}
                 >
-                  {isSubmitting 
-                    ? (isEditMode ? '更新中...' : '提交中...') 
-                    : (isEditMode ? '保存修改' : '提交報名')
-                  }
+                  {isSubmitting
+                    ? isEditMode
+                      ? '更新中...'
+                      : '提交中...'
+                    : isEditMode
+                    ? '保存修改'
+                    : '提交報名'}
                 </button>
               </div>
             </form>

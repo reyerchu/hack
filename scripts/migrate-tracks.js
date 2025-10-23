@@ -1,6 +1,6 @@
 /**
  * 脚本：迁移 Tracks 数据
- * 
+ *
  * 功能：
  * 1. 检查 /extended-challenges 中的 track-only 记录
  * 2. 迁移到 /tracks 集合
@@ -43,7 +43,7 @@ if (!admin.apps.length) {
       privateKey: privateKey,
     }),
   });
-  
+
   console.log('✓ Firebase Admin SDK 初始化成功\n');
 }
 
@@ -64,7 +64,9 @@ async function analyzeAndMigrate() {
       console.log('   现有 tracks:');
       tracksSnapshot.docs.forEach((doc, index) => {
         const data = doc.data();
-        console.log(`   ${index + 1}. ${data.trackId} - ${data.name} (sponsor: ${data.sponsorName})`);
+        console.log(
+          `   ${index + 1}. ${data.trackId} - ${data.name} (sponsor: ${data.sponsorName})`,
+        );
       });
       console.log('');
     }
@@ -77,11 +79,11 @@ async function analyzeAndMigrate() {
     const trackOnlyRecords = [];
     const realChallenges = [];
 
-    challengesSnapshot.docs.forEach(doc => {
+    challengesSnapshot.docs.forEach((doc) => {
       const data = doc.data();
       const hasTitle = data.title && data.title.trim() !== '';
       const hasChallengeId = data.challengeId && data.challengeId.trim() !== '';
-      
+
       if (!hasTitle && !hasChallengeId) {
         // Track-only record
         trackOnlyRecords.push({ id: doc.id, ...data });
@@ -115,7 +117,8 @@ async function analyzeAndMigrate() {
 
       for (const record of trackOnlyRecords) {
         // 检查是否已存在
-        const existingTrack = await db.collection('tracks')
+        const existingTrack = await db
+          .collection('tracks')
           .where('trackId', '==', record.trackId)
           .limit(1)
           .get();
@@ -133,13 +136,13 @@ async function analyzeAndMigrate() {
           description: record.description || '',
           sponsorId: record.sponsorId || '',
           sponsorName: record.sponsorName || '',
-          status: record.status === 'published' ? 'active' : (record.status || 'active'),
-          
+          status: record.status === 'published' ? 'active' : record.status || 'active',
+
           // 保留原始元数据
           createdAt: record.createdAt || admin.firestore.FieldValue.serverTimestamp(),
           createdBy: record.createdBy || 'migration-script',
           updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-          
+
           // 迁移元数据
           migratedFrom: 'extended-challenges',
           migratedAt: admin.firestore.FieldValue.serverTimestamp(),
@@ -163,7 +166,6 @@ async function analyzeAndMigrate() {
       console.log('   2. 新数据已添加到 /tracks 集合');
       console.log('   3. API 会自动过滤 /extended-challenges 中的 track-only 记录');
       console.log('   4. 现在可以访问 /admin/track-management 查看迁移的 tracks\n');
-
     } else {
       console.log('   ℹ️  没有找到需要迁移的 track-only 记录\n');
     }
@@ -177,7 +179,6 @@ async function analyzeAndMigrate() {
     console.log(`   /extended-challenges 集合:`);
     console.log(`      - 真正的 Challenges: ${realChallenges.length} 条`);
     console.log(`      - Track-only 记录: ${trackOnlyRecords.length} 条 (将被 API 过滤)\n`);
-
   } catch (error) {
     console.error('❌ 错误:', error.message);
     console.error(error);
@@ -188,4 +189,3 @@ async function analyzeAndMigrate() {
 
 // 运行脚本
 analyzeAndMigrate();
-

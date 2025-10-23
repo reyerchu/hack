@@ -1,6 +1,6 @@
 /**
  * API: 單個通知操作
- * 
+ *
  * PATCH /api/sponsor/notifications/[id] - 標记為已读/未读
  * DELETE /api/sponsor/notifications/[id] - 刪除通知
  */
@@ -79,4 +79,3 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(500).json({ error: 'Internal server error' });
   }
 }
-

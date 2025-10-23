@@ -52,7 +52,7 @@ if (admin.apps.length === 0) {
 async function deleteApplications() {
   try {
     const db = admin.firestore();
-    
+
     // 查询该邮箱的所有申请
     const snapshot = await db
       .collection('event-applications')
@@ -93,4 +93,3 @@ async function deleteApplications() {
 }
 
 deleteApplications();
-

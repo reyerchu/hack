@@ -56,12 +56,7 @@ export default function NotificationCenter({
     switch (type) {
       case 'new_submission':
         return (
-          <svg
-            className="w-5 h-5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -72,12 +67,7 @@ export default function NotificationCenter({
         );
       case 'submission_update':
         return (
-          <svg
-            className="w-5 h-5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -88,12 +78,7 @@ export default function NotificationCenter({
         );
       case 'deadline_reminder':
         return (
-          <svg
-            className="w-5 h-5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -104,12 +89,7 @@ export default function NotificationCenter({
         );
       default:
         return (
-          <svg
-            className="w-5 h-5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -170,7 +150,9 @@ export default function NotificationCenter({
             }`}
             style={{
               backgroundColor: notification.isRead ? '#f9fafb' : '#ffffff',
-              borderColor: notification.isRead ? '#e5e7eb' : getNotificationColor(notification.priority),
+              borderColor: notification.isRead
+                ? '#e5e7eb'
+                : getNotificationColor(notification.priority),
               borderWidth: notification.isRead ? '1px' : '2px',
             }}
           >
@@ -184,17 +166,15 @@ export default function NotificationCenter({
 
               <div className="flex-1 min-w-0">
                 <div className="flex items-start justify-between gap-2">
-                  <h3
-                    className="text-sm font-semibold"
-                    style={{ color: '#1a3a6e' }}
-                  >
+                  <h3 className="text-sm font-semibold" style={{ color: '#1a3a6e' }}>
                     {notification.title}
                   </h3>
                   <span className="text-xs flex-shrink-0" style={{ color: '#9ca3af' }}>
                     {(() => {
-                      const date = notification.createdAt instanceof Date
-                        ? notification.createdAt
-                        : new Date((notification.createdAt as any)._seconds * 1000);
+                      const date =
+                        notification.createdAt instanceof Date
+                          ? notification.createdAt
+                          : new Date((notification.createdAt as any)._seconds * 1000);
                       return date.toLocaleDateString('zh-TW', {
                         month: 'short',
                         day: 'numeric',
@@ -256,4 +236,3 @@ export default function NotificationCenter({
     </div>
   );
 }
-

@@ -1,6 +1,6 @@
 /**
  * 賽道提交列表頁面
- * 
+ *
  * 顯示特定賽道的所有隊伍提交
  */
 
@@ -75,16 +75,18 @@ export default function SubmissionsListPage() {
         return (b.finalScore || 0) - (a.finalScore || 0);
       }
       // 默认按提交時間倒序
-      const dateA = a.submittedAt instanceof Date 
-        ? a.submittedAt 
-        : (a.submittedAt as any)?._seconds 
-        ? new Date((a.submittedAt as any)._seconds * 1000) 
-        : new Date(0);
-      const dateB = b.submittedAt instanceof Date 
-        ? b.submittedAt 
-        : (b.submittedAt as any)?._seconds 
-        ? new Date((b.submittedAt as any)._seconds * 1000) 
-        : new Date(0);
+      const dateA =
+        a.submittedAt instanceof Date
+          ? a.submittedAt
+          : (a.submittedAt as any)?._seconds
+          ? new Date((a.submittedAt as any)._seconds * 1000)
+          : new Date(0);
+      const dateB =
+        b.submittedAt instanceof Date
+          ? b.submittedAt
+          : (b.submittedAt as any)?._seconds
+          ? new Date((b.submittedAt as any)._seconds * 1000)
+          : new Date(0);
       return dateB.getTime() - dateA.getTime();
     });
 
@@ -131,9 +133,17 @@ export default function SubmissionsListPage() {
         {/* Header */}
         <div className="mb-6">
           <Link href={`/sponsor/tracks/${trackId}`}>
-            <a className="inline-flex items-center gap-1 text-sm font-medium mb-4 hover:underline" style={{ color: '#1a3a6e' }}>
+            <a
+              className="inline-flex items-center gap-1 text-sm font-medium mb-4 hover:underline"
+              style={{ color: '#1a3a6e' }}
+            >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15 19l-7-7 7-7"
+                />
               </svg>
               返回賽道詳情
             </a>
@@ -231,4 +241,3 @@ export default function SubmissionsListPage() {
     </div>
   );
 }
-

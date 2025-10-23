@@ -1,6 +1,6 @@
 /**
  * 評審決選頁面
- * 
+ *
  * 對提交進行評分、排名和決選
  */
 
@@ -92,19 +92,14 @@ export default function JudgingPage() {
 
       // 刷新提交列表
       const updatedSubmission = await response.json();
-      setSubmissions((prev) =>
-        prev.map((s) => (s.id === submissionId ? updatedSubmission : s)),
-      );
+      setSubmissions((prev) => prev.map((s) => (s.id === submissionId ? updatedSubmission : s)));
     } catch (err: any) {
       console.error('Error updating scores:', err);
       throw err;
     }
   };
 
-  const handleStatusUpdate = async (
-    submissionId: string,
-    status: TeamSubmission['status'],
-  ) => {
+  const handleStatusUpdate = async (submissionId: string, status: TeamSubmission['status']) => {
     try {
       const token = await (window as any).firebase.auth().currentUser?.getIdToken();
 
@@ -122,9 +117,7 @@ export default function JudgingPage() {
       }
 
       // 更新本地狀態
-      setSubmissions((prev) =>
-        prev.map((s) => (s.id === submissionId ? { ...s, status } : s)),
-      );
+      setSubmissions((prev) => prev.map((s) => (s.id === submissionId ? { ...s, status } : s)));
     } catch (err: any) {
       console.error('Error updating status:', err);
       alert(`更新失败：${err.message}`);
@@ -180,9 +173,17 @@ export default function JudgingPage() {
         {/* Header */}
         <div className="mb-6">
           <Link href={`/sponsor/tracks/${trackId}`}>
-            <a className="inline-flex items-center gap-1 text-sm font-medium mb-4 hover:underline" style={{ color: '#1a3a6e' }}>
+            <a
+              className="inline-flex items-center gap-1 text-sm font-medium mb-4 hover:underline"
+              style={{ color: '#1a3a6e' }}
+            >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15 19l-7-7 7-7"
+                />
               </svg>
               返回賽道詳情
             </a>
@@ -198,7 +199,10 @@ export default function JudgingPage() {
 
         {/* Statistics */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-          <div className="rounded-lg p-6" style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb' }}>
+          <div
+            className="rounded-lg p-6"
+            style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb' }}
+          >
             <h3 className="text-sm font-medium mb-2" style={{ color: '#6b7280' }}>
               总提交数
             </h3>
@@ -207,7 +211,10 @@ export default function JudgingPage() {
             </p>
           </div>
 
-          <div className="rounded-lg p-6" style={{ backgroundColor: '#dcfce7', border: '1px solid #86efac' }}>
+          <div
+            className="rounded-lg p-6"
+            style={{ backgroundColor: '#dcfce7', border: '1px solid #86efac' }}
+          >
             <h3 className="text-sm font-medium mb-2" style={{ color: '#166534' }}>
               入围
             </h3>
@@ -216,7 +223,10 @@ export default function JudgingPage() {
             </p>
           </div>
 
-          <div className="rounded-lg p-6" style={{ backgroundColor: '#fce7f3', border: '1px solid #f9a8d4' }}>
+          <div
+            className="rounded-lg p-6"
+            style={{ backgroundColor: '#fce7f3', border: '1px solid #f9a8d4' }}
+          >
             <h3 className="text-sm font-medium mb-2" style={{ color: '#9f1239' }}>
               獲獎
             </h3>
@@ -227,7 +237,10 @@ export default function JudgingPage() {
         </div>
 
         {/* Evaluation Criteria */}
-        <div className="rounded-lg p-6 mb-6" style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb' }}>
+        <div
+          className="rounded-lg p-6 mb-6"
+          style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb' }}
+        >
           <h2 className="text-xl font-semibold mb-4" style={{ color: '#1a3a6e' }}>
             評分標准
           </h2>
@@ -250,7 +263,10 @@ export default function JudgingPage() {
         </div>
 
         {/* Judging Table */}
-        <div className="rounded-lg overflow-hidden" style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb' }}>
+        <div
+          className="rounded-lg overflow-hidden"
+          style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb' }}
+        >
           <JudgingTable
             submissions={submissions}
             criteria={criteria}
@@ -261,7 +277,10 @@ export default function JudgingPage() {
 
         {/* Winners Section */}
         {winners.length > 0 && (
-          <div className="mt-6 rounded-lg p-6" style={{ backgroundColor: '#fce7f3', border: '2px solid #f9a8d4' }}>
+          <div
+            className="mt-6 rounded-lg p-6"
+            style={{ backgroundColor: '#fce7f3', border: '2px solid #f9a8d4' }}
+          >
             <h2 className="text-xl font-semibold mb-4" style={{ color: '#9f1239' }}>
               🏆 獲獎名单
             </h2>
@@ -301,4 +320,3 @@ export default function JudgingPage() {
     </div>
   );
 }
-

@@ -395,10 +395,7 @@ export default function ProfilePage() {
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-5xl mx-auto px-4 py-20">
         <div className="flex justify-between items-center mb-8">
-          <h1
-            className="text-4xl font-bold"
-            style={{ color: '#1a3a6e' }}
-          >
+          <h1 className="text-4xl font-bold" style={{ color: '#1a3a6e' }}>
             個人中心
           </h1>
           {activeTab === 'profile' && (
@@ -586,8 +583,14 @@ export default function ProfilePage() {
               </div>
 
               {/* Profile Information */}
-              <div className="w-full bg-white rounded-xl border-2 p-8" style={{ borderColor: '#e5e7eb' }}>
-                <h2 className="text-2xl font-bold mb-6 pb-3 border-b-2" style={{ color: '#1a3a6e', borderColor: '#e5e7eb' }}>
+              <div
+                className="w-full bg-white rounded-xl border-2 p-8"
+                style={{ borderColor: '#e5e7eb' }}
+              >
+                <h2
+                  className="text-2xl font-bold mb-6 pb-3 border-b-2"
+                  style={{ color: '#1a3a6e', borderColor: '#e5e7eb' }}
+                >
                   個人資料
                 </h2>
                 <div className="flex flex-col gap-y-6">
@@ -877,8 +880,14 @@ export default function ProfilePage() {
               </div>
 
               {/* LINE Community Section */}
-              <div className="w-full bg-white rounded-xl border-2 p-8" style={{ borderColor: '#e5e7eb' }}>
-                <h2 className="text-2xl font-bold mb-6 pb-3 border-b-2" style={{ color: '#1a3a6e', borderColor: '#e5e7eb' }}>
+              <div
+                className="w-full bg-white rounded-xl border-2 p-8"
+                style={{ borderColor: '#e5e7eb' }}
+              >
+                <h2
+                  className="text-2xl font-bold mb-6 pb-3 border-b-2"
+                  style={{ color: '#1a3a6e', borderColor: '#e5e7eb' }}
+                >
                   加入 Line 社群
                 </h2>
                 <div className="flex flex-col md:flex-row gap-6 items-start">
@@ -1183,14 +1192,17 @@ export default function ProfilePage() {
         {/* 我的團隊 Tab */}
         {activeTab === 'my-teams' && (
           <section className="w-full py-5">
-            <div className="mb-6 bg-white rounded-lg border-2 p-6" style={{ borderColor: '#e5e7eb' }}>
+            <div
+              className="mb-6 bg-white rounded-lg border-2 p-6"
+              style={{ borderColor: '#e5e7eb' }}
+            >
               <h2 className="text-2xl font-bold mb-4" style={{ color: '#1a3a6e' }}>
                 我的團隊
               </h2>
               <p className="text-gray-600 mb-6">
                 查看您參與的所有黑客松團隊。您可以查看團隊詳情，如果您擁有編輯權限，還可以更新團隊資料。
               </p>
-              
+
               {/* Team Management Component */}
               <TeamManagement />
             </div>

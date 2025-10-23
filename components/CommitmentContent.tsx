@@ -60,9 +60,7 @@ export default function CommitmentContent() {
               主辦方得基於維護活動品質、公平性或其他正當理由，拒絕或取消任何人之報名或參賽資格
             </li>
           </ul>
-          <p className="text-sm leading-relaxed text-gray-700 mb-2 font-semibold">
-            （二）違規處置
-          </p>
+          <p className="text-sm leading-relaxed text-gray-700 mb-2 font-semibold">（二）違規處置</p>
           <ul className="list-disc list-inside text-sm leading-relaxed text-gray-700 mb-4 space-y-2">
             <li>
               若本人行為、作品或提交之任何內容違反本承諾書、活動規則、法律規範或有損活動公平性、主辦方聲譽，主辦方得逕行取消參賽或得獎資格，追回獎項或獎金，且不負任何補償責任
@@ -353,4 +351,3 @@ export default function CommitmentContent() {
     </div>
   );
 }
-

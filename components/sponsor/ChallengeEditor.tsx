@@ -1,6 +1,6 @@
 /**
  * 挑戰編輯器组件
- * 
+ *
  * 用於編輯賽道挑戰的详细資訊
  */
 
@@ -40,22 +40,26 @@ export default function ChallengeEditor({
 
   const getPrizesArray = (challenge: any) => {
     if (!challenge) return [];
-    
+
     // If prizes is already an array of objects with currency/amount/description
-    if (Array.isArray(challenge.prizes) && challenge.prizes.length > 0 && typeof challenge.prizes[0] === 'object') {
+    if (
+      Array.isArray(challenge.prizes) &&
+      challenge.prizes.length > 0 &&
+      typeof challenge.prizes[0] === 'object'
+    ) {
       return challenge.prizes.map((p: any) => ({
         currency: p.currency || 'USD',
         amount: p.amount || 0,
         description: p.description || p.title || '',
       }));
     }
-    
+
     // If prizes is a string, try to parse it
     if (typeof challenge.prizes === 'string' && challenge.prizes.trim()) {
       // For now, return empty array - user will need to re-enter
       return [];
     }
-    
+
     return [];
   };
 
@@ -124,11 +128,14 @@ export default function ChallengeEditor({
     if (newPrize.amount && newPrize.description.trim()) {
       setFormData((prev) => ({
         ...prev,
-        prizes: [...prev.prizes, {
-          currency: newPrize.currency,
-          amount: parseFloat(newPrize.amount),
-          description: newPrize.description,
-        }],
+        prizes: [
+          ...prev.prizes,
+          {
+            currency: newPrize.currency,
+            amount: parseFloat(newPrize.amount),
+            description: newPrize.description,
+          },
+        ],
       }));
       setNewPrize({ currency: 'USD', amount: '', description: '' });
     }
@@ -217,7 +224,7 @@ export default function ChallengeEditor({
         <label className="block text-sm font-medium mb-2" style={{ color: '#1a3a6e' }}>
           獎金詳情 *
         </label>
-        
+
         {/* 已添加的奖金列表 */}
         <div className="space-y-2 mb-3">
           {formData.prizes.map((prize: any, index: number) => (
@@ -229,7 +236,10 @@ export default function ChallengeEditor({
               <span className="text-sm font-medium" style={{ color: '#059669', minWidth: '60px' }}>
                 {prize.currency === 'TWD' ? '台幣' : 'USD'}
               </span>
-              <span className="text-sm font-semibold" style={{ color: '#1a3a6e', minWidth: '100px' }}>
+              <span
+                className="text-sm font-semibold"
+                style={{ color: '#1a3a6e', minWidth: '100px' }}
+              >
                 {prize.amount.toLocaleString()}
               </span>
               <span className="flex-1 text-sm" style={{ color: '#6b7280' }}>
@@ -292,7 +302,7 @@ export default function ChallengeEditor({
             添加
           </button>
         </div>
-        
+
         {formData.prizes.length === 0 && (
           <p className="text-xs mt-2" style={{ color: '#dc2626' }}>
             * 請至少添加一個獎金項目
@@ -462,4 +472,3 @@ export default function ChallengeEditor({
     </form>
   );
 }
-

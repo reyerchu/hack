@@ -1,6 +1,6 @@
 /**
  * API: /api/admin/migrate-tracks
- * 
+ *
  * 迁移 track-only 记录从 /extended-challenges 到 /tracks
  */
 
@@ -32,7 +32,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // 2. Get user data and check permissions
     const userDoc = await db.collection('registrations').doc(userId).get();
-    
+
     if (!userDoc.exists) {
       return res.status(403).json({ error: '用戶不存在' });
     }
@@ -61,11 +61,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const trackOnlyRecords = [];
     const realChallenges = [];
 
-    challengesSnapshot.docs.forEach(doc => {
+    challengesSnapshot.docs.forEach((doc) => {
       const data = doc.data();
       const hasTitle = data.title && data.title.trim() !== '';
       const hasChallengeId = data.challengeId && data.challengeId.trim() !== '';
-      
+
       if (!hasTitle && !hasChallengeId) {
         // Track-only record
         trackOnlyRecords.push({ id: doc.id, ...data });
@@ -85,7 +85,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     for (const record of trackOnlyRecords) {
       // 检查是否已存在
-      const existingTrack = await db.collection(SPONSOR_COLLECTIONS.TRACKS)
+      const existingTrack = await db
+        .collection(SPONSOR_COLLECTIONS.TRACKS)
         .where('trackId', '==', record.trackId)
         .limit(1)
         .get();
@@ -103,13 +104,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         description: record.description || '',
         sponsorId: record.sponsorId || '',
         sponsorName: record.sponsorName || '',
-        status: record.status === 'published' ? 'active' : (record.status || 'active'),
-        
+        status: record.status === 'published' ? 'active' : record.status || 'active',
+
         // 保留原始元数据
         createdAt: record.createdAt || firebase.firestore.FieldValue.serverTimestamp(),
         createdBy: record.createdBy || 'migration-api',
         updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-        
+
         // 迁移元数据
         migratedFrom: 'extended-challenges',
         migratedAt: firebase.firestore.FieldValue.serverTimestamp(),
@@ -120,7 +121,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const docRef = await db.collection(SPONSOR_COLLECTIONS.TRACKS).add(trackData);
       console.log('[MigrateTracks] 迁移成功:', record.trackId, '新 docId:', docRef.id);
       migratedCount++;
-      
+
       migratedTracks.push({
         trackId: record.trackId,
         name: trackData.name,
@@ -142,7 +143,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       migratedTracks: migratedTracks,
       message: `成功迁移 ${migratedCount} 条 tracks，跳过 ${skippedCount} 条已存在的记录`,
     });
-
   } catch (error: any) {
     console.error('[MigrateTracks] Error:', error);
     return res.status(500).json({
@@ -151,4 +151,3 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
   }
 }
-

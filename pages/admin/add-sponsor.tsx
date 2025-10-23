@@ -1,6 +1,6 @@
 /**
  * Add Sponsor 頁面
- * 
+ *
  * Super_admin 可以添加新的贊助商
  */
 
@@ -63,7 +63,7 @@ export default function AddSponsorPage() {
             const data = await response.json();
             const profile = data.data || data;
             const permissions = profile.permissions || profile.user?.permissions || [];
-            
+
             const hasAdminAccess =
               permissions.includes('super_admin') ||
               permissions.includes('admin') ||
@@ -86,7 +86,9 @@ export default function AddSponsorPage() {
     }
   }, [authLoading, isSignedIn, router]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
+  ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
@@ -135,7 +137,7 @@ export default function AddSponsorPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // 驗證必填欄位
     if (!formData.id || !formData.name) {
       setMessage('請填寫 Sponsor ID 和名稱');
@@ -150,11 +152,15 @@ export default function AddSponsorPage() {
       // 注意：這裡目前只保存表單數據，文件上傳功能需要配置雲端存儲
       // 如果需要實際上傳文件，請配置 Firebase Storage 或其他雲端存儲服務
       const filesInfo = {
-        logoFile: logoFile ? { name: logoFile.name, size: logoFile.size, type: logoFile.type } : null,
-        iconFile: iconFile ? { name: iconFile.name, size: iconFile.size, type: iconFile.type } : null,
-        documents: documents.map(doc => ({ name: doc.name, size: doc.size, type: doc.type })),
+        logoFile: logoFile
+          ? { name: logoFile.name, size: logoFile.size, type: logoFile.type }
+          : null,
+        iconFile: iconFile
+          ? { name: iconFile.name, size: iconFile.size, type: iconFile.type }
+          : null,
+        documents: documents.map((doc) => ({ name: doc.name, size: doc.size, type: doc.type })),
       };
-      
+
       console.log('Files to upload:', filesInfo);
       setMessageType('');
 
@@ -239,15 +245,10 @@ export default function AddSponsorPage() {
 
           {/* Add Sponsor Section */}
           <div className="mb-12">
-            <h2
-              className="text-2xl font-bold mb-6"
-              style={{ color: '#1a3a6e' }}
-            >
+            <h2 className="text-2xl font-bold mb-6" style={{ color: '#1a3a6e' }}>
               新增 Sponsor
             </h2>
-            <p className="text-base text-gray-600 mb-6">
-              添加新的贊助商資料
-            </p>
+            <p className="text-base text-gray-600 mb-6">添加新的贊助商資料</p>
             {message && (
               <div
                 className={`p-4 mb-6 rounded-lg border-2 ${
@@ -267,7 +268,11 @@ export default function AddSponsorPage() {
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="bg-white rounded-lg p-8 border-2" style={{ borderColor: '#e5e7eb' }}>
+            <form
+              onSubmit={handleSubmit}
+              className="bg-white rounded-lg p-8 border-2"
+              style={{ borderColor: '#e5e7eb' }}
+            >
               {/* Sponsor ID */}
               <div className="mb-6">
                 <label
@@ -369,7 +374,10 @@ export default function AddSponsorPage() {
                 >
                   上傳 Logo
                 </label>
-                <div className="border-2 border-dashed rounded-lg p-6" style={{ borderColor: '#d1d5db' }}>
+                <div
+                  className="border-2 border-dashed rounded-lg p-6"
+                  style={{ borderColor: '#d1d5db' }}
+                >
                   <input
                     type="file"
                     id="logoFile"
@@ -377,10 +385,7 @@ export default function AddSponsorPage() {
                     onChange={handleLogoChange}
                     className="hidden"
                   />
-                  <label
-                    htmlFor="logoFile"
-                    className="cursor-pointer flex flex-col items-center"
-                  >
+                  <label htmlFor="logoFile" className="cursor-pointer flex flex-col items-center">
                     {logoPreview ? (
                       <div className="mb-4">
                         <img
@@ -460,7 +465,10 @@ export default function AddSponsorPage() {
                 >
                   上傳 Icon
                 </label>
-                <div className="border-2 border-dashed rounded-lg p-6" style={{ borderColor: '#d1d5db' }}>
+                <div
+                  className="border-2 border-dashed rounded-lg p-6"
+                  style={{ borderColor: '#d1d5db' }}
+                >
                   <input
                     type="file"
                     id="iconFile"
@@ -468,10 +476,7 @@ export default function AddSponsorPage() {
                     onChange={handleIconChange}
                     className="hidden"
                   />
-                  <label
-                    htmlFor="iconFile"
-                    className="cursor-pointer flex flex-col items-center"
-                  >
+                  <label htmlFor="iconFile" className="cursor-pointer flex flex-col items-center">
                     {iconPreview ? (
                       <div className="mb-4">
                         <img
@@ -517,9 +522,7 @@ export default function AddSponsorPage() {
                     </div>
                   )}
                 </div>
-                <p className="text-[12px] text-gray-500 mt-1">
-                  較小的圖示，用於列表或縮略顯示
-                </p>
+                <p className="text-[12px] text-gray-500 mt-1">較小的圖示，用於列表或縮略顯示</p>
               </div>
 
               {/* Icon URL */}
@@ -614,7 +617,10 @@ export default function AddSponsorPage() {
                 >
                   其他文檔
                 </label>
-                <div className="border-2 border-dashed rounded-lg p-6" style={{ borderColor: '#d1d5db' }}>
+                <div
+                  className="border-2 border-dashed rounded-lg p-6"
+                  style={{ borderColor: '#d1d5db' }}
+                >
                   <input
                     type="file"
                     id="documents"
@@ -623,10 +629,7 @@ export default function AddSponsorPage() {
                     onChange={handleDocumentsChange}
                     className="hidden"
                   />
-                  <label
-                    htmlFor="documents"
-                    className="cursor-pointer flex flex-col items-center"
-                  >
+                  <label htmlFor="documents" className="cursor-pointer flex flex-col items-center">
                     <svg
                       className="mx-auto h-12 w-12 text-gray-400"
                       stroke="currentColor"
@@ -644,10 +647,12 @@ export default function AddSponsorPage() {
                     <p className="text-xs text-gray-500">PDF, DOC, XLS, PPT 等文件</p>
                   </label>
                 </div>
-                
+
                 {documents.length > 0 && (
                   <div className="mt-4 space-y-2">
-                    <p className="text-sm font-medium text-gray-700">已選擇 {documents.length} 個文件：</p>
+                    <p className="text-sm font-medium text-gray-700">
+                      已選擇 {documents.length} 個文件：
+                    </p>
                     {documents.map((file, index) => (
                       <div
                         key={index}
@@ -755,4 +760,3 @@ export default function AddSponsorPage() {
     </div>
   );
 }
-

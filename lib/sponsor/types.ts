@@ -1,6 +1,6 @@
 /**
  * Track Sponsor Feature - Type Definitions
- * 
+ *
  * 所有贊助商相關的類型定義
  */
 
@@ -33,11 +33,11 @@ export interface SponsorContact {
  * 品牌套件
  */
 export interface BrandKit {
-  logo: string;                    // Logo URL
-  banner: string;                  // Banner URL
+  logo: string; // Logo URL
+  banner: string; // Banner URL
   colors: {
-    primary: string;               // 主色
-    secondary: string;             // 辅助色
+    primary: string; // 主色
+    secondary: string; // 辅助色
   };
 }
 
@@ -45,10 +45,10 @@ export interface BrandKit {
  * 贊助商權限
  */
 export interface SponsorPermissions {
-  canEditTrackChallenge: boolean;  // 可否編輯賽道題目
-  canViewSubmissions: boolean;     // 可否查看提交
-  canJudge: boolean;               // 可否評審
-  canContactTeams: boolean;        // 可否聯繫隊伍
+  canEditTrackChallenge: boolean; // 可否編輯賽道題目
+  canViewSubmissions: boolean; // 可否查看提交
+  canJudge: boolean; // 可否評審
+  canContactTeams: boolean; // 可否聯繫隊伍
 }
 
 /**
@@ -65,35 +65,35 @@ export interface SponsorContract {
  */
 export interface ExtendedSponsor {
   id: string;
-  
+
   // 基本資訊
   name: string;
   logo: string;
   website: string;
-  
+
   // 赞助层级
   tier: SponsorTier;
-  sponsorshipAmount?: number;      // 可選，敏感資訊
-  
+  sponsorshipAmount?: number; // 可選，敏感資訊
+
   // 賽道關聯
   trackId?: string;
   trackName?: string;
-  
+
   // 品牌素材
   brandKit?: BrandKit;
-  
+
   // 聯繫人
   contacts: SponsorContact[];
-  
+
   // 權限
   permissions: SponsorPermissions;
-  
+
   // 合約
   contract?: SponsorContract;
-  
+
   // 狀態
   status: 'active' | 'inactive' | 'pending';
-  
+
   // 元數據
   createdAt: Date | Timestamp;
   updatedAt: Date | Timestamp;
@@ -107,8 +107,8 @@ export interface ExtendedSponsor {
  * 獎金資訊
  */
 export interface ChallengePrize {
-  rank: number;                    // 1, 2, 3...
-  title: string;                   // "第一名"、"最佳创意奖"
+  rank: number; // 1, 2, 3...
+  title: string; // "第一名"、"最佳创意奖"
   amount: number;
   currency: 'USD' | 'TWD';
   description?: string;
@@ -118,9 +118,9 @@ export interface ChallengePrize {
  * 技术要求
  */
 export interface ChallengeRequirements {
-  frameworks?: string[];           // 必须使用的技术框架
-  apis?: string[];                 // 必须使用的 API
-  constraints?: string[];          // 其他限制条件
+  frameworks?: string[]; // 必须使用的技术框架
+  apis?: string[]; // 必须使用的 API
+  constraints?: string[]; // 其他限制条件
 }
 
 /**
@@ -175,57 +175,57 @@ export type ChallengeStatus = 'draft' | 'published' | 'closed';
  */
 export interface ExtendedChallenge {
   id: string;
-  
+
   // 基本資訊
   title: string;
   description: string;
-  detailedDescription?: string;    // Markdown 格式
-  
+  detailedDescription?: string; // Markdown 格式
+
   // 賽道資訊
   track: string;
   trackId: string;
-  
+
   // 贊助商關聯
   sponsorId: string;
   sponsorName: string;
-  
+
   // 獎金
   prizes: ChallengePrize[];
-  prizeDetails?: string;           // 獎金詳情描述（简化版）
-  
+  prizeDetails?: string; // 獎金詳情描述（简化版）
+
   // 要求
   requirements: ChallengeRequirements;
   submissionRequirements: SubmissionRequirements;
-  
+
   // 評分標准（简化版）
   evaluationCriteria?: Array<{
     name: string;
     weight: number;
   }>;
-  
+
   // 参考资源
   resources?: Array<{
     title: string;
     url: string;
   }>;
-  
+
   // 時間线
   timeline: ChallengeTimeline;
-  
+
   // 附件
   attachments?: ChallengeAttachment[];
-  challengeBriefUrl?: string;      // 挑戰简报 PDF URL
-  
+  challengeBriefUrl?: string; // 挑戰简报 PDF URL
+
   // 品牌素材
   brandAssets?: {
     logoUrl?: string;
     kvImageUrl?: string;
   };
-  
+
   // 狀態和排序
   status: ChallengeStatus;
   rank: number;
-  
+
   // 元數據
   createdBy: string;
   createdAt: Date | Timestamp;
@@ -249,13 +249,13 @@ export interface TeamMember {
 /**
  * 提交狀態
  */
-export type SubmissionStatus = 
-  | 'draft' 
-  | 'submitted' 
+export type SubmissionStatus =
+  | 'draft'
+  | 'submitted'
   | 'under_review'
   | 'shortlisted'
   | 'winner'
-  | 'accepted' 
+  | 'accepted'
   | 'rejected';
 
 /**
@@ -265,7 +265,7 @@ export interface SubmissionScore {
   judgeId: string;
   judgeName: string;
   scores: {
-    [criteriaName: string]: number;  // e.g., "innovation": 8
+    [criteriaName: string]: number; // e.g., "innovation": 8
   };
   totalScore: number;
   comments?: string;
@@ -277,48 +277,48 @@ export interface SubmissionScore {
  */
 export interface TeamSubmission {
   id: string;
-  
+
   // 隊伍資訊
   teamName: string;
   teamMembers: TeamMember[];
-  
+
   // 項目資訊
   projectName: string;
   projectTrack: string;
   trackId: string;
   challengeId: string;
-  oneLiner: string;                // max 140 chars
+  oneLiner: string; // max 140 chars
   description: string;
   projectDescription?: string;
-  
+
   // 提交內容
   githubRepo?: string;
   demoUrl?: string;
   videoUrl?: string;
   presentationUrl?: string;
   documentationUrl?: string;
-  
+
   // 自定義字段
   customFields?: {
     [fieldName: string]: string;
   };
-  
+
   // 技术栈
   techStack: string[];
   tags?: string[];
-  
+
   // 狀態
   status: SubmissionStatus;
   reviewNotes?: string;
   isRecommended?: boolean;
-  
+
   // 評分
   scores?: SubmissionScore[];
   criteriaScores?: Record<string, number>;
   averageScore?: number;
   finalScore?: number;
   finalRank?: number;
-  
+
   // 時間戳
   createdAt: Date | Timestamp;
   updatedAt: Date | Timestamp;
@@ -335,8 +335,8 @@ export interface TeamSubmission {
 export interface JudgingCriterion {
   name: string;
   description: string;
-  maxScore: number;                // e.g., 10
-  weight: number;                  // 权重 0-1
+  maxScore: number; // e.g., 10
+  weight: number; // 权重 0-1
 }
 
 /**
@@ -396,17 +396,17 @@ export interface SponsorActivityLog {
   sponsorId: string;
   userId: string;
   userName: string;
-  
+
   action: SponsorActivityAction;
-  targetType: string;              // 'submission' | 'challenge' | 'team'
+  targetType: string; // 'submission' | 'challenge' | 'team'
   targetId: string;
-  
+
   details?: any;
   metadata?: {
     trackName?: string;
     [key: string]: any;
   };
-  
+
   timestamp: Date | Timestamp;
 }
 
@@ -432,22 +432,22 @@ export type SponsorNotificationType =
  */
 export interface SponsorNotification {
   id: string;
-  recipientId: string;             // 主要用於 API (等同 recipientUserId)
+  recipientId: string; // 主要用於 API (等同 recipientUserId)
   recipientUserId: string;
   recipientEmail?: string;
   sponsorId: string;
   trackId: string;
-  
+
   type: SponsorNotificationType;
   title: string;
   message: string;
   priority?: 'low' | 'medium' | 'high';
-  
+
   relatedSubmissionId?: string;
   relatedTeamId?: string;
-  
+
   actionUrl?: string;
-  
+
   isRead: boolean;
   readAt?: Date | Timestamp;
   createdAt: Date | Timestamp;
@@ -463,24 +463,24 @@ export interface SponsorNotification {
 export interface TrackStats {
   trackId: string;
   trackName: string;
-  
+
   submissionCount: number;
   teamCount: number;
   participantCount: number;
-  
+
   averageScore?: number;
-  completionRate: number;          // 0-1
-  
+  completionRate: number; // 0-1
+
   participantDistribution: {
-    byUniversity?: {[university: string]: number};
-    byMajor?: {[major: string]: number};
-    byExperience?: {[level: string]: number};
+    byUniversity?: { [university: string]: number };
+    byMajor?: { [major: string]: number };
+    byExperience?: { [level: string]: number };
   };
-  
+
   techStackUsage: {
-    [techName: string]: number;    // 使用次数
+    [techName: string]: number; // 使用次数
   };
-  
+
   updatedAt: Date | Timestamp;
 }
 
@@ -558,8 +558,7 @@ export interface JudgingInfoResponse {
     id: string;
     teamName: string;
     projectName: string;
-    myScore?: SubmissionScore;     // 當前評審的評分
+    myScore?: SubmissionScore; // 當前評審的評分
     averageScore?: number;
   }>;
 }
-

@@ -20,26 +20,20 @@ export default function TeamRegisterInfo() {
         <meta name="description" content="了解如何進行團隊報名，包括註冊流程和報名步驟" />
       </Head>
       <AppHeader />
-      <div 
+      <div
         className="min-h-screen"
-        style={{ 
+        style={{
           backgroundColor: '#f9fafb',
-          paddingTop: '80px'
+          paddingTop: '80px',
         }}
       >
         <div className="max-w-4xl mx-auto px-4 py-12">
           {/* 標題區塊 */}
           <div className="text-center mb-12">
-            <h1 
-              className="text-5xl font-bold mb-4"
-              style={{ color: '#1a3a6e' }}
-            >
+            <h1 className="text-5xl font-bold mb-4" style={{ color: '#1a3a6e' }}>
               團隊報名流程
             </h1>
-            <p 
-              className="text-xl"
-              style={{ color: '#6b7280' }}
-            >
+            <p className="text-xl" style={{ color: '#6b7280' }}>
               加入黑客松，開啟創新之旅
             </p>
           </div>
@@ -47,28 +41,22 @@ export default function TeamRegisterInfo() {
           {/* 流程步驟卡片 */}
           <div className="space-y-8">
             {/* 步驟 1 */}
-            <div 
+            <div
               className="bg-white rounded-xl p-8 shadow-lg border-l-8"
               style={{ borderColor: '#1a3a6e' }}
             >
               <div className="flex items-start gap-6">
-                <div 
+                <div
                   className="flex-shrink-0 w-16 h-16 rounded-full flex items-center justify-center text-3xl font-bold text-white"
                   style={{ backgroundColor: '#1a3a6e' }}
                 >
                   1
                 </div>
                 <div className="flex-1">
-                  <h2 
-                    className="text-2xl font-bold mb-4"
-                    style={{ color: '#1a3a6e' }}
-                  >
+                  <h2 className="text-2xl font-bold mb-4" style={{ color: '#1a3a6e' }}>
                     所有團隊成員先完成個人註冊
                   </h2>
-                  <div 
-                    className="text-lg mb-4"
-                    style={{ color: '#4b5563' }}
-                  >
+                  <div className="text-lg mb-4" style={{ color: '#4b5563' }}>
                     <p className="mb-3">
                       參加黑客松的每位成員都必須先完成個人註冊（個人報名），建立自己的帳號。
                     </p>
@@ -84,7 +72,7 @@ export default function TeamRegisterInfo() {
                     ) : !isSignedIn ? (
                       // Not signed in - show registration button
                       <Link href="/register">
-                        <a 
+                        <a
                           className="inline-block px-6 py-3 rounded-lg font-medium text-white transition-all duration-300 hover:shadow-lg"
                           style={{ backgroundColor: '#1a3a6e' }}
                           onMouseEnter={(e) => {
@@ -100,7 +88,7 @@ export default function TeamRegisterInfo() {
                     ) : (
                       // Signed in - show team registration button
                       <Link href="/team-register">
-                        <a 
+                        <a
                           className="inline-block px-6 py-3 rounded-lg font-medium text-white transition-all duration-300 hover:shadow-lg"
                           style={{ backgroundColor: '#1a3a6e' }}
                           onMouseEnter={(e) => {
@@ -120,28 +108,22 @@ export default function TeamRegisterInfo() {
             </div>
 
             {/* 步驟 2 */}
-            <div 
+            <div
               className="bg-white rounded-xl p-8 shadow-lg border-l-8"
               style={{ borderColor: '#047857' }}
             >
               <div className="flex items-start gap-6">
-                <div 
+                <div
                   className="flex-shrink-0 w-16 h-16 rounded-full flex items-center justify-center text-3xl font-bold text-white"
                   style={{ backgroundColor: '#047857' }}
                 >
                   2
                 </div>
                 <div className="flex-1">
-                  <h2 
-                    className="text-2xl font-bold mb-4"
-                    style={{ color: '#047857' }}
-                  >
+                  <h2 className="text-2xl font-bold mb-4" style={{ color: '#047857' }}>
                     由領隊進行團隊報名
                   </h2>
-                  <div 
-                    className="text-lg mb-4"
-                    style={{ color: '#4b5563' }}
-                  >
+                  <div className="text-lg mb-4" style={{ color: '#4b5563' }}>
                     <p className="mb-3">
                       當所有成員都完成個人註冊後，由其中一人（通常是領隊）進行團隊報名：
                     </p>
@@ -155,11 +137,10 @@ export default function TeamRegisterInfo() {
                       <li>提交報名</li>
                     </ul>
                   </div>
-                  <div 
-                    className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded"
-                  >
+                  <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
                     <p className="text-sm" style={{ color: '#1e40af' }}>
-                      <strong>💡 提示：</strong>團隊報名需要登入後才能進行。報名截止時間為 <strong>2025/10/27 23:59</strong>，在截止前都可以編輯報名資料。
+                      <strong>💡 提示：</strong>團隊報名需要登入後才能進行。報名截止時間為{' '}
+                      <strong>2025/10/27 23:59</strong>，在截止前都可以編輯報名資料。
                     </p>
                   </div>
                 </div>
@@ -167,28 +148,22 @@ export default function TeamRegisterInfo() {
             </div>
 
             {/* 步驟 3 */}
-            <div 
+            <div
               className="bg-white rounded-xl p-8 shadow-lg border-l-8"
               style={{ borderColor: '#d97706' }}
             >
               <div className="flex items-start gap-6">
-                <div 
+                <div
                   className="flex-shrink-0 w-16 h-16 rounded-full flex items-center justify-center text-3xl font-bold text-white"
                   style={{ backgroundColor: '#d97706' }}
                 >
                   3
                 </div>
                 <div className="flex-1">
-                  <h2 
-                    className="text-2xl font-bold mb-4"
-                    style={{ color: '#d97706' }}
-                  >
+                  <h2 className="text-2xl font-bold mb-4" style={{ color: '#d97706' }}>
                     團隊成員收到通知
                   </h2>
-                  <div 
-                    className="text-lg mb-4"
-                    style={{ color: '#4b5563' }}
-                  >
+                  <div className="text-lg mb-4" style={{ color: '#4b5563' }}>
                     <p className="mb-3">
                       團隊報名提交後，系統會自動發送通知 Email 給所有團隊成員。
                     </p>
@@ -205,11 +180,11 @@ export default function TeamRegisterInfo() {
           </div>
 
           {/* 重要提醒 */}
-          <div 
+          <div
             className="mt-12 bg-gradient-to-r from-red-50 to-pink-50 rounded-xl p-8 border-2"
             style={{ borderColor: '#b91c1c' }}
           >
-            <h3 
+            <h3
               className="text-2xl font-bold mb-4 flex items-center gap-3"
               style={{ color: '#b91c1c' }}
             >
@@ -218,23 +193,37 @@ export default function TeamRegisterInfo() {
             </h3>
             <ul className="space-y-3 text-lg" style={{ color: '#4b5563' }}>
               <li className="flex items-start gap-3">
-                <span style={{ color: '#b91c1c' }} className="font-bold">•</span>
-                <span>團隊規模：<strong>1~5 人</strong></span>
+                <span style={{ color: '#b91c1c' }} className="font-bold">
+                  •
+                </span>
+                <span>
+                  團隊規模：<strong>1~5 人</strong>
+                </span>
               </li>
               <li className="flex items-start gap-3">
-                <span style={{ color: '#b91c1c' }} className="font-bold">•</span>
-                <span>報名截止時間：<strong>2025年10月27日 23:59</strong></span>
+                <span style={{ color: '#b91c1c' }} className="font-bold">
+                  •
+                </span>
+                <span>
+                  報名截止時間：<strong>2025年10月27日 23:59</strong>
+                </span>
               </li>
               <li className="flex items-start gap-3">
-                <span style={{ color: '#b91c1c' }} className="font-bold">•</span>
+                <span style={{ color: '#b91c1c' }} className="font-bold">
+                  •
+                </span>
                 <span>所有團隊成員的 Email 必須已完成個人註冊</span>
               </li>
               <li className="flex items-start gap-3">
-                <span style={{ color: '#b91c1c' }} className="font-bold">•</span>
+                <span style={{ color: '#b91c1c' }} className="font-bold">
+                  •
+                </span>
                 <span>報名後可以在截止前進行編輯</span>
               </li>
               <li className="flex items-start gap-3">
-                <span style={{ color: '#b91c1c' }} className="font-bold">•</span>
+                <span style={{ color: '#b91c1c' }} className="font-bold">
+                  •
+                </span>
                 <span>每位成員可以參與多個團隊</span>
               </li>
             </ul>
@@ -246,7 +235,7 @@ export default function TeamRegisterInfo() {
               想了解更多賽道和挑戰資訊？
             </p>
             <Link href="/tracks-challenges">
-              <a 
+              <a
                 className="inline-block px-8 py-4 rounded-lg font-medium text-white text-lg transition-all duration-300 hover:shadow-xl"
                 style={{ backgroundColor: '#1a3a6e' }}
                 onMouseEnter={(e) => {
@@ -269,7 +258,7 @@ export default function TeamRegisterInfo() {
               還有其他問題？
             </p>
             <Link href="/#faq">
-              <a 
+              <a
                 className="inline-block text-lg font-medium underline transition-colors duration-300"
                 style={{ color: '#1a3a6e' }}
                 onMouseEnter={(e) => {
@@ -288,4 +277,3 @@ export default function TeamRegisterInfo() {
     </>
   );
 }
-

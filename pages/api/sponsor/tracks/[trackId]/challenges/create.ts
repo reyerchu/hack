@@ -40,7 +40,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // 2. Get user data and check permissions
     const userDoc = await db.collection('registrations').doc(userId).get();
-    
+
     if (!userDoc.exists) {
       return res.status(403).json({ error: '用戶不存在' });
     }
@@ -69,7 +69,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const trackData = tracksSnapshot.docs[0].data();
 
     // 4. Parse request body
-    const { title, description, prizes, submissionRequirements } = req.body as CreateChallengeRequest;
+    const { title, description, prizes, submissionRequirements } =
+      req.body as CreateChallengeRequest;
 
     // 5. Validation
     if (!title || !title.trim()) {
@@ -77,16 +78,23 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     // 6. Generate challenge ID
-    const challengeId = 
-      title.toLowerCase()
+    const challengeId =
+      title
+        .toLowerCase()
         .replace(/\s+/g, '-')
-        .replace(/[^a-z0-9\u4e00-\u9fa5-]/g, '')
-        + '-' + Date.now().toString().slice(-6);
+        .replace(/[^a-z0-9\u4e00-\u9fa5-]/g, '') +
+      '-' +
+      Date.now().toString().slice(-6);
 
     console.log('[CreateChallenge] Generated challengeId:', challengeId);
 
     // 7. Parse prizes into array
-    const prizesArray = prizes ? prizes.split(',').map(p => p.trim()).filter(p => p) : [];
+    const prizesArray = prizes
+      ? prizes
+          .split(',')
+          .map((p) => p.trim())
+          .filter((p) => p)
+      : [];
 
     // 8. Create the challenge in extended-challenges collection
     const challengeData = {
@@ -101,11 +109,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       sponsorName: trackData.sponsorName,
       status: 'published',
       organization: trackData.sponsorName,
-      
+
       // Required fields
       timeline: '',
       rank: 0,
-      
+
       // Metadata
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
       createdBy: userId,
@@ -147,7 +155,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       },
       message: '挑戰創建成功',
     });
-
   } catch (error: any) {
     console.error('[CreateChallenge] Error:', error);
     return res.status(500).json({
@@ -156,4 +163,3 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
   }
 }
-

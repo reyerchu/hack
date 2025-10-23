@@ -1,6 +1,6 @@
 /**
  * Super Admin Dashboard
- * 
+ *
  * 統一的管理界面，與 Home 頁面風格一致
  */
 
@@ -32,9 +32,7 @@ export default function Admin() {
           <h1 className="text-4xl font-bold mb-4" style={{ color: '#1a3a6e' }}>
             未授權
           </h1>
-          <p className="text-base text-gray-600 mb-8">
-            您沒有權限訪問此頁面
-          </p>
+          <p className="text-base text-gray-600 mb-8">您沒有權限訪問此頁面</p>
           <Link href="/">
             <a
               className="inline-block border-2 px-8 py-3 text-sm font-medium uppercase tracking-wider transition-colors duration-300"
@@ -71,10 +69,7 @@ export default function Admin() {
         <div className="max-w-5xl mx-auto px-4 py-20">
           {/* Header */}
           <div className="mb-12">
-            <h1
-              className="text-4xl font-bold mb-2 text-left"
-              style={{ color: '#1a3a6e' }}
-            >
+            <h1 className="text-4xl font-bold mb-2 text-left" style={{ color: '#1a3a6e' }}>
               管理儀表板
             </h1>
           </div>
@@ -84,16 +79,15 @@ export default function Admin() {
 
           {/* Quick Links Section */}
           <div className="mb-12">
-            <h2
-              className="text-2xl font-bold mb-6"
-              style={{ color: '#1a3a6e' }}
-            >
+            <h2 className="text-2xl font-bold mb-6" style={{ color: '#1a3a6e' }}>
               快速連結
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               <Link href="/admin/users">
-                <a className="block bg-white rounded-lg p-6 shadow-sm hover:shadow-lg transition-all duration-300 border-2"
-                   style={{ borderColor: '#e5e7eb' }}>
+                <a
+                  className="block bg-white rounded-lg p-6 shadow-sm hover:shadow-lg transition-all duration-300 border-2"
+                  style={{ borderColor: '#e5e7eb' }}
+                >
                   <h3 className="text-lg font-bold mb-2" style={{ color: '#1a3a6e' }}>
                     👥 使用者管理
                   </h3>
@@ -101,8 +95,10 @@ export default function Admin() {
                 </a>
               </Link>
               <Link href="/admin/sponsors">
-                <a className="block bg-white rounded-lg p-6 shadow-sm hover:shadow-lg transition-all duration-300 border-2"
-                   style={{ borderColor: '#e5e7eb' }}>
+                <a
+                  className="block bg-white rounded-lg p-6 shadow-sm hover:shadow-lg transition-all duration-300 border-2"
+                  style={{ borderColor: '#e5e7eb' }}
+                >
                   <h3 className="text-lg font-bold mb-2" style={{ color: '#1a3a6e' }}>
                     🏢 贊助商管理
                   </h3>
@@ -110,8 +106,10 @@ export default function Admin() {
                 </a>
               </Link>
               <Link href="/admin/announcements">
-                <a className="block bg-white rounded-lg p-6 shadow-sm hover:shadow-lg transition-all duration-300 border-2"
-                   style={{ borderColor: '#e5e7eb' }}>
+                <a
+                  className="block bg-white rounded-lg p-6 shadow-sm hover:shadow-lg transition-all duration-300 border-2"
+                  style={{ borderColor: '#e5e7eb' }}
+                >
                   <h3 className="text-lg font-bold mb-2" style={{ color: '#1a3a6e' }}>
                     📢 公告與問題
                   </h3>
@@ -120,8 +118,10 @@ export default function Admin() {
               </Link>
               {user.permissions[0] === 'super_admin' && (
                 <Link href="/admin/stats">
-                  <a className="block bg-white rounded-lg p-6 shadow-sm hover:shadow-lg transition-all duration-300 border-2"
-                     style={{ borderColor: '#e5e7eb' }}>
+                  <a
+                    className="block bg-white rounded-lg p-6 shadow-sm hover:shadow-lg transition-all duration-300 border-2"
+                    style={{ borderColor: '#e5e7eb' }}
+                  >
                     <h3 className="text-lg font-bold mb-2" style={{ color: '#1a3a6e' }}>
                       📊 統計報表
                     </h3>
@@ -130,8 +130,10 @@ export default function Admin() {
                 </Link>
               )}
               <Link href="/admin/scan">
-                <a className="block bg-white rounded-lg p-6 shadow-sm hover:shadow-lg transition-all duration-300 border-2"
-                   style={{ borderColor: '#e5e7eb' }}>
+                <a
+                  className="block bg-white rounded-lg p-6 shadow-sm hover:shadow-lg transition-all duration-300 border-2"
+                  style={{ borderColor: '#e5e7eb' }}
+                >
                   <h3 className="text-lg font-bold mb-2" style={{ color: '#1a3a6e' }}>
                     📱 掃描功能
                   </h3>

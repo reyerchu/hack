@@ -300,379 +300,379 @@ export default function UserPage() {
         <AdminHeader />
 
         {currentUser === '' ? (
-        <div>
-          {/* Header */}
-          <div className="mb-6">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">用戶管理</h1>
-            <p className="text-gray-600">總共 {filteredUsers.length} 位用戶</p>
-          </div>
+          <div>
+            {/* Header */}
+            <div className="mb-6">
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">用戶管理</h1>
+              <p className="text-gray-600">總共 {filteredUsers.length} 位用戶</p>
+            </div>
 
-          {/* Search and Filter Section */}
-          <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-            {/* Search Bar */}
-            <div className="flex flex-col md:flex-row gap-4 mb-6">
-              <div className="flex-1">
-                <label className="block text-sm font-medium text-gray-700 mb-2">搜索用戶</label>
-                <input
-                  type="text"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="輸入搜索關鍵字..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
+            {/* Search and Filter Section */}
+            <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+              {/* Search Bar */}
+              <div className="flex flex-col md:flex-row gap-4 mb-6">
+                <div className="flex-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">搜索用戶</label>
+                  <input
+                    type="text"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="輸入搜索關鍵字..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                </div>
+                <div className="w-full md:w-48">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">搜索欄位</label>
+                  <select
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    value={searchField}
+                    onChange={(e) => setSearchField(e.target.value as any)}
+                  >
+                    <option value="all">所有欄位</option>
+                    <option value="email">電子郵件</option>
+                    <option value="name">姓名</option>
+                    <option value="nickname">暱稱</option>
+                    <option value="gender">性別</option>
+                    <option value="teamStatus">組隊狀態</option>
+                  </select>
+                </div>
               </div>
-              <div className="w-full md:w-48">
-                <label className="block text-sm font-medium text-gray-700 mb-2">搜索欄位</label>
-                <select
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  value={searchField}
-                  onChange={(e) => setSearchField(e.target.value as any)}
-                >
-                  <option value="all">所有欄位</option>
-                  <option value="email">電子郵件</option>
-                  <option value="name">姓名</option>
-                  <option value="nickname">暱稱</option>
-                  <option value="gender">性別</option>
-                  <option value="teamStatus">組隊狀態</option>
-                </select>
+
+              {/* Filters */}
+              <div className="flex flex-wrap gap-4 items-center">
+                <span className="text-sm font-medium text-gray-700">權限篩選：</span>
+                <label className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    checked={filter.hacker}
+                    onChange={() => updateFilter('hacker')}
+                    className="rounded text-blue-600 focus:ring-blue-500"
+                  />
+                  <span className="text-sm">Hacker</span>
+                </label>
+                <label className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    checked={filter.judge}
+                    onChange={() => updateFilter('judge')}
+                    className="rounded text-blue-600 focus:ring-blue-500"
+                  />
+                  <span className="text-sm">Judge</span>
+                </label>
+                <label className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    checked={filter.sponsor}
+                    onChange={() => updateFilter('sponsor')}
+                    className="rounded text-blue-600 focus:ring-blue-500"
+                  />
+                  <span className="text-sm">Sponsor</span>
+                </label>
+                <label className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    checked={filter.organizer}
+                    onChange={() => updateFilter('organizer')}
+                    className="rounded text-blue-600 focus:ring-blue-500"
+                  />
+                  <span className="text-sm">Organizer</span>
+                </label>
+                <label className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    checked={filter.admin}
+                    onChange={() => updateFilter('admin')}
+                    className="rounded text-blue-600 focus:ring-blue-500"
+                  />
+                  <span className="text-sm">Admin</span>
+                </label>
+                <label className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    checked={filter.super_admin}
+                    onChange={() => updateFilter('super_admin')}
+                    className="rounded text-blue-600 focus:ring-blue-500"
+                  />
+                  <span className="text-sm">Super-Admin</span>
+                </label>
+
+                <div className="ml-auto">
+                  <button
+                    onClick={exportToCSV}
+                    className="px-4 py-2 text-white rounded-lg transition-colors text-sm"
+                    style={{
+                      backgroundColor: '#1a3a6e',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = '#2a4a7e';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = '#1a3a6e';
+                    }}
+                  >
+                    匯出 CSV
+                  </button>
+                </div>
               </div>
             </div>
 
-            {/* Filters */}
-            <div className="flex flex-wrap gap-4 items-center">
-              <span className="text-sm font-medium text-gray-700">權限篩選：</span>
-              <label className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  checked={filter.hacker}
-                  onChange={() => updateFilter('hacker')}
-                  className="rounded text-blue-600 focus:ring-blue-500"
-                />
-                <span className="text-sm">Hacker</span>
-              </label>
-              <label className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  checked={filter.judge}
-                  onChange={() => updateFilter('judge')}
-                  className="rounded text-blue-600 focus:ring-blue-500"
-                />
-                <span className="text-sm">Judge</span>
-              </label>
-              <label className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  checked={filter.sponsor}
-                  onChange={() => updateFilter('sponsor')}
-                  className="rounded text-blue-600 focus:ring-blue-500"
-                />
-                <span className="text-sm">Sponsor</span>
-              </label>
-              <label className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  checked={filter.organizer}
-                  onChange={() => updateFilter('organizer')}
-                  className="rounded text-blue-600 focus:ring-blue-500"
-                />
-                <span className="text-sm">Organizer</span>
-              </label>
-              <label className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  checked={filter.admin}
-                  onChange={() => updateFilter('admin')}
-                  className="rounded text-blue-600 focus:ring-blue-500"
-                />
-                <span className="text-sm">Admin</span>
-              </label>
-              <label className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  checked={filter.super_admin}
-                  onChange={() => updateFilter('super_admin')}
-                  className="rounded text-blue-600 focus:ring-blue-500"
-                />
-                <span className="text-sm">Super-Admin</span>
-              </label>
-
-              <div className="ml-auto">
-                <button
-                  onClick={exportToCSV}
-                  className="px-4 py-2 text-white rounded-lg transition-colors text-sm"
-                  style={{
-                    backgroundColor: '#1a3a6e',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = '#2a4a7e';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = '#1a3a6e';
-                  }}
-                >
-                  匯出 CSV
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Users Table */}
-          <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-                      onClick={() => sortBy('nickname')}
-                    >
-                      暱稱 ↕
-                    </th>
-                    <th
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-                      onClick={() => sortBy('name')}
-                    >
-                      姓名 ↕
-                    </th>
-                    <th
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-                      onClick={() => sortBy('registeredDate')}
-                    >
-                      註冊日期 ↕
-                    </th>
-                    <th
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-                      onClick={() => sortBy('email')}
-                    >
-                      電子郵件 ↕
-                    </th>
-                    <th
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-                      onClick={() => sortBy('teamStatus')}
-                    >
-                      組隊狀態 ↕
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      權限
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      操作
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {currentUsers.length === 0 ? (
+            {/* Users Table */}
+            <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
                     <tr>
-                      <td colSpan={7} className="px-6 py-12 text-center text-gray-500">
-                        沒有找到用戶
-                      </td>
+                      <th
+                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                        onClick={() => sortBy('nickname')}
+                      >
+                        暱稱 ↕
+                      </th>
+                      <th
+                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                        onClick={() => sortBy('name')}
+                      >
+                        姓名 ↕
+                      </th>
+                      <th
+                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                        onClick={() => sortBy('registeredDate')}
+                      >
+                        註冊日期 ↕
+                      </th>
+                      <th
+                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                        onClick={() => sortBy('email')}
+                      >
+                        電子郵件 ↕
+                      </th>
+                      <th
+                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                        onClick={() => sortBy('teamStatus')}
+                      >
+                        組隊狀態 ↕
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        權限
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        操作
+                      </th>
                     </tr>
-                  ) : (
-                    currentUsers.map((userData, idx) => {
-                      const u = userData.user;
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {currentUsers.length === 0 ? (
+                      <tr>
+                        <td colSpan={7} className="px-6 py-12 text-center text-gray-500">
+                          沒有找到用戶
+                        </td>
+                      </tr>
+                    ) : (
+                      currentUsers.map((userData, idx) => {
+                        const u = userData.user;
 
-                      // Format registration date
-                      const registeredDate = userData.timestamp
-                        ? new Date(userData.timestamp).toLocaleDateString('zh-TW', {
-                            year: 'numeric',
-                            month: '2-digit',
-                            day: '2-digit',
-                          })
-                        : '-';
+                        // Format registration date
+                        const registeredDate = userData.timestamp
+                          ? new Date(userData.timestamp).toLocaleDateString('zh-TW', {
+                              year: 'numeric',
+                              month: '2-digit',
+                              day: '2-digit',
+                            })
+                          : '-';
 
-                      return (
-                        <tr key={idx} className="hover:bg-gray-50">
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm text-gray-900">{u.nickname || '-'}</div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm font-medium text-gray-900">
-                              {u.firstName} {u.lastName}
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm text-gray-900">{registeredDate}</div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm text-gray-900">{u.preferredEmail || '-'}</div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm text-gray-900">
-                              {u.teamStatus === 'individual'
-                                ? '個人'
-                                : u.teamStatus === 'needTeammates'
-                                ? '缺隊友'
-                                : u.teamStatus === 'fullTeam'
-                                ? '完整隊伍'
-                                : '-'}
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="flex flex-wrap gap-1">
-                              {u.permissions?.map((perm, i) => (
-                                <span
-                                  key={i}
-                                  className={`px-2 py-1 text-xs rounded-full ${
-                                    perm === 'super_admin'
-                                      ? 'bg-red-100 text-red-800'
-                                      : perm === 'admin'
-                                      ? 'bg-yellow-100 text-yellow-800'
-                                      : 'bg-blue-100 text-blue-800'
-                                  }`}
-                                >
-                                  {perm}
-                                </span>
-                              ))}
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm">
-                            {(user.permissions.includes('super_admin') ||
-                              user.permissions.includes('admin')) && (
-                              <button
-                                onClick={() => setCurrentUser(userData.id)}
-                                className="text-blue-600 hover:text-blue-900 font-medium"
-                              >
-                                查看詳情
-                              </button>
-                            )}
-                          </td>
-                        </tr>
-                      );
-                    })
-                  )}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Pagination */}
-            {totalPages > 1 && (
-              <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
-                <div className="flex-1 flex justify-between sm:hidden">
-                  <button
-                    onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                    disabled={currentPage === 1}
-                    className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
-                  >
-                    上一頁
-                  </button>
-                  <button
-                    onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-                    disabled={currentPage === totalPages}
-                    className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
-                  >
-                    下一頁
-                  </button>
-                </div>
-                <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-                  <div className="flex items-center gap-4">
-                    <p className="text-sm text-gray-700">
-                      顯示 <span className="font-medium">{startIndex + 1}</span> 到{' '}
-                      <span className="font-medium">
-                        {Math.min(endIndex, filteredUsers.length)}
-                      </span>
-                      ， 共 <span className="font-medium">{filteredUsers.length}</span> 位用戶
-                    </p>
-                    <select
-                      value={itemsPerPage}
-                      onChange={(e) => {
-                        setItemsPerPage(Number(e.target.value));
-                        setCurrentPage(1);
-                      }}
-                      className="px-3 py-1 border border-gray-300 rounded-md text-sm"
-                    >
-                      <option value={10}>10 / 頁</option>
-                      <option value={20}>20 / 頁</option>
-                      <option value={50}>50 / 頁</option>
-                      <option value={100}>100 / 頁</option>
-                    </select>
-                  </div>
-                  <div>
-                    <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
-                      <button
-                        onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                        disabled={currentPage === 1}
-                        className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
-                      >
-                        ←
-                      </button>
-                      {Array.from({ length: totalPages }, (_, i) => i + 1)
-                        .filter((page) => {
-                          if (totalPages <= 7) return true;
-                          if (page === 1 || page === totalPages) return true;
-                          if (page >= currentPage - 1 && page <= currentPage + 1) return true;
-                          return false;
-                        })
-                        .map((page, idx, arr) => {
-                          if (idx > 0 && page - arr[idx - 1] > 1) {
-                            return (
-                              <span key={`ellipsis-${page}`}>
-                                <span className="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
-                                  ...
-                                </span>
+                        return (
+                          <tr key={idx} className="hover:bg-gray-50">
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="text-sm text-gray-900">{u.nickname || '-'}</div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="text-sm font-medium text-gray-900">
+                                {u.firstName} {u.lastName}
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="text-sm text-gray-900">{registeredDate}</div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="text-sm text-gray-900">{u.preferredEmail || '-'}</div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="text-sm text-gray-900">
+                                {u.teamStatus === 'individual'
+                                  ? '個人'
+                                  : u.teamStatus === 'needTeammates'
+                                  ? '缺隊友'
+                                  : u.teamStatus === 'fullTeam'
+                                  ? '完整隊伍'
+                                  : '-'}
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="flex flex-wrap gap-1">
+                                {u.permissions?.map((perm, i) => (
+                                  <span
+                                    key={i}
+                                    className={`px-2 py-1 text-xs rounded-full ${
+                                      perm === 'super_admin'
+                                        ? 'bg-red-100 text-red-800'
+                                        : perm === 'admin'
+                                        ? 'bg-yellow-100 text-yellow-800'
+                                        : 'bg-blue-100 text-blue-800'
+                                    }`}
+                                  >
+                                    {perm}
+                                  </span>
+                                ))}
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm">
+                              {(user.permissions.includes('super_admin') ||
+                                user.permissions.includes('admin')) && (
                                 <button
-                                  onClick={() => setCurrentPage(page)}
-                                  className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium transition-colors ${
-                                    currentPage === page
-                                      ? 'z-10 border-gray-300'
-                                      : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
-                                  }`}
-                                  style={
-                                    currentPage === page
-                                      ? { backgroundColor: '#1a3a6e', color: '#ffffff' }
-                                      : {}
-                                  }
+                                  onClick={() => setCurrentUser(userData.id)}
+                                  className="text-blue-600 hover:text-blue-900 font-medium"
                                 >
-                                  {page}
+                                  查看詳情
                                 </button>
-                              </span>
-                            );
-                          }
-                          return (
-                            <button
-                              key={page}
-                              onClick={() => setCurrentPage(page)}
-                              className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium transition-colors ${
-                                currentPage === page
-                                  ? 'z-10 border-gray-300'
-                                  : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
-                              }`}
-                              style={
-                                currentPage === page
-                                  ? { backgroundColor: '#1a3a6e', color: '#ffffff' }
-                                  : {}
-                              }
-                            >
-                              {page}
-                            </button>
-                          );
-                        })}
-                      <button
-                        onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-                        disabled={currentPage === totalPages}
-                        className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })
+                    )}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+                  <div className="flex-1 flex justify-between sm:hidden">
+                    <button
+                      onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                      disabled={currentPage === 1}
+                      className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
+                    >
+                      上一頁
+                    </button>
+                    <button
+                      onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                      disabled={currentPage === totalPages}
+                      className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
+                    >
+                      下一頁
+                    </button>
+                  </div>
+                  <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                    <div className="flex items-center gap-4">
+                      <p className="text-sm text-gray-700">
+                        顯示 <span className="font-medium">{startIndex + 1}</span> 到{' '}
+                        <span className="font-medium">
+                          {Math.min(endIndex, filteredUsers.length)}
+                        </span>
+                        ， 共 <span className="font-medium">{filteredUsers.length}</span> 位用戶
+                      </p>
+                      <select
+                        value={itemsPerPage}
+                        onChange={(e) => {
+                          setItemsPerPage(Number(e.target.value));
+                          setCurrentPage(1);
+                        }}
+                        className="px-3 py-1 border border-gray-300 rounded-md text-sm"
                       >
-                        →
-                      </button>
-                    </nav>
+                        <option value={10}>10 / 頁</option>
+                        <option value={20}>20 / 頁</option>
+                        <option value={50}>50 / 頁</option>
+                        <option value={100}>100 / 頁</option>
+                      </select>
+                    </div>
+                    <div>
+                      <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+                        <button
+                          onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                          disabled={currentPage === 1}
+                          className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
+                        >
+                          ←
+                        </button>
+                        {Array.from({ length: totalPages }, (_, i) => i + 1)
+                          .filter((page) => {
+                            if (totalPages <= 7) return true;
+                            if (page === 1 || page === totalPages) return true;
+                            if (page >= currentPage - 1 && page <= currentPage + 1) return true;
+                            return false;
+                          })
+                          .map((page, idx, arr) => {
+                            if (idx > 0 && page - arr[idx - 1] > 1) {
+                              return (
+                                <span key={`ellipsis-${page}`}>
+                                  <span className="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
+                                    ...
+                                  </span>
+                                  <button
+                                    onClick={() => setCurrentPage(page)}
+                                    className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium transition-colors ${
+                                      currentPage === page
+                                        ? 'z-10 border-gray-300'
+                                        : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
+                                    }`}
+                                    style={
+                                      currentPage === page
+                                        ? { backgroundColor: '#1a3a6e', color: '#ffffff' }
+                                        : {}
+                                    }
+                                  >
+                                    {page}
+                                  </button>
+                                </span>
+                              );
+                            }
+                            return (
+                              <button
+                                key={page}
+                                onClick={() => setCurrentPage(page)}
+                                className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium transition-colors ${
+                                  currentPage === page
+                                    ? 'z-10 border-gray-300'
+                                    : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
+                                }`}
+                                style={
+                                  currentPage === page
+                                    ? { backgroundColor: '#1a3a6e', color: '#ffffff' }
+                                    : {}
+                                }
+                              >
+                                {page}
+                              </button>
+                            );
+                          })}
+                        <button
+                          onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                          disabled={currentPage === totalPages}
+                          className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
+                        >
+                          →
+                        </button>
+                      </nav>
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
-        </div>
-      ) : (
-        <div>
-          <UserAdminView
-            currentUserId={currentUser}
-            goBack={() => {
-              setCurrentUser('');
-            }}
-            updateCurrentUser={(value) => {
-              setUsers((prev) => prev.map((obj) => (obj.id === value.id ? { ...value } : obj)));
-            }}
-          />
-        </div>
-      )}
+        ) : (
+          <div>
+            <UserAdminView
+              currentUserId={currentUser}
+              goBack={() => {
+                setCurrentUser('');
+              }}
+              updateCurrentUser={(value) => {
+                setUsers((prev) => prev.map((obj) => (obj.id === value.id ? { ...value } : obj)));
+              }}
+            />
+          </div>
+        )}
       </div>
     </div>
   );

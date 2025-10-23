@@ -26,19 +26,19 @@ async function setup() {
 
     // 1. 獲取用戶 ID
     console.log(`1️⃣  查找用戶: ${testEmail}`);
-    
+
     // 先試 registrations collection
     let usersSnapshot = await db.collection('registrations').where('email', '==', testEmail).get();
-    
+
     // 如果找不到，試 users collection
     if (usersSnapshot.empty) {
       console.log('   在 registrations 中未找到，嘗試 users collection...');
       usersSnapshot = await db.collection('users').where('email', '==', testEmail).get();
     }
-    
+
     if (usersSnapshot.empty) {
       console.log('   用戶不存在，創建測試用戶...');
-      
+
       // 創建測試用戶
       const newUserRef = db.collection('registrations').doc();
       const newUserData = {
@@ -50,15 +50,15 @@ async function setup() {
         updatedAt: admin.firestore.FieldValue.serverTimestamp(),
       };
       await newUserRef.set(newUserData);
-      
+
       console.log(`✅ 創建新用戶 ID: ${newUserRef.id}`);
       console.log(`   Email: ${testEmail}`);
       console.log(`   權限: ${newUserData.permissions}`);
-      
+
       // 重新獲取
       usersSnapshot = await db.collection('registrations').where('email', '==', testEmail).get();
     }
-    
+
     const userDoc = usersSnapshot.docs[0];
     const userId = userDoc.id;
     const userData = userDoc.data();
@@ -71,7 +71,7 @@ async function setup() {
     const currentPermissions = userData.permissions || ['user'];
     if (!currentPermissions.includes('sponsor')) {
       await userDoc.ref.update({
-        permissions: [...currentPermissions, 'sponsor']
+        permissions: [...currentPermissions, 'sponsor'],
       });
       console.log('✅ 已添加 sponsor 權限');
     } else {
@@ -128,7 +128,12 @@ async function setup() {
       submissionRequirements: {
         requiredFields: ['githubRepo', 'demoUrl', 'presentationUrl'],
         customFields: [
-          { name: 'imTokenIntegration', label: 'imToken 整合說明', type: 'textarea', required: true }
+          {
+            name: 'imTokenIntegration',
+            label: 'imToken 整合說明',
+            type: 'textarea',
+            required: true,
+          },
         ],
       },
       timeline: {
@@ -160,7 +165,13 @@ async function setup() {
       sponsorName: 'imToken（測試）',
       trackIds: [trackId],
       role: 'admin',
-      permissions: ['view_submissions', 'edit_challenge', 'score_teams', 'contact_teams', 'export_reports'],
+      permissions: [
+        'view_submissions',
+        'edit_challenge',
+        'score_teams',
+        'contact_teams',
+        'export_reports',
+      ],
       status: 'active',
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
     };
@@ -192,7 +203,7 @@ async function setup() {
       tags: ['DeFi', 'Social', 'Web3'],
       status: 'submitted',
       customFields: {
-        imTokenIntegration: '使用 imToken SDK 實現錢包連接和交易簽名功能'
+        imTokenIntegration: '使用 imToken SDK 實現錢包連接和交易簽名功能',
       },
       criteriaScores: {},
       finalScore: 0,
@@ -212,7 +223,7 @@ async function setup() {
     console.log(`   測試提交: 1 個`);
     console.log('\n🔗 現在可以訪問:');
     console.log(`   http://localhost:3009/sponsor/dashboard`);
-    
+
     process.exit(0);
   } catch (error) {
     console.error('\n❌ 錯誤:', error.message);
@@ -222,4 +233,3 @@ async function setup() {
 }
 
 setup();
-

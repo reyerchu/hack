@@ -11,7 +11,7 @@ const admin = require('firebase-admin');
 const envPath = path.join(__dirname, '.env');
 if (fs.existsSync(envPath)) {
   const envContent = fs.readFileSync(envPath, 'utf8');
-  envContent.split('\n').forEach(line => {
+  envContent.split('\n').forEach((line) => {
     const match = line.match(/^([^=:#]+)=(.*)$/);
     if (match) {
       const key = match[1].trim();
@@ -31,13 +31,17 @@ if (!admin.apps.length) {
 
   if (!projectId || !clientEmail || !privateKey) {
     console.error('❌ Missing Firebase credentials in .env file');
-    console.error('Required: SERVICE_ACCOUNT_PROJECT_ID, SERVICE_ACCOUNT_CLIENT_EMAIL, SERVICE_ACCOUNT_PRIVATE_KEY');
+    console.error(
+      'Required: SERVICE_ACCOUNT_PROJECT_ID, SERVICE_ACCOUNT_CLIENT_EMAIL, SERVICE_ACCOUNT_PRIVATE_KEY',
+    );
     process.exit(1);
   }
 
   // Process private key format
-  if ((privateKey.startsWith('"') && privateKey.endsWith('"')) || 
-      (privateKey.startsWith("'") && privateKey.endsWith("'"))) {
+  if (
+    (privateKey.startsWith('"') && privateKey.endsWith('"')) ||
+    (privateKey.startsWith("'") && privateKey.endsWith("'"))
+  ) {
     privateKey = privateKey.slice(1, -1);
   }
   privateKey = privateKey.replace(/\\n/g, '\n');
@@ -66,7 +70,7 @@ async function diagnoseChallenges() {
     console.log(`📊 Total Tracks: ${tracksSnapshot.size}\n`);
 
     const trackMap = {};
-    tracksSnapshot.forEach(doc => {
+    tracksSnapshot.forEach((doc) => {
       const data = doc.data();
       trackMap[data.trackId || doc.id] = {
         id: doc.id,
@@ -91,7 +95,7 @@ async function diagnoseChallenges() {
 
     const byTrack = {};
 
-    challengesSnapshot.forEach(doc => {
+    challengesSnapshot.forEach((doc) => {
       const data = doc.data();
       const challenge = {
         id: doc.id,
@@ -131,27 +135,27 @@ async function diagnoseChallenges() {
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
 
     console.log(`✅ Published: ${byStatus.published.length}`);
-    byStatus.published.forEach(c => {
+    byStatus.published.forEach((c) => {
       console.log(`   - ${c.title} (trackId: ${c.trackId})`);
     });
 
     console.log(`\n✅ Active: ${byStatus.active.length}`);
-    byStatus.active.forEach(c => {
+    byStatus.active.forEach((c) => {
       console.log(`   - ${c.title} (trackId: ${c.trackId})`);
     });
 
     console.log(`\n📝 Draft: ${byStatus.draft.length}`);
-    byStatus.draft.forEach(c => {
+    byStatus.draft.forEach((c) => {
       console.log(`   - ${c.title} (trackId: ${c.trackId})`);
     });
 
     console.log(`\n❓ No Status: ${byStatus.noStatus.length}`);
-    byStatus.noStatus.forEach(c => {
+    byStatus.noStatus.forEach((c) => {
       console.log(`   - ${c.title} (trackId: ${c.trackId})`);
     });
 
     console.log(`\n⚠️  Other Status: ${byStatus.other.length}`);
-    byStatus.other.forEach(c => {
+    byStatus.other.forEach((c) => {
       console.log(`   - ${c.title} (status: ${c.status}, trackId: ${c.trackId})`);
     });
 
@@ -160,7 +164,7 @@ async function diagnoseChallenges() {
     console.log('📂 CHALLENGES BY TRACK');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
 
-    Object.keys(byTrack).forEach(trackId => {
+    Object.keys(byTrack).forEach((trackId) => {
       const track = trackMap[trackId];
       const trackName = track ? track.name : '(Unknown Track)';
       const trackStatus = track ? track.status : '(Unknown)';
@@ -169,9 +173,9 @@ async function diagnoseChallenges() {
       console.log(`\n🏁 ${trackName} (${trackId})`);
       console.log(`   Track Status: ${trackStatus}`);
       console.log(`   Challenges: ${challenges.length}`);
-      
-      challenges.forEach(c => {
-        const icon = (c.status === 'published' || c.status === 'active') ? '✅' : '❌';
+
+      challenges.forEach((c) => {
+        const icon = c.status === 'published' || c.status === 'active' ? '✅' : '❌';
         console.log(`   ${icon} ${c.title} (status: ${c.status})`);
       });
     });
@@ -183,7 +187,7 @@ async function diagnoseChallenges() {
 
     const issues = [];
 
-    challengesSnapshot.forEach(doc => {
+    challengesSnapshot.forEach((doc) => {
       const data = doc.data();
       if (!data.title) {
         issues.push(`❌ Challenge ${doc.id}: Missing title`);
@@ -192,17 +196,25 @@ async function diagnoseChallenges() {
         issues.push(`❌ Challenge "${data.title || doc.id}": Missing trackId`);
       }
       if (!data.status) {
-        issues.push(`⚠️  Challenge "${data.title || doc.id}": Missing status (will not show in team registration)`);
+        issues.push(
+          `⚠️  Challenge "${
+            data.title || doc.id
+          }": Missing status (will not show in team registration)`,
+        );
       }
       if (data.status && data.status !== 'published' && data.status !== 'active') {
-        issues.push(`⚠️  Challenge "${data.title || doc.id}": Status is "${data.status}" (will not show in team registration)`);
+        issues.push(
+          `⚠️  Challenge "${data.title || doc.id}": Status is "${
+            data.status
+          }" (will not show in team registration)`,
+        );
       }
     });
 
     if (issues.length === 0) {
       console.log('✅ No issues found!');
     } else {
-      issues.forEach(issue => console.log(issue));
+      issues.forEach((issue) => console.log(issue));
     }
 
     console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
@@ -210,7 +222,7 @@ async function diagnoseChallenges() {
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
 
     const publishable = byStatus.draft.length + byStatus.noStatus.length + byStatus.other.length;
-    
+
     if (publishable > 0) {
       console.log(`📌 You have ${publishable} challenge(s) that are not published or active.`);
       console.log('   To make them visible in team registration:');
@@ -224,7 +236,6 @@ async function diagnoseChallenges() {
     console.log(`✅ Currently visible in team registration: ${visibleChallenges} challenge(s)\n`);
 
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
-
   } catch (error) {
     console.error('❌ Error:', error);
   }
@@ -233,4 +244,3 @@ async function diagnoseChallenges() {
 }
 
 diagnoseChallenges();
-

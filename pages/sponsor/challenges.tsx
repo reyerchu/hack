@@ -1,6 +1,6 @@
 /**
  * Sponsor 挑戰管理頁面
- * 
+ *
  * 顯示和管理所有賽道下的挑戰
  */
 
@@ -55,8 +55,13 @@ export default function SponsorChallengesPage() {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-50">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 mx-auto mb-4" style={{ borderColor: '#1a3a6e' }}></div>
-          <p className="text-base" style={{ color: '#6b7280' }}>載入中...</p>
+          <div
+            className="animate-spin rounded-full h-12 w-12 border-b-2 mx-auto mb-4"
+            style={{ borderColor: '#1a3a6e' }}
+          ></div>
+          <p className="text-base" style={{ color: '#6b7280' }}>
+            載入中...
+          </p>
         </div>
       </div>
     );
@@ -79,7 +84,7 @@ export default function SponsorChallengesPage() {
               贊助商儀表板
             </h1>
           </div>
-          
+
           <SponsorHeader />
 
           {/* Challenges List Section */}
@@ -94,8 +99,13 @@ export default function SponsorChallengesPage() {
 
           {loading && (
             <div className="text-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 mx-auto mb-4" style={{ borderColor: '#1a3a6e' }}></div>
-              <p className="text-base" style={{ color: '#6b7280' }}>載入挑戰資料中...</p>
+              <div
+                className="animate-spin rounded-full h-12 w-12 border-b-2 mx-auto mb-4"
+                style={{ borderColor: '#1a3a6e' }}
+              ></div>
+              <p className="text-base" style={{ color: '#6b7280' }}>
+                載入挑戰資料中...
+              </p>
             </div>
           )}
 
@@ -107,7 +117,10 @@ export default function SponsorChallengesPage() {
           )}
 
           {!loading && !error && allChallenges.length === 0 && (
-            <div className="bg-white rounded-lg shadow-sm border-2 p-12 text-center" style={{ borderColor: '#e5e7eb' }}>
+            <div
+              className="bg-white rounded-lg shadow-sm border-2 p-12 text-center"
+              style={{ borderColor: '#e5e7eb' }}
+            >
               <svg
                 className="mx-auto mb-4 w-16 h-16"
                 fill="none"
@@ -122,7 +135,9 @@ export default function SponsorChallengesPage() {
                   d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
                 />
               </svg>
-              <h3 className="text-xl font-bold mb-2" style={{ color: '#1a3a6e' }}>尚無挑戰</h3>
+              <h3 className="text-xl font-bold mb-2" style={{ color: '#1a3a6e' }}>
+                尚無挑戰
+              </h3>
               <p className="text-base mb-4" style={{ color: '#6b7280' }}>
                 請先前往「賽道管理」創建賽道，然後在賽道頁面中新增挑戰
               </p>
@@ -153,7 +168,11 @@ export default function SponsorChallengesPage() {
                 if (trackChallenges.length === 0) return null;
 
                 return (
-                  <div key={track.id} className="bg-white rounded-lg shadow-sm border-2 p-6" style={{ borderColor: '#e5e7eb' }}>
+                  <div
+                    key={track.id}
+                    className="bg-white rounded-lg shadow-sm border-2 p-6"
+                    style={{ borderColor: '#e5e7eb' }}
+                  >
                     <div className="flex items-center justify-between mb-4">
                       <h3
                         className="text-lg font-bold cursor-pointer hover:underline"
@@ -162,7 +181,10 @@ export default function SponsorChallengesPage() {
                       >
                         {track.name}
                       </h3>
-                      <span className="text-sm px-3 py-1 rounded-full" style={{ backgroundColor: '#e0e7ff', color: '#3730a3' }}>
+                      <span
+                        className="text-sm px-3 py-1 rounded-full"
+                        style={{ backgroundColor: '#e0e7ff', color: '#3730a3' }}
+                      >
                         {trackChallenges.length} 個挑戰
                       </span>
                     </div>
@@ -173,7 +195,11 @@ export default function SponsorChallengesPage() {
                           key={challenge.id}
                           className="border-2 rounded-lg p-4 hover:shadow-sm transition-shadow cursor-pointer"
                           style={{ borderColor: '#e5e7eb' }}
-                          onClick={() => router.push(`/sponsor/tracks/${track.id}/challenge?challengeId=${challenge.id}`)}
+                          onClick={() =>
+                            router.push(
+                              `/sponsor/tracks/${track.id}/challenge?challengeId=${challenge.id}`,
+                            )
+                          }
                         >
                           <div className="flex items-start justify-between">
                             <div className="flex-1">
@@ -188,8 +214,16 @@ export default function SponsorChallengesPage() {
                                 </p>
                               )}
                               {challenge.prizes && challenge.prizes.length > 0 && (
-                                <div className="flex items-center gap-2 text-sm" style={{ color: '#059669' }}>
-                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <div
+                                  className="flex items-center gap-2 text-sm"
+                                  style={{ color: '#059669' }}
+                                >
+                                  <svg
+                                    className="w-4 h-4"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                  >
                                     <path
                                       strokeLinecap="round"
                                       strokeLinejoin="round"
@@ -204,7 +238,9 @@ export default function SponsorChallengesPage() {
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
-                                router.push(`/sponsor/tracks/${track.id}/challenge?challengeId=${challenge.id}`);
+                                router.push(
+                                  `/sponsor/tracks/${track.id}/challenge?challengeId=${challenge.id}`,
+                                );
                               }}
                               className="ml-4 px-4 py-2 rounded-lg text-sm font-medium border-2 transition-colors"
                               style={{
@@ -253,4 +289,3 @@ export default function SponsorChallengesPage() {
     </div>
   );
 }
-

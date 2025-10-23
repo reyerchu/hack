@@ -36,9 +36,9 @@ interface Team {
 
 /**
  * Team Management Page for Admin
- * 
+ *
  * Route: /admin/teams
- * 
+ *
  * Features:
  * - View all team registrations
  * - Search and filter teams
@@ -53,15 +53,15 @@ export default function AdminTeamsPage() {
   const [filteredTeams, setFilteredTeams] = useState<Team[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  
+
   // Search and filter states
   const [searchQuery, setSearchQuery] = useState('');
   const [searchField, setSearchField] = useState<'all' | 'teamName' | 'leader' | 'track'>('all');
-  
+
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(50);
-  
+
   // Selected team for detail view
   const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
@@ -77,7 +77,7 @@ export default function AdminTeamsPage() {
   const fetchTeams = async () => {
     setLoading(true);
     setError('');
-    
+
     try {
       if (!user?.token) {
         throw new Error('未登入');
@@ -91,14 +91,14 @@ export default function AdminTeamsPage() {
       });
 
       console.log('[AdminTeams] Fetched teams:', response.data);
-      
+
       // Ensure we always set an array
-      const teamsData = Array.isArray(response.data?.data) 
-        ? response.data.data 
-        : Array.isArray(response.data) 
-        ? response.data 
+      const teamsData = Array.isArray(response.data?.data)
+        ? response.data.data
+        : Array.isArray(response.data)
+        ? response.data
         : [];
-      
+
       setTeams(teamsData);
       setFilteredTeams(teamsData);
     } catch (err: any) {
@@ -130,21 +130,34 @@ export default function AdminTeamsPage() {
       switch (searchField) {
         case 'teamName':
           return team.teamName.toLowerCase().includes(query);
-        
+
         case 'leader':
-          const leaderName = `${team.teamLeader.firstName || ''} ${team.teamLeader.lastName || ''}`.toLowerCase();
-          const leaderEmail = team.teamLeader.preferredEmail?.toLowerCase() || team.teamLeader.email?.toLowerCase() || '';
+          const leaderName = `${team.teamLeader.firstName || ''} ${
+            team.teamLeader.lastName || ''
+          }`.toLowerCase();
+          const leaderEmail =
+            team.teamLeader.preferredEmail?.toLowerCase() ||
+            team.teamLeader.email?.toLowerCase() ||
+            '';
           return leaderName.includes(query) || leaderEmail.includes(query);
-        
+
         case 'track':
-          return team.tracks.some(track => track.toLowerCase().includes(query));
-        
+          return team.tracks.some((track) => track.toLowerCase().includes(query));
+
         case 'all':
         default:
           const teamNameMatch = team.teamName.toLowerCase().includes(query);
-          const leaderNameMatch = `${team.teamLeader.firstName || ''} ${team.teamLeader.lastName || ''}`.toLowerCase().includes(query);
-          const leaderEmailMatch = (team.teamLeader.preferredEmail?.toLowerCase() || team.teamLeader.email?.toLowerCase() || '').includes(query);
-          const trackMatch = team.tracks.some(track => track.toLowerCase().includes(query));
+          const leaderNameMatch = `${team.teamLeader.firstName || ''} ${
+            team.teamLeader.lastName || ''
+          }`
+            .toLowerCase()
+            .includes(query);
+          const leaderEmailMatch = (
+            team.teamLeader.preferredEmail?.toLowerCase() ||
+            team.teamLeader.email?.toLowerCase() ||
+            ''
+          ).includes(query);
+          const trackMatch = team.tracks.some((track) => track.toLowerCase().includes(query));
           return teamNameMatch || leaderNameMatch || leaderEmailMatch || trackMatch;
       }
     });
@@ -202,7 +215,7 @@ export default function AdminTeamsPage() {
       <Head>
         <title>團隊管理 | Admin</title>
       </Head>
-      
+
       <div className="min-h-screen" style={{ backgroundColor: '#f9fafb', paddingTop: '80px' }}>
         <div className="container mx-auto px-4 py-8">
           {/* Page Title */}
@@ -229,7 +242,7 @@ export default function AdminTeamsPage() {
                     {searchQuery && ` / 搜尋結果: ${filteredTeams.length} 個團隊`}
                   </p>
                 </div>
-                
+
                 <button
                   onClick={fetchTeams}
                   className="px-4 py-2 rounded-lg font-medium transition-colors"
@@ -321,9 +334,7 @@ export default function AdminTeamsPage() {
                       {currentTeams.map((team) => (
                         <tr key={team.id} className="hover:bg-gray-50">
                           <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm font-medium text-gray-900">
-                              {team.teamName}
-                            </div>
+                            <div className="text-sm font-medium text-gray-900">{team.teamName}</div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="text-sm text-gray-900">
@@ -382,24 +393,25 @@ export default function AdminTeamsPage() {
                 {totalPages > 1 && (
                   <div className="mt-6 flex items-center justify-between">
                     <div className="text-sm text-gray-700">
-                      顯示 {startIndex + 1} - {Math.min(endIndex, filteredTeams.length)} / 共 {filteredTeams.length} 個團隊
+                      顯示 {startIndex + 1} - {Math.min(endIndex, filteredTeams.length)} / 共{' '}
+                      {filteredTeams.length} 個團隊
                     </div>
-                    
+
                     <div className="flex gap-2">
                       <button
-                        onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                        onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
                         disabled={currentPage === 1}
                         className="px-4 py-2 rounded-lg border disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         上一頁
                       </button>
-                      
+
                       <span className="px-4 py-2">
                         {currentPage} / {totalPages}
                       </span>
-                      
+
                       <button
-                        onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                        onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
                         disabled={currentPage === totalPages}
                         className="px-4 py-2 rounded-lg border disabled:opacity-50 disabled:cursor-not-allowed"
                       >
@@ -456,9 +468,7 @@ export default function AdminTeamsPage() {
                   <p className="text-sm text-gray-600 mt-1">
                     Email: {selectedTeam.teamLeader.preferredEmail || selectedTeam.teamLeader.email}
                   </p>
-                  <p className="text-sm text-gray-600">
-                    角色: {selectedTeam.teamLeader.role}
-                  </p>
+                  <p className="text-sm text-gray-600">角色: {selectedTeam.teamLeader.role}</p>
                 </div>
               </div>
 
@@ -510,9 +520,7 @@ export default function AdminTeamsPage() {
                 </h3>
                 <div className="text-sm text-gray-600 space-y-1">
                   <p>報名時間: {formatDate(selectedTeam.createdAt)}</p>
-                  {selectedTeam.updatedAt && (
-                    <p>最後更新: {formatDate(selectedTeam.updatedAt)}</p>
-                  )}
+                  {selectedTeam.updatedAt && <p>最後更新: {formatDate(selectedTeam.updatedAt)}</p>}
                 </div>
               </div>
             </div>
@@ -535,4 +543,3 @@ export default function AdminTeamsPage() {
     </>
   );
 }
-

@@ -1,6 +1,6 @@
 /**
  * 提交卡片组件
- * 
+ *
  * 顯示單個隊伍提交的摘要資訊
  */
 
@@ -154,7 +154,10 @@ export default function SubmissionCard({ submission, onClick }: SubmissionCardPr
       )}
 
       {/* Footer */}
-      <div className="pt-3 border-t flex items-center justify-between" style={{ borderColor: '#e5e7eb' }}>
+      <div
+        className="pt-3 border-t flex items-center justify-between"
+        style={{ borderColor: '#e5e7eb' }}
+      >
         <Link href={`/sponsor/submissions/${submission.id}`}>
           <a
             className="text-sm font-medium hover:underline"
@@ -177,4 +180,3 @@ export default function SubmissionCard({ submission, onClick }: SubmissionCardPr
     </div>
   );
 }
-

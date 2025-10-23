@@ -1,6 +1,6 @@
 /**
  * API: /api/admin/challenges/[challengeId]/assign
- * 
+ *
  * PUT - Super_admin 將 challenge 分配給 sponsor
  */
 
@@ -22,7 +22,7 @@ const db = firestore();
  */
 async function handlePut(req: NextApiRequest, res: NextApiResponse) {
   console.log('[/api/admin/challenges/assign] ========== PUT 請求開始 ==========');
-  
+
   if (!(await requireAuth(req, res))) {
     return;
   }
@@ -39,10 +39,12 @@ async function handlePut(req: NextApiRequest, res: NextApiResponse) {
   console.log('[assign] sponsorId:', sponsorId);
 
   // 1. 檢查權限：只有 super_admin 和 admin 可以分配
-  if (!userPermissions.includes('super_admin') && 
-      !userPermissions.includes('admin') &&
-      userPermissions[0] !== 'super_admin' && 
-      userPermissions[0] !== 'admin') {
+  if (
+    !userPermissions.includes('super_admin') &&
+    !userPermissions.includes('admin') &&
+    userPermissions[0] !== 'super_admin' &&
+    userPermissions[0] !== 'admin'
+  ) {
     console.log('[assign] ❌ 權限不足');
     return ApiResponse.forbidden(res, '只有 super_admin 可以分配 challenges');
   }
@@ -144,4 +146,3 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   return res.status(405).json({ error: 'Method not allowed' });
 }
-

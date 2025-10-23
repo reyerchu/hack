@@ -52,14 +52,14 @@ if (admin.apps.length === 0) {
 async function clearApplications() {
   try {
     const eventId = 'Elyt7SvclfTp43LPKmaq';
-    
+
     console.log('\n════════════════════════════════════════');
     console.log('  清空活動申請記錄');
     console.log('════════════════════════════════════════\n');
     console.log(`活動 ID: ${eventId}\n`);
-    
+
     const db = admin.firestore();
-    
+
     // 查询该活动的所有申请
     const snapshot = await db
       .collection('event-applications')
@@ -83,7 +83,7 @@ async function clearApplications() {
 
     console.log('⚠️  即將刪除所有申請記錄...');
     console.log('等待 3 秒，按 Ctrl+C 取消\n');
-    
+
     await new Promise((resolve) => setTimeout(resolve, 3000));
 
     // 删除所有找到的记录
@@ -93,7 +93,7 @@ async function clearApplications() {
     });
 
     await batch.commit();
-    
+
     console.log('════════════════════════════════════════');
     console.log(`✅ 成功刪除 ${snapshot.size} 條申請記錄`);
     console.log('════════════════════════════════════════\n');
@@ -108,4 +108,3 @@ async function clearApplications() {
 }
 
 clearApplications();
-

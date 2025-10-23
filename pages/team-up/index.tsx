@@ -181,7 +181,9 @@ export default function TeamUpIndex({
                 <h1 className="text-4xl font-bold mb-2" style={{ color: '#1a3a6e' }}>
                   找隊友
                 </h1>
-                <p className="text-gray-600 text-base">瀏覽 {total} 個找隊友需求，找到最適合的團隊</p>
+                <p className="text-gray-600 text-base">
+                  瀏覽 {total} 個找隊友需求，找到最適合的團隊
+                </p>
               </div>
               <Link href="/team-up/create">
                 <a

@@ -12,9 +12,7 @@ export default function HomeNewsSection() {
       <div className="max-w-[1200px] mx-auto px-8 md:px-12">
         {/* Section Header - TSMC Style */}
         <div className="mb-12">
-          <h2 className="text-[28px] md:text-[36px] font-normal text-black mb-2">
-            NEWS
-          </h2>
+          <h2 className="text-[28px] md:text-[36px] font-normal text-black mb-2">NEWS</h2>
           <div className="w-16 h-[2px]" style={{ backgroundColor: '#1a3a6e' }}></div>
           <p className="text-[18px] mt-4 font-normal" style={{ color: '#1a3a6e' }}>
             最新消息
@@ -26,12 +24,14 @@ export default function HomeNewsSection() {
           {/* Message 1: Workshops */}
           <div className="mb-6 pb-6 border-b-2 border-gray-200">
             <p className="text-[18px] leading-relaxed text-gray-800 mb-4">
-              🎓 <span className="font-semibold">黑客松工作坊已經開跑！</span>從 2025/10/20 起，每晚都有賽道介紹、獎項說明及活動 QA 的工作坊，歡迎一起來了解挑戰、補充技能、找到隊友、腦力激盪。
+              🎓 <span className="font-semibold">黑客松工作坊已經開跑！</span>從 2025/10/20
+              起，每晚都有賽道介紹、獎項說明及活動 QA
+              的工作坊，歡迎一起來了解挑戰、補充技能、找到隊友、腦力激盪。
             </p>
             <Link href="/schedule">
-              <a 
+              <a
                 className="inline-block border-2 px-8 py-3 text-[14px] font-medium uppercase tracking-wider transition-colors duration-300"
-                style={{ 
+                style={{
                   borderColor: '#1a3a6e',
                   color: '#1a3a6e',
                 }}
@@ -52,9 +52,10 @@ export default function HomeNewsSection() {
           {/* Message 2: Solidity Course */}
           <div>
             <p className="text-[18px] leading-relaxed text-gray-800 mb-4">
-              💡 沒寫過 Solidity 智能合約，也能挑戰這場總獎金價值高達 40 萬的 RWA 黑客松競賽嗎？<span className="font-semibold">可以！</span>只要報名黑客松，免費索取「
+              💡 沒寫過 Solidity 智能合約，也能挑戰這場總獎金價值高達 40 萬的 RWA 黑客松競賽嗎？
+              <span className="font-semibold">可以！</span>只要報名黑客松，免費索取「
               <Link href="/schedule/Elyt7SvclfTp43LPKmaq">
-                <a 
+                <a
                   className="font-semibold underline transition-colors"
                   style={{ color: '#1a3a6e' }}
                   onMouseEnter={(e) => {
@@ -70,9 +71,9 @@ export default function HomeNewsSection() {
               」（5 小時完整教學 + 10/27 賽前線下實作 QA）- 讓您從零到挑戰黑客松的最佳利器！
             </p>
             <Link href="/schedule/Elyt7SvclfTp43LPKmaq">
-              <a 
+              <a
                 className="inline-block border-2 px-8 py-3 text-[14px] font-medium uppercase tracking-wider transition-colors duration-300"
-                style={{ 
+                style={{
                   borderColor: '#1a3a6e',
                   color: '#1a3a6e',
                 }}
@@ -94,4 +95,3 @@ export default function HomeNewsSection() {
     </section>
   );
 }
-

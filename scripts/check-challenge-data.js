@@ -27,38 +27,40 @@ async function checkChallengeData(challengeId) {
 
   try {
     const doc = await db.collection('extended-challenges').doc(challengeId).get();
-    
+
     if (!doc.exists) {
       console.log('❌ 找不到該挑戰\n');
       return;
     }
 
     const data = doc.data();
-    
+
     console.log('📋 挑戰基本信息:');
     console.log(`   ID: ${challengeId}`);
     console.log(`   標題: ${data.title || '(無)'}`);
     console.log(`   trackId: ${data.trackId || '(無)'}`);
     console.log('');
-    
+
     console.log('💰 獎金相關字段:');
     console.log('   prizes 類型:', typeof data.prizes);
     console.log('   prizes 內容:', JSON.stringify(data.prizes, null, 2));
     console.log('   prizeDetails 類型:', typeof data.prizeDetails);
     console.log('   prizeDetails 內容:', data.prizeDetails || '(空)');
     console.log('');
-    
+
     console.log('📝 提交要求相關字段:');
     console.log('   submissionRequirements 類型:', typeof data.submissionRequirements);
-    console.log('   submissionRequirements 內容:', JSON.stringify(data.submissionRequirements, null, 2));
+    console.log(
+      '   submissionRequirements 內容:',
+      JSON.stringify(data.submissionRequirements, null, 2),
+    );
     console.log('   requirements 類型:', typeof data.requirements);
     console.log('   requirements 內容:', JSON.stringify(data.requirements, null, 2));
     console.log('');
-    
+
     console.log('📄 完整數據 (JSON):');
     console.log(JSON.stringify(data, null, 2));
     console.log('');
-
   } catch (error) {
     console.error('❌ 錯誤:', error.message);
   }

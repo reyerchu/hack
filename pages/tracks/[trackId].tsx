@@ -1,6 +1,6 @@
 /**
  * 公開賽道詳情頁面（只讀版本）
- * 
+ *
  * 供所有參賽者查看賽道的詳細資訊
  */
 
@@ -74,9 +74,14 @@ export default function PublicTrackDetailPage() {
     }
     if (Array.isArray(prizes) && prizes.length > 0) {
       if (typeof prizes[0] === 'object') {
-        return prizes.map((p: any) => 
-          `${p.currency === 'TWD' ? '台幣' : 'USD'} ${p.amount.toLocaleString()} ${p.description || ''}`
-        ).join('，');
+        return prizes
+          .map(
+            (p: any) =>
+              `${p.currency === 'TWD' ? '台幣' : 'USD'} ${p.amount.toLocaleString()} ${
+                p.description || ''
+              }`,
+          )
+          .join('，');
       }
       return prizes.join(', ');
     }
@@ -89,9 +94,7 @@ export default function PublicTrackDetailPage() {
       return criteria;
     }
     if (Array.isArray(criteria) && criteria.length > 0) {
-      return criteria.map((c: any) => 
-        typeof c === 'object' ? c.name : c
-      ).join('\n');
+      return criteria.map((c: any) => (typeof c === 'object' ? c.name : c)).join('\n');
     }
     return '';
   };
@@ -125,15 +128,23 @@ export default function PublicTrackDetailPage() {
         <div className="min-h-screen" style={{ backgroundColor: '#f9fafb', paddingTop: '80px' }}>
           <div className="container mx-auto px-4 py-12">
             <div className="max-w-2xl mx-auto text-center py-20">
-              <svg className="mx-auto mb-6 w-16 h-16 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              <svg
+                className="mx-auto mb-6 w-16 h-16 text-red-500"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
               </svg>
               <h1 className="text-2xl font-bold mb-4" style={{ color: '#1a3a6e' }}>
                 載入失敗
               </h1>
-              <p className="text-gray-600 mb-6">
-                {error || '無法載入賽道資訊'}
-              </p>
+              <p className="text-gray-600 mb-6">{error || '無法載入賽道資訊'}</p>
               <button
                 onClick={() => router.back()}
                 className="px-6 py-3 rounded-lg font-medium transition-colors"
@@ -164,7 +175,12 @@ export default function PublicTrackDetailPage() {
             style={{ color: '#1a3a6e' }}
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 19l-7-7 7-7"
+              />
             </svg>
             返回
           </button>
@@ -175,14 +191,14 @@ export default function PublicTrackDetailPage() {
               {track.name}
             </h1>
             {track.description && (
-              <p 
-                className="text-lg mb-4" 
-                style={{ 
+              <p
+                className="text-lg mb-4"
+                style={{
                   color: '#6b7280',
                   whiteSpace: 'pre-wrap',
                   wordBreak: 'break-word',
                   overflowWrap: 'break-word',
-                  lineHeight: '1.75'
+                  lineHeight: '1.75',
                 }}
               >
                 {track.description}
@@ -191,11 +207,24 @@ export default function PublicTrackDetailPage() {
             <div className="flex flex-wrap items-center gap-6 text-sm">
               {track.sponsorName && (
                 <div className="flex items-center gap-2">
-                  <svg className="w-5 h-5" style={{ color: '#6b7280' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                  <svg
+                    className="w-5 h-5"
+                    style={{ color: '#6b7280' }}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                    />
                   </svg>
                   <span style={{ color: '#6b7280' }}>贊助商：</span>
-                  <span className="font-medium" style={{ color: '#1a3a6e' }}>{track.sponsorName}</span>
+                  <span className="font-medium" style={{ color: '#1a3a6e' }}>
+                    {track.sponsorName}
+                  </span>
                 </div>
               )}
               {track.totalPrize !== undefined && track.totalPrize > 0 && (
@@ -203,17 +232,33 @@ export default function PublicTrackDetailPage() {
                   <span className="text-2xl">💰</span>
                   <span style={{ color: '#6b7280' }}>總獎金：</span>
                   <span className="font-bold text-lg" style={{ color: '#059669' }}>
-                    {track.totalPrize >= 1000 ? `${(track.totalPrize / 1000).toFixed(1)}k` : track.totalPrize} USD
+                    {track.totalPrize >= 1000
+                      ? `${(track.totalPrize / 1000).toFixed(1)}k`
+                      : track.totalPrize}{' '}
+                    USD
                   </span>
                 </div>
               )}
               {track.challenges && track.challenges.length > 0 && (
                 <div className="flex items-center gap-2">
-                  <svg className="w-5 h-5" style={{ color: '#6b7280' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  <svg
+                    className="w-5 h-5"
+                    style={{ color: '#6b7280' }}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                    />
                   </svg>
                   <span style={{ color: '#6b7280' }}>挑戰數量：</span>
-                  <span className="font-medium" style={{ color: '#1a3a6e' }}>{track.challenges.length}</span>
+                  <span className="font-medium" style={{ color: '#1a3a6e' }}>
+                    {track.challenges.length}
+                  </span>
                 </div>
               )}
             </div>
@@ -235,20 +280,20 @@ export default function PublicTrackDetailPage() {
                     <h3 className="text-xl font-semibold mb-3" style={{ color: '#1a3a6e' }}>
                       {challenge.title}
                     </h3>
-                    
+
                     {challenge.description && (
                       <div className="mb-4">
                         <h4 className="text-sm font-medium mb-2" style={{ color: '#6b7280' }}>
                           挑戰描述
                         </h4>
-                        <p 
-                          className="text-sm" 
-                          style={{ 
+                        <p
+                          className="text-sm"
+                          style={{
                             color: '#374151',
                             whiteSpace: 'pre-wrap',
                             wordBreak: 'break-word',
                             overflowWrap: 'break-word',
-                            lineHeight: '1.75'
+                            lineHeight: '1.75',
                           }}
                         >
                           {challenge.description}
@@ -272,14 +317,14 @@ export default function PublicTrackDetailPage() {
                         <h4 className="text-sm font-medium mb-2" style={{ color: '#6b7280' }}>
                           📋 提交要求
                         </h4>
-                        <p 
-                          className="text-sm" 
-                          style={{ 
+                        <p
+                          className="text-sm"
+                          style={{
                             color: '#374151',
                             whiteSpace: 'pre-wrap',
                             wordBreak: 'break-word',
                             overflowWrap: 'break-word',
-                            lineHeight: '1.75'
+                            lineHeight: '1.75',
                           }}
                         >
                           {challenge.submissionRequirements}
@@ -292,14 +337,14 @@ export default function PublicTrackDetailPage() {
                         <h4 className="text-sm font-medium mb-2" style={{ color: '#6b7280' }}>
                           📊 評分標準
                         </h4>
-                        <p 
-                          className="text-sm" 
-                          style={{ 
+                        <p
+                          className="text-sm"
+                          style={{
                             color: '#374151',
                             whiteSpace: 'pre-wrap',
                             wordBreak: 'break-word',
                             overflowWrap: 'break-word',
-                            lineHeight: '1.75'
+                            lineHeight: '1.75',
                           }}
                         >
                           {formatCriteria(challenge.evaluationCriteria)}
@@ -363,4 +408,3 @@ export default function PublicTrackDetailPage() {
     </>
   );
 }
-

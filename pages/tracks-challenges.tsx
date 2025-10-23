@@ -1,6 +1,6 @@
 /**
  * 賽道挑戰頁面
- * 
+ *
  * 公開頁面，展示所有賽道和挑戰
  */
 
@@ -86,14 +86,16 @@ export default function TracksChallengesPage() {
 
   const formatPrize = (prizes: any[]) => {
     if (!Array.isArray(prizes) || prizes.length === 0) return '';
-    
-    return prizes.map((prize: any) => {
-      if (typeof prize === 'object' && prize.amount) {
-        const currency = prize.currency === 'TWD' ? '台幣' : 'USD';
-        return `${currency} ${prize.amount.toLocaleString()} ${prize.description || ''}`;
-      }
-      return prize;
-    }).join('，');
+
+    return prizes
+      .map((prize: any) => {
+        if (typeof prize === 'object' && prize.amount) {
+          const currency = prize.currency === 'TWD' ? '台幣' : 'USD';
+          return `${currency} ${prize.amount.toLocaleString()} ${prize.description || ''}`;
+        }
+        return prize;
+      })
+      .join('，');
   };
 
   if (loading) {
@@ -154,48 +156,107 @@ export default function TracksChallengesPage() {
 
           {/* Stats */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div className="rounded-lg p-6" style={{ backgroundColor: '#ffffff', border: '2px solid #e5e7eb' }}>
+            <div
+              className="rounded-lg p-6"
+              style={{ backgroundColor: '#ffffff', border: '2px solid #e5e7eb' }}
+            >
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#dbeafe' }}>
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: '#1a3a6e' }}>
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                <div
+                  className="w-12 h-12 rounded-lg flex items-center justify-center"
+                  style={{ backgroundColor: '#dbeafe' }}
+                >
+                  <svg
+                    className="w-6 h-6"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    style={{ color: '#1a3a6e' }}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"
+                    />
                   </svg>
                 </div>
                 <div>
-                  <p className="text-3xl font-bold" style={{ color: '#1a3a6e' }}>{tracks.length}</p>
-                  <p className="text-sm" style={{ color: '#6b7280' }}>賽道總數</p>
+                  <p className="text-3xl font-bold" style={{ color: '#1a3a6e' }}>
+                    {tracks.length}
+                  </p>
+                  <p className="text-sm" style={{ color: '#6b7280' }}>
+                    賽道總數
+                  </p>
                 </div>
               </div>
             </div>
 
-            <div className="rounded-lg p-6" style={{ backgroundColor: '#ffffff', border: '2px solid #e5e7eb' }}>
+            <div
+              className="rounded-lg p-6"
+              style={{ backgroundColor: '#ffffff', border: '2px solid #e5e7eb' }}
+            >
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#fef3c7' }}>
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: '#d97706' }}>
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                <div
+                  className="w-12 h-12 rounded-lg flex items-center justify-center"
+                  style={{ backgroundColor: '#fef3c7' }}
+                >
+                  <svg
+                    className="w-6 h-6"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    style={{ color: '#d97706' }}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"
+                    />
                   </svg>
                 </div>
                 <div>
                   <p className="text-3xl font-bold" style={{ color: '#1a3a6e' }}>
                     {tracks.reduce((sum, t) => sum + t.challengeCount, 0)}
                   </p>
-                  <p className="text-sm" style={{ color: '#6b7280' }}>挑戰總數</p>
+                  <p className="text-sm" style={{ color: '#6b7280' }}>
+                    挑戰總數
+                  </p>
                 </div>
               </div>
             </div>
 
-            <div className="rounded-lg p-6" style={{ backgroundColor: '#ffffff', border: '2px solid #e5e7eb' }}>
+            <div
+              className="rounded-lg p-6"
+              style={{ backgroundColor: '#ffffff', border: '2px solid #e5e7eb' }}
+            >
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#dcfce7' }}>
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: '#059669' }}>
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <div
+                  className="w-12 h-12 rounded-lg flex items-center justify-center"
+                  style={{ backgroundColor: '#dcfce7' }}
+                >
+                  <svg
+                    className="w-6 h-6"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    style={{ color: '#059669' }}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
                   </svg>
                 </div>
                 <div>
                   <p className="text-3xl font-bold" style={{ color: '#1a3a6e' }}>
                     ${tracks.reduce((sum, t) => sum + t.totalPrize, 0).toLocaleString()}
                   </p>
-                  <p className="text-sm" style={{ color: '#6b7280' }}>總獎金池價值 (USD)</p>
+                  <p className="text-sm" style={{ color: '#6b7280' }}>
+                    總獎金池價值 (USD)
+                  </p>
                 </div>
               </div>
             </div>
@@ -211,7 +272,10 @@ export default function TracksChallengesPage() {
                 onClick={() => openTrackModal(track)}
               >
                 {/* Track Header */}
-                <div className="p-6 border-b" style={{ borderColor: '#e5e7eb', backgroundColor: '#f8fafc' }}>
+                <div
+                  className="p-6 border-b"
+                  style={{ borderColor: '#e5e7eb', backgroundColor: '#f8fafc' }}
+                >
                   <div className="flex items-center gap-3 mb-3">
                     {track.sponsorLogo ? (
                       // 有 logo：只显示 logo
@@ -240,18 +304,25 @@ export default function TracksChallengesPage() {
                   </p>
 
                   {/* Stats */}
-                  <div className="flex items-center justify-between mb-4 pt-4 border-t" style={{ borderColor: '#e5e7eb' }}>
+                  <div
+                    className="flex items-center justify-between mb-4 pt-4 border-t"
+                    style={{ borderColor: '#e5e7eb' }}
+                  >
                     <div className="text-center">
                       <p className="text-2xl font-bold" style={{ color: '#1a3a6e' }}>
                         {track.challengeCount}
                       </p>
-                      <p className="text-xs" style={{ color: '#6b7280' }}>挑戰</p>
+                      <p className="text-xs" style={{ color: '#6b7280' }}>
+                        挑戰
+                      </p>
                     </div>
                     <div className="text-center">
                       <p className="text-2xl font-bold" style={{ color: '#059669' }}>
                         ${track.totalPrize.toLocaleString()}
                       </p>
-                      <p className="text-xs" style={{ color: '#6b7280' }}>總獎金 (USD)</p>
+                      <p className="text-xs" style={{ color: '#6b7280' }}>
+                        總獎金 (USD)
+                      </p>
                     </div>
                   </div>
 
@@ -309,7 +380,10 @@ export default function TracksChallengesPage() {
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Header */}
-            <div className="sticky top-0 bg-white border-b p-6 flex items-center justify-between" style={{ borderColor: '#e5e7eb' }}>
+            <div
+              className="sticky top-0 bg-white border-b p-6 flex items-center justify-between"
+              style={{ borderColor: '#e5e7eb' }}
+            >
               <div className="flex-1 min-w-0">
                 {selectedChallenge ? (
                   // 显示挑战标题
@@ -338,8 +412,19 @@ export default function TracksChallengesPage() {
                 onClick={closeModal}
                 className="ml-4 p-2 rounded-lg hover:bg-gray-100 transition-colors"
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: '#6b7280' }}>
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  style={{ color: '#6b7280' }}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
                 </svg>
               </button>
             </div>
@@ -353,14 +438,14 @@ export default function TracksChallengesPage() {
                     <h3 className="text-lg font-semibold mb-2" style={{ color: '#1a3a6e' }}>
                       挑戰描述
                     </h3>
-                    <p 
-                      className="text-base" 
-                      style={{ 
+                    <p
+                      className="text-base"
+                      style={{
                         color: '#374151',
                         whiteSpace: 'pre-wrap',
                         wordBreak: 'break-word',
                         overflowWrap: 'break-word',
-                        lineHeight: '1.75'
+                        lineHeight: '1.75',
                       }}
                     >
                       {selectedChallenge.description || '暫無描述'}
@@ -383,14 +468,14 @@ export default function TracksChallengesPage() {
                       <h3 className="text-lg font-semibold mb-2" style={{ color: '#1a3a6e' }}>
                         提交要求
                       </h3>
-                      <p 
-                        className="text-base" 
-                        style={{ 
+                      <p
+                        className="text-base"
+                        style={{
                           color: '#374151',
                           whiteSpace: 'pre-wrap',
                           wordBreak: 'break-word',
                           overflowWrap: 'break-word',
-                          lineHeight: '1.75'
+                          lineHeight: '1.75',
                         }}
                       >
                         {selectedChallenge.submissionRequirements}
@@ -398,31 +483,36 @@ export default function TracksChallengesPage() {
                     </div>
                   )}
 
-                  {selectedChallenge.evaluationCriteria && selectedChallenge.evaluationCriteria.length > 0 && (
-                    <div>
-                      <h3 className="text-lg font-semibold mb-2" style={{ color: '#1a3a6e' }}>
-                        評分標準
-                      </h3>
-                      <ul className="space-y-2">
-                        {selectedChallenge.evaluationCriteria.map((criterion: any, idx: number) => (
-                          <li key={idx} className="flex items-start gap-2">
-                            <span style={{ color: '#1a3a6e' }}>•</span>
-                            <span 
-                              style={{ 
-                                color: '#374151',
-                                whiteSpace: 'pre-wrap',
-                                wordBreak: 'break-word',
-                                overflowWrap: 'break-word',
-                                lineHeight: '1.75'
-                              }}
-                            >
-                              {typeof criterion === 'string' ? criterion : criterion.description || criterion.name}
-                            </span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
+                  {selectedChallenge.evaluationCriteria &&
+                    selectedChallenge.evaluationCriteria.length > 0 && (
+                      <div>
+                        <h3 className="text-lg font-semibold mb-2" style={{ color: '#1a3a6e' }}>
+                          評分標準
+                        </h3>
+                        <ul className="space-y-2">
+                          {selectedChallenge.evaluationCriteria.map(
+                            (criterion: any, idx: number) => (
+                              <li key={idx} className="flex items-start gap-2">
+                                <span style={{ color: '#1a3a6e' }}>•</span>
+                                <span
+                                  style={{
+                                    color: '#374151',
+                                    whiteSpace: 'pre-wrap',
+                                    wordBreak: 'break-word',
+                                    overflowWrap: 'break-word',
+                                    lineHeight: '1.75',
+                                  }}
+                                >
+                                  {typeof criterion === 'string'
+                                    ? criterion
+                                    : criterion.description || criterion.name}
+                                </span>
+                              </li>
+                            ),
+                          )}
+                        </ul>
+                      </div>
+                    )}
 
                   {selectedChallenge.resources && selectedChallenge.resources.length > 0 && (
                     <div>
@@ -453,14 +543,14 @@ export default function TracksChallengesPage() {
                     <h3 className="text-lg font-semibold mb-2" style={{ color: '#1a3a6e' }}>
                       賽道描述
                     </h3>
-                    <p 
-                      className="text-base" 
-                      style={{ 
+                    <p
+                      className="text-base"
+                      style={{
                         color: '#374151',
                         whiteSpace: 'pre-wrap',
                         wordBreak: 'break-word',
                         overflowWrap: 'break-word',
-                        lineHeight: '1.75'
+                        lineHeight: '1.75',
                       }}
                     >
                       {selectedTrack.description || '暫無描述'}
@@ -482,13 +572,13 @@ export default function TracksChallengesPage() {
                           <h4 className="font-semibold mb-1" style={{ color: '#1a3a6e' }}>
                             {challenge.title}
                           </h4>
-                          <p 
-                            className="text-sm line-clamp-2" 
-                            style={{ 
+                          <p
+                            className="text-sm line-clamp-2"
+                            style={{
                               color: '#6b7280',
                               whiteSpace: 'pre-wrap',
                               wordBreak: 'break-word',
-                              overflowWrap: 'break-word'
+                              overflowWrap: 'break-word',
                             }}
                           >
                             {challenge.description}
@@ -506,4 +596,3 @@ export default function TracksChallengesPage() {
     </>
   );
 }
-
