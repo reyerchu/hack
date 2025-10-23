@@ -88,39 +88,13 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
     console.log('[/api/applications] Email:', dataToSave.email);
 
     console.log('[/api/applications] 📝 BACKEND STEP 6: 保存到 registrations collection');
-    // 保存到 registrations collection
+    // 保存到 registrations collection (唯一数据源)
     await db.collection('registrations').doc(userId).set(dataToSave, { merge: true });
 
-    console.log('[/api/applications] ✅ 注册数据已保存到 registrations collection');
-
-    console.log('[/api/applications] 📝 BACKEND STEP 7: 保存到 users collection');
-    // 同时保存到 users collection（兼容旧系统）
-    const userData = {
-      id: userId,
-      email: dataToSave.email,
-      firstName: registrationData.firstName || '',
-      lastName: registrationData.lastName || '',
-      preferredEmail: registrationData.preferredEmail || dataToSave.email,
-      preferredName: registrationData.preferredName || '',
-      permissions: registrationData.permissions || ['hacker'],
-      // 保存完整的用户数据
-      user: {
-        ...registrationData,
-        id: userId,
-        email: dataToSave.email,
-        permissions: registrationData.permissions || ['hacker'],
-      },
-      updatedAt: firestore.FieldValue.serverTimestamp(),
-      createdAt: firestore.FieldValue.serverTimestamp(),
-    };
-
-    console.log('[/api/applications] User data keys:', Object.keys(userData));
-    await db.collection('users').doc(userId).set(userData, { merge: true });
-
-    console.log('[/api/applications] ✅ 用户数据已保存到 users collection');
+    console.log('[/api/applications] ✅ 注册数据已保存');
 
     console.log('========================================');
-    console.log('[/api/applications] ✅✅✅ BACKEND STEP 8: 註冊成功！');
+    console.log('[/api/applications] ✅✅✅ BACKEND STEP 7: 註冊成功！');
     console.log('[/api/applications] User ID:', userId);
     console.log('[/api/applications] Email:', dataToSave.email);
     console.log('========================================');
@@ -128,7 +102,7 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
     return ApiResponse.success(res, {
       message: '注册成功',
       userId: userId,
-      profile: userData,
+      profile: dataToSave,
     });
   } catch (error: any) {
     console.error('========================================');
