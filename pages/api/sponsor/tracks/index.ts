@@ -265,7 +265,7 @@ async function getTrackStats(trackId: string): Promise<{
   averageScore?: number;
 }> {
   try {
-    // 查詢該賽道的所有提交
+    // 查詢該賽道的所有提交（用於統計提交數量和平均分）
     const submissionsSnapshot = await db
       .collection(SPONSOR_COLLECTIONS.TEAM_SUBMISSIONS)
       .where('projectTrack', '==', trackId)
@@ -273,15 +273,12 @@ async function getTrackStats(trackId: string): Promise<{
 
     const submissionCount = submissionsSnapshot.size;
 
-    // 計算隊伍数（去重）
-    const teamNames = new Set<string>();
+    // 計算平均分
     let totalScore = 0;
     let scoredSubmissions = 0;
 
     submissionsSnapshot.docs.forEach((doc) => {
       const submission = doc.data();
-      teamNames.add(submission.teamName);
-
       if (submission.averageScore !== undefined && submission.averageScore !== null) {
         totalScore += submission.averageScore;
         scoredSubmissions++;
@@ -290,9 +287,31 @@ async function getTrackStats(trackId: string): Promise<{
 
     const averageScore = scoredSubmissions > 0 ? totalScore / scoredSubmissions : undefined;
 
+    // 查詢參賽隊伍數量（從 team-registrations 集合）
+    // 需要查詢 tracks 數組中包含此 trackId 的團隊
+    const teamRegistrationsSnapshot = await db
+      .collection('team-registrations')
+      .where('status', '==', 'active')
+      .get();
+
+    // 過濾出包含此 trackId 的團隊
+    let teamCount = 0;
+    teamRegistrationsSnapshot.docs.forEach((doc) => {
+      const teamData = doc.data();
+      if (teamData.tracks && Array.isArray(teamData.tracks)) {
+        // tracks 是一個對象數組，每個對象有 id 字段
+        const hasTrack = teamData.tracks.some((track: any) => track.id === trackId);
+        if (hasTrack) {
+          teamCount++;
+        }
+      }
+    });
+
+    console.log(`[getTrackStats] trackId: ${trackId}, teamCount: ${teamCount}, submissionCount: ${submissionCount}`);
+
     return {
       submissionCount,
-      teamCount: teamNames.size,
+      teamCount,
       averageScore,
     };
   } catch (error) {
