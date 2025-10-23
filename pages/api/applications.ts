@@ -12,6 +12,51 @@ import { ApiResponse } from '../../lib/sponsor/middleware';
 initializeApi();
 const db = firestore();
 
+const MISC_COLLECTION = '/miscellaneous';
+
+/**
+ * 更新 miscellaneous/allusers 文档（用于缓存所有用户列表）
+ */
+async function updateAllUsersDoc(userId: string, profile: any) {
+  try {
+    const docRef = db.collection(MISC_COLLECTION).doc('allusers');
+    const userData = await docRef.get();
+
+    const newUser = {
+      id: profile.id || userId,
+      user: {
+        firstName: profile.user?.firstName || profile.firstName || '',
+        lastName: profile.user?.lastName || profile.lastName || '',
+        permissions: profile.user?.permissions || profile.permissions || ['hacker'],
+      },
+    };
+
+    if (!userData.exists) {
+      // Create the document if it doesn't exist
+      await docRef.set({
+        users: [newUser],
+      });
+      console.log('[updateAllUsersDoc] ✅ Created allusers doc with first user:', userId);
+    } else {
+      // Append to existing users array
+      const existingUsers = userData.data()?.users || [];
+      // Check if user already exists
+      const userExists = existingUsers.some((u: any) => u.id === userId);
+      if (!userExists) {
+        await docRef.set({
+          users: [...existingUsers, newUser],
+        });
+        console.log('[updateAllUsersDoc] ✅ Added user to allusers:', userId);
+      } else {
+        console.log('[updateAllUsersDoc] ℹ️  User already exists in allusers:', userId);
+      }
+    }
+  } catch (error) {
+    console.error('[updateAllUsersDoc] ❌ Failed to update miscellaneous/allusers:', error);
+    // Don't throw - this is not critical for registration
+  }
+}
+
 /**
  * POST - 保存用户注册资料
  */
@@ -93,8 +138,12 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
 
     console.log('[/api/applications] ✅ 注册数据已保存');
 
+    console.log('[/api/applications] 📝 BACKEND STEP 7: 更新 miscellaneous/allusers');
+    // 更新 allusers 缓存文档
+    await updateAllUsersDoc(userId, dataToSave);
+
     console.log('========================================');
-    console.log('[/api/applications] ✅✅✅ BACKEND STEP 7: 註冊成功！');
+    console.log('[/api/applications] ✅✅✅ BACKEND STEP 8: 註冊成功！');
     console.log('[/api/applications] User ID:', userId);
     console.log('[/api/applications] Email:', dataToSave.email);
     console.log('========================================');
