@@ -36,7 +36,25 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const authReq = req as AuthenticatedRequest;
     const userId = authReq.userId!;
 
-    console.log('[Delete Track] Request from user:', userId, 'for track:', trackId);
+    console.log('[Delete Challenge] Request from user:', userId, 'for challenge ID:', trackId);
+
+    // Get the challenge document directly by ID
+    const challengeDoc = await db
+      .collection(SPONSOR_COLLECTIONS.EXTENDED_CHALLENGES)
+      .doc(trackId)
+      .get();
+
+    if (!challengeDoc.exists) {
+      console.log('[Delete Challenge] Challenge not found:', trackId);
+      return res.status(404).json({ error: 'Challenge 不存在' });
+    }
+
+    const challengeData = challengeDoc.data()!;
+    console.log('[Delete Challenge] Challenge data:', {
+      id: challengeDoc.id,
+      title: challengeData.title,
+      trackId: challengeData.trackId,
+    });
 
     // Get user permissions
     const userDoc = await db.collection('registrations').doc(userId).get();
@@ -47,68 +65,57 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       userPermissions = userData?.permissions || userData?.user?.permissions || [];
     }
 
-    console.log('[Delete Track] User permissions:', userPermissions);
+    console.log('[Delete Challenge] User permissions:', userPermissions);
 
-    // Check if user is super_admin or admin (can delete any track)
+    // Check if user is super_admin or admin (can delete any challenge)
     const isAdmin = userPermissions[0] === 'super_admin' || userPermissions[0] === 'admin';
 
-    // If not admin, check if user has permission for this specific track
+    // If not admin, check if user has permission for this challenge's sponsor
     let hasPermission = isAdmin;
 
     if (!hasPermission) {
-      // Check if this track is assigned to the user as a sponsor
-      const trackQuery = await db
-        .collection(SPONSOR_COLLECTIONS.EXTENDED_CHALLENGES)
-        .where('trackId', '==', trackId)
-        .get();
+      const sponsorId = challengeData.sponsorId;
 
-      if (!trackQuery.empty) {
-        const trackData = trackQuery.docs[0].data();
-        const assignedSponsors = trackData.assignedSponsors || [];
+      if (sponsorId) {
+        // Check sponsor-user-mappings
+        const mappingSnapshot = await db
+          .collection('sponsor-user-mappings')
+          .where('userId', '==', userId)
+          .where('sponsorId', '==', sponsorId)
+          .get();
 
-        // Check if user is in assignedSponsors
-        hasPermission = assignedSponsors.some(
-          (sponsor: any) => sponsor.userId === userId || sponsor.id === userId,
-        );
-
-        console.log('[Delete Track] Assigned sponsors:', assignedSponsors);
-        console.log('[Delete Track] User has permission:', hasPermission);
+        if (!mappingSnapshot.empty) {
+          const mapping = mappingSnapshot.docs[0].data();
+          hasPermission = mapping.role === 'admin' || mapping.role === 'manager';
+          console.log('[Delete Challenge] User mapping found, role:', mapping.role);
+        }
       }
     }
 
     if (!hasPermission) {
+      console.log('[Delete Challenge] Permission denied for user:', userId);
       return res.status(403).json({ error: '您沒有權限刪除此 Challenge' });
     }
 
-    // Delete the challenge from extended-challenges
-    const challengeQuery = await db
-      .collection(SPONSOR_COLLECTIONS.EXTENDED_CHALLENGES)
-      .where('trackId', '==', trackId)
-      .get();
-
-    if (challengeQuery.empty) {
-      return res.status(404).json({ error: 'Challenge 不存在' });
-    }
-
-    const challengeDoc = challengeQuery.docs[0];
-    const challengeData = challengeDoc.data();
+    // Delete the challenge
     await challengeDoc.ref.delete();
 
-    console.log('[Delete Track] Successfully deleted challenge:', trackId);
+    console.log('[Delete Challenge] Successfully deleted challenge:', trackId);
 
     // Log the deletion activity
     try {
       await db.collection('sponsor-activity-logs').add({
         userId,
         action: 'delete_challenge',
-        trackId,
-        challengeName: challengeData.name || trackId,
+        challengeId: trackId,
+        trackId: challengeData.trackId,
+        challengeName: challengeData.title || challengeData.name || trackId,
         deletedBy: userId,
         isAdmin,
         timestamp: firestore.FieldValue.serverTimestamp(),
       });
     } catch (logError) {
-      console.error('[Delete Track] Failed to log activity:', logError);
+      console.error('[Delete Challenge] Failed to log activity:', logError);
       // Don't fail the delete operation if logging fails
     }
 

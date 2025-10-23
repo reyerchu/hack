@@ -743,7 +743,9 @@ export default function SponsorDashboard() {
                                       handleDeleteClick(
                                         {
                                           ...track,
-                                          id: challenge.trackId,
+                                          id: challenge.id, // 修复：使用挑战的文档ID
+                                          challengeId: challenge.id, // 添加明确的字段
+                                          trackId: challenge.trackId, // 保留赛道ID作为参考
                                           name: challenge.title || challenge.track,
                                         },
                                         e,
