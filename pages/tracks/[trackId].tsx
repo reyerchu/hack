@@ -292,7 +292,16 @@ export default function PublicTrackDetailPage() {
                         <h4 className="text-sm font-medium mb-2" style={{ color: '#6b7280' }}>
                           📊 評分標準
                         </h4>
-                        <p className="text-sm" style={{ color: '#374151' }}>
+                        <p 
+                          className="text-sm" 
+                          style={{ 
+                            color: '#374151',
+                            whiteSpace: 'pre-wrap',
+                            wordBreak: 'break-word',
+                            overflowWrap: 'break-word',
+                            lineHeight: '1.75'
+                          }}
+                        >
                           {formatCriteria(challenge.evaluationCriteria)}
                         </p>
                       </div>

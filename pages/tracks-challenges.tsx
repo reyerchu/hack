@@ -407,7 +407,15 @@ export default function TracksChallengesPage() {
                         {selectedChallenge.evaluationCriteria.map((criterion: any, idx: number) => (
                           <li key={idx} className="flex items-start gap-2">
                             <span style={{ color: '#1a3a6e' }}>•</span>
-                            <span style={{ color: '#374151' }}>
+                            <span 
+                              style={{ 
+                                color: '#374151',
+                                whiteSpace: 'pre-wrap',
+                                wordBreak: 'break-word',
+                                overflowWrap: 'break-word',
+                                lineHeight: '1.75'
+                              }}
+                            >
                               {typeof criterion === 'string' ? criterion : criterion.description || criterion.name}
                             </span>
                           </li>
