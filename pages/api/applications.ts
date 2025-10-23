@@ -5,9 +5,9 @@
  */
 
 import { NextApiRequest, NextApiResponse } from 'next';
-import { firestore } from 'firebase-admin';
+import { firestore, auth } from 'firebase-admin';
 import initializeApi from '../../lib/admin/init';
-import { requireAuth, ApiResponse, AuthenticatedRequest } from '../../lib/sponsor/middleware';
+import { ApiResponse } from '../../lib/sponsor/middleware';
 
 initializeApi();
 const db = firestore();
@@ -26,22 +26,36 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
   );
   console.log('========================================');
 
-  console.log('[/api/applications] 🔐 BACKEND STEP 2: 驗證 token...');
-  if (!(await requireAuth(req, res))) {
-    console.error('[/api/applications] ❌ Token 驗證失敗');
-    return;
-  }
-  console.log('[/api/applications] ✅ Token 驗證成功');
+  console.log('[/api/applications] 🔐 BACKEND STEP 2: 驗證 token（允許新用戶）...');
 
-  const authReq = req as AuthenticatedRequest;
-  const userId = authReq.userId!;
-  const userEmail = authReq.userEmail;
+  // 验证 token（不要求用户已存在，因为这是注册 API）
+  const token = req.headers.authorization?.split('Bearer ')[1];
+
+  if (!token) {
+    console.error('[/api/applications] ❌ Missing token');
+    return ApiResponse.unauthorized(res, 'Missing authorization token');
+  }
+
+  let userId: string;
+  let userEmail: string;
+
+  try {
+    const decodedToken = await auth().verifyIdToken(token);
+    userId = decodedToken.uid;
+    userEmail = decodedToken.email || '';
+
+    console.log('[/api/applications] ✅ Token 驗證成功');
+    console.log('[/api/applications] Firebase UID:', userId);
+    console.log('[/api/applications] Email:', userEmail);
+  } catch (error: any) {
+    console.error('[/api/applications] ❌ Token 驗證失敗:', error.message);
+    return ApiResponse.unauthorized(res, 'Invalid or expired token');
+  }
 
   console.log('========================================');
-  console.log('[/api/applications] 👤 BACKEND STEP 3: 用戶資訊');
+  console.log('[/api/applications] 👤 BACKEND STEP 3: 用戶資訊（新用戶註冊）');
   console.log('[/api/applications] userId:', userId);
   console.log('[/api/applications] userEmail:', userEmail);
-  console.log('[/api/applications] userPermissions:', authReq.userPermissions);
   console.log('========================================');
 
   try {
