@@ -139,9 +139,10 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
     for (const doc of tracksSnapshot.docs) {
       const trackData = doc.data();
       const trackId = trackData.trackId;
+      const trackDocId = doc.id; // Document ID for team counting
       
-      // 獲取該賽道的統計數據
-      const stats = await getTrackStats(trackId);
+      // 獲取該賽道的統計數據（傳入 trackId 和 docId）
+      const stats = await getTrackStats(trackId, trackDocId);
 
       // 獲取用戶對此賽道的權限
       const userRole = await getUserSponsorRole(userId, trackData.sponsorId);
@@ -258,14 +259,16 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
 
 /**
  * 獲取賽道統計數據
+ * @param trackId - trackId 字段（用於查詢 submissions）
+ * @param trackDocId - Document ID（用於查詢 team-registrations）
  */
-async function getTrackStats(trackId: string): Promise<{
+async function getTrackStats(trackId: string, trackDocId: string): Promise<{
   submissionCount: number;
   teamCount: number;
   averageScore?: number;
 }> {
   try {
-    // 查詢該賽道的所有提交
+    // 查詢該賽道的所有提交（用於統計提交數量和平均分）
     const submissionsSnapshot = await db
       .collection(SPONSOR_COLLECTIONS.TEAM_SUBMISSIONS)
       .where('projectTrack', '==', trackId)
@@ -273,15 +276,12 @@ async function getTrackStats(trackId: string): Promise<{
 
     const submissionCount = submissionsSnapshot.size;
 
-    // 計算隊伍数（去重）
-    const teamNames = new Set<string>();
+    // 計算平均分
     let totalScore = 0;
     let scoredSubmissions = 0;
 
     submissionsSnapshot.docs.forEach((doc) => {
       const submission = doc.data();
-      teamNames.add(submission.teamName);
-
       if (submission.averageScore !== undefined && submission.averageScore !== null) {
         totalScore += submission.averageScore;
         scoredSubmissions++;
@@ -290,9 +290,31 @@ async function getTrackStats(trackId: string): Promise<{
 
     const averageScore = scoredSubmissions > 0 ? totalScore / scoredSubmissions : undefined;
 
+    // 查詢參賽隊伍數量（從 team-registrations 集合）
+    // 需要查詢 tracks 數組中包含此 trackDocId（Document ID）的團隊
+    const teamRegistrationsSnapshot = await db
+      .collection('team-registrations')
+      .where('status', '==', 'active')
+      .get();
+
+    // 過濾出包含此 trackDocId 的團隊
+    let teamCount = 0;
+    teamRegistrationsSnapshot.docs.forEach((doc) => {
+      const teamData = doc.data();
+      if (teamData.tracks && Array.isArray(teamData.tracks)) {
+        // tracks 是一個對象數組，每個對象有 id 字段（這是 Document ID）
+        const hasTrack = teamData.tracks.some((track: any) => track.id === trackDocId);
+        if (hasTrack) {
+          teamCount++;
+        }
+      }
+    });
+
+    console.log(`[getTrackStats] trackId: ${trackId}, trackDocId: ${trackDocId}, teamCount: ${teamCount}, submissionCount: ${submissionCount}`);
+
     return {
       submissionCount,
-      teamCount: teamNames.size,
+      teamCount,
       averageScore,
     };
   } catch (error) {

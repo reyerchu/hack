@@ -643,22 +643,6 @@ export default function SponsorDashboard() {
                             )}
                           </div>
                           <div className="flex items-center gap-2 ml-4">
-                            <button
-                              onClick={() => router.push(`/sponsor/tracks/${track.id}/challenge?challengeId=${challenge.id}&mode=view`)}
-                              className="text-sm px-3 py-1.5 rounded-lg transition-colors"
-                              style={{
-                                backgroundColor: '#1a3a6e',
-                                color: '#ffffff',
-                              }}
-                              onMouseEnter={(e) => {
-                                e.currentTarget.style.backgroundColor = '#2a4a7e';
-                              }}
-                              onMouseLeave={(e) => {
-                                e.currentTarget.style.backgroundColor = '#1a3a6e';
-                              }}
-                            >
-                              查看
-                            </button>
                             {track.permissions.canEdit && (
                               <>
                                 <button
@@ -717,26 +701,6 @@ export default function SponsorDashboard() {
                     </div>
                   </div>
                 )}
-
-                {/* Track Actions */}
-                <div className="pt-3 border-t" style={{ borderColor: '#e5e7eb' }}>
-                  <button
-                    onClick={() => router.push(`/sponsor/tracks/${track.id}`)}
-                    className="w-full text-sm font-medium py-2 rounded-lg transition-colors"
-                    style={{
-                      backgroundColor: '#1a3a6e',
-                      color: '#ffffff',
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = '#2a4a7e';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = '#1a3a6e';
-                    }}
-                  >
-                    查看賽道詳情
-                  </button>
-                </div>
               </div>
             ))}
           </div>
