@@ -131,13 +131,47 @@ export default function Register() {
         }
       }
 
-      await RequestHelper.post<Registration, any>('/api/applications', {}, registrationData);
+      // Get the user's auth token
+      const token = user?.token || (await firebase.auth().currentUser?.getIdToken());
+      
+      if (!token) {
+        alert('無法獲取認證 token，請重新登入。');
+        return;
+      }
+
+      console.log('[Register] 開始提交註冊資料...');
+
+      const response = await RequestHelper.post<Registration, any>(
+        '/api/applications',
+        {
+          headers: {
+            Authorization: token,
+          },
+        },
+        registrationData
+      );
+
+      console.log('[Register] API 響應狀態:', response.status);
+      console.log('[Register] API 響應數據:', response.data);
+
+      // Check if the registration was successful
+      if (response.status !== 200) {
+        console.error('[Register] ❌ 註冊失敗，狀態碼:', response.status);
+        alert(`註冊失敗：${response.data?.message || '請稍後再試'}\n\n如果問題持續，請聯繫管理員。`);
+        return;
+      }
+
+      console.log('[Register] ✅ 註冊成功！');
       alert('註冊成功！');
       updateProfile(registrationData);
+      
+      // Wait a moment for the backend to fully process the data
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
       router.push('/profile');
-    } catch (error) {
-      console.error(error);
-      alert('註冊失敗，請稍後再試。如果問題持續，請聯繫管理員。');
+    } catch (error: any) {
+      console.error('[Register] ❌ 註冊錯誤:', error);
+      alert(`註冊失敗：${error.message || '請稍後再試'}\n\n如果問題持續，請聯繫管理員。`);
     }
   };
 
