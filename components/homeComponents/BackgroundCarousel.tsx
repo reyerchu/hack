@@ -66,7 +66,7 @@ export default function BackgroundCarousel() {
           </div>
 
           {/* CTA Button - Fluid Typography */}
-          <Link href="/register">
+          <Link href="/team-register-info">
             <a
               className="inline-block bg-white text-blue-900 rounded-lg font-bold hover:bg-blue-50 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl landscape:px-6 landscape:py-2"
               style={{

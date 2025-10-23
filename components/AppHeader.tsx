@@ -41,11 +41,10 @@ export default function AppHeader() {
       let updatedNavItems = [...navItems]; // Always start from base navItems
 
       // Add team registration link for ALL users (signed in or not)
+      // Always go to /team-register-info, which will show appropriate button based on login status
       if (updatedNavItems.filter(({ text }) => text === '團隊報名').length === 0) {
-        // If signed in, go to /team-register; if not signed in, go to /team-register-info
-        const teamRegisterPath = (isSignedIn && profile) ? '/team-register' : '/team-register-info';
-        updatedNavItems = [...updatedNavItems, { text: '團隊報名', path: teamRegisterPath }];
-        console.log('[AppHeader] Added 團隊報名 link with path:', teamRegisterPath);
+        updatedNavItems = [...updatedNavItems, { text: '團隊報名', path: '/team-register-info' }];
+        console.log('[AppHeader] Added 團隊報名 link with path: /team-register-info');
       }
 
       if (isSignedIn && profile && profile.user) {

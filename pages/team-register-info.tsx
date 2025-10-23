@@ -3,6 +3,7 @@ import Head from 'next/head';
 import AppHeader from '../components/AppHeader';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { useAuthContext } from '../lib/user/AuthContext';
 
 /**
  * 團隊報名說明頁面 - 針對未登入或未註冊的用戶
@@ -10,6 +11,7 @@ import { useRouter } from 'next/router';
  */
 export default function TeamRegisterInfo() {
   const router = useRouter();
+  const { isSignedIn, loading } = useAuthContext();
 
   return (
     <>
@@ -75,21 +77,43 @@ export default function TeamRegisterInfo() {
                       <li>完成 Email 驗證</li>
                     </ul>
                   </div>
-                  <div>
-                    <Link href="/register">
-                      <a 
-                        className="inline-block px-6 py-3 rounded-lg font-medium text-white transition-all duration-300 hover:shadow-lg"
-                        style={{ backgroundColor: '#1a3a6e' }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.backgroundColor = '#2a4a7e';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.backgroundColor = '#1a3a6e';
-                        }}
-                      >
-                        前往註冊｜登入
-                      </a>
-                    </Link>
+                  <div className="flex flex-wrap gap-4">
+                    {loading ? (
+                      // Loading state - show a placeholder
+                      <div className="h-12 w-40 bg-gray-200 rounded-lg animate-pulse"></div>
+                    ) : !isSignedIn ? (
+                      // Not signed in - show registration button
+                      <Link href="/register">
+                        <a 
+                          className="inline-block px-6 py-3 rounded-lg font-medium text-white transition-all duration-300 hover:shadow-lg"
+                          style={{ backgroundColor: '#1a3a6e' }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor = '#2a4a7e';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor = '#1a3a6e';
+                          }}
+                        >
+                          前往註冊｜登入
+                        </a>
+                      </Link>
+                    ) : (
+                      // Signed in - show team registration button
+                      <Link href="/team-register">
+                        <a 
+                          className="inline-block px-6 py-3 rounded-lg font-medium text-white transition-all duration-300 hover:shadow-lg"
+                          style={{ backgroundColor: '#1a3a6e' }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor = '#2a4a7e';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor = '#1a3a6e';
+                          }}
+                        >
+                          前往團隊報名
+                        </a>
+                      </Link>
+                    )}
                   </div>
                 </div>
               </div>
