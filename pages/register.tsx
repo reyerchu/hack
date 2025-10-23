@@ -316,6 +316,11 @@ export default function Register() {
             //validation
             //Get condition in which values.[value] is invalid and set error message in errors.[value]. Value is a value from the form(look at initialValues)
             validate={(values) => {
+              console.log('========================================');
+              console.log('[Register] 📋 表單驗證開始');
+              console.log('[Register] 表單值:', values);
+              console.log('========================================');
+
               var errors: any = {};
               for (let obj of generalQuestions) {
                 errors = setErrors(obj, values, errors);
@@ -342,9 +347,27 @@ export default function Register() {
                 errors.preferredEmail = '電子郵件地址無效';
               }
 
+              console.log('========================================');
+              console.log('[Register] 📋 表單驗證結果');
+              console.log('[Register] 錯誤數量:', Object.keys(errors).length);
+              if (Object.keys(errors).length > 0) {
+                console.error('[Register] ❌ 驗證失敗的欄位:');
+                Object.keys(errors).forEach((key) => {
+                  console.error(`  - ${key}: ${errors[key]}`);
+                });
+              } else {
+                console.log('[Register] ✅ 所有欄位驗證通過');
+              }
+              console.log('========================================');
+
               return errors;
             }}
             onSubmit={async (values, { setSubmitting }) => {
+              console.log('========================================');
+              console.log('[Register] 📝 Formik onSubmit 觸發');
+              console.log('[Register] 提交的值:', values);
+              console.log('========================================');
+
               await new Promise((r) => setTimeout(r, 500));
               let finalValues: any = values;
               //add user object
@@ -362,6 +385,7 @@ export default function Register() {
               delete finalValues.permissions;
               delete finalValues.preferredEmail;
 
+              console.log('[Register] 準備調用 handleSubmit...');
               //submitting
               handleSubmit(values);
               setSubmitting(false);
@@ -423,12 +447,22 @@ export default function Register() {
                       onMouseLeave={(e) => {
                         e.currentTarget.style.backgroundColor = '#1a3a6e';
                       }}
-                      onClick={() => setFormValid(!(!isValid || !dirty))}
+                      onClick={() => {
+                        console.log('========================================');
+                        console.log('[Register] 🖱️ 點擊提交按鈕');
+                        console.log('[Register] isValid:', isValid);
+                        console.log('[Register] dirty:', dirty);
+                        console.log('[Register] formValid:', formValid);
+                        console.log('========================================');
+                        setFormValid(!(!isValid || !dirty));
+                      }}
                     >
                       提交
                     </button>
                     {!isValid && !formValid && (
-                      <div className="text-red-600 text-sm">錯誤：表單中有無效的欄位</div>
+                      <div className="text-red-600 text-sm mt-2">
+                        ❌ 錯誤：表單中有無效的欄位（請檢查瀏覽器 Console 查看詳細錯誤）
+                      </div>
                     )}
                   </div>
                 </Form>
