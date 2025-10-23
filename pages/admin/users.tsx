@@ -471,21 +471,14 @@ export default function UserPage() {
                       currentUsers.map((userData, idx) => {
                         const u = userData.user;
 
-                        // Format registration date - support both old (timestamp) and new (createdAt) formats
-                        let registeredDate = '-';
-                        if (userData.timestamp) {
-                          registeredDate = new Date(userData.timestamp).toLocaleDateString('zh-TW', {
-                            year: 'numeric',
-                            month: '2-digit',
-                            day: '2-digit',
-                          });
-                        } else if ((userData as any).createdAt?._seconds) {
-                          registeredDate = new Date((userData as any).createdAt._seconds * 1000).toLocaleDateString('zh-TW', {
-                            year: 'numeric',
-                            month: '2-digit',
-                            day: '2-digit',
-                          });
-                        }
+                        // Format registration date
+                        const registeredDate = userData.timestamp
+                          ? new Date(userData.timestamp).toLocaleDateString('zh-TW', {
+                              year: 'numeric',
+                              month: '2-digit',
+                              day: '2-digit',
+                            })
+                          : '-';
 
                         return (
                           <tr key={idx} className="hover:bg-gray-50">
