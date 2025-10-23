@@ -865,7 +865,15 @@ export default function TeamRegisterPage() {
                                 </button>
                               </div>
                               {track.description && (
-                                <div className="text-sm text-gray-600 mt-1">
+                                <div 
+                                  className="text-sm text-gray-600 mt-1"
+                                  style={{
+                                    whiteSpace: 'pre-wrap',
+                                    wordBreak: 'break-word',
+                                    overflowWrap: 'break-word',
+                                    lineHeight: '1.75'
+                                  }}
+                                >
                                   {track.description}
                                 </div>
                               )}
@@ -906,7 +914,15 @@ export default function TeamRegisterPage() {
                                       {challenge.title}
                                     </div>
                                     {challenge.description && (
-                                      <div className="text-xs text-gray-600 mb-2">
+                                      <div 
+                                        className="text-xs text-gray-600 mb-2"
+                                        style={{
+                                          whiteSpace: 'pre-wrap',
+                                          wordBreak: 'break-word',
+                                          overflowWrap: 'break-word',
+                                          lineHeight: '1.75'
+                                        }}
+                                      >
                                         {challenge.description}
                                       </div>
                                     )}
@@ -916,7 +932,15 @@ export default function TeamRegisterPage() {
                                       </div>
                                     )}
                                     {challenge.submissionRequirements && (
-                                      <div className="text-xs text-gray-500">
+                                      <div 
+                                        className="text-xs text-gray-500"
+                                        style={{
+                                          whiteSpace: 'pre-wrap',
+                                          wordBreak: 'break-word',
+                                          overflowWrap: 'break-word',
+                                          lineHeight: '1.75'
+                                        }}
+                                      >
                                         📋 {challenge.submissionRequirements}
                                       </div>
                                     )}
