@@ -79,13 +79,13 @@ export default function Register() {
 
   useEffect(() => {
     if (typeof window === 'undefined') return; // Skip on server
-    
+
     // Redirect to auth if no user
     if (!user) {
       router.push('/auth');
       return;
     }
-    
+
     checkRedirect();
   }, [user]);
 
@@ -133,7 +133,7 @@ export default function Register() {
 
       // Get the user's auth token
       const token = user?.token || (await firebase.auth().currentUser?.getIdToken());
-      
+
       if (!token) {
         alert('無法獲取認證 token，請重新登入。');
         return;
@@ -145,10 +145,10 @@ export default function Register() {
         '/api/applications',
         {
           headers: {
-            Authorization: token,
+            Authorization: `Bearer ${token}`,
           },
         },
-        registrationData
+        registrationData,
       );
 
       console.log('[Register] API 響應狀態:', response.status);
@@ -157,17 +157,19 @@ export default function Register() {
       // Check if the registration was successful
       if (response.status !== 200) {
         console.error('[Register] ❌ 註冊失敗，狀態碼:', response.status);
-        alert(`註冊失敗：${response.data?.message || '請稍後再試'}\n\n如果問題持續，請聯繫管理員。`);
+        alert(
+          `註冊失敗：${response.data?.message || '請稍後再試'}\n\n如果問題持續，請聯繫管理員。`,
+        );
         return;
       }
 
       console.log('[Register] ✅ 註冊成功！');
       alert('註冊成功！');
       updateProfile(registrationData);
-      
+
       // Wait a moment for the backend to fully process the data
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
       router.push('/profile');
     } catch (error: any) {
       console.error('[Register] ❌ 註冊錯誤:', error);
@@ -265,132 +267,132 @@ export default function Register() {
           </p>
         </div>
 
-      <section className="flex justify-center">
-        <Formik
-          initialValues={formInitialValues}
-          //validation
-          //Get condition in which values.[value] is invalid and set error message in errors.[value]. Value is a value from the form(look at initialValues)
-          validate={(values) => {
-            var errors: any = {};
-            for (let obj of generalQuestions) {
-              errors = setErrors(obj, values, errors);
-            }
-            for (let obj of schoolQuestions) {
-              errors = setErrors(obj, values, errors);
-            }
-            for (let obj of hackathonExperienceQuestions) {
-              errors = setErrors(obj, values, errors);
-            }
-            for (let obj of eventInfoQuestions) {
-              errors = setErrors(obj, values, errors);
-            }
-            for (let obj of sponsorInfoQuestions) {
-              errors = setErrors(obj, values, errors);
-            }
-
-            //additional custom error validation
-            if (
-              values.preferredEmail &&
-              !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(values.preferredEmail)
-            ) {
-              //regex matches characters before @, characters after @, and 2 or more characters after . (domain)
-              errors.preferredEmail = '電子郵件地址無效';
-            }
-
-            return errors;
-          }}
-          onSubmit={async (values, { setSubmitting }) => {
-            await new Promise((r) => setTimeout(r, 500));
-            let finalValues: any = values;
-            //add user object
-            const userValues: any = {
-              id: values.id,
-              firstName: values.firstName,
-              lastName: values.lastName,
-              preferredEmail: values.preferredEmail,
-              permissions: values.permissions,
-            };
-            finalValues['user'] = userValues;
-            //delete unnecessary values
-            delete finalValues.firstName;
-            delete finalValues.lastName;
-            delete finalValues.permissions;
-            delete finalValues.preferredEmail;
-
-            //submitting
-            handleSubmit(values);
-            setSubmitting(false);
-            // alert(JSON.stringify(values, null, 2)); //Displays form results on submit for testing purposes
-          }}
-        >
-          {({ values, handleChange, isValid, dirty }) => {
-            // Combined change handler for both regular inputs and file inputs
-            const combinedHandleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-              if (event.target.type === 'file') {
-                handleFileChange(event);
-              } else {
-                handleChange(event);
+        <section className="flex justify-center">
+          <Formik
+            initialValues={formInitialValues}
+            //validation
+            //Get condition in which values.[value] is invalid and set error message in errors.[value]. Value is a value from the form(look at initialValues)
+            validate={(values) => {
+              var errors: any = {};
+              for (let obj of generalQuestions) {
+                errors = setErrors(obj, values, errors);
               }
-            };
+              for (let obj of schoolQuestions) {
+                errors = setErrors(obj, values, errors);
+              }
+              for (let obj of hackathonExperienceQuestions) {
+                errors = setErrors(obj, values, errors);
+              }
+              for (let obj of eventInfoQuestions) {
+                errors = setErrors(obj, values, errors);
+              }
+              for (let obj of sponsorInfoQuestions) {
+                errors = setErrors(obj, values, errors);
+              }
 
-            return (
-              // Field component automatically hooks input to form values. Use name attribute to match corresponding value
-              // ErrorMessage component automatically displays error based on validation above. Use name attribute to match corresponding value
-              <Form
-                onKeyDown={onKeyDown}
-                noValidate
-                className="registrationForm flex flex-col max-w-4xl px-6 w-[56rem] text-lg"
-              >
-                <div className="text-2xl py-1 border-b-2 border-black mr-auto mt-8">基本資料</div>
-                {generalQuestions.map((obj, idx) => (
-                  <DisplayQuestion
-                    key={idx}
-                    obj={obj}
-                    values={values}
-                    onChange={combinedHandleChange}
-                  />
-                ))}
+              //additional custom error validation
+              if (
+                values.preferredEmail &&
+                !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(values.preferredEmail)
+              ) {
+                //regex matches characters before @, characters after @, and 2 or more characters after . (domain)
+                errors.preferredEmail = '電子郵件地址無效';
+              }
 
-                <div className="text-2xl py-1 border-b-2 border-black mr-auto mt-8">
-                  額外資訊（可選填）
-                </div>
-                {sponsorInfoQuestions.map((obj, idx) => (
-                  <DisplayQuestion
-                    key={idx}
-                    obj={obj}
-                    values={values}
-                    onChange={combinedHandleChange}
-                  />
-                ))}
+              return errors;
+            }}
+            onSubmit={async (values, { setSubmitting }) => {
+              await new Promise((r) => setTimeout(r, 500));
+              let finalValues: any = values;
+              //add user object
+              const userValues: any = {
+                id: values.id,
+                firstName: values.firstName,
+                lastName: values.lastName,
+                preferredEmail: values.preferredEmail,
+                permissions: values.permissions,
+              };
+              finalValues['user'] = userValues;
+              //delete unnecessary values
+              delete finalValues.firstName;
+              delete finalValues.lastName;
+              delete finalValues.permissions;
+              delete finalValues.preferredEmail;
 
-                {/* Submit */}
-                <div className="my-8 flex flex-col items-start gap-3">
-                  <button
-                    type="submit"
-                    className="px-6 py-3 rounded-md text-sm font-medium transition-colors duration-300"
-                    style={{
-                      backgroundColor: '#1a3a6e',
-                      color: 'white',
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = '#2a4a7e';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = '#1a3a6e';
-                    }}
-                    onClick={() => setFormValid(!(!isValid || !dirty))}
-                  >
-                    提交
-                  </button>
-                  {!isValid && !formValid && (
-                    <div className="text-red-600 text-sm">錯誤：表單中有無效的欄位</div>
-                  )}
-                </div>
-              </Form>
-            );
-          }}
-        </Formik>
-      </section>
+              //submitting
+              handleSubmit(values);
+              setSubmitting(false);
+              // alert(JSON.stringify(values, null, 2)); //Displays form results on submit for testing purposes
+            }}
+          >
+            {({ values, handleChange, isValid, dirty }) => {
+              // Combined change handler for both regular inputs and file inputs
+              const combinedHandleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+                if (event.target.type === 'file') {
+                  handleFileChange(event);
+                } else {
+                  handleChange(event);
+                }
+              };
+
+              return (
+                // Field component automatically hooks input to form values. Use name attribute to match corresponding value
+                // ErrorMessage component automatically displays error based on validation above. Use name attribute to match corresponding value
+                <Form
+                  onKeyDown={onKeyDown}
+                  noValidate
+                  className="registrationForm flex flex-col max-w-4xl px-6 w-[56rem] text-lg"
+                >
+                  <div className="text-2xl py-1 border-b-2 border-black mr-auto mt-8">基本資料</div>
+                  {generalQuestions.map((obj, idx) => (
+                    <DisplayQuestion
+                      key={idx}
+                      obj={obj}
+                      values={values}
+                      onChange={combinedHandleChange}
+                    />
+                  ))}
+
+                  <div className="text-2xl py-1 border-b-2 border-black mr-auto mt-8">
+                    額外資訊（可選填）
+                  </div>
+                  {sponsorInfoQuestions.map((obj, idx) => (
+                    <DisplayQuestion
+                      key={idx}
+                      obj={obj}
+                      values={values}
+                      onChange={combinedHandleChange}
+                    />
+                  ))}
+
+                  {/* Submit */}
+                  <div className="my-8 flex flex-col items-start gap-3">
+                    <button
+                      type="submit"
+                      className="px-6 py-3 rounded-md text-sm font-medium transition-colors duration-300"
+                      style={{
+                        backgroundColor: '#1a3a6e',
+                        color: 'white',
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = '#2a4a7e';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = '#1a3a6e';
+                      }}
+                      onClick={() => setFormValid(!(!isValid || !dirty))}
+                    >
+                      提交
+                    </button>
+                    {!isValid && !formValid && (
+                      <div className="text-red-600 text-sm">錯誤：表單中有無效的欄位</div>
+                    )}
+                  </div>
+                </Form>
+              );
+            }}
+          </Formik>
+        </section>
       </div>
     </div>
   );
