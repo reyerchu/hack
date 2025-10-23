@@ -64,8 +64,9 @@ async function getAllUsers(req: NextApiRequest, res: NextApiResponse) {
     const data = doc.data();
 
     // Convert Firestore Timestamp to number (milliseconds)
+    // Support both old (timestamp) and new (createdAt) formats
     let timestamp = null;
-    const rawTimestamp = data.timestamp || data.user?.timestamp;
+    const rawTimestamp = data.timestamp || data.user?.timestamp || data.createdAt || data.user?.createdAt;
     if (rawTimestamp) {
       if (typeof rawTimestamp === 'object' && rawTimestamp._seconds) {
         // Firestore Timestamp object
