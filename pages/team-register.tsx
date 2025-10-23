@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useAuthContext } from '../lib/user/AuthContext';
 import { RequestHelper } from '../lib/request-helper';
 import CommitmentContent from '../components/CommitmentContent';
+import { linkifyText } from '../lib/utils/linkify';
 
 /**
  * Team Registration Page
@@ -945,7 +946,7 @@ export default function TeamRegisterPage() {
                                     lineHeight: '1.75',
                                   }}
                                 >
-                                  {track.description}
+                                  {linkifyText(track.description, '#2563eb')}
                                 </div>
                               )}
                               <div className="flex items-center gap-4 mt-2 text-sm">
@@ -1002,7 +1003,7 @@ export default function TeamRegisterPage() {
                                           lineHeight: '1.75',
                                         }}
                                       >
-                                        {challenge.description}
+                                        {linkifyText(challenge.description, '#2563eb')}
                                       </div>
                                     )}
                                     {challenge.prizes && (
@@ -1023,7 +1024,7 @@ export default function TeamRegisterPage() {
                                           lineHeight: '1.75',
                                         }}
                                       >
-                                        📋 {challenge.submissionRequirements}
+                                        📋 {linkifyText(challenge.submissionRequirements, '#2563eb')}
                                       </div>
                                     )}
                                   </div>

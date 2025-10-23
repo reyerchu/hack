@@ -7,6 +7,7 @@
 import React, { useEffect, useState } from 'react';
 import Head from 'next/head';
 import { RequestHelper } from '../lib/request-helper';
+import { linkifyText } from '../lib/utils/linkify';
 
 interface Challenge {
   id: string;
@@ -438,7 +439,7 @@ export default function TracksChallengesPage() {
                     <h3 className="text-lg font-semibold mb-2" style={{ color: '#1a3a6e' }}>
                       挑戰描述
                     </h3>
-                    <p
+                    <div
                       className="text-base"
                       style={{
                         color: '#374151',
@@ -448,8 +449,8 @@ export default function TracksChallengesPage() {
                         lineHeight: '1.75',
                       }}
                     >
-                      {selectedChallenge.description || '暫無描述'}
-                    </p>
+                      {linkifyText(selectedChallenge.description || '暫無描述', '#2563eb')}
+                    </div>
                   </div>
 
                   {selectedChallenge.prizes && selectedChallenge.prizes.length > 0 && (
@@ -468,7 +469,7 @@ export default function TracksChallengesPage() {
                       <h3 className="text-lg font-semibold mb-2" style={{ color: '#1a3a6e' }}>
                         提交要求
                       </h3>
-                      <p
+                      <div
                         className="text-base"
                         style={{
                           color: '#374151',
@@ -478,8 +479,8 @@ export default function TracksChallengesPage() {
                           lineHeight: '1.75',
                         }}
                       >
-                        {selectedChallenge.submissionRequirements}
-                      </p>
+                        {linkifyText(selectedChallenge.submissionRequirements, '#2563eb')}
+                      </div>
                     </div>
                   )}
 
@@ -543,7 +544,7 @@ export default function TracksChallengesPage() {
                     <h3 className="text-lg font-semibold mb-2" style={{ color: '#1a3a6e' }}>
                       賽道描述
                     </h3>
-                    <p
+                    <div
                       className="text-base"
                       style={{
                         color: '#374151',
@@ -553,8 +554,8 @@ export default function TracksChallengesPage() {
                         lineHeight: '1.75',
                       }}
                     >
-                      {selectedTrack.description || '暫無描述'}
-                    </p>
+                      {linkifyText(selectedTrack.description || '暫無描述', '#2563eb')}
+                    </div>
                   </div>
 
                   <div>
@@ -572,7 +573,7 @@ export default function TracksChallengesPage() {
                           <h4 className="font-semibold mb-1" style={{ color: '#1a3a6e' }}>
                             {challenge.title}
                           </h4>
-                          <p
+                          <div
                             className="text-sm line-clamp-2"
                             style={{
                               color: '#6b7280',
@@ -581,8 +582,8 @@ export default function TracksChallengesPage() {
                               overflowWrap: 'break-word',
                             }}
                           >
-                            {challenge.description}
-                          </p>
+                            {linkifyText(challenge.description, '#2563eb')}
+                          </div>
                         </div>
                       ))}
                     </div>
