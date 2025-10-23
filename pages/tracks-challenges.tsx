@@ -353,7 +353,16 @@ export default function TracksChallengesPage() {
                     <h3 className="text-lg font-semibold mb-2" style={{ color: '#1a3a6e' }}>
                       挑戰描述
                     </h3>
-                    <p className="text-base whitespace-pre-wrap" style={{ color: '#374151' }}>
+                    <p 
+                      className="text-base" 
+                      style={{ 
+                        color: '#374151',
+                        whiteSpace: 'pre-wrap',
+                        wordBreak: 'break-word',
+                        overflowWrap: 'break-word',
+                        lineHeight: '1.75'
+                      }}
+                    >
                       {selectedChallenge.description || '暫無描述'}
                     </p>
                   </div>
@@ -374,7 +383,16 @@ export default function TracksChallengesPage() {
                       <h3 className="text-lg font-semibold mb-2" style={{ color: '#1a3a6e' }}>
                         提交要求
                       </h3>
-                      <p className="text-base whitespace-pre-wrap" style={{ color: '#374151' }}>
+                      <p 
+                        className="text-base" 
+                        style={{ 
+                          color: '#374151',
+                          whiteSpace: 'pre-wrap',
+                          wordBreak: 'break-word',
+                          overflowWrap: 'break-word',
+                          lineHeight: '1.75'
+                        }}
+                      >
                         {selectedChallenge.submissionRequirements}
                       </p>
                     </div>
@@ -427,7 +445,16 @@ export default function TracksChallengesPage() {
                     <h3 className="text-lg font-semibold mb-2" style={{ color: '#1a3a6e' }}>
                       賽道描述
                     </h3>
-                    <p className="text-base whitespace-pre-wrap" style={{ color: '#374151' }}>
+                    <p 
+                      className="text-base" 
+                      style={{ 
+                        color: '#374151',
+                        whiteSpace: 'pre-wrap',
+                        wordBreak: 'break-word',
+                        overflowWrap: 'break-word',
+                        lineHeight: '1.75'
+                      }}
+                    >
                       {selectedTrack.description || '暫無描述'}
                     </p>
                   </div>
@@ -447,7 +474,15 @@ export default function TracksChallengesPage() {
                           <h4 className="font-semibold mb-1" style={{ color: '#1a3a6e' }}>
                             {challenge.title}
                           </h4>
-                          <p className="text-sm line-clamp-2" style={{ color: '#6b7280' }}>
+                          <p 
+                            className="text-sm line-clamp-2" 
+                            style={{ 
+                              color: '#6b7280',
+                              whiteSpace: 'pre-wrap',
+                              wordBreak: 'break-word',
+                              overflowWrap: 'break-word'
+                            }}
+                          >
                             {challenge.description}
                           </p>
                         </div>
