@@ -75,7 +75,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     if (!hasPermission) {
       const sponsorId = challengeData.sponsorId;
-
+      
       if (sponsorId) {
         // Check sponsor-user-mappings
         const mappingSnapshot = await db

@@ -474,18 +474,13 @@ export default function UserPage() {
                         // Format registration date - support both old (timestamp) and new (createdAt) formats
                         let registeredDate = '-';
                         if (userData.timestamp) {
-                          registeredDate = new Date(userData.timestamp).toLocaleDateString(
-                            'zh-TW',
-                            {
-                              year: 'numeric',
-                              month: '2-digit',
-                              day: '2-digit',
-                            },
-                          );
+                          registeredDate = new Date(userData.timestamp).toLocaleDateString('zh-TW', {
+                            year: 'numeric',
+                            month: '2-digit',
+                            day: '2-digit',
+                          });
                         } else if ((userData as any).createdAt?._seconds) {
-                          registeredDate = new Date(
-                            (userData as any).createdAt._seconds * 1000,
-                          ).toLocaleDateString('zh-TW', {
+                          registeredDate = new Date((userData as any).createdAt._seconds * 1000).toLocaleDateString('zh-TW', {
                             year: 'numeric',
                             month: '2-digit',
                             day: '2-digit',

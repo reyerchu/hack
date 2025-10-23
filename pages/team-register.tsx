@@ -1024,8 +1024,7 @@ export default function TeamRegisterPage() {
                                           lineHeight: '1.75',
                                         }}
                                       >
-                                        📋{' '}
-                                        {linkifyText(challenge.submissionRequirements, '#2563eb')}
+                                        📋 {linkifyText(challenge.submissionRequirements, '#2563eb')}
                                       </div>
                                     )}
                                   </div>
