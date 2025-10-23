@@ -106,18 +106,31 @@ export default function TeamUpDetail({ need, isOwner: ssrIsOwner, error }: TeamU
 
   // 提交應徵
   const handleApply = async (data: { message: string; contactForOwner: string }) => {
-    if (!user) {
+    // Check both user and isSignedIn for consistency
+    if (!user || !isSignedIn) {
+      console.warn('[Team-up Apply] User not signed in:', { user: !!user, isSignedIn });
       alert('請先登入');
       router.push(`/auth?redirect=/team-up/${currentNeed!.id}`);
       return;
     }
 
+    // Get fresh token to avoid authentication issues
+    const token = user.token;
+    if (!token) {
+      console.error('[Team-up Apply] No auth token found');
+      alert('無法獲取認證 token，請重新登入');
+      router.push(`/auth?redirect=/team-up/${currentNeed!.id}`);
+      return;
+    }
+
     try {
+      console.log('[Team-up Apply] Submitting application for need:', currentNeed!.id);
+      
       const response = await fetch('/api/team-up/applications', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${user.token}`,
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           needId: currentNeed!.id,
@@ -128,16 +141,26 @@ export default function TeamUpDetail({ need, isOwner: ssrIsOwner, error }: TeamU
 
       const result = await response.json();
 
+      console.log('[Team-up Apply] Response:', { status: response.status, result });
+
       if (!response.ok) {
+        // Check for specific authentication errors
+        if (response.status === 401 || response.status === 403) {
+          console.error('[Team-up Apply] Authentication error');
+          alert('登入狀態已過期，請重新登入');
+          router.push(`/auth?redirect=/team-up/${currentNeed!.id}`);
+          return;
+        }
         throw new Error(result.error?.message || '應徵失敗');
       }
 
       // 成功
+      console.log('[Team-up Apply] ✅ Application successful');
       alert('應徵成功！需求發布者會收到通知，並透過您提供的聯繫方式與您聯繫。');
       // 可選：重新加載頁面以更新應徵數量
       router.reload();
     } catch (error: any) {
-      console.error('Application error:', error);
+      console.error('[Team-up Apply] ❌ Application error:', error);
       throw error;
     }
   };
