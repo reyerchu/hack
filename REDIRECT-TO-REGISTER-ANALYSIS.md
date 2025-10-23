@@ -2,6 +2,46 @@
 
 本文档列出所有会导致系统跳转到注册或登录页面 (`/register` 或 `/auth`) 的情况。
 
+## ⏰ 关键时间轴
+
+| 日期 | 重要变更 | 影响 |
+|------|---------|------|
+| **2025-10-23** | 🔴 **修复 AuthContext.tsx 登录 bug** | **修复用户反复被登出的严重问题** |
+| **2025-10-22 22:52:26** | 修复 team-register.tsx 跳转逻辑 | 未登录用户跳转到 info 页面 |
+| **2025-10-22 10:28:31** | 添加 sponsor challenge 只读模式 | Sponsor dashboard 功能增强 |
+| **2025-10-22 09:45:53** | 修复 admin/teams.tsx 数组错误 | 防止 filteredTeams 崩溃 |
+| **2025-10-21 16:43:23** | 添加 sponsor managers 功能 | Sponsor 权限管理 |
+| **2025-10-21 06:55:26** | 实现 Phase 2 & 3 团队管理 | Profile 页面核心功能 |
+| **2025-10-20 14:31:57** | 大量页面更新（sponsor/team-up/register） | 多个功能点同时更新 |
+| **2025-10-20 06:23:06** | 添加详细的 API 认证日志 | 调试认证问题 |
+| **2025-10-16 16:51:34** | 更新登录页面 | Auth 流程改进 |
+
+## 🚨 核心认证文件（最关键）
+
+这些文件直接影响整个系统的登录和认证状态，修改时需要**特别小心**：
+
+1. **`lib/user/AuthContext.tsx`** 🔴 
+   - 全局认证状态管理
+   - **最近修复:** 2025-10-23 修复了 API 失败时错误清空 profile 的 bug
+   - **影响:** 所有页面的登录状态判断
+
+2. **`lib/request-helper.ts`**
+   - API 请求封装
+   - **影响:** 所有 API 调用的认证 token 传递
+
+3. **`lib/sponsor/middleware.ts`** 
+   - 最后修改: 2025-10-20 06:23:06
+   - API 端点认证中间件
+   - **影响:** 所有需要认证的 API 端点
+
+4. **`components/AppHeader.tsx`**
+   - 导航栏用户状态显示
+   - **最近修复:** 2025-10-23 修复页面刷新时的状态闪烁问题
+
+5. **`pages/api/userinfo.ts`** 和 **`pages/api/applications.ts`**
+   - 用户信息和注册数据 API
+   - **影响:** 用户登录后的 profile 获取
+
 ## 📋 目录
 1. [跳转到 /register (注册页面)](#跳转到-register-注册页面)
 2. [跳转到 /auth (登录页面)](#跳转到-auth-登录页面)
@@ -13,7 +53,8 @@
 ## 🔴 跳转到 /register (注册页面)
 
 ### 1. `/pages/profile.tsx` (个人中心页面)
-**文件位置:** `pages/profile.tsx:390`
+**文件位置:** `pages/profile.tsx:390`  
+**最后修改:** 2025-10-21 06:55:26 (feat: implement Phase 2 & 3 - team management and profile integration)
 
 **触发条件:**
 ```typescript
@@ -36,7 +77,8 @@ if (!hasProfile) {
 ## 🔵 跳转到 /auth (登录页面)
 
 ### 2. `/pages/register.tsx` (注册页面本身)
-**文件位置:** `pages/register.tsx:85`
+**文件位置:** `pages/register.tsx:85`  
+**最后修改:** 2025-10-20 14:31:57
 
 **触发条件:**
 ```typescript
@@ -61,7 +103,8 @@ useEffect(() => {
 ### 3. Sponsor Dashboard 及相关页面
 
 #### 3.1 `/pages/sponsor/dashboard.tsx`
-**文件位置:** `pages/sponsor/dashboard.tsx:61`
+**文件位置:** `pages/sponsor/dashboard.tsx:61`  
+**最后修改:** 2025-10-22 10:28:31 (feat: add read-only mode for challenge viewing)
 
 **触发条件:**
 ```typescript
@@ -83,7 +126,8 @@ useEffect(() => {
 ---
 
 #### 3.2 `/pages/sponsor/tracks/[trackId]/index.tsx`
-**文件位置:** `pages/sponsor/tracks/[trackId]/index.tsx:48`
+**文件位置:** `pages/sponsor/tracks/[trackId]/index.tsx:48`  
+**最后修改:** 2025-10-21 07:35:21
 
 **触发条件:**
 ```typescript
@@ -103,7 +147,8 @@ useEffect(() => {
 ---
 
 #### 3.3 `/pages/sponsor/tracks/[trackId]/challenge.tsx`
-**文件位置:** `pages/sponsor/tracks/[trackId]/challenge.tsx:36`
+**文件位置:** `pages/sponsor/tracks/[trackId]/challenge.tsx:36`  
+**最后修改:** 2025-10-22 10:28:31
 
 **触发条件:**
 ```typescript
@@ -123,7 +168,8 @@ useEffect(() => {
 ---
 
 #### 3.4 `/pages/sponsor/tracks/[trackId]/submissions.tsx`
-**文件位置:** `pages/sponsor/tracks/[trackId]/submissions.tsx:30`
+**文件位置:** `pages/sponsor/tracks/[trackId]/submissions.tsx:30`  
+**最后修改:** 2025-10-20 14:31:57
 
 **触发条件:** 同上模式
 
@@ -134,7 +180,8 @@ useEffect(() => {
 ---
 
 #### 3.5 `/pages/sponsor/tracks/[trackId]/judging.tsx`
-**文件位置:** `pages/sponsor/tracks/[trackId]/judging.tsx:29`
+**文件位置:** `pages/sponsor/tracks/[trackId]/judging.tsx:29`  
+**最后修改:** 2025-10-20 14:31:57
 
 **触发条件:** 同上模式
 
@@ -145,7 +192,8 @@ useEffect(() => {
 ---
 
 #### 3.6 `/pages/sponsor/submissions/[submissionId].tsx`
-**文件位置:** `pages/sponsor/submissions/[submissionId].tsx:26`
+**文件位置:** `pages/sponsor/submissions/[submissionId].tsx:26`  
+**最后修改:** 2025-10-20 14:31:57
 
 **触发条件:** 同上模式
 
@@ -156,7 +204,8 @@ useEffect(() => {
 ---
 
 #### 3.7 `/pages/sponsor/challenges.tsx`
-**文件位置:** `pages/sponsor/challenges.tsx:27`
+**文件位置:** `pages/sponsor/challenges.tsx:27`  
+**最后修改:** 2025-10-21 00:57:09
 
 **触发条件:** 同上模式
 
@@ -167,7 +216,8 @@ useEffect(() => {
 ---
 
 #### 3.8 `/pages/sponsor/tracks.tsx`
-**文件位置:** `pages/sponsor/tracks.tsx:45`
+**文件位置:** `pages/sponsor/tracks.tsx:45`  
+**最后修改:** 2025-10-21 00:57:09
 
 **触发条件:** 同上模式
 
@@ -178,7 +228,8 @@ useEffect(() => {
 ---
 
 #### 3.9 `/pages/sponsor/reports.tsx`
-**文件位置:** `pages/sponsor/reports.tsx:23`
+**文件位置:** `pages/sponsor/reports.tsx:23`  
+**最后修改:** 2025-10-20 14:31:57
 
 **触发条件:** 同上模式
 
@@ -189,7 +240,8 @@ useEffect(() => {
 ---
 
 #### 3.10 `/pages/sponsor/notifications.tsx`
-**文件位置:** `pages/sponsor/notifications.tsx:26`
+**文件位置:** `pages/sponsor/notifications.tsx:26`  
+**最后修改:** 2025-10-20 14:31:57
 
 **触发条件:** 同上模式
 
@@ -202,7 +254,8 @@ useEffect(() => {
 ### 4. Admin 相关页面
 
 #### 4.1 `/pages/admin/sponsors.tsx`
-**文件位置:** `pages/admin/sponsors.tsx:107`
+**文件位置:** `pages/admin/sponsors.tsx:107`  
+**最后修改:** 2025-10-21 16:43:23 (feat: add sponsor managers feature)
 
 **触发条件:**
 ```typescript
@@ -231,7 +284,8 @@ useEffect(() => {
 ---
 
 #### 4.2 `/pages/admin/teams.tsx`
-**文件位置:** `pages/admin/teams.tsx:72`
+**文件位置:** `pages/admin/teams.tsx:72`  
+**最后修改:** 2025-10-22 09:45:53 (fix: ensure filteredTeams is array)
 
 **触发条件:**
 ```typescript
@@ -249,7 +303,8 @@ useEffect(() => {
 ---
 
 #### 4.3 `/pages/admin/track-management.tsx`
-**文件位置:** `pages/admin/track-management.tsx:55`
+**文件位置:** `pages/admin/track-management.tsx:55`  
+**最后修改:** 2025-10-21 00:57:09
 
 **触发条件:**
 ```typescript
@@ -267,7 +322,8 @@ useEffect(() => {
 ---
 
 #### 4.4 `/pages/admin/add-sponsor.tsx`
-**文件位置:** `pages/admin/add-sponsor.tsx:48`
+**文件位置:** `pages/admin/add-sponsor.tsx:48`  
+**最后修改:** 2025-10-20 14:31:57
 
 **触发条件:** 同上模式
 
@@ -280,7 +336,8 @@ useEffect(() => {
 ### 5. Team Up 相关页面
 
 #### 5.1 `/pages/team-up/create.tsx`
-**文件位置:** `pages/team-up/create.tsx:22` 和 `:76`
+**文件位置:** `pages/team-up/create.tsx:22` 和 `:76`  
+**最后修改:** 2025-10-20 14:31:57
 
 **触发条件:**
 ```typescript
@@ -301,7 +358,8 @@ useEffect(() => {
 ---
 
 #### 5.2 `/pages/team-up/[id].tsx`
-**文件位置:** `pages/team-up/[id].tsx:111` 和 `:415`
+**文件位置:** `pages/team-up/[id].tsx:111` 和 `:415`  
+**最后修改:** 2025-10-20 14:31:57
 
 **触发条件:**
 ```typescript
@@ -319,7 +377,8 @@ useEffect(() => {
 ---
 
 #### 5.3 `/pages/team-up/edit/[id].tsx`
-**文件位置:** `pages/team-up/edit/[id].tsx:68` 和 `:118`
+**文件位置:** `pages/team-up/edit/[id].tsx:68` 和 `:118`  
+**最后修改:** 2025-10-12 03:18:39
 
 **触发条件:**
 ```typescript
@@ -337,7 +396,8 @@ useEffect(() => {
 ---
 
 #### 5.4 `/pages/dashboard/team-up/applications/[needId].tsx`
-**文件位置:** `pages/dashboard/team-up/applications/[needId].tsx:127`
+**文件位置:** `pages/dashboard/team-up/applications/[needId].tsx:127`  
+**最后修改:** 2025-10-11 20:54:48
 
 **触发条件:**
 ```typescript
@@ -355,7 +415,8 @@ useEffect(() => {
 ---
 
 ### 6. `/pages/schedule/[id].tsx` (活动日程详情页)
-**文件位置:** `pages/schedule/[id].tsx:274`
+**文件位置:** `pages/schedule/[id].tsx:274`  
+**最后修改:** 2025-10-20 02:51:10
 
 **触发条件:**
 ```typescript
@@ -373,7 +434,8 @@ if (!isSignedIn) {
 ---
 
 ### 7. `/pages/auth/index.tsx` (登录页面内部的重定向)
-**文件位置:** `pages/auth/index.tsx:106` 和 `:174`
+**文件位置:** `pages/auth/index.tsx:106` 和 `:174`  
+**最后修改:** 2025-10-16 16:51:34
 
 **触发条件:**
 ```typescript
@@ -388,7 +450,8 @@ router.push('/auth');
 ---
 
 ### 8. `/pages/auth/signup.tsx`
-**文件位置:** `pages/auth/signup.tsx:31`
+**文件位置:** `pages/auth/signup.tsx:31`  
+**最后修改:** 2022-02-16 21:57:24 ⚠️ (很久未更新)
 
 **触发条件:**
 ```typescript
@@ -405,7 +468,8 @@ router.push('/auth');
 ## ⚠️ 特殊情况
 
 ### 9. `/pages/team-register.tsx` (团队报名页面)
-**文件位置:** `pages/team-register.tsx:93`
+**文件位置:** `pages/team-register.tsx:93`  
+**最后修改:** 2025-10-22 22:52:26 (fix: redirect unauthenticated users to team-register-info)
 
 **触发条件:**
 ```typescript
@@ -425,6 +489,7 @@ useEffect(() => {
 ## 🔒 API 401/403 响应
 
 ### 10. API 认证中间件 (`/lib/sponsor/middleware.ts`)
+**最后修改:** 2025-10-20 06:23:06 (debug: 添加详细的 API 认证日志)
 
 **所有使用 `requireAuth()` 的 API 端点都会在认证失败时返回 401:**
 
@@ -513,6 +578,94 @@ export async function requireAuth(req, res): Promise<boolean> {
 
 ---
 
-**生成时间:** $(date)
-**分析范围:** `/home/reyerchu/hack/hack-dev`
+## 📝 文档信息
+
+**生成时间:** 2025-10-23  
+**分析范围:** `/home/reyerchu/hack/hack-dev`  
+**分析文件数:** 25+ 个页面文件  
+**Git 仓库:** hack-dev 分支  
+
+### 最近更新内容
+- 为每个重定向点添加了最后修改时间
+- 添加了关键时间轴，显示重要的认证相关变更
+- 标注了可能需要改进的问题点（⚠️）
+- 标记了过期的代码文件（如 auth/signup.tsx 自 2022 年未更新）
+
+---
+
+## 🔧 常见问题快速参考
+
+### 问题 1: 用户登录后反复被要求重新注册
+**症状:** 用户完成注册后，刷新页面时被 redirect 到 `/register`
+
+**可能原因:**
+1. ❌ `AuthContext.tsx` 中 API 失败时错误地清空了 `profile` 状态
+2. ❌ `/api/userinfo` 返回非 200 状态，但用户数据实际存在
+3. ❌ `pages/profile.tsx` 或 `pages/register.tsx` 的条件判断过于严格
+
+**检查位置:**
+- `lib/user/AuthContext.tsx:102-120` - updateUser 函数的错误处理
+- `pages/profile.tsx:390` - hasProfile 检查逻辑
+- `pages/register.tsx:85` - user 检查逻辑
+
+**最近修复:** 2025-10-23 已修复 AuthContext.tsx 中的 profile 状态管理问题
+
+---
+
+### 问题 2: 页面刷新时右上角用户状态闪烁
+**症状:** 刷新页面时，右上角短暂显示"未登录"状态，然后变为用户名
+
+**可能原因:**
+1. ❌ `AppHeader.tsx` 没有等待 `loading` 状态完成
+2. ❌ `AuthContext` 初始化时 `loading` 状态管理不当
+
+**检查位置:**
+- `components/AppHeader.tsx:150-160` - 登录状态显示逻辑
+- `lib/user/AuthContext.tsx:40-60` - loading 状态管理
+
+**最近修复:** 2025-10-23 已在 AppHeader 中添加 loading 占位符
+
+---
+
+### 问题 3: API 调用返回 401 Unauthorized
+**症状:** 已登录用户访问某些功能时收到 401 错误
+
+**可能原因:**
+1. ❌ Firebase token 过期
+2. ❌ 请求头中缺少 Authorization token
+3. ❌ API 端点的 `requireAuth()` 验证失败
+
+**检查位置:**
+- `lib/sponsor/middleware.ts:432-454` - requireAuth 函数
+- `lib/request-helper.ts` - Authorization header 设置
+- Browser DevTools → Network → 查看请求 Headers
+
+**调试方法:**
+```bash
+# 在后端查看认证日志
+pm2 logs --lines 100 | grep "Authorization"
+```
+
+---
+
+### 问题 4: 特定页面循环重定向
+**症状:** 访问某个页面时，在多个页面之间来回跳转
+
+**可能原因:**
+1. ❌ 多个 `useEffect` 中有相互冲突的 redirect 逻辑
+2. ❌ 条件判断存在逻辑错误（如 `!loading` 检查缺失）
+
+**检查清单:**
+- [ ] 确保所有 redirect 都检查 `loading` 状态
+- [ ] 确保 redirect 条件不会相互冲突
+- [ ] 检查是否有多个 `useEffect` 同时触发
+
+**通用模式（正确）:**
+```typescript
+useEffect(() => {
+  if (!loading && !isSignedIn) {
+    router.push('/auth?redirect=' + router.asPath);
+  }
+}, [loading, isSignedIn, router]);
+```
 
