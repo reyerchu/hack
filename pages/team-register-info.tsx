@@ -75,7 +75,7 @@ export default function TeamRegisterInfo() {
                       <li>完成 Email 驗證</li>
                     </ul>
                   </div>
-                  <div>
+                  <div className="flex flex-wrap gap-4">
                     <Link href="/register">
                       <a 
                         className="inline-block px-6 py-3 rounded-lg font-medium text-white transition-all duration-300 hover:shadow-lg"
@@ -88,6 +88,26 @@ export default function TeamRegisterInfo() {
                         }}
                       >
                         前往註冊｜登入
+                      </a>
+                    </Link>
+                    <Link href="/team-register">
+                      <a 
+                        className="inline-block px-6 py-3 rounded-lg font-medium transition-all duration-300 hover:shadow-lg border-2"
+                        style={{ 
+                          borderColor: '#1a3a6e',
+                          color: '#1a3a6e',
+                          backgroundColor: 'transparent'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.backgroundColor = '#1a3a6e';
+                          e.currentTarget.style.color = 'white';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = 'transparent';
+                          e.currentTarget.style.color = '#1a3a6e';
+                        }}
+                      >
+                        團隊報名
                       </a>
                     </Link>
                   </div>

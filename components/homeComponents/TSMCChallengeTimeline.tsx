@@ -96,7 +96,7 @@ export default function TSMCChallengeTimeline() {
 
         {/* CTA Button - TSMC Style */}
         <div className="mt-16">
-          <Link href="/register">
+          <Link href="/team-register-info">
             <a
               className="inline-block border-2 px-8 py-3 text-[14px] font-medium uppercase tracking-wider transition-colors duration-300"
               style={{
