@@ -55,8 +55,10 @@ export default function UserPage() {
     const hackersOnly = data.filter(({ user }) => user.permissions.includes('hacker'));
     const sortedByDate = hackersOnly.sort((a, b) => {
       // Support both old (timestamp) and new (createdAt) formats
-      const timeA = a.timestamp || (a.createdAt?._seconds ? a.createdAt._seconds * 1000 : 0);
-      const timeB = b.timestamp || (b.createdAt?._seconds ? b.createdAt._seconds * 1000 : 0);
+      const timeA =
+        a.timestamp || ((a as any).createdAt?._seconds ? (a as any).createdAt._seconds * 1000 : 0);
+      const timeB =
+        b.timestamp || ((b as any).createdAt?._seconds ? (b as any).createdAt._seconds * 1000 : 0);
       return timeB - timeA; // Descending order (newest first)
     });
 
@@ -145,8 +147,10 @@ export default function UserPage() {
     // Sort by registration date (descending - newest first)
     const sortedUsers = newFilteredUser.sort((a, b) => {
       // Support both old (timestamp) and new (createdAt) formats
-      const timeA = a.timestamp || (a.createdAt?._seconds ? a.createdAt._seconds * 1000 : 0);
-      const timeB = b.timestamp || (b.createdAt?._seconds ? b.createdAt._seconds * 1000 : 0);
+      const timeA =
+        a.timestamp || ((a as any).createdAt?._seconds ? (a as any).createdAt._seconds * 1000 : 0);
+      const timeB =
+        b.timestamp || ((b as any).createdAt?._seconds ? (b as any).createdAt._seconds * 1000 : 0);
       return timeB - timeA;
     });
 
@@ -163,8 +167,12 @@ export default function UserPage() {
         // Special handling for timestamp/date field
         if (field === 'registeredDate') {
           // Support both old (timestamp) and new (createdAt) formats
-          const timeA = a.timestamp || (a.createdAt?._seconds ? a.createdAt._seconds * 1000 : 0);
-          const timeB = b.timestamp || (b.createdAt?._seconds ? b.createdAt._seconds * 1000 : 0);
+          const timeA =
+            a.timestamp ||
+            ((a as any).createdAt?._seconds ? (a as any).createdAt._seconds * 1000 : 0);
+          const timeB =
+            b.timestamp ||
+            ((b as any).createdAt?._seconds ? (b as any).createdAt._seconds * 1000 : 0);
           return timeB - timeA; // Descending order (newest first)
         }
 
@@ -224,12 +232,15 @@ export default function UserPage() {
           month: '2-digit',
           day: '2-digit',
         });
-      } else if (userData.createdAt?._seconds) {
-        registeredDate = new Date(userData.createdAt._seconds * 1000).toLocaleDateString('zh-TW', {
-          year: 'numeric',
-          month: '2-digit',
-          day: '2-digit',
-        });
+      } else if ((userData as any).createdAt?._seconds) {
+        registeredDate = new Date((userData as any).createdAt._seconds * 1000).toLocaleDateString(
+          'zh-TW',
+          {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+          },
+        );
       }
 
       return [
@@ -492,9 +503,9 @@ export default function UserPage() {
                               day: '2-digit',
                             },
                           );
-                        } else if (userData.createdAt?._seconds) {
+                        } else if ((userData as any).createdAt?._seconds) {
                           registeredDate = new Date(
-                            userData.createdAt._seconds * 1000,
+                            (userData as any).createdAt._seconds * 1000,
                           ).toLocaleDateString('zh-TW', {
                             year: 'numeric',
                             month: '2-digit',
