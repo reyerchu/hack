@@ -300,9 +300,18 @@ export default function TracksChallengesPage() {
 
                 {/* Track Body */}
                 <div className="p-6">
-                  <p className="text-sm mb-4 line-clamp-3" style={{ color: '#374151' }}>
-                    {track.description || '探索此賽道的精彩挑戰'}
-                  </p>
+                  <div
+                    className="text-sm mb-4 line-clamp-3"
+                    style={{
+                      color: '#374151',
+                      whiteSpace: 'pre-wrap',
+                      wordBreak: 'break-word',
+                      overflowWrap: 'break-word',
+                      lineHeight: '1.75',
+                    }}
+                  >
+                    {linkifyText(track.description || '探索此賽道的精彩挑戰', '#2563eb')}
+                  </div>
 
                   {/* Stats */}
                   <div
