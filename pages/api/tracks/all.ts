@@ -188,15 +188,29 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       };
     }).filter(track => track.name && track.name !== 'Unnamed Track');
 
-    // Sort by total prize (highest first), then by name
+    // 自定義排序：imToken 第一，AWS 最後，其他按總獎金排序
     tracks.sort((a, b) => {
+      const aIsImToken = a.sponsorName?.toLowerCase().includes('imtoken') || a.name?.toLowerCase().includes('imtoken');
+      const bIsImToken = b.sponsorName?.toLowerCase().includes('imtoken') || b.name?.toLowerCase().includes('imtoken');
+      const aIsAWS = a.sponsorName?.toLowerCase().includes('aws') || a.name?.toLowerCase().includes('aws');
+      const bIsAWS = b.sponsorName?.toLowerCase().includes('aws') || b.name?.toLowerCase().includes('aws');
+
+      // imToken 永遠第一
+      if (aIsImToken && !bIsImToken) return -1;
+      if (!aIsImToken && bIsImToken) return 1;
+
+      // AWS 永遠最後
+      if (aIsAWS && !bIsAWS) return 1;
+      if (!aIsAWS && bIsAWS) return -1;
+
+      // 其他按總獎金排序（高到低），相同則按名稱
       if ((b.totalPrize || 0) !== (a.totalPrize || 0)) {
         return (b.totalPrize || 0) - (a.totalPrize || 0);
       }
       return a.name.localeCompare(b.name);
     });
 
-    console.log('[GetAllTracks] Returning tracks:', tracks.length);
+    console.log('[GetAllTracks] Returning tracks:', tracks.length, '(imToken 第一, AWS 最後)');
     tracks.forEach(track => {
       console.log(`  - ${track.name}: ${track.challenges?.length || 0} challenges, ${track.totalPrize} USD (id: ${track.id}, trackId: ${track.trackId})`);
     });

@@ -113,10 +113,26 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       });
     }
 
-    // 按總獎金排序（高到低）
-    tracksData.sort((a, b) => b.totalPrize - a.totalPrize);
+    // 自定義排序：imToken 第一，AWS 最後，其他按總獎金排序
+    tracksData.sort((a, b) => {
+      const aIsImToken = a.sponsorName?.toLowerCase().includes('imtoken') || a.name?.toLowerCase().includes('imtoken');
+      const bIsImToken = b.sponsorName?.toLowerCase().includes('imtoken') || b.name?.toLowerCase().includes('imtoken');
+      const aIsAWS = a.sponsorName?.toLowerCase().includes('aws') || a.name?.toLowerCase().includes('aws');
+      const bIsAWS = b.sponsorName?.toLowerCase().includes('aws') || b.name?.toLowerCase().includes('aws');
 
-    console.log('[GET /api/tracks-challenges/all] ✅ 返回', tracksData.length, '個賽道');
+      // imToken 永遠第一
+      if (aIsImToken && !bIsImToken) return -1;
+      if (!aIsImToken && bIsImToken) return 1;
+
+      // AWS 永遠最後
+      if (aIsAWS && !bIsAWS) return 1;
+      if (!aIsAWS && bIsAWS) return -1;
+
+      // 其他按總獎金排序（高到低）
+      return b.totalPrize - a.totalPrize;
+    });
+
+    console.log('[GET /api/tracks-challenges/all] ✅ 返回', tracksData.length, '個賽道 (imToken 第一, AWS 最後)');
 
     return res.status(200).json({
       success: true,
