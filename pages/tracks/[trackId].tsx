@@ -175,7 +175,16 @@ export default function PublicTrackDetailPage() {
               {track.name}
             </h1>
             {track.description && (
-              <p className="text-lg mb-4" style={{ color: '#6b7280' }}>
+              <p 
+                className="text-lg mb-4" 
+                style={{ 
+                  color: '#6b7280',
+                  whiteSpace: 'pre-wrap',
+                  wordBreak: 'break-word',
+                  overflowWrap: 'break-word',
+                  lineHeight: '1.75'
+                }}
+              >
                 {track.description}
               </p>
             )}
@@ -232,7 +241,16 @@ export default function PublicTrackDetailPage() {
                         <h4 className="text-sm font-medium mb-2" style={{ color: '#6b7280' }}>
                           挑戰描述
                         </h4>
-                        <p className="text-sm" style={{ color: '#374151' }}>
+                        <p 
+                          className="text-sm" 
+                          style={{ 
+                            color: '#374151',
+                            whiteSpace: 'pre-wrap',
+                            wordBreak: 'break-word',
+                            overflowWrap: 'break-word',
+                            lineHeight: '1.75'
+                          }}
+                        >
                           {challenge.description}
                         </p>
                       </div>
@@ -254,7 +272,16 @@ export default function PublicTrackDetailPage() {
                         <h4 className="text-sm font-medium mb-2" style={{ color: '#6b7280' }}>
                           📋 提交要求
                         </h4>
-                        <p className="text-sm whitespace-pre-wrap" style={{ color: '#374151' }}>
+                        <p 
+                          className="text-sm" 
+                          style={{ 
+                            color: '#374151',
+                            whiteSpace: 'pre-wrap',
+                            wordBreak: 'break-word',
+                            overflowWrap: 'break-word',
+                            lineHeight: '1.75'
+                          }}
+                        >
                           {challenge.submissionRequirements}
                         </p>
                       </div>
