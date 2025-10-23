@@ -101,23 +101,14 @@ async function migrateUsers() {
     try {
       const timestamp = user.createdAt._seconds * 1000;
 
-      // 更新 registrations collection
+      // 更新 registrations collection (唯一数据源)
       await db.collection('registrations').doc(user.id).update({
         timestamp: timestamp,
         // 保留 createdAt 作为历史记录
         // 不删除 createdAt，以防需要回滚
       });
 
-      // 同时更新 users collection（如果存在）
-      const userDoc = await db.collection('users').doc(user.id).get();
-      if (userDoc.exists) {
-        await db.collection('users').doc(user.id).update({
-          timestamp: timestamp,
-        });
-        console.log(`✅ ${user.email} - 已更新 registrations 和 users`);
-      } else {
-        console.log(`✅ ${user.email} - 已更新 registrations`);
-      }
+      console.log(`✅ ${user.email} - 已更新 timestamp`);
 
       successCount++;
     } catch (error) {
