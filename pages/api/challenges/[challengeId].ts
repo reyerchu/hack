@@ -63,12 +63,21 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
     }
 
     // Format response
+    // Note: Some challenges use 'requirements' field, others use 'submissionRequirements'
+    // Use submissionRequirements if non-empty, otherwise fallback to requirements
+    let submissionReqs = '';
+    if (challengeData.submissionRequirements && challengeData.submissionRequirements.trim()) {
+      submissionReqs = challengeData.submissionRequirements;
+    } else if (challengeData.requirements) {
+      submissionReqs = challengeData.requirements;
+    }
+    
     const response = {
       id: challengeDoc.id,
       title: challengeData.title || challengeData.name,
       description: challengeData.description || '',
       prizes: challengeData.prizes || [],
-      submissionRequirements: challengeData.submissionRequirements || '',
+      submissionRequirements: submissionReqs,
       evaluationCriteria: challengeData.evaluationCriteria || [],
       trackId: challengeData.trackId || '',
       track: trackInfo,
