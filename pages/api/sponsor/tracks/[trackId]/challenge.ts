@@ -190,11 +190,23 @@ async function handlePut(req: NextApiRequest, res: NextApiResponse) {
     // 檢查用戶的贊助商角色
     const userRole = await getUserSponsorRole(userId, existingChallenge.sponsorId);
 
-    // 只有 admin 或有 canEditTrackChallenge 權限的贊助商可以編輯
+    console.log('[PUT challenge] Permission check:', {
+      userId,
+      sponsorId: existingChallenge.sponsorId,
+      userRole,
+      userPermissions: authReq.userPermissions,
+      sponsorPermissions: sponsor?.permissions,
+    });
+
+    // 權限檢查：
+    // 1. 系統管理員 (admin/super_admin) 可以編輯任何挑戰
+    // 2. Sponsor 的 admin 角色可以編輯自己贊助商的挑戰
     const canEdit =
       authReq.userPermissions?.includes('admin') ||
       authReq.userPermissions?.includes('super_admin') ||
-      (userRole === 'admin' && sponsor?.permissions?.canEditTrackChallenge);
+      userRole === 'admin';
+
+    console.log('[PUT challenge] canEdit:', canEdit);
 
     if (!canEdit) {
       return ApiResponse.forbidden(res, 'You do not have permission to edit this challenge');
