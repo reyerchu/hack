@@ -41,12 +41,6 @@ export default function SponsorDashboard() {
   const { stats, loading: statsLoading } = useTrackStats();
   const { notifications, markAsRead } = useSponsorNotifications();
 
-  // Delete modal state
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [selectedTrack, setSelectedTrack] = useState<any>(null);
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [deleteMessage, setDeleteMessage] = useState('');
-
   // Add track modal state
   const [showAddTrackModal, setShowAddTrackModal] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
@@ -70,64 +64,6 @@ export default function SponsorDashboard() {
     }
   }, [authLoading, isSignedIn, isSponsor, router]);
 
-  // Handle delete challenge
-  const handleDeleteClick = (track: any, e: React.MouseEvent) => {
-    e.stopPropagation();
-    setSelectedTrack(track);
-    setDeleteMessage('');
-    setShowDeleteModal(true);
-  };
-
-  const handleDeleteConfirm = async () => {
-    if (!selectedTrack) return;
-
-    try {
-      setIsDeleting(true);
-      setDeleteMessage('');
-
-      const currentUser = firebase.auth().currentUser;
-      if (!currentUser) {
-        throw new Error('未登入');
-      }
-      const token = await currentUser.getIdToken();
-
-      console.log('[Dashboard] Deleting track:', selectedTrack.id);
-      const apiUrl = `/api/sponsor/tracks/${selectedTrack.id}/delete`;
-      console.log('[Dashboard] API URL:', apiUrl);
-
-      const response = await fetch(apiUrl, {
-        method: 'DELETE',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      console.log('[Dashboard] Response status:', response.status);
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        console.error('[Dashboard] Error data:', errorData);
-        throw new Error(errorData.error || errorData.details || '刪除失敗');
-      }
-
-      const data = await response.json();
-      console.log('[Dashboard] Success data:', data);
-
-      setDeleteMessage('✅ Challenge 已成功刪除！');
-
-      // Wait 1.5 seconds then close modal and refresh
-      setTimeout(() => {
-        setShowDeleteModal(false);
-        refetchTracks();
-      }, 1500);
-    } catch (err: any) {
-      console.error('[Dashboard] Error deleting challenge:', err);
-      console.error('[Dashboard] Error details:', err.message, err.stack);
-      setDeleteMessage(`❌ ${err.message}`);
-    } finally {
-      setIsDeleting(false);
-    }
-  };
 
   // Handle add track
   const handleAddTrackClick = async () => {
@@ -753,73 +689,6 @@ export default function SponsorDashboard() {
                                 </p>
                               )}
                             </div>
-                            <div className="flex items-center gap-2 ml-4">
-                              {track.permissions.canEdit && (
-                                <>
-                                  <button
-                                    onClick={() =>
-                                      router.push(
-                                        `/sponsor/tracks/${track.id}/challenge?challengeId=${challenge.id}&mode=edit`,
-                                      )
-                                    }
-                                    className="text-sm px-3 py-1.5 rounded-lg transition-colors"
-                                    style={{
-                                      backgroundColor: '#059669',
-                                      color: '#ffffff',
-                                    }}
-                                    onMouseEnter={(e) => {
-                                      e.currentTarget.style.backgroundColor = '#047857';
-                                    }}
-                                    onMouseLeave={(e) => {
-                                      e.currentTarget.style.backgroundColor = '#059669';
-                                    }}
-                                  >
-                                    編輯
-                                  </button>
-                                  <button
-                                    className="text-sm px-2 py-1.5 rounded-lg transition-colors"
-                                    style={{
-                                      backgroundColor: '#dc2626',
-                                      color: '#ffffff',
-                                    }}
-                                    onMouseEnter={(e) => {
-                                      e.currentTarget.style.backgroundColor = '#b91c1c';
-                                    }}
-                                    onMouseLeave={(e) => {
-                                      e.currentTarget.style.backgroundColor = '#dc2626';
-                                    }}
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleDeleteClick(
-                                        {
-                                          ...track,
-                                          id: challenge.id,  // 修复：使用挑战的文档ID
-                                          challengeId: challenge.id,  // 添加明确的字段
-                                          trackId: challenge.trackId,  // 保留赛道ID作为参考
-                                          name: challenge.title || challenge.track,
-                                        },
-                                        e,
-                                      );
-                                    }}
-                                    title="刪除挑戰"
-                                  >
-                                    <svg
-                                      className="w-4 h-4"
-                                      fill="none"
-                                      stroke="currentColor"
-                                      viewBox="0 0 24 24"
-                                    >
-                                      <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                                      />
-                                    </svg>
-                                  </button>
-                                </>
-                              )}
-                            </div>
                           </div>
                         ))}
                       </div>
@@ -985,98 +854,6 @@ export default function SponsorDashboard() {
           {/* <ActivityLog logs={[]} /> */}
         </div>
       </div>
-
-      {/* Delete Confirmation Modal */}
-      {showDeleteModal && selectedTrack && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-          onClick={() => !isDeleting && setShowDeleteModal(false)}
-        >
-          <div
-            className="bg-white rounded-lg p-8 max-w-md w-full mx-4"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center mb-4">
-              <div
-                className="w-12 h-12 rounded-full flex items-center justify-center mr-4"
-                style={{ backgroundColor: '#fee2e2' }}
-              >
-                <svg
-                  className="w-6 h-6"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  style={{ color: '#dc2626' }}
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                  />
-                </svg>
-              </div>
-              <div>
-                <h3 className="text-xl font-bold" style={{ color: '#1a3a6e' }}>
-                  確認刪除 Challenge
-                </h3>
-              </div>
-            </div>
-
-            <p className="text-base mb-6" style={{ color: '#6b7280' }}>
-              確定要刪除 <strong style={{ color: '#1a3a6e' }}>{selectedTrack.name}</strong> 嗎？
-              此操作無法撤銷。
-            </p>
-
-            {deleteMessage && (
-              <div
-                className={`p-4 mb-4 rounded-lg ${
-                  deleteMessage.includes('✅')
-                    ? 'bg-green-50 border border-green-200'
-                    : 'bg-red-50 border border-red-200'
-                }`}
-              >
-                <p
-                  className="text-sm"
-                  style={{
-                    color: deleteMessage.includes('✅') ? '#166534' : '#991b1b',
-                  }}
-                >
-                  {deleteMessage}
-                </p>
-              </div>
-            )}
-
-            <div className="flex gap-4">
-              <button
-                type="button"
-                onClick={() => setShowDeleteModal(false)}
-                disabled={isDeleting}
-                className="flex-1 border-2 px-6 py-3 text-sm font-medium rounded-lg transition-colors disabled:opacity-50"
-                style={{
-                  borderColor: '#d1d5db',
-                  color: '#6b7280',
-                  backgroundColor: 'transparent',
-                }}
-              >
-                取消
-              </button>
-              <button
-                type="button"
-                onClick={handleDeleteConfirm}
-                disabled={isDeleting}
-                className="flex-1 px-6 py-3 text-sm font-medium rounded-lg transition-colors disabled:opacity-50"
-                style={{
-                  backgroundColor: '#dc2626',
-                  color: '#ffffff',
-                }}
-              >
-                {isDeleting ? '刪除中...' : '確認刪除'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Add Track Modal */}
       {showAddTrackModal && (

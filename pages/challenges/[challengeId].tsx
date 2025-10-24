@@ -44,6 +44,8 @@ export default function PublicChallengeDetailPage() {
   const [error, setError] = useState<string | null>(null);
   const [canEdit, setCanEdit] = useState(false);
   const [checkingPermission, setCheckingPermission] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // 獲取挑戰詳情（公開 API，不需要認證）
   useEffect(() => {
@@ -119,6 +121,46 @@ export default function PublicChallengeDetailPage() {
 
     checkPermission();
   }, [isSignedIn, user, challenge]);
+
+  // 處理刪除挑戰
+  const handleDelete = async () => {
+    if (!challengeId) return;
+
+    try {
+      setIsDeleting(true);
+      const currentUser = firebase.auth().currentUser;
+      if (!currentUser) {
+        alert('請先登入');
+        return;
+      }
+
+      const token = await currentUser.getIdToken();
+      const response = await fetch(`/api/sponsor/tracks/${challengeId}/delete`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || '刪除失敗');
+      }
+
+      alert('挑戰已成功刪除');
+      if (challenge?.track?.id) {
+        router.push(`/tracks/${challenge.track.id}`);
+      } else {
+        router.push('/tracks-challenges');
+      }
+    } catch (error: any) {
+      console.error('[PublicChallengePage] Delete error:', error);
+      alert(`刪除失敗：${error.message}`);
+    } finally {
+      setIsDeleting(false);
+      setShowDeleteModal(false);
+    }
+  };
 
   // 格式化獎金顯示
   const formatPrizes = (prizes: string | any[]): string => {
@@ -298,36 +340,64 @@ export default function PublicChallengeDetailPage() {
                 </div>
               </div>
               {canEdit && (
-                <button
-                  onClick={() =>
-                    router.push(
-                      `/sponsor/tracks/${challenge.trackId}/challenge?challengeId=${challengeId}&mode=edit&returnUrl=${encodeURIComponent(router.asPath)}`,
-                    )
-                  }
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors flex-shrink-0"
-                  style={{ backgroundColor: '#059669', color: '#ffffff' }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = '#047857';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = '#059669';
-                  }}
-                >
-                  <svg
-                    className="w-5 h-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
+                <div className="flex items-center gap-3 flex-shrink-0">
+                  <button
+                    onClick={() =>
+                      router.push(
+                        `/sponsor/tracks/${challenge.trackId}/challenge?challengeId=${challengeId}&mode=edit&returnUrl=${encodeURIComponent(router.asPath)}`,
+                      )
+                    }
+                    className="flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors"
+                    style={{ backgroundColor: '#059669', color: '#ffffff' }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = '#047857';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = '#059669';
+                    }}
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                    />
-                  </svg>
-                  編輯挑戰
-                </button>
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                      />
+                    </svg>
+                    編輯挑戰
+                  </button>
+                  <button
+                    onClick={() => setShowDeleteModal(true)}
+                    className="flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors"
+                    style={{ backgroundColor: '#dc2626', color: '#ffffff' }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = '#b91c1c';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = '#dc2626';
+                    }}
+                  >
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                      />
+                    </svg>
+                    刪除挑戰
+                  </button>
+                </div>
               )}
             </div>
           </div>
@@ -458,6 +528,73 @@ export default function PublicChallengeDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* 刪除確認模態框 */}
+      {showDeleteModal && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+          onClick={() => !isDeleting && setShowDeleteModal(false)}
+        >
+          <div
+            className="bg-white rounded-lg p-6 max-w-md w-full mx-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="text-xl font-bold mb-4" style={{ color: '#1a3a6e' }}>
+              確認刪除挑戰
+            </h3>
+            <p className="text-sm mb-6" style={{ color: '#6b7280' }}>
+              您確定要刪除挑戰「{challenge?.title}」嗎？
+              <br />
+              <span style={{ color: '#dc2626' }}>此操作無法撤銷。</span>
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                disabled={isDeleting}
+                className="px-4 py-2 rounded-lg font-medium transition-colors"
+                style={{
+                  backgroundColor: '#f3f4f6',
+                  color: '#374151',
+                }}
+                onMouseEnter={(e) => {
+                  if (!isDeleting) e.currentTarget.style.backgroundColor = '#e5e7eb';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = '#f3f4f6';
+                }}
+              >
+                取消
+              </button>
+              <button
+                onClick={handleDelete}
+                disabled={isDeleting}
+                className="px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"
+                style={{
+                  backgroundColor: isDeleting ? '#f87171' : '#dc2626',
+                  color: '#ffffff',
+                  opacity: isDeleting ? 0.7 : 1,
+                  cursor: isDeleting ? 'not-allowed' : 'pointer',
+                }}
+                onMouseEnter={(e) => {
+                  if (!isDeleting) e.currentTarget.style.backgroundColor = '#b91c1c';
+                }}
+                onMouseLeave={(e) => {
+                  if (!isDeleting) e.currentTarget.style.backgroundColor = '#dc2626';
+                }}
+              >
+                {isDeleting ? (
+                  <>
+                    <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
+                    刪除中...
+                  </>
+                ) : (
+                  '確認刪除'
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
