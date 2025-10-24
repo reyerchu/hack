@@ -12,7 +12,7 @@ export default function HomeFaqSection() {
     {
       question: '活動日程怎麼安排？',
       answer:
-        '• 即日起 → 開放報名（加入 Line 群獲取最新資訊）\n• 10/15 → Workshop 開跑\n• 10/20 → 公布規章與題庫\n• 10/27 → 報名截止\n• 10/31 - 11/1 → 黑客松正式舉行\n• 11/1 下午 → Demo Day 發表\n• 11/8 → 評審結束，獲獎隊伍公告',
+        '• 即日起 → 開放報名（加入 Line 群獲取最新資訊）\n• 10/15 → Workshop 開跑\n• 10/20 → 公布規章與題庫\n• 10/29 → 報名截止\n• 10/31 - 11/1 → 黑客松正式舉行\n• 11/1 下午 → Demo Day 發表\n• 11/8 → 評審結束，獲獎隊伍公告',
     },
     {
       question: '題目何時公布？何時可以開始動工？',
@@ -29,7 +29,7 @@ export default function HomeFaqSection() {
     },
     {
       question: '報名截止日？',
-      answer: '2025/10/27（一）23:59',
+      answer: '2025/10/29（三）23:59',
     },
     {
       question: '團隊報名要怎麼進行？',

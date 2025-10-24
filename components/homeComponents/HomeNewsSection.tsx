@@ -68,7 +68,7 @@ export default function HomeNewsSection() {
                   Solidity 智能合約免費線上課程
                 </a>
               </Link>
-              」（5 小時完整教學 + 10/27 賽前線下實作 QA）- 讓您從零到挑戰黑客松的最佳利器！
+              」（5 小時完整教學 + 10/29 賽前線下實作 QA）- 讓您從零到挑戰黑客松的最佳利器！
             </p>
             <Link href="/schedule/Elyt7SvclfTp43LPKmaq">
               <a

@@ -22,7 +22,7 @@ export default function TSMCChallengeTimeline() {
       icon: '📋',
     },
     {
-      date: '10/27',
+      date: '10/29',
       title: '報名截止',
       description: '最後報名期限',
       icon: '⏰',
