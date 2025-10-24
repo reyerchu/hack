@@ -76,22 +76,61 @@ export default function SponsorDashboard() {
     setCreateMessage('');
     setShowAddTrackModal(true);
 
-    // Fetch sponsors list
+    // Fetch user's sponsors and determine if admin or sponsor
     try {
       setLoadingSponsors(true);
       const currentUser = firebase.auth().currentUser;
       if (!currentUser) return;
 
       const token = await currentUser.getIdToken();
-      const response = await fetch('/api/admin/sponsors', {
+      
+      // Get user's accessible sponsors
+      const tracksResponse = await fetch('/api/sponsor/tracks', {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        setSponsors(data.data?.sponsors || []);
+      if (tracksResponse.ok) {
+        const tracksData = await tracksResponse.json();
+        const userTracks = tracksData.data?.tracks || [];
+        
+        // Check if user is admin by looking at tracks (admin can see all sponsors)
+        // or if they only have access to specific sponsors
+        const uniqueSponsors = new Map();
+        userTracks.forEach((track: any) => {
+          if (track.sponsorId && track.sponsorName) {
+            uniqueSponsors.set(track.sponsorId, track.sponsorName);
+          }
+        });
+
+        // If user has tracks, they are either admin or sponsor
+        // Fetch all sponsors for admin, or use the ones from tracks for sponsors
+        if (uniqueSponsors.size === 0 || uniqueSponsors.size > 1) {
+          // Likely admin - fetch all sponsors
+          const sponsorsResponse = await fetch('/api/admin/sponsors', {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
+          if (sponsorsResponse.ok) {
+            const sponsorsData = await sponsorsResponse.json();
+            setSponsors(sponsorsData.data?.sponsors || []);
+          }
+        } else {
+          // Single sponsor - this is a sponsor user
+          const sponsorEntries = Array.from(uniqueSponsors.entries());
+          const [sponsorId, sponsorName] = sponsorEntries[0];
+          setSponsors([{ id: sponsorId, name: sponsorName }]);
+          // Pre-fill the sponsor for sponsor users
+          setNewTrackData({
+            name: '',
+            description: '',
+            sponsorId: sponsorId,
+            sponsorName: sponsorName,
+          });
+        }
       }
     } catch (error) {
       console.error('Failed to fetch sponsors:', error);
@@ -365,7 +404,18 @@ export default function SponsorDashboard() {
                         載入贊助商列表...
                       </span>
                     </div>
+                  ) : sponsors.length === 1 && newTrackData.sponsorId ? (
+                    // Sponsor user - show read-only field
+                    <div
+                      className="w-full px-4 py-2 border rounded-lg bg-gray-50"
+                      style={{ borderColor: '#d1d5db' }}
+                    >
+                      <span className="text-sm font-medium" style={{ color: '#1a3a6e' }}>
+                        {newTrackData.sponsorName}
+                      </span>
+                    </div>
                   ) : (
+                    // Admin or multiple sponsors - show dropdown
                     <select
                       value={newTrackData.sponsorId}
                       onChange={(e) => {

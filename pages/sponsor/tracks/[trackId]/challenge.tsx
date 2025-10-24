@@ -18,7 +18,7 @@ import type { ExtendedChallenge, ChallengeAttachment } from '../../../../lib/spo
 
 export default function ChallengeEditPage() {
   const router = useRouter();
-  const { trackId, challengeId, mode } = router.query;
+  const { trackId, challengeId, mode, returnUrl } = router.query;
   const { isSignedIn, loading: authLoading } = useAuthContext();
   const isSponsor = useIsSponsor();
 
@@ -29,6 +29,11 @@ export default function ChallengeEditPage() {
 
   // 判断是否为只读模式
   const isReadOnly = mode === 'view';
+  
+  // 返回链接：如果有returnUrl则使用，否则使用默认的sponsor track页面
+  const backUrl = returnUrl 
+    ? (typeof returnUrl === 'string' ? decodeURIComponent(returnUrl) : `/sponsor/tracks/${trackId}`)
+    : `/sponsor/tracks/${trackId}`;
 
   // 權限檢查
   useEffect(() => {
@@ -220,7 +225,7 @@ export default function ChallengeEditPage() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-12">
         {/* Header */}
         <div className="mb-6">
-          <Link href={`/sponsor/tracks/${trackId}`}>
+          <Link href={backUrl}>
             <a
               className="inline-flex items-center gap-1 text-sm font-medium mb-4 hover:underline"
               style={{ color: '#1a3a6e' }}
@@ -233,7 +238,7 @@ export default function ChallengeEditPage() {
                   d="M15 19l-7-7 7-7"
                 />
               </svg>
-              返回賽道詳情
+              返回
             </a>
           </Link>
 

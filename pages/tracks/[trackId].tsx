@@ -46,6 +46,15 @@ export default function PublicTrackDetailPage() {
   const [checkingPermission, setCheckingPermission] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  
+  // Edit track modal state
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [updateMessage, setUpdateMessage] = useState('');
+  const [editTrackData, setEditTrackData] = useState({
+    name: '',
+    description: '',
+  });
 
   // 獲取賽道詳情（公開 API，不需要認證）
   useEffect(() => {
@@ -155,6 +164,74 @@ export default function PublicTrackDetailPage() {
     } finally {
       setIsDeleting(false);
       setShowDeleteModal(false);
+    }
+  };
+
+  // 打開編輯模態窗口
+  const handleEditClick = () => {
+    if (!track) return;
+    setEditTrackData({
+      name: track.name || '',
+      description: track.description || '',
+    });
+    setUpdateMessage('');
+    setShowEditModal(true);
+  };
+
+  // 處理更新賽道
+  const handleUpdateTrack = async () => {
+    if (!trackId || !track) return;
+
+    try {
+      setIsUpdating(true);
+      setUpdateMessage('');
+
+      // Validation
+      if (!editTrackData.name.trim()) {
+        setUpdateMessage('❌ 請輸入賽道名稱');
+        return;
+      }
+
+      const currentUser = firebase.auth().currentUser;
+      if (!currentUser) {
+        throw new Error('未登入');
+      }
+      const token = await currentUser.getIdToken();
+
+      const response = await fetch(`/api/sponsor/tracks/${trackId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(editTrackData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || errorData.details || '更新失敗');
+      }
+
+      setUpdateMessage('✅ 賽道已成功更新！');
+      
+      // Update local track data
+      setTrack({
+        ...track,
+        name: editTrackData.name,
+        description: editTrackData.description,
+      });
+
+      // Close modal after 1.5 seconds
+      setTimeout(() => {
+        setShowEditModal(false);
+        // Refresh the page data
+        window.location.reload();
+      }, 1500);
+    } catch (err: any) {
+      console.error('[PublicTrackPage] Update error:', err);
+      setUpdateMessage(`❌ ${err.message}`);
+    } finally {
+      setIsUpdating(false);
     }
   };
 
@@ -285,9 +362,7 @@ export default function PublicTrackDetailPage() {
               {canEdit && (
                 <div className="flex items-center gap-3">
                   <button
-                    onClick={() =>
-                      router.push(`/sponsor/tracks/${trackId}?mode=edit&returnUrl=${encodeURIComponent(router.asPath)}`)
-                    }
+                    onClick={handleEditClick}
                     className="flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors"
                     style={{ backgroundColor: '#059669', color: '#ffffff' }}
                     onMouseEnter={(e) => {
@@ -687,6 +762,147 @@ export default function PublicTrackDetailPage() {
                 ) : (
                   '確認刪除'
                 )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 編輯賽道模態框 */}
+      {showEditModal && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+          onClick={() => !isUpdating && setShowEditModal(false)}
+        >
+          <div
+            className="bg-white rounded-lg p-8 max-w-lg w-full mx-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center mb-6">
+              <div
+                className="w-12 h-12 rounded-full flex items-center justify-center mr-4"
+                style={{ backgroundColor: '#dbeafe' }}
+              >
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  style={{ color: '#1a3a6e' }}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                  />
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-xl font-bold" style={{ color: '#1a3a6e' }}>
+                  編輯賽道
+                </h3>
+                <p className="text-sm" style={{ color: '#6b7280' }}>
+                  修改賽道資訊
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-4 mb-6">
+              {/* Track Name */}
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: '#1a3a6e' }}>
+                  賽道名稱 <span style={{ color: '#dc2626' }}>*</span>
+                </label>
+                <input
+                  type="text"
+                  value={editTrackData.name}
+                  onChange={(e) => setEditTrackData({ ...editTrackData, name: e.target.value })}
+                  placeholder="例如：RWA 創新應用賽道"
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  style={{ borderColor: '#d1d5db' }}
+                  disabled={isUpdating}
+                />
+              </div>
+
+              {/* Sponsor Name (Read-only) */}
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: '#1a3a6e' }}>
+                  贊助商名稱
+                </label>
+                <div
+                  className="w-full px-4 py-2 border rounded-lg bg-gray-50"
+                  style={{ borderColor: '#d1d5db' }}
+                >
+                  <span className="text-sm font-medium" style={{ color: '#6b7280' }}>
+                    {track?.sponsorName || '無'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Description */}
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: '#1a3a6e' }}>
+                  賽道描述
+                </label>
+                <textarea
+                  value={editTrackData.description}
+                  onChange={(e) =>
+                    setEditTrackData({ ...editTrackData, description: e.target.value })
+                  }
+                  placeholder="簡要描述這個賽道的目標和要求..."
+                  rows={4}
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  style={{ borderColor: '#d1d5db' }}
+                  disabled={isUpdating}
+                />
+              </div>
+            </div>
+
+            {updateMessage && (
+              <div
+                className={`p-4 mb-4 rounded-lg ${
+                  updateMessage.includes('✅')
+                    ? 'bg-green-50 border border-green-200'
+                    : 'bg-red-50 border border-red-200'
+                }`}
+              >
+                <p
+                  className="text-sm"
+                  style={{
+                    color: updateMessage.includes('✅') ? '#166534' : '#991b1b',
+                  }}
+                >
+                  {updateMessage}
+                </p>
+              </div>
+            )}
+
+            <div className="flex gap-4">
+              <button
+                type="button"
+                onClick={() => setShowEditModal(false)}
+                disabled={isUpdating}
+                className="flex-1 border-2 px-6 py-3 text-sm font-medium rounded-lg transition-colors disabled:opacity-50"
+                style={{
+                  borderColor: '#d1d5db',
+                  color: '#6b7280',
+                  backgroundColor: 'transparent',
+                }}
+              >
+                取消
+              </button>
+              <button
+                type="button"
+                onClick={handleUpdateTrack}
+                disabled={isUpdating}
+                className="flex-1 px-6 py-3 text-sm font-medium rounded-lg transition-colors disabled:opacity-50"
+                style={{
+                  backgroundColor: isUpdating ? '#93c5fd' : '#1a3a6e',
+                  color: 'white',
+                }}
+              >
+                {isUpdating ? '更新中...' : '儲存'}
               </button>
             </div>
           </div>
