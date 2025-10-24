@@ -4,7 +4,7 @@ const fs = require('fs');
 // Read environment variables
 const envContent = fs.readFileSync('.env.local', 'utf8');
 const envVars = {};
-envContent.split('\n').forEach(line => {
+envContent.split('\n').forEach((line) => {
   if (line.trim() && !line.startsWith('#')) {
     const [key, ...valueParts] = line.split('=');
     if (key && valueParts.length > 0) {
@@ -32,12 +32,12 @@ async function checkChallenge() {
   try {
     const challengeId = 'kLLbqDvdbi7xmrln9Uql';
     const doc = await db.collection('extended-challenges').doc(challengeId).get();
-    
+
     if (!doc.exists) {
       console.log('Challenge not found');
       return;
     }
-    
+
     const data = doc.data();
     console.log('\n=== Challenge Data ===');
     console.log('ID:', challengeId);
@@ -49,12 +49,15 @@ async function checkChallenge() {
     console.log('Is Empty String:', data.submissionRequirements === '');
     console.log('Is Undefined:', data.submissionRequirements === undefined);
     console.log('Is Null:', data.submissionRequirements === null);
-    
+
     console.log('\nEvaluation Criteria:');
     console.log('Type:', typeof data.evaluationCriteria);
     console.log('Value:', JSON.stringify(data.evaluationCriteria, null, 2));
     console.log('Is Array:', Array.isArray(data.evaluationCriteria));
-    console.log('Array Length:', Array.isArray(data.evaluationCriteria) ? data.evaluationCriteria.length : 'N/A');
+    console.log(
+      'Array Length:',
+      Array.isArray(data.evaluationCriteria) ? data.evaluationCriteria.length : 'N/A',
+    );
   } catch (error) {
     console.error('Error:', error.message);
   } finally {

@@ -1,7 +1,7 @@
 /**
  * Public API endpoint to get track details
  * GET /api/tracks/[trackId]
- * 
+ *
  * This is a public endpoint - no authentication required
  */
 
@@ -97,7 +97,13 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
       status: trackData.status,
     };
 
-    console.log('[/api/tracks/[id]] Track found:', response.name, 'with', challenges.length, 'challenges');
+    console.log(
+      '[/api/tracks/[id]] Track found:',
+      response.name,
+      'with',
+      challenges.length,
+      'challenges',
+    );
 
     return res.status(200).json({
       success: true,

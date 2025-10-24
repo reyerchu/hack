@@ -64,7 +64,6 @@ export default function SponsorDashboard() {
     }
   }, [authLoading, isSignedIn, isSponsor, router]);
 
-
   // Handle add track
   const handleAddTrackClick = async () => {
     setNewTrackData({
@@ -83,7 +82,7 @@ export default function SponsorDashboard() {
       if (!currentUser) return;
 
       const token = await currentUser.getIdToken();
-      
+
       // Get user's accessible sponsors
       const tracksResponse = await fetch('/api/sponsor/tracks', {
         headers: {
@@ -94,7 +93,7 @@ export default function SponsorDashboard() {
       if (tracksResponse.ok) {
         const tracksData = await tracksResponse.json();
         const userTracks = tracksData.data?.tracks || [];
-        
+
         // Check if user is admin by looking at tracks (admin can see all sponsors)
         // or if they only have access to specific sponsors
         const uniqueSponsors = new Map();

@@ -46,7 +46,7 @@ export default function PublicTrackDetailPage() {
   const [checkingPermission, setCheckingPermission] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  
+
   // Edit track modal state
   const [showEditModal, setShowEditModal] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -213,7 +213,7 @@ export default function PublicTrackDetailPage() {
       }
 
       setUpdateMessage('✅ 賽道已成功更新！');
-      
+
       // Update local track data
       setTrack({
         ...track,
@@ -372,12 +372,7 @@ export default function PublicTrackDetailPage() {
                       e.currentTarget.style.backgroundColor = '#059669';
                     }}
                   >
-                    <svg
-                      className="w-5 h-5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
@@ -398,12 +393,7 @@ export default function PublicTrackDetailPage() {
                       e.currentTarget.style.backgroundColor = '#dc2626';
                     }}
                   >
-                    <svg
-                      className="w-5 h-5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
@@ -545,7 +535,9 @@ export default function PublicTrackDetailPage() {
                           <button
                             onClick={() =>
                               router.push(
-                                `/sponsor/tracks/${trackId}/challenge?challengeId=${challenge.id}&mode=edit&returnUrl=${encodeURIComponent(router.asPath)}`,
+                                `/sponsor/tracks/${trackId}/challenge?challengeId=${
+                                  challenge.id
+                                }&mode=edit&returnUrl=${encodeURIComponent(router.asPath)}`,
                               )
                             }
                             className="flex items-center gap-1 px-3 py-1.5 text-sm rounded-lg font-medium transition-colors"

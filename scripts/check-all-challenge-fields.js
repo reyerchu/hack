@@ -4,7 +4,7 @@ const fs = require('fs');
 // Read environment variables
 const envContent = fs.readFileSync('.env.local', 'utf8');
 const envVars = {};
-envContent.split('\n').forEach(line => {
+envContent.split('\n').forEach((line) => {
   if (line.trim() && !line.startsWith('#')) {
     const [key, ...valueParts] = line.split('=');
     if (key && valueParts.length > 0) {
@@ -32,12 +32,12 @@ async function checkChallenge() {
   try {
     const challengeId = 'kLLbqDvdbi7xmrln9Uql';
     const doc = await db.collection('extended-challenges').doc(challengeId).get();
-    
+
     if (!doc.exists) {
       console.log('Challenge not found');
       return;
     }
-    
+
     const data = doc.data();
     console.log('\n=== All Challenge Fields ===');
     console.log(JSON.stringify(data, null, 2));

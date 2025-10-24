@@ -6,7 +6,11 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { firestore } from 'firebase-admin';
 import initializeApi from '../../../../../lib/admin/init';
-import { requireAuth, ApiResponse, AuthenticatedRequest } from '../../../../../lib/sponsor/middleware';
+import {
+  requireAuth,
+  ApiResponse,
+  AuthenticatedRequest,
+} from '../../../../../lib/sponsor/middleware';
 import { checkTrackAccess } from '../../../../../lib/sponsor/permissions';
 
 initializeApi();
@@ -67,14 +71,10 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
 
     // Get the track document ID (trackId might be the field value or document ID)
     let trackDocId = trackId;
-    
+
     // Try to find track by trackId field first
-    const trackQuery = await db
-      .collection('tracks')
-      .where('trackId', '==', trackId)
-      .limit(1)
-      .get();
-    
+    const trackQuery = await db.collection('tracks').where('trackId', '==', trackId).limit(1).get();
+
     if (!trackQuery.empty) {
       trackDocId = trackQuery.docs[0].id;
     }
@@ -94,10 +94,10 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
 
     for (const teamDoc of teamsSnapshot.docs) {
       const teamData = teamDoc.data();
-      
+
       // Check if team has this track (tracks is an array of objects with id field)
-      const hasTrack = teamData.tracks?.some((track: any) => 
-        track.id === trackDocId || track.id === trackId
+      const hasTrack = teamData.tracks?.some(
+        (track: any) => track.id === trackDocId || track.id === trackId,
       );
 
       if (!hasTrack) continue;
@@ -115,7 +115,7 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
 
       // Get team members details (data is already in teamMembers array)
       const teamMembers: TeamMember[] = [];
-      
+
       if (Array.isArray(teamData.teamMembers)) {
         for (const member of teamData.teamMembers) {
           teamMembers.push({
@@ -157,4 +157,3 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   return res.status(405).json({ error: 'Method not allowed' });
 }
-

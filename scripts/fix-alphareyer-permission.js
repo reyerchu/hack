@@ -8,7 +8,7 @@ const fs = require('fs');
 // Load .env.local
 const envPath = path.join(__dirname, '..', '.env.local');
 const envContent = fs.readFileSync(envPath, 'utf8');
-envContent.split('\n').forEach(line => {
+envContent.split('\n').forEach((line) => {
   const match = line.match(/^([^=]+)=(.*)$/);
   if (match && match[1].startsWith('SERVICE_ACCOUNT_')) {
     process.env[match[1]] = match[2];
@@ -41,14 +41,16 @@ async function checkAndFix() {
   console.log(`\nChecking ${email}...`);
 
   // 1. Find user
-  let usersSnapshot = await db.collection('registrations')
+  let usersSnapshot = await db
+    .collection('registrations')
     .where('email', '==', email)
     .limit(1)
     .get();
 
   if (usersSnapshot.empty) {
     console.log('Not found by email, trying preferredEmail...');
-    usersSnapshot = await db.collection('registrations')
+    usersSnapshot = await db
+      .collection('registrations')
       .where('preferredEmail', '==', email)
       .limit(1)
       .get();
@@ -56,7 +58,8 @@ async function checkAndFix() {
 
   if (usersSnapshot.empty) {
     console.log('Not found by preferredEmail, trying user.preferredEmail...');
-    usersSnapshot = await db.collection('registrations')
+    usersSnapshot = await db
+      .collection('registrations')
       .where('user.preferredEmail', '==', email)
       .limit(1)
       .get();
@@ -64,11 +67,11 @@ async function checkAndFix() {
 
   if (usersSnapshot.empty) {
     console.log('User not found in registrations');
-    
+
     // Try to list all users to see the structure
     console.log('\nListing first 3 users for debugging:');
     const allUsers = await db.collection('registrations').limit(3).get();
-    allUsers.docs.forEach(doc => {
+    allUsers.docs.forEach((doc) => {
       const data = doc.data();
       console.log(`  - ID: ${doc.id}`);
       console.log(`    email: ${data.email}`);
@@ -76,7 +79,7 @@ async function checkAndFix() {
       console.log(`    user.email: ${data.user?.email}`);
       console.log(`    user.preferredEmail: ${data.user?.preferredEmail}`);
     });
-    
+
     return;
   }
 
@@ -88,7 +91,8 @@ async function checkAndFix() {
   console.log(`Permissions: ${JSON.stringify(userData.user?.permissions)}`);
 
   // 2. Find imToken sponsor
-  const imtokenSnapshot = await db.collection('extended-sponsors')
+  const imtokenSnapshot = await db
+    .collection('extended-sponsors')
     .where('name', '==', 'imToken')
     .limit(1)
     .get();
@@ -106,7 +110,8 @@ async function checkAndFix() {
   console.log(`Managers: ${JSON.stringify(imtoken.managers)}`);
 
   // 3. Check sponsor-user-mapping
-  const mappingSnapshot = await db.collection('sponsor-user-mappings')
+  const mappingSnapshot = await db
+    .collection('sponsor-user-mappings')
     .where('userId', '==', userId)
     .where('sponsorId', '==', imtokenId)
     .limit(1)
@@ -114,7 +119,7 @@ async function checkAndFix() {
 
   if (mappingSnapshot.empty) {
     console.log('\n❌ No mapping found! Creating one...');
-    
+
     await db.collection('sponsor-user-mappings').add({
       userId: userId,
       sponsorId: imtokenId,
@@ -122,14 +127,14 @@ async function checkAndFix() {
       canEdit: true,
       createdAt: admin.firestore.Timestamp.now(),
     });
-    
+
     console.log('✅ Mapping created!');
   } else {
     const mapping = mappingSnapshot.docs[0].data();
     console.log(`\n✅ Mapping exists:`);
     console.log(`   Role: ${mapping.role}`);
     console.log(`   Can Edit: ${mapping.canEdit}`);
-    
+
     if (mapping.role !== 'admin' || mapping.canEdit !== true) {
       console.log('\n⚠️  Fixing mapping (setting role=admin, canEdit=true)...');
       await mappingSnapshot.docs[0].ref.update({
@@ -148,7 +153,7 @@ async function checkAndFix() {
 
 checkAndFix()
   .then(() => process.exit(0))
-  .catch(err => {
+  .catch((err) => {
     console.error('Error:', err);
     process.exit(1);
   });
