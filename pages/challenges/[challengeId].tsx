@@ -81,7 +81,10 @@ export default function PublicChallengeDetailPage() {
   // 檢查編輯權限（sponsor/admin）
   useEffect(() => {
     const checkPermission = async () => {
-      if (!isSignedIn || !user || !challenge || !challenge.trackId) {
+      // Use track.id (document ID) instead of trackId (field value) for permission check
+      const trackDocId = challenge?.track?.id || challenge?.trackId;
+      
+      if (!isSignedIn || !user || !challenge || !trackDocId) {
         setCanEdit(false);
         return;
       }
@@ -95,8 +98,9 @@ export default function PublicChallengeDetailPage() {
         }
 
         const token = await currentUser.getIdToken();
+        console.log('[PublicChallengePage] Checking permission for track:', trackDocId);
         const response = await fetch(
-          `/api/sponsor/tracks/${challenge.trackId}/check-permission`,
+          `/api/sponsor/tracks/${trackDocId}/check-permission`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -109,6 +113,7 @@ export default function PublicChallengeDetailPage() {
           setCanEdit(data.canEdit || false);
           console.log('[PublicChallengePage] Permission check result:', data.canEdit);
         } else {
+          console.error('[PublicChallengePage] Permission check failed:', response.status);
           setCanEdit(false);
         }
       } catch (err) {
@@ -344,7 +349,7 @@ export default function PublicChallengeDetailPage() {
                   <button
                     onClick={() =>
                       router.push(
-                        `/sponsor/tracks/${challenge.trackId}/challenge?challengeId=${challengeId}&mode=edit&returnUrl=${encodeURIComponent(router.asPath)}`,
+                        `/sponsor/tracks/${challenge.track?.id || challenge.trackId}/challenge?challengeId=${challengeId}&mode=edit&returnUrl=${encodeURIComponent(router.asPath)}`,
                       )
                     }
                     className="flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors"
