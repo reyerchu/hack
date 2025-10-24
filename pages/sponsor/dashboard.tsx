@@ -573,30 +573,18 @@ export default function SponsorDashboard() {
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-1">
-                        <h3 className="text-xl font-semibold" style={{ color: '#1a3a6e' }}>
-                          {track.name}
-                        </h3>
                         <button
                           onClick={() => router.push(`/tracks/${track.id}`)}
-                          className="flex items-center gap-1 px-2 py-1 text-xs rounded-lg font-medium transition-colors"
-                          style={{ backgroundColor: '#1a3a6e', color: '#ffffff' }}
+                          className="text-xl font-semibold hover:underline transition-all"
+                          style={{ color: '#1a3a6e' }}
                           onMouseEnter={(e) => {
-                            e.currentTarget.style.backgroundColor = '#2a4a7e';
+                            e.currentTarget.style.color = '#2a4a7e';
                           }}
                           onMouseLeave={(e) => {
-                            e.currentTarget.style.backgroundColor = '#1a3a6e';
+                            e.currentTarget.style.color = '#1a3a6e';
                           }}
-                          title="查看公開頁面"
                         >
-                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                            />
-                          </svg>
-                          查看
+                          {track.name}
                         </button>
                       </div>
                       <p className="text-sm" style={{ color: '#6b7280' }}>
@@ -606,15 +594,6 @@ export default function SponsorDashboard() {
                           ` • 平均分: ${track.stats.averageScore.toFixed(1)}`}
                       </p>
                     </div>
-                    <span
-                      className="px-3 py-1 rounded text-xs font-semibold"
-                      style={{
-                        backgroundColor: track.permissions.canEdit ? '#dcfce7' : '#e5e7eb',
-                        color: track.permissions.canEdit ? '#166534' : '#6b7280',
-                      }}
-                    >
-                      {track.permissions.canEdit ? '可編輯' : '只读'}
-                    </span>
                   </div>
 
                   {/* Challenges List */}
@@ -632,32 +611,18 @@ export default function SponsorDashboard() {
                           >
                             <div className="flex-1">
                               <div className="flex items-center gap-2">
-                                <p className="text-sm font-medium" style={{ color: '#1a3a6e' }}>
-                                  {challenge.title || challenge.track}
-                                </p>
                                 <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    router.push(`/challenges/${challenge.id}`);
-                                  }}
-                                  className="flex items-center gap-1 px-1.5 py-0.5 text-xs rounded transition-colors"
-                                  style={{ backgroundColor: '#e5e7eb', color: '#1a3a6e' }}
+                                  onClick={() => router.push(`/challenges/${challenge.id}`)}
+                                  className="text-sm font-medium hover:underline transition-all"
+                                  style={{ color: '#1a3a6e' }}
                                   onMouseEnter={(e) => {
-                                    e.currentTarget.style.backgroundColor = '#d1d5db';
+                                    e.currentTarget.style.color = '#2a4a7e';
                                   }}
                                   onMouseLeave={(e) => {
-                                    e.currentTarget.style.backgroundColor = '#e5e7eb';
+                                    e.currentTarget.style.color = '#1a3a6e';
                                   }}
-                                  title="查看公開頁面"
                                 >
-                                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                      strokeWidth={2}
-                                      d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                                    />
-                                  </svg>
+                                  {challenge.title || challenge.track}
                                 </button>
                               </div>
                               {challenge.description && (
