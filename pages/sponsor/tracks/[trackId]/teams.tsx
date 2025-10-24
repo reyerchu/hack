@@ -296,7 +296,7 @@ export default function SponsorTrackTeamsPage() {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="搜尋團隊名稱、隊長或成員..."
+              placeholder="搜尋團隊名稱、報名者或成員..."
               className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               style={{ borderColor: '#d1d5db' }}
             />
@@ -312,7 +312,7 @@ export default function SponsorTrackTeamsPage() {
                       團隊名稱
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style={{ color: '#1a3a6e' }}>
-                      隊長
+                      報名者
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style={{ color: '#1a3a6e' }}>
                       成員數
@@ -448,7 +448,7 @@ export default function SponsorTrackTeamsPage() {
             {/* Team Leader */}
             <div className="mb-6">
               <h4 className="text-sm font-semibold mb-3" style={{ color: '#1a3a6e' }}>
-                隊長
+                報名者
               </h4>
               <div className="bg-gray-50 rounded-lg p-4">
                 <p className="font-medium" style={{ color: '#374151' }}>

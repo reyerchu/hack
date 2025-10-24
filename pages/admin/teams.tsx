@@ -276,7 +276,7 @@ export default function AdminTeamsPage() {
                 >
                   <option value="all">全部</option>
                   <option value="teamName">團隊名稱</option>
-                  <option value="leader">領導者</option>
+                  <option value="leader">報名者</option>
                   <option value="track">賽道</option>
                 </select>
 
@@ -314,7 +314,7 @@ export default function AdminTeamsPage() {
                           團隊名稱
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          領導者
+                          報名者
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           成員數
@@ -459,7 +459,7 @@ export default function AdminTeamsPage() {
 
               <div>
                 <h3 className="text-lg font-semibold mb-2" style={{ color: '#1a3a6e' }}>
-                  團隊領導者
+                  報名者
                 </h3>
                 <div className="bg-gray-50 p-4 rounded-lg">
                   <p className="font-medium">
