@@ -1,7 +1,8 @@
 /**
- * 公開賽道詳情頁面（只讀版本）
+ * 公開賽道詳情頁面
  *
  * 供所有參賽者查看賽道的詳細資訊
+ * Sponsor/Admin 可以看到編輯按鈕
  */
 
 import React, { useEffect, useState } from 'react';
@@ -9,6 +10,9 @@ import { useRouter } from 'next/router';
 import Link from 'next/link';
 import Head from 'next/head';
 import AppHeader from '../../components/AppHeader';
+import { useAuthContext } from '../../lib/user/AuthContext';
+import firebase from 'firebase/app';
+import 'firebase/auth';
 
 interface Challenge {
   id: string;
@@ -17,6 +21,7 @@ interface Challenge {
   prizes?: string | any[];
   submissionRequirements?: string;
   evaluationCriteria?: string | any[];
+  trackId?: string;
 }
 
 interface Track {
@@ -24,6 +29,7 @@ interface Track {
   name: string;
   description?: string;
   sponsorName?: string;
+  sponsorId?: string;
   totalPrize?: number;
   challenges?: Challenge[];
 }
@@ -31,10 +37,13 @@ interface Track {
 export default function PublicTrackDetailPage() {
   const router = useRouter();
   const { trackId } = router.query;
+  const { isSignedIn, user } = useAuthContext();
 
   const [track, setTrack] = useState<Track | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [canEdit, setCanEdit] = useState(false);
+  const [checkingPermission, setCheckingPermission] = useState(false);
 
   // 獲取賽道詳情（公開 API，不需要認證）
   useEffect(() => {
@@ -66,6 +75,47 @@ export default function PublicTrackDetailPage() {
 
     fetchTrackDetails();
   }, [trackId]);
+
+  // 檢查編輯權限（sponsor/admin）
+  useEffect(() => {
+    const checkPermission = async () => {
+      if (!isSignedIn || !user || !trackId || !track) {
+        setCanEdit(false);
+        return;
+      }
+
+      try {
+        setCheckingPermission(true);
+        const currentUser = firebase.auth().currentUser;
+        if (!currentUser) {
+          setCanEdit(false);
+          return;
+        }
+
+        const token = await currentUser.getIdToken();
+        const response = await fetch(`/api/sponsor/tracks/${trackId}/check-permission`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setCanEdit(data.canEdit || false);
+          console.log('[PublicTrackPage] Permission check result:', data.canEdit);
+        } else {
+          setCanEdit(false);
+        }
+      } catch (err) {
+        console.error('[PublicTrackPage] Permission check error:', err);
+        setCanEdit(false);
+      } finally {
+        setCheckingPermission(false);
+      }
+    };
+
+    checkPermission();
+  }, [isSignedIn, user, trackId, track]);
 
   // 格式化獎金顯示
   const formatPrizes = (prizes: string | any[]): string => {
@@ -187,9 +237,41 @@ export default function PublicTrackDetailPage() {
 
           {/* 賽道標題 */}
           <div className="mb-8 bg-white rounded-lg p-8 shadow-sm">
-            <h1 className="text-4xl font-bold mb-4" style={{ color: '#1a3a6e' }}>
-              {track.name}
-            </h1>
+            <div className="flex items-start justify-between mb-4">
+              <h1 className="text-4xl font-bold" style={{ color: '#1a3a6e' }}>
+                {track.name}
+              </h1>
+              {canEdit && (
+                <button
+                  onClick={() =>
+                    router.push(`/sponsor/tracks/${trackId}?mode=edit&returnUrl=${encodeURIComponent(router.asPath)}`)
+                  }
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors"
+                  style={{ backgroundColor: '#059669', color: '#ffffff' }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#047857';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = '#059669';
+                  }}
+                >
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                    />
+                  </svg>
+                  編輯賽道
+                </button>
+              )}
+            </div>
             {track.description && (
               <p
                 className="text-lg mb-4"
@@ -277,9 +359,78 @@ export default function PublicTrackDetailPage() {
                     className="bg-white rounded-lg p-6 shadow-sm border"
                     style={{ borderColor: '#e5e7eb' }}
                   >
-                    <h3 className="text-xl font-semibold mb-3" style={{ color: '#1a3a6e' }}>
-                      {challenge.title}
-                    </h3>
+                    <div className="flex items-start justify-between mb-3">
+                      <h3 className="text-xl font-semibold" style={{ color: '#1a3a6e' }}>
+                        {challenge.title}
+                      </h3>
+                      <div className="flex items-center gap-2">
+                        <Link href={`/challenges/${challenge.id}`}>
+                          <a
+                            className="flex items-center gap-1 px-3 py-1.5 text-sm rounded-lg font-medium transition-colors"
+                            style={{ backgroundColor: '#1a3a6e', color: '#ffffff' }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.backgroundColor = '#2a4a7e';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.backgroundColor = '#1a3a6e';
+                            }}
+                          >
+                            <svg
+                              className="w-4 h-4"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                              />
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                              />
+                            </svg>
+                            查看詳情
+                          </a>
+                        </Link>
+                        {canEdit && (
+                          <button
+                            onClick={() =>
+                              router.push(
+                                `/sponsor/tracks/${trackId}/challenge?challengeId=${challenge.id}&mode=edit&returnUrl=${encodeURIComponent(router.asPath)}`,
+                              )
+                            }
+                            className="flex items-center gap-1 px-3 py-1.5 text-sm rounded-lg font-medium transition-colors"
+                            style={{ backgroundColor: '#059669', color: '#ffffff' }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.backgroundColor = '#047857';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.backgroundColor = '#059669';
+                            }}
+                          >
+                            <svg
+                              className="w-4 h-4"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                              />
+                            </svg>
+                            編輯
+                          </button>
+                        )}
+                      </div>
+                    </div>
 
                     {challenge.description && (
                       <div className="mb-4">

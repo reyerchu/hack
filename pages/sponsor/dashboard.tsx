@@ -636,9 +636,33 @@ export default function SponsorDashboard() {
                   {/* Track Header */}
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex-1">
-                      <h3 className="text-xl font-semibold mb-1" style={{ color: '#1a3a6e' }}>
-                        {track.name}
-                      </h3>
+                      <div className="flex items-center gap-3 mb-1">
+                        <h3 className="text-xl font-semibold" style={{ color: '#1a3a6e' }}>
+                          {track.name}
+                        </h3>
+                        <button
+                          onClick={() => router.push(`/tracks/${track.id}`)}
+                          className="flex items-center gap-1 px-2 py-1 text-xs rounded-lg font-medium transition-colors"
+                          style={{ backgroundColor: '#1a3a6e', color: '#ffffff' }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor = '#2a4a7e';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor = '#1a3a6e';
+                          }}
+                          title="查看公開頁面"
+                        >
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                            />
+                          </svg>
+                          查看
+                        </button>
+                      </div>
                       <p className="text-sm" style={{ color: '#6b7280' }}>
                         {track.challenges?.length || 0} 個挑戰 • {track.stats.submissionCount}{' '}
                         個提交 • {track.stats.teamCount} 個隊伍
@@ -671,9 +695,35 @@ export default function SponsorDashboard() {
                             style={{ border: '1px solid #e5e7eb' }}
                           >
                             <div className="flex-1">
-                              <p className="text-sm font-medium" style={{ color: '#1a3a6e' }}>
-                                {challenge.title || challenge.track}
-                              </p>
+                              <div className="flex items-center gap-2">
+                                <p className="text-sm font-medium" style={{ color: '#1a3a6e' }}>
+                                  {challenge.title || challenge.track}
+                                </p>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    router.push(`/challenges/${challenge.id}`);
+                                  }}
+                                  className="flex items-center gap-1 px-1.5 py-0.5 text-xs rounded transition-colors"
+                                  style={{ backgroundColor: '#e5e7eb', color: '#1a3a6e' }}
+                                  onMouseEnter={(e) => {
+                                    e.currentTarget.style.backgroundColor = '#d1d5db';
+                                  }}
+                                  onMouseLeave={(e) => {
+                                    e.currentTarget.style.backgroundColor = '#e5e7eb';
+                                  }}
+                                  title="查看公開頁面"
+                                >
+                                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth={2}
+                                      d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                                    />
+                                  </svg>
+                                </button>
+                              </div>
                               {challenge.description && (
                                 <p className="text-xs mt-1" style={{ color: '#6b7280' }}>
                                   {challenge.description.substring(0, 100)}
