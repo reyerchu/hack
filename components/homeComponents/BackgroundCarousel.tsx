@@ -54,7 +54,7 @@ export default function BackgroundCarousel() {
             style={{ fontSize: 'clamp(0.875rem, 1.5vw, 1.25rem)' }}
           >
             <div className="text-center">
-              <div className="font-bold text-blue-200">10/27 Mon.</div>
+              <div className="font-bold text-blue-200">10/29 Wed.</div>
               <div className="text-blue-300">報名截止日</div>
             </div>
             <div className="hidden md:block text-blue-400">|</div>

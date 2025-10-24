@@ -16,8 +16,8 @@ export default function TSMCChallenges(props: { challenges: Challenge[] }) {
       description: '設計代幣化清算與結算流程、收益分配機制與風險參數。',
     },
     {
-      title: 'Security Audit 資安審計',
-      description: '針對合約與基礎設施建立威脅模型與自動化檢測規則。',
+      title: 'Intent-Centric 意圖導向',
+      description: '將操作抽象化，使用者只需表達「意圖」，提升效率與使用者體驗。',
     },
     {
       title: 'KYC 身份驗證',

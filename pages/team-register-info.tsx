@@ -140,7 +140,7 @@ export default function TeamRegisterInfo() {
                   <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
                     <p className="text-sm" style={{ color: '#1e40af' }}>
                       <strong>💡 提示：</strong>團隊報名需要登入後才能進行。報名截止時間為{' '}
-                      <strong>2025/10/27 23:59</strong>，在截止前都可以編輯報名資料。
+                      <strong>2025/10/29 23:59</strong>，在截止前都可以編輯報名資料。
                     </p>
                   </div>
                 </div>
@@ -205,7 +205,7 @@ export default function TeamRegisterInfo() {
                   •
                 </span>
                 <span>
-                  報名截止時間：<strong>2025年10月27日 23:59</strong>
+                  報名截止時間：<strong>2025年10月29日 23:59</strong>
                 </span>
               </li>
               <li className="flex items-start gap-3">

@@ -39,22 +39,8 @@ async function checkChallenge() {
     }
     
     const data = doc.data();
-    console.log('\n=== Challenge Data ===');
-    console.log('ID:', challengeId);
-    console.log('Title:', data.title);
-    console.log('\nSubmission Requirements:');
-    console.log('Type:', typeof data.submissionRequirements);
-    console.log('Value:', JSON.stringify(data.submissionRequirements, null, 2));
-    console.log('Length:', data.submissionRequirements?.length || 0);
-    console.log('Is Empty String:', data.submissionRequirements === '');
-    console.log('Is Undefined:', data.submissionRequirements === undefined);
-    console.log('Is Null:', data.submissionRequirements === null);
-    
-    console.log('\nEvaluation Criteria:');
-    console.log('Type:', typeof data.evaluationCriteria);
-    console.log('Value:', JSON.stringify(data.evaluationCriteria, null, 2));
-    console.log('Is Array:', Array.isArray(data.evaluationCriteria));
-    console.log('Array Length:', Array.isArray(data.evaluationCriteria) ? data.evaluationCriteria.length : 'N/A');
+    console.log('\n=== All Challenge Fields ===');
+    console.log(JSON.stringify(data, null, 2));
   } catch (error) {
     console.error('Error:', error.message);
   } finally {

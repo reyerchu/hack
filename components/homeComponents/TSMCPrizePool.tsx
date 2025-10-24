@@ -34,7 +34,7 @@ export default function TSMCPrizePool() {
     {
       name: '主鏈',
       track: '安全即信任，保護一切 DeFi 流動',
-      prize: '總獎金至少 1000 美元',
+      prize: '總獎金高達 1000 美元',
       logo: '/sponsor-media/Zircuit-logo.svg',
       url: 'https://www.zircuit.com/',
     },

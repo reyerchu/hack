@@ -1,7 +1,8 @@
 /**
- * 公開賽道詳情頁面（只讀版本）
+ * 公開賽道詳情頁面
  *
  * 供所有參賽者查看賽道的詳細資訊
+ * Sponsor/Admin 可以看到編輯按鈕
  */
 
 import React, { useEffect, useState } from 'react';
@@ -9,6 +10,9 @@ import { useRouter } from 'next/router';
 import Link from 'next/link';
 import Head from 'next/head';
 import AppHeader from '../../components/AppHeader';
+import { useAuthContext } from '../../lib/user/AuthContext';
+import firebase from 'firebase/app';
+import 'firebase/auth';
 
 interface Challenge {
   id: string;
@@ -17,6 +21,7 @@ interface Challenge {
   prizes?: string | any[];
   submissionRequirements?: string;
   evaluationCriteria?: string | any[];
+  trackId?: string;
 }
 
 interface Track {
@@ -24,6 +29,7 @@ interface Track {
   name: string;
   description?: string;
   sponsorName?: string;
+  sponsorId?: string;
   totalPrize?: number;
   challenges?: Challenge[];
 }
@@ -31,10 +37,24 @@ interface Track {
 export default function PublicTrackDetailPage() {
   const router = useRouter();
   const { trackId } = router.query;
+  const { isSignedIn, user } = useAuthContext();
 
   const [track, setTrack] = useState<Track | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [canEdit, setCanEdit] = useState(false);
+  const [checkingPermission, setCheckingPermission] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  
+  // Edit track modal state
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [updateMessage, setUpdateMessage] = useState('');
+  const [editTrackData, setEditTrackData] = useState({
+    name: '',
+    description: '',
+  });
 
   // 獲取賽道詳情（公開 API，不需要認證）
   useEffect(() => {
@@ -66,6 +86,154 @@ export default function PublicTrackDetailPage() {
 
     fetchTrackDetails();
   }, [trackId]);
+
+  // 檢查編輯權限（sponsor/admin）
+  useEffect(() => {
+    const checkPermission = async () => {
+      if (!isSignedIn || !user || !trackId || !track) {
+        setCanEdit(false);
+        return;
+      }
+
+      try {
+        setCheckingPermission(true);
+        const currentUser = firebase.auth().currentUser;
+        if (!currentUser) {
+          setCanEdit(false);
+          return;
+        }
+
+        const token = await currentUser.getIdToken();
+        const response = await fetch(`/api/sponsor/tracks/${trackId}/check-permission`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          // ApiResponse.success returns { success: true, data: { canEdit: true } }
+          const canEditValue = result.data?.canEdit || result.canEdit || false;
+          setCanEdit(canEditValue);
+          console.log('[PublicTrackPage] Permission check result:', canEditValue);
+        } else {
+          console.error('[PublicTrackPage] Permission check failed:', response.status);
+          setCanEdit(false);
+        }
+      } catch (err) {
+        console.error('[PublicTrackPage] Permission check error:', err);
+        setCanEdit(false);
+      } finally {
+        setCheckingPermission(false);
+      }
+    };
+
+    checkPermission();
+  }, [isSignedIn, user, trackId, track]);
+
+  // 處理刪除賽道
+  const handleDelete = async () => {
+    if (!trackId) return;
+
+    try {
+      setIsDeleting(true);
+      const currentUser = firebase.auth().currentUser;
+      if (!currentUser) {
+        alert('請先登入');
+        return;
+      }
+
+      const token = await currentUser.getIdToken();
+      const response = await fetch(`/api/sponsor/tracks/${trackId}/delete`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || '刪除失敗');
+      }
+
+      alert('賽道已成功刪除');
+      router.push('/tracks-challenges');
+    } catch (error: any) {
+      console.error('[PublicTrackPage] Delete error:', error);
+      alert(`刪除失敗：${error.message}`);
+    } finally {
+      setIsDeleting(false);
+      setShowDeleteModal(false);
+    }
+  };
+
+  // 打開編輯模態窗口
+  const handleEditClick = () => {
+    if (!track) return;
+    setEditTrackData({
+      name: track.name || '',
+      description: track.description || '',
+    });
+    setUpdateMessage('');
+    setShowEditModal(true);
+  };
+
+  // 處理更新賽道
+  const handleUpdateTrack = async () => {
+    if (!trackId || !track) return;
+
+    try {
+      setIsUpdating(true);
+      setUpdateMessage('');
+
+      // Validation
+      if (!editTrackData.name.trim()) {
+        setUpdateMessage('❌ 請輸入賽道名稱');
+        return;
+      }
+
+      const currentUser = firebase.auth().currentUser;
+      if (!currentUser) {
+        throw new Error('未登入');
+      }
+      const token = await currentUser.getIdToken();
+
+      const response = await fetch(`/api/sponsor/tracks/${trackId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(editTrackData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || errorData.details || '更新失敗');
+      }
+
+      setUpdateMessage('✅ 賽道已成功更新！');
+      
+      // Update local track data
+      setTrack({
+        ...track,
+        name: editTrackData.name,
+        description: editTrackData.description,
+      });
+
+      // Close modal after 1.5 seconds
+      setTimeout(() => {
+        setShowEditModal(false);
+        // Refresh the page data
+        window.location.reload();
+      }, 1500);
+    } catch (err: any) {
+      console.error('[PublicTrackPage] Update error:', err);
+      setUpdateMessage(`❌ ${err.message}`);
+    } finally {
+      setIsUpdating(false);
+    }
+  };
 
   // 格式化獎金顯示
   const formatPrizes = (prizes: string | any[]): string => {
@@ -187,9 +355,67 @@ export default function PublicTrackDetailPage() {
 
           {/* 賽道標題 */}
           <div className="mb-8 bg-white rounded-lg p-8 shadow-sm">
-            <h1 className="text-4xl font-bold mb-4" style={{ color: '#1a3a6e' }}>
-              {track.name}
-            </h1>
+            <div className="flex items-start justify-between mb-4">
+              <h1 className="text-4xl font-bold" style={{ color: '#1a3a6e' }}>
+                {track.name}
+              </h1>
+              {canEdit && (
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={handleEditClick}
+                    className="flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors"
+                    style={{ backgroundColor: '#059669', color: '#ffffff' }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = '#047857';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = '#059669';
+                    }}
+                  >
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                      />
+                    </svg>
+                    編輯賽道
+                  </button>
+                  <button
+                    onClick={() => setShowDeleteModal(true)}
+                    className="flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors"
+                    style={{ backgroundColor: '#dc2626', color: '#ffffff' }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = '#b91c1c';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = '#dc2626';
+                    }}
+                  >
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                      />
+                    </svg>
+                    刪除賽道
+                  </button>
+                </div>
+              )}
+            </div>
             {track.description && (
               <p
                 className="text-lg mb-4"
@@ -277,9 +503,78 @@ export default function PublicTrackDetailPage() {
                     className="bg-white rounded-lg p-6 shadow-sm border"
                     style={{ borderColor: '#e5e7eb' }}
                   >
-                    <h3 className="text-xl font-semibold mb-3" style={{ color: '#1a3a6e' }}>
-                      {challenge.title}
-                    </h3>
+                    <div className="flex items-start justify-between mb-3">
+                      <h3 className="text-xl font-semibold" style={{ color: '#1a3a6e' }}>
+                        {challenge.title}
+                      </h3>
+                      <div className="flex items-center gap-2">
+                        <Link href={`/challenges/${challenge.id}`}>
+                          <a
+                            className="flex items-center gap-1 px-3 py-1.5 text-sm rounded-lg font-medium transition-colors"
+                            style={{ backgroundColor: '#1a3a6e', color: '#ffffff' }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.backgroundColor = '#2a4a7e';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.backgroundColor = '#1a3a6e';
+                            }}
+                          >
+                            <svg
+                              className="w-4 h-4"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                              />
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                              />
+                            </svg>
+                            查看詳情
+                          </a>
+                        </Link>
+                        {canEdit && (
+                          <button
+                            onClick={() =>
+                              router.push(
+                                `/sponsor/tracks/${trackId}/challenge?challengeId=${challenge.id}&mode=edit&returnUrl=${encodeURIComponent(router.asPath)}`,
+                              )
+                            }
+                            className="flex items-center gap-1 px-3 py-1.5 text-sm rounded-lg font-medium transition-colors"
+                            style={{ backgroundColor: '#059669', color: '#ffffff' }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.backgroundColor = '#047857';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.backgroundColor = '#059669';
+                            }}
+                          >
+                            <svg
+                              className="w-4 h-4"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                              />
+                            </svg>
+                            編輯
+                          </button>
+                        )}
+                      </div>
+                    </div>
 
                     {challenge.description && (
                       <div className="mb-4">
@@ -405,6 +700,214 @@ export default function PublicTrackDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* 刪除確認模態框 */}
+      {showDeleteModal && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+          onClick={() => !isDeleting && setShowDeleteModal(false)}
+        >
+          <div
+            className="bg-white rounded-lg p-6 max-w-md w-full mx-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="text-xl font-bold mb-4" style={{ color: '#1a3a6e' }}>
+              確認刪除賽道
+            </h3>
+            <p className="text-sm mb-6" style={{ color: '#6b7280' }}>
+              您確定要刪除賽道「{track?.name}」嗎？
+              <br />
+              <span style={{ color: '#dc2626' }}>此操作無法撤銷，該賽道的所有挑戰也將被刪除。</span>
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                disabled={isDeleting}
+                className="px-4 py-2 rounded-lg font-medium transition-colors"
+                style={{
+                  backgroundColor: '#f3f4f6',
+                  color: '#374151',
+                }}
+                onMouseEnter={(e) => {
+                  if (!isDeleting) e.currentTarget.style.backgroundColor = '#e5e7eb';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = '#f3f4f6';
+                }}
+              >
+                取消
+              </button>
+              <button
+                onClick={handleDelete}
+                disabled={isDeleting}
+                className="px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"
+                style={{
+                  backgroundColor: isDeleting ? '#f87171' : '#dc2626',
+                  color: '#ffffff',
+                  opacity: isDeleting ? 0.7 : 1,
+                  cursor: isDeleting ? 'not-allowed' : 'pointer',
+                }}
+                onMouseEnter={(e) => {
+                  if (!isDeleting) e.currentTarget.style.backgroundColor = '#b91c1c';
+                }}
+                onMouseLeave={(e) => {
+                  if (!isDeleting) e.currentTarget.style.backgroundColor = '#dc2626';
+                }}
+              >
+                {isDeleting ? (
+                  <>
+                    <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
+                    刪除中...
+                  </>
+                ) : (
+                  '確認刪除'
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 編輯賽道模態框 */}
+      {showEditModal && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+          onClick={() => !isUpdating && setShowEditModal(false)}
+        >
+          <div
+            className="bg-white rounded-lg p-8 max-w-lg w-full mx-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center mb-6">
+              <div
+                className="w-12 h-12 rounded-full flex items-center justify-center mr-4"
+                style={{ backgroundColor: '#dbeafe' }}
+              >
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  style={{ color: '#1a3a6e' }}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                  />
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-xl font-bold" style={{ color: '#1a3a6e' }}>
+                  編輯賽道
+                </h3>
+                <p className="text-sm" style={{ color: '#6b7280' }}>
+                  修改賽道資訊
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-4 mb-6">
+              {/* Track Name */}
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: '#1a3a6e' }}>
+                  賽道名稱 <span style={{ color: '#dc2626' }}>*</span>
+                </label>
+                <input
+                  type="text"
+                  value={editTrackData.name}
+                  onChange={(e) => setEditTrackData({ ...editTrackData, name: e.target.value })}
+                  placeholder="例如：RWA 創新應用賽道"
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  style={{ borderColor: '#d1d5db' }}
+                  disabled={isUpdating}
+                />
+              </div>
+
+              {/* Sponsor Name (Read-only) */}
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: '#1a3a6e' }}>
+                  贊助商名稱
+                </label>
+                <div
+                  className="w-full px-4 py-2 border rounded-lg bg-gray-50"
+                  style={{ borderColor: '#d1d5db' }}
+                >
+                  <span className="text-sm font-medium" style={{ color: '#6b7280' }}>
+                    {track?.sponsorName || '無'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Description */}
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: '#1a3a6e' }}>
+                  賽道描述
+                </label>
+                <textarea
+                  value={editTrackData.description}
+                  onChange={(e) =>
+                    setEditTrackData({ ...editTrackData, description: e.target.value })
+                  }
+                  placeholder="簡要描述這個賽道的目標和要求..."
+                  rows={4}
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  style={{ borderColor: '#d1d5db' }}
+                  disabled={isUpdating}
+                />
+              </div>
+            </div>
+
+            {updateMessage && (
+              <div
+                className={`p-4 mb-4 rounded-lg ${
+                  updateMessage.includes('✅')
+                    ? 'bg-green-50 border border-green-200'
+                    : 'bg-red-50 border border-red-200'
+                }`}
+              >
+                <p
+                  className="text-sm"
+                  style={{
+                    color: updateMessage.includes('✅') ? '#166534' : '#991b1b',
+                  }}
+                >
+                  {updateMessage}
+                </p>
+              </div>
+            )}
+
+            <div className="flex gap-4">
+              <button
+                type="button"
+                onClick={() => setShowEditModal(false)}
+                disabled={isUpdating}
+                className="flex-1 border-2 px-6 py-3 text-sm font-medium rounded-lg transition-colors disabled:opacity-50"
+                style={{
+                  borderColor: '#d1d5db',
+                  color: '#6b7280',
+                  backgroundColor: 'transparent',
+                }}
+              >
+                取消
+              </button>
+              <button
+                type="button"
+                onClick={handleUpdateTrack}
+                disabled={isUpdating}
+                className="flex-1 px-6 py-3 text-sm font-medium rounded-lg transition-colors disabled:opacity-50"
+                style={{
+                  backgroundColor: isUpdating ? '#93c5fd' : '#1a3a6e',
+                  color: 'white',
+                }}
+              >
+                {isUpdating ? '更新中...' : '儲存'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
