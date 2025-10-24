@@ -67,7 +67,24 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
     );
 
     // 驗證挑戰是否屬於該賽道
-    if (challengeData?.trackId !== trackId) {
+    // Support both document ID and trackId field for validation
+    const trackDoc = await db
+      .collection(SPONSOR_COLLECTIONS.TRACKS)
+      .where('trackId', '==', challengeData?.trackId)
+      .limit(1)
+      .get();
+    
+    const trackDocId = trackDoc.empty ? null : trackDoc.docs[0].id;
+    const isValidTrack = challengeData?.trackId === trackId || trackDocId === trackId;
+    
+    console.log('[GET challenge] Track validation:', {
+      urlTrackId: trackId,
+      challengeTrackIdField: challengeData?.trackId,
+      trackDocumentId: trackDocId,
+      isValid: isValidTrack,
+    });
+
+    if (!isValidTrack) {
       return ApiResponse.error(res, 'Challenge does not belong to this track', 403);
     }
 
@@ -137,7 +154,24 @@ async function handlePut(req: NextApiRequest, res: NextApiResponse) {
     );
 
     // 驗證挑戰是否屬於該賽道
-    if (existingChallenge?.trackId !== trackId) {
+    // Support both document ID and trackId field for validation
+    const trackDoc = await db
+      .collection(SPONSOR_COLLECTIONS.TRACKS)
+      .where('trackId', '==', existingChallenge?.trackId)
+      .limit(1)
+      .get();
+    
+    const trackDocId = trackDoc.empty ? null : trackDoc.docs[0].id;
+    const isValidTrack = existingChallenge?.trackId === trackId || trackDocId === trackId;
+    
+    console.log('[PUT challenge] Track validation:', {
+      urlTrackId: trackId,
+      challengeTrackIdField: existingChallenge?.trackId,
+      trackDocumentId: trackDocId,
+      isValid: isValidTrack,
+    });
+
+    if (!isValidTrack) {
       return ApiResponse.error(res, 'Challenge does not belong to this track', 403);
     }
 
