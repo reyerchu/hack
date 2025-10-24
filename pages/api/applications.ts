@@ -124,6 +124,7 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
       ...registrationData,
       id: userId,
       email: userEmail || registrationData.email || registrationData.preferredEmail,
+      timestamp: Date.now(), // 用於 admin 頁面顯示註冊時間
       updatedAt: firestore.FieldValue.serverTimestamp(),
       createdAt: firestore.FieldValue.serverTimestamp(),
     };
