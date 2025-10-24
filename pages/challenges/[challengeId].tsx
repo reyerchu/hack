@@ -412,80 +412,76 @@ export default function PublicChallengeDetailPage() {
           {/* 挑戰詳情 */}
           <div className="space-y-6">
             {/* 挑戰描述 */}
-            {challenge.description && (
-              <div className="bg-white rounded-lg p-6 shadow-sm">
-                <h2 className="text-xl font-bold mb-4" style={{ color: '#1a3a6e' }}>
-                  挑戰描述
-                </h2>
-                <div
-                  className="text-base"
-                  style={{
-                    color: '#374151',
-                    whiteSpace: 'pre-wrap',
-                    wordBreak: 'break-word',
-                    overflowWrap: 'break-word',
-                    lineHeight: '1.75',
-                  }}
-                >
-                  {linkifyText(challenge.description, '#2563eb')}
-                </div>
+            <div className="bg-white rounded-lg p-6 shadow-sm">
+              <h2 className="text-xl font-bold mb-4" style={{ color: '#1a3a6e' }}>
+                挑戰描述
+              </h2>
+              <div
+                className="text-base"
+                style={{
+                  color: '#374151',
+                  whiteSpace: 'pre-wrap',
+                  wordBreak: 'break-word',
+                  overflowWrap: 'break-word',
+                  lineHeight: '1.75',
+                }}
+              >
+                {challenge.description
+                  ? linkifyText(challenge.description, '#2563eb')
+                  : '暫無描述'}
               </div>
-            )}
+            </div>
 
             {/* 獎金詳情 */}
-            {challenge.prizes && (
-              <div className="bg-white rounded-lg p-6 shadow-sm">
-                <h2 className="text-xl font-bold mb-4 flex items-center gap-2" style={{ color: '#1a3a6e' }}>
-                  <span className="text-2xl">💰</span>
-                  獎金詳情
-                </h2>
-                <p className="text-lg font-medium" style={{ color: '#059669' }}>
-                  {formatPrizes(challenge.prizes)}
-                </p>
-              </div>
-            )}
+            <div className="bg-white rounded-lg p-6 shadow-sm">
+              <h2 className="text-xl font-bold mb-4 flex items-center gap-2" style={{ color: '#1a3a6e' }}>
+                <span className="text-2xl">💰</span>
+                獎金詳情
+              </h2>
+              <p className="text-lg font-medium" style={{ color: '#059669' }}>
+                {formatPrizes(challenge.prizes) || '暫無獎金資訊'}
+              </p>
+            </div>
 
             {/* 提交要求 */}
-            {challenge.submissionRequirements && (
-              <div className="bg-white rounded-lg p-6 shadow-sm">
-                <h2 className="text-xl font-bold mb-4 flex items-center gap-2" style={{ color: '#1a3a6e' }}>
-                  📋 提交要求
-                </h2>
-                <div
-                  className="text-base"
-                  style={{
-                    color: '#374151',
-                    whiteSpace: 'pre-wrap',
-                    wordBreak: 'break-word',
-                    overflowWrap: 'break-word',
-                    lineHeight: '1.75',
-                  }}
-                >
-                  {linkifyText(challenge.submissionRequirements, '#2563eb')}
-                </div>
+            <div className="bg-white rounded-lg p-6 shadow-sm">
+              <h2 className="text-xl font-bold mb-4 flex items-center gap-2" style={{ color: '#1a3a6e' }}>
+                📋 提交要求
+              </h2>
+              <div
+                className="text-base"
+                style={{
+                  color: '#374151',
+                  whiteSpace: 'pre-wrap',
+                  wordBreak: 'break-word',
+                  overflowWrap: 'break-word',
+                  lineHeight: '1.75',
+                }}
+              >
+                {challenge.submissionRequirements
+                  ? linkifyText(challenge.submissionRequirements, '#2563eb')
+                  : '暫無提交要求'}
               </div>
-            )}
+            </div>
 
             {/* 評分標準 */}
-            {challenge.evaluationCriteria && (
-              <div className="bg-white rounded-lg p-6 shadow-sm">
-                <h2 className="text-xl font-bold mb-4 flex items-center gap-2" style={{ color: '#1a3a6e' }}>
-                  📊 評分標準
-                </h2>
-                <div
-                  className="text-base"
-                  style={{
-                    color: '#374151',
-                    whiteSpace: 'pre-wrap',
-                    wordBreak: 'break-word',
-                    overflowWrap: 'break-word',
-                    lineHeight: '1.75',
-                  }}
-                >
-                  {formatCriteria(challenge.evaluationCriteria)}
-                </div>
+            <div className="bg-white rounded-lg p-6 shadow-sm">
+              <h2 className="text-xl font-bold mb-4 flex items-center gap-2" style={{ color: '#1a3a6e' }}>
+                📊 評分標準
+              </h2>
+              <div
+                className="text-base"
+                style={{
+                  color: '#374151',
+                  whiteSpace: 'pre-wrap',
+                  wordBreak: 'break-word',
+                  overflowWrap: 'break-word',
+                  lineHeight: '1.75',
+                }}
+              >
+                {formatCriteria(challenge.evaluationCriteria) || '暫無評分標準'}
               </div>
-            )}
+            </div>
           </div>
 
           {/* 行動按鈕 */}
