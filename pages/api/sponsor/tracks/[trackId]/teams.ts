@@ -102,54 +102,30 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
 
       if (!hasTrack) continue;
 
-      // Get team leader details
+      // Get team leader details (data is already in teamLeader object)
       let teamLeader: TeamLeader = {
-        userId: teamData.teamLeader || '',
-        email: '',
-        role: 'leader',
+        userId: teamData.teamLeader?.userId || '',
+        email: teamData.teamLeader?.email || '',
+        preferredEmail: teamData.teamLeader?.email || '',
+        name: teamData.teamLeader?.name || '',
+        firstName: teamData.teamLeader?.name?.split(' ')[0] || '',
+        lastName: teamData.teamLeader?.name?.split(' ').slice(1).join(' ') || '',
+        role: teamData.teamLeader?.role || 'leader',
       };
 
-      if (teamData.teamLeader) {
-        try {
-          const leaderDoc = await db.collection('registrations').doc(teamData.teamLeader).get();
-          if (leaderDoc.exists) {
-            const leaderData = leaderDoc.data()!;
-            teamLeader = {
-              userId: leaderDoc.id,
-              email: leaderData.email || leaderData.preferredEmail || '',
-              preferredEmail: leaderData.preferredEmail || leaderData.email || '',
-              firstName: leaderData.firstName || leaderData.user?.firstName || '',
-              lastName: leaderData.lastName || leaderData.user?.lastName || '',
-              name: `${leaderData.firstName || leaderData.user?.firstName || ''} ${leaderData.lastName || leaderData.user?.lastName || ''}`.trim(),
-              role: 'leader',
-            };
-          }
-        } catch (err) {
-          console.error('[GET teams] Error fetching leader:', err);
-        }
-      }
-
-      // Get team members details
+      // Get team members details (data is already in teamMembers array)
       const teamMembers: TeamMember[] = [];
       
       if (Array.isArray(teamData.teamMembers)) {
         for (const member of teamData.teamMembers) {
-          try {
-            const memberDoc = await db.collection('registrations').doc(member.userId).get();
-            if (memberDoc.exists) {
-              const memberData = memberDoc.data()!;
-              teamMembers.push({
-                email: memberData.email || memberData.preferredEmail || '',
-                firstName: memberData.firstName || memberData.user?.firstName || '',
-                lastName: memberData.lastName || memberData.user?.lastName || '',
-                name: `${memberData.firstName || memberData.user?.firstName || ''} ${memberData.lastName || memberData.user?.lastName || ''}`.trim(),
-                role: member.role || 'member',
-                hasEditRight: member.hasEditRight || false,
-              });
-            }
-          } catch (err) {
-            console.error('[GET teams] Error fetching member:', err);
-          }
+          teamMembers.push({
+            email: member.email || '',
+            name: member.name || '',
+            firstName: member.name?.split(' ')[0] || '',
+            lastName: member.name?.split(' ').slice(1).join(' ') || '',
+            role: member.role || 'member',
+            hasEditRight: member.hasEditRight || false,
+          });
         }
       }
 
