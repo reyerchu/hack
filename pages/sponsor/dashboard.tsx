@@ -589,7 +589,20 @@ export default function SponsorDashboard() {
                       </div>
                       <p className="text-sm" style={{ color: '#6b7280' }}>
                         {track.challenges?.length || 0} 個挑戰 • {track.stats.submissionCount}{' '}
-                        個提交 • {track.stats.teamCount} 個隊伍
+                        個提交 •{' '}
+                        <button
+                          onClick={() => router.push(`/sponsor/tracks/${track.id}/teams`)}
+                          className="hover:underline font-medium transition-all"
+                          style={{ color: '#059669' }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.color = '#047857';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.color = '#059669';
+                          }}
+                        >
+                          {track.stats.teamCount} 個隊伍
+                        </button>
                         {track.stats.averageScore !== undefined &&
                           ` • 平均分: ${track.stats.averageScore.toFixed(1)}`}
                       </p>
