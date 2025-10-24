@@ -102,10 +102,13 @@ export default function PublicTrackDetailPage() {
         });
 
         if (response.ok) {
-          const data = await response.json();
-          setCanEdit(data.canEdit || false);
-          console.log('[PublicTrackPage] Permission check result:', data.canEdit);
+          const result = await response.json();
+          // ApiResponse.success returns { success: true, data: { canEdit: true } }
+          const canEditValue = result.data?.canEdit || result.canEdit || false;
+          setCanEdit(canEditValue);
+          console.log('[PublicTrackPage] Permission check result:', canEditValue);
         } else {
+          console.error('[PublicTrackPage] Permission check failed:', response.status);
           setCanEdit(false);
         }
       } catch (err) {

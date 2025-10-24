@@ -109,9 +109,11 @@ export default function PublicChallengeDetailPage() {
         );
 
         if (response.ok) {
-          const data = await response.json();
-          setCanEdit(data.canEdit || false);
-          console.log('[PublicChallengePage] Permission check result:', data.canEdit);
+          const result = await response.json();
+          // ApiResponse.success returns { success: true, data: { canEdit: true } }
+          const canEditValue = result.data?.canEdit || result.canEdit || false;
+          setCanEdit(canEditValue);
+          console.log('[PublicChallengePage] Permission check result:', canEditValue);
         } else {
           console.error('[PublicChallengePage] Permission check failed:', response.status);
           setCanEdit(false);
