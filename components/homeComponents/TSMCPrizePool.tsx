@@ -46,8 +46,8 @@ export default function TSMCPrizePool() {
       url: 'https://sui.io/',
     },
     {
-      name: 'RWA 黑客松台灣',
-      track: 'Demo Day 上台，展現最好的團隊',
+      name: 'Demo Day',
+      track: '上台展現最好的自己',
       prize: '總獎項價值 2200 美元',
       logo: '/sponsor-media/rwa-hackathon-taiwan.svg',
       url: '#',
