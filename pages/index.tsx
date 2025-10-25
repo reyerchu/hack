@@ -12,6 +12,7 @@ import TSMCChallenges from '../components/homeComponents/TSMCChallenges';
 import HomeSponsors from '../components/homeComponents/HomeSponsors';
 import HomeFaqSection from '../components/homeComponents/HomeFaqSection';
 import HomeLineGroup from '../components/homeComponents/HomeLineGroup';
+import HomeOrganizers from '../components/homeComponents/HomeOrganizers';
 import HomeFooter from '../components/homeComponents/HomeFooter';
 
 /**
@@ -42,6 +43,7 @@ export default function Home(props: { challenges: Challenge[]; sponsorCard: Spon
       <HomeSponsors sponsorCard={props.sponsorCard} />
       <HomeFaqSection />
       <HomeLineGroup />
+      <HomeOrganizers />
       <HomeFooter />
     </>
   );
