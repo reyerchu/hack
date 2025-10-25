@@ -141,9 +141,10 @@ export default function HomeOrganizers() {
               <Image
                 src="/sponsor-media/others/RWA-Nexus-logo.png"
                 alt="RWA Nexus"
-                width={240}
-                height={100}
-                className="h-20 w-auto object-contain"
+                width={260}
+                height={110}
+                className="h-22 w-auto object-contain"
+                style={{ height: '88px' }}
               />
             </div>
             <div className="flex items-center justify-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
@@ -159,18 +160,20 @@ export default function HomeOrganizers() {
               <Image
                 src="/sponsor-media/others/Pelith-logo.png"
                 alt="Pelith"
-                width={240}
-                height={100}
-                className="h-20 w-auto object-contain"
+                width={260}
+                height={110}
+                className="h-22 w-auto object-contain"
+                style={{ height: '88px' }}
               />
             </div>
             <div className="flex items-center justify-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
               <Image
                 src="/sponsor-media/others/Sparklands-logo.svg"
                 alt="SparkLands"
-                width={240}
-                height={100}
-                className="h-20 w-auto object-contain"
+                width={280}
+                height={120}
+                className="h-24 w-auto object-contain"
+                style={{ height: '96px' }}
               />
             </div>
             <div className="flex items-center justify-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
@@ -186,9 +189,10 @@ export default function HomeOrganizers() {
               <Image
                 src="/sponsor-media/others/Stockfeel-logo.webp"
                 alt="Stockfeel"
-                width={240}
-                height={100}
-                className="h-20 w-auto object-contain"
+                width={280}
+                height={120}
+                className="h-24 w-auto object-contain"
+                style={{ height: '96px' }}
               />
             </div>
             <div className="flex items-center justify-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
