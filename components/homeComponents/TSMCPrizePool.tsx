@@ -46,17 +46,17 @@ export default function TSMCPrizePool() {
       url: 'https://sui.io/',
     },
     {
-      name: 'RWA 黑客松大會',
-      track: '最佳 RWA 應用獎項',
+      name: 'RWA 黑客松台灣',
+      track: 'Demo Day 上台，展現最好的團隊',
       prize: '總獎項價值 2200 美元',
-      logo: '/sponsor-media/RWA-logo.svg',
+      logo: '/sponsor-media/rwa-hackathon-taiwan.svg',
       url: '#',
     },
     {
       name: 'AWS',
-      track: '雲端技術與創新應用',
+      track: '以公司運作，邁向獨角獸的第一步',
       prize: '總獎項價值 4500 美元的 Credits',
-      logo: '/sponsor-media/AWS-logo.svg',
+      logo: '',
       url: 'https://aws.amazon.com/',
     },
   ];
@@ -109,27 +109,29 @@ export default function TSMCPrizePool() {
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-4 mb-3">
-                      {/* Sponsor Logo with Link */}
-                      <div className="flex-shrink-0">
-                        <a
-                          href={sponsor.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="block hover:opacity-80 transition-opacity duration-200"
-                        >
-                          <Image
-                            src={sponsor.logo}
-                            alt={`${sponsor.name} logo`}
-                            width={sponsor.logo.includes('Cathay') ? 220 : 120}
-                            height={sponsor.logo.includes('Cathay') ? 50 : 40}
-                            className={
-                              sponsor.logo.includes('Cathay')
-                                ? 'h-10 w-auto object-contain max-w-[220px]'
-                                : 'h-8 w-auto object-contain max-w-[120px]'
-                            }
-                          />
-                        </a>
-                      </div>
+                      {/* Sponsor Logo with Link - Only show if logo exists */}
+                      {sponsor.logo && (
+                        <div className="flex-shrink-0">
+                          <a
+                            href={sponsor.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="block hover:opacity-80 transition-opacity duration-200"
+                          >
+                            <Image
+                              src={sponsor.logo}
+                              alt={`${sponsor.name} logo`}
+                              width={sponsor.logo.includes('Cathay') ? 220 : 120}
+                              height={sponsor.logo.includes('Cathay') ? 50 : 40}
+                              className={
+                                sponsor.logo.includes('Cathay')
+                                  ? 'h-10 w-auto object-contain max-w-[220px]'
+                                  : 'h-8 w-auto object-contain max-w-[120px]'
+                              }
+                            />
+                          </a>
+                        </div>
+                      )}
                       <h3 className="text-[20px] font-semibold text-black">{sponsor.name}</h3>
                     </div>
                     <p className="text-[16px] leading-relaxed text-gray-700 mb-2">
