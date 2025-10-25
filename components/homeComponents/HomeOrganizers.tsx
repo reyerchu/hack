@@ -168,7 +168,7 @@ export default function HomeOrganizers() {
             </div>
             <div className="flex items-center justify-center p-6 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
               <Image
-                src="/sponsor-media/others/Sparklands-logo.svg"
+                src="/sponsor-media/others/Sparklands-logo.png"
                 alt="SparkLands"
                 width={340}
                 height={150}
@@ -187,7 +187,7 @@ export default function HomeOrganizers() {
             </div>
             <div className="flex items-center justify-center p-6 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
               <Image
-                src="/sponsor-media/others/Stockfeel-logo.webp"
+                src="/sponsor-media/others/Stockfeel-logo.png"
                 alt="Stockfeel"
                 width={340}
                 height={150}
