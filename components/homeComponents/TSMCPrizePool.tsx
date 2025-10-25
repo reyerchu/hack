@@ -49,7 +49,7 @@ export default function TSMCPrizePool() {
       name: 'Demo Day',
       track: '上台展現最好的自己',
       prize: '總獎項價值 2200 美元',
-      logo: '/sponsor-media/rwa-hackathon-taiwan.svg',
+      logo: '/sponsor-media/rwa-hackathon-taiwan.png',
       url: '#',
     },
     {
