@@ -141,36 +141,36 @@ export default function HomeOrganizers() {
               <Image
                 src="/sponsor-media/others/RWA-Nexus-logo.png"
                 alt="RWA Nexus"
-                width={200}
-                height={80}
-                className="h-16 w-auto object-contain"
+                width={240}
+                height={100}
+                className="h-20 w-auto object-contain"
               />
             </div>
             <div className="flex items-center justify-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
               <Image
                 src="/sponsor-media/others/deFintek-logo.png"
                 alt="deFintek"
-                width={200}
-                height={80}
-                className="h-16 w-auto object-contain"
+                width={240}
+                height={100}
+                className="h-20 w-auto object-contain"
               />
             </div>
             <div className="flex items-center justify-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
               <Image
                 src="/sponsor-media/others/Pelith-logo.png"
                 alt="Pelith"
-                width={200}
-                height={80}
-                className="h-16 w-auto object-contain"
+                width={240}
+                height={100}
+                className="h-20 w-auto object-contain"
               />
             </div>
             <div className="flex items-center justify-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
               <Image
                 src="/sponsor-media/others/Sparklands-logo.svg"
                 alt="SparkLands"
-                width={200}
-                height={80}
-                className="h-16 w-auto object-contain"
+                width={240}
+                height={100}
+                className="h-20 w-auto object-contain"
               />
             </div>
             <div className="flex items-center justify-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
@@ -186,9 +186,9 @@ export default function HomeOrganizers() {
               <Image
                 src="/sponsor-media/others/Stockfeel-logo.webp"
                 alt="Stockfeel"
-                width={200}
-                height={80}
-                className="h-16 w-auto object-contain"
+                width={240}
+                height={100}
+                className="h-20 w-auto object-contain"
               />
             </div>
             <div className="flex items-center justify-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
