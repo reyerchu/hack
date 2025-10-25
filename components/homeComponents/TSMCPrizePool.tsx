@@ -6,44 +6,58 @@ export default function TSMCPrizePool() {
     {
       name: '錢包',
       track: '平等 × 自由 × 有意義的數位生活',
-      prize: '總獎金至少 2000 美元',
+      prize: '總獎項價值 4000 美元',
       logo: '/sponsor-media/imToken-logo.svg',
       url: 'https://token.im/',
     },
     {
       name: '',
       track: 'RWA 與金融實務的落地應用',
-      prize: '總獎金高達 60000 台幣',
+      prize: '總獎項價值 2000 美元',
       logo: '/sponsor-media/Cathay-logo.png',
       url: 'https://www.cathayholdings.com/',
     },
     {
       name: 'ROFL（Run-time Offchain Logic）框架',
       track: '鏈下隱私保護，鏈上結果驗證',
-      prize: '總獎金高達 2000 美元',
+      prize: '總獎項價值 2000 美元',
       logo: '/sponsor-media/Oasis-logo.svg',
       url: 'https://oasis.net/',
     },
     {
       name: '協議',
       track: '隱私保護下的自我主權金融',
-      prize: '總獎金高達 2000 美元',
+      prize: '總獎項價值 2000 美元',
       logo: '/sponsor-media/Self-logo.svg',
       url: 'https://self.xyz/',
     },
     {
       name: '主鏈',
       track: '安全即信任，保護一切 DeFi 流動',
-      prize: '總獎金高達 1000 美元',
+      prize: '總獎項價值 1000 美元',
       logo: '/sponsor-media/Zircuit-logo.svg',
       url: 'https://www.zircuit.com/',
     },
     {
       name: '主鏈',
       track: '高速體驗，重新定義資產上鏈',
-      prize: '總獎金高達 1000 美元',
+      prize: '總獎項價值 1000 美元',
       logo: '/sponsor-media/Sui-logo.svg',
       url: 'https://sui.io/',
+    },
+    {
+      name: 'Demo Day',
+      track: '上台展現最好的自己',
+      prize: '總獎項價值 2200 美元',
+      logo: '/sponsor-media/rwa-hackathon-taiwan.svg',
+      url: '#',
+    },
+    {
+      name: 'AWS',
+      track: '以公司運作，邁向獨角獸的第一步',
+      prize: '總獎項價值 4500 美元的 Credits',
+      logo: '',
+      url: 'https://aws.amazon.com/',
     },
   ];
 
@@ -62,7 +76,7 @@ export default function TSMCPrizePool() {
         {/* Description */}
         <div className="mb-12">
           <p className="text-[16px] leading-relaxed text-gray-800">
-            RWA 相關六大主題全面佈局，總獎項價值超過新台幣{' '}
+            RWA 相關八大主題全面佈局，總獎項價值超過新台幣{' '}
             <span className="font-bold" style={{ color: '#1a3a6e' }}>
               40 萬
             </span>
@@ -95,27 +109,29 @@ export default function TSMCPrizePool() {
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-4 mb-3">
-                      {/* Sponsor Logo with Link */}
-                      <div className="flex-shrink-0">
-                        <a
-                          href={sponsor.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="block hover:opacity-80 transition-opacity duration-200"
-                        >
-                          <Image
-                            src={sponsor.logo}
-                            alt={`${sponsor.name} logo`}
-                            width={sponsor.logo.includes('Cathay') ? 220 : 120}
-                            height={sponsor.logo.includes('Cathay') ? 50 : 40}
-                            className={
-                              sponsor.logo.includes('Cathay')
-                                ? 'h-10 w-auto object-contain max-w-[220px]'
-                                : 'h-8 w-auto object-contain max-w-[120px]'
-                            }
-                          />
-                        </a>
-                      </div>
+                      {/* Sponsor Logo with Link - Only show if logo exists */}
+                      {sponsor.logo && (
+                        <div className="flex-shrink-0">
+                          <a
+                            href={sponsor.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="block hover:opacity-80 transition-opacity duration-200"
+                          >
+                            <Image
+                              src={sponsor.logo}
+                              alt={`${sponsor.name} logo`}
+                              width={sponsor.logo.includes('Cathay') ? 220 : 120}
+                              height={sponsor.logo.includes('Cathay') ? 50 : 40}
+                              className={
+                                sponsor.logo.includes('Cathay')
+                                  ? 'h-10 w-auto object-contain max-w-[220px]'
+                                  : 'h-8 w-auto object-contain max-w-[120px]'
+                              }
+                            />
+                          </a>
+                        </div>
+                      )}
                       <h3 className="text-[20px] font-semibold text-black">{sponsor.name}</h3>
                     </div>
                     <p className="text-[16px] leading-relaxed text-gray-700 mb-2">

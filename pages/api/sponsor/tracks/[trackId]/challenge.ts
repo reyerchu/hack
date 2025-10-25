@@ -112,31 +112,20 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
 async function handlePut(req: NextApiRequest, res: NextApiResponse) {
   const { trackId, challengeId } = req.query;
 
-  console.log('═══════════════════════════════════════════════════════');
-  console.log('[PUT challenge] START - New Request');
-  console.log('[PUT challenge] Query params:', { trackId, challengeId });
-  console.log('[PUT challenge] Request headers:', {
-    authorization: req.headers.authorization ? 'Bearer [token...]' : 'MISSING',
-    contentType: req.headers['content-type'],
+  console.log('[PUT /api/sponsor/tracks/[trackId]/challenge] Query params:', {
+    trackId,
+    challengeId,
   });
 
   if (!trackId || typeof trackId !== 'string') {
-    console.log('[PUT challenge] ❌ Invalid track ID');
     return ApiResponse.error(res, 'Invalid track ID', 400);
   }
 
   if (!challengeId || typeof challengeId !== 'string') {
-    console.log('[PUT challenge] ❌ Invalid challenge ID');
     return ApiResponse.error(res, 'Invalid challenge ID', 400);
   }
 
-  console.log('[PUT challenge] Checking track access...');
-  if (!(await requireTrackAccess(req, res, trackId))) {
-    console.log('[PUT challenge] ❌ requireTrackAccess FAILED');
-    console.log('═══════════════════════════════════════════════════════');
-    return;
-  }
-  console.log('[PUT challenge] ✅ requireTrackAccess PASSED');
+  if (!(await requireTrackAccess(req, res, trackId))) return;
 
   const authReq = req as AuthenticatedRequest;
   const userId = authReq.userId!;
@@ -199,11 +188,7 @@ async function handlePut(req: NextApiRequest, res: NextApiResponse) {
     const sponsor = sponsorDoc.data();
 
     // 檢查用戶的贊助商角色
-    console.log('[PUT challenge] Getting user sponsor role...');
-    console.log('[PUT challenge] userId:', userId);
-    console.log('[PUT challenge] challengeSponsorId:', existingChallenge.sponsorId);
     const userRole = await getUserSponsorRole(userId, existingChallenge.sponsorId);
-    console.log('[PUT challenge] userRole result:', userRole);
 
     console.log('[PUT challenge] Permission check:', {
       userId,
@@ -216,30 +201,16 @@ async function handlePut(req: NextApiRequest, res: NextApiResponse) {
     // 權限檢查：
     // 1. 系統管理員 (admin/super_admin) 可以編輯任何挑戰
     // 2. Sponsor 的 admin 角色可以編輯自己贊助商的挑戰
-    console.log('[PUT challenge] Evaluating canEdit...');
-    console.log(
-      '[PUT challenge] - Has admin permission?',
-      authReq.userPermissions?.includes('admin'),
-    );
-    console.log(
-      '[PUT challenge] - Has super_admin permission?',
-      authReq.userPermissions?.includes('super_admin'),
-    );
-    console.log('[PUT challenge] - User role is admin?', userRole === 'admin');
     const canEdit =
       authReq.userPermissions?.includes('admin') ||
       authReq.userPermissions?.includes('super_admin') ||
       userRole === 'admin';
 
-    console.log('[PUT challenge] Final canEdit result:', canEdit);
+    console.log('[PUT challenge] canEdit:', canEdit);
 
     if (!canEdit) {
-      console.log('[PUT challenge] ❌❌❌ PERMISSION DENIED ❌❌❌');
-      console.log('═══════════════════════════════════════════════════════');
       return ApiResponse.forbidden(res, 'You do not have permission to edit this challenge');
     }
-
-    console.log('[PUT challenge] ✅✅✅ PERMISSION GRANTED ✅✅✅');
 
     // 3. 驗證並准备更新數據
     const {
