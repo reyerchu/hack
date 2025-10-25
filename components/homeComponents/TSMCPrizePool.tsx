@@ -6,44 +6,58 @@ export default function TSMCPrizePool() {
     {
       name: '錢包',
       track: '平等 × 自由 × 有意義的數位生活',
-      prize: '總獎金至少 2000 美元',
+      prize: '總獎項價值 4000 美元',
       logo: '/sponsor-media/imToken-logo.svg',
       url: 'https://token.im/',
     },
     {
       name: '',
       track: 'RWA 與金融實務的落地應用',
-      prize: '總獎金高達 60000 台幣',
+      prize: '總獎項價值 2000 美元',
       logo: '/sponsor-media/Cathay-logo.png',
       url: 'https://www.cathayholdings.com/',
     },
     {
       name: 'ROFL（Run-time Offchain Logic）框架',
       track: '鏈下隱私保護，鏈上結果驗證',
-      prize: '總獎金高達 2000 美元',
+      prize: '總獎項價值 2000 美元',
       logo: '/sponsor-media/Oasis-logo.svg',
       url: 'https://oasis.net/',
     },
     {
       name: '協議',
       track: '隱私保護下的自我主權金融',
-      prize: '總獎金高達 2000 美元',
+      prize: '總獎項價值 2000 美元',
       logo: '/sponsor-media/Self-logo.svg',
       url: 'https://self.xyz/',
     },
     {
       name: '主鏈',
       track: '安全即信任，保護一切 DeFi 流動',
-      prize: '總獎金高達 1000 美元',
+      prize: '總獎項價值 1000 美元',
       logo: '/sponsor-media/Zircuit-logo.svg',
       url: 'https://www.zircuit.com/',
     },
     {
       name: '主鏈',
       track: '高速體驗，重新定義資產上鏈',
-      prize: '總獎金高達 1000 美元',
+      prize: '總獎項價值 1000 美元',
       logo: '/sponsor-media/Sui-logo.svg',
       url: 'https://sui.io/',
+    },
+    {
+      name: 'RWA 黑客松大會',
+      track: '最佳 RWA 應用獎項',
+      prize: '總獎項價值 2200 美元',
+      logo: '/sponsor-media/RWA-logo.svg',
+      url: '#',
+    },
+    {
+      name: 'AWS',
+      track: '雲端技術與創新應用',
+      prize: '總獎項價值 4500 美元的 Credits',
+      logo: '/sponsor-media/AWS-logo.svg',
+      url: 'https://aws.amazon.com/',
     },
   ];
 
@@ -62,7 +76,7 @@ export default function TSMCPrizePool() {
         {/* Description */}
         <div className="mb-12">
           <p className="text-[16px] leading-relaxed text-gray-800">
-            RWA 相關六大主題全面佈局，總獎項價值超過新台幣{' '}
+            RWA 相關八大主題全面佈局，總獎項價值超過新台幣{' '}
             <span className="font-bold" style={{ color: '#1a3a6e' }}>
               40 萬
             </span>
