@@ -137,14 +137,14 @@ export default function HomeOrganizers() {
             其他贊助
           </h3>
           <div className="flex flex-wrap justify-center items-center gap-8">
-            <div className="flex items-center justify-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
+            <div className="flex items-center justify-center p-6 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
               <Image
                 src="/sponsor-media/others/RWA-Nexus-logo.png"
                 alt="RWA Nexus"
-                width={260}
-                height={110}
-                className="h-22 w-auto object-contain"
-                style={{ height: '88px' }}
+                width={300}
+                height={130}
+                className="w-auto object-contain"
+                style={{ height: '100px' }}
               />
             </div>
             <div className="flex items-center justify-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
@@ -156,24 +156,24 @@ export default function HomeOrganizers() {
                 className="h-20 w-auto object-contain"
               />
             </div>
-            <div className="flex items-center justify-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
+            <div className="flex items-center justify-center p-6 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
               <Image
                 src="/sponsor-media/others/Pelith-logo.png"
                 alt="Pelith"
-                width={260}
-                height={110}
-                className="h-22 w-auto object-contain"
-                style={{ height: '88px' }}
+                width={300}
+                height={130}
+                className="w-auto object-contain"
+                style={{ height: '100px' }}
               />
             </div>
-            <div className="flex items-center justify-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
+            <div className="flex items-center justify-center p-6 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
               <Image
                 src="/sponsor-media/others/Sparklands-logo.svg"
                 alt="SparkLands"
-                width={280}
-                height={120}
-                className="h-24 w-auto object-contain"
-                style={{ height: '96px' }}
+                width={340}
+                height={150}
+                className="w-auto object-contain"
+                style={{ height: '120px' }}
               />
             </div>
             <div className="flex items-center justify-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
@@ -185,14 +185,14 @@ export default function HomeOrganizers() {
                 className="h-12 w-auto object-contain"
               />
             </div>
-            <div className="flex items-center justify-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
+            <div className="flex items-center justify-center p-6 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
               <Image
                 src="/sponsor-media/others/Stockfeel-logo.webp"
                 alt="Stockfeel"
-                width={280}
-                height={120}
-                className="h-24 w-auto object-contain"
-                style={{ height: '96px' }}
+                width={340}
+                height={150}
+                className="w-auto object-contain"
+                style={{ height: '120px' }}
               />
             </div>
             <div className="flex items-center justify-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
