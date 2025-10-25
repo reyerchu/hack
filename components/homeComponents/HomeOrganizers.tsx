@@ -7,29 +7,24 @@ import Image from 'next/image';
  */
 export default function HomeOrganizers() {
   return (
-    <section className="py-16 bg-gradient-to-b from-gray-50 to-white">
-      <div className="container mx-auto px-4 max-w-7xl">
-        {/* Section Title */}
-        <div className="text-center mb-12">
-          <h2
-            className="text-4xl font-bold mb-4"
-            style={{ color: '#1a3a6e' }}
-          >
+    <section className="bg-white py-16 md:py-24">
+      <div className="max-w-[1200px] mx-auto px-8 md:px-12">
+        {/* Section Header - TSMC Style */}
+        <div className="mb-12">
+          <h2 className="text-[28px] md:text-[36px] font-normal text-black mb-2">ORGANIZERS & SPONSORS</h2>
+          <div className="w-16 h-[2px]" style={{ backgroundColor: '#1a3a6e' }}></div>
+          <p className="text-[18px] mt-4 font-normal" style={{ color: '#1a3a6e' }}>
             協辦單位與贊助夥伴
-          </h2>
-          <div className="w-24 h-1 mx-auto" style={{ backgroundColor: '#d97706' }}></div>
+          </p>
         </div>
 
         {/* 協辦 */}
         <div className="mb-12">
-          <h3
-            className="text-2xl font-semibold mb-6 text-center"
-            style={{ color: '#1a3a6e' }}
-          >
+          <h3 className="text-[20px] font-normal mb-6" style={{ color: '#1a3a6e' }}>
             協辦
           </h3>
-          <div className="flex flex-wrap justify-center items-center gap-8">
-            <div className="flex items-center justify-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
+          <div className="flex flex-wrap items-center gap-8">
+            <div className="flex items-center justify-center">
               <Image
                 src="/sponsor-media/others/XueDAO-logo.webp"
                 alt="XueDAO"
@@ -38,7 +33,7 @@ export default function HomeOrganizers() {
                 className="h-16 w-auto object-contain"
               />
             </div>
-            <div className="flex items-center justify-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
+            <div className="flex items-center justify-center">
               <Image
                 src="/sponsor-media/others/ETHTaipei-logo.jpg"
                 alt="ETHTaipei"
@@ -52,14 +47,11 @@ export default function HomeOrganizers() {
 
         {/* 冠名贊助 */}
         <div className="mb-12">
-          <h3
-            className="text-2xl font-semibold mb-6 text-center"
-            style={{ color: '#1a3a6e' }}
-          >
+          <h3 className="text-[20px] font-normal mb-6" style={{ color: '#1a3a6e' }}>
             冠名贊助
           </h3>
-          <div className="flex justify-center">
-            <div className="flex items-center justify-center p-6 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
+          <div className="flex">
+            <div className="flex items-center justify-center">
               <Image
                 src="/sponsor-media/imToken-logo.svg"
                 alt="imToken"
@@ -73,14 +65,11 @@ export default function HomeOrganizers() {
 
         {/* 賽道贊助 */}
         <div className="mb-12">
-          <h3
-            className="text-2xl font-semibold mb-6 text-center"
-            style={{ color: '#1a3a6e' }}
-          >
+          <h3 className="text-[20px] font-normal mb-6" style={{ color: '#1a3a6e' }}>
             賽道贊助
           </h3>
-          <div className="flex flex-wrap justify-center items-center gap-8">
-            <div className="flex items-center justify-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
+          <div className="flex flex-wrap items-center gap-8">
+            <div className="flex items-center justify-center">
               <Image
                 src="/sponsor-media/Cathay-logo-nologo.svg"
                 alt="Cathay"
@@ -89,7 +78,7 @@ export default function HomeOrganizers() {
                 className="h-16 w-auto object-contain"
               />
             </div>
-            <div className="flex items-center justify-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
+            <div className="flex items-center justify-center">
               <Image
                 src="/sponsor-media/Oasis-logo.svg"
                 alt="Oasis"
@@ -98,7 +87,7 @@ export default function HomeOrganizers() {
                 className="h-14 w-auto object-contain"
               />
             </div>
-            <div className="flex items-center justify-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
+            <div className="flex items-center justify-center">
               <Image
                 src="/sponsor-media/Self-logo.svg"
                 alt="Self"
@@ -107,7 +96,7 @@ export default function HomeOrganizers() {
                 className="h-14 w-auto object-contain"
               />
             </div>
-            <div className="flex items-center justify-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
+            <div className="flex items-center justify-center">
               <Image
                 src="/sponsor-media/Zircuit-logo.svg"
                 alt="Zircuit"
@@ -116,7 +105,7 @@ export default function HomeOrganizers() {
                 className="h-14 w-auto object-contain"
               />
             </div>
-            <div className="flex items-center justify-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
+            <div className="flex items-center justify-center">
               <Image
                 src="/sponsor-media/Sui-logo.svg"
                 alt="Sui"
@@ -130,14 +119,11 @@ export default function HomeOrganizers() {
 
         {/* 其他贊助 */}
         <div>
-          <h3
-            className="text-2xl font-semibold mb-6 text-center"
-            style={{ color: '#1a3a6e' }}
-          >
+          <h3 className="text-[20px] font-normal mb-6" style={{ color: '#1a3a6e' }}>
             其他贊助
           </h3>
-          <div className="flex flex-wrap justify-center items-center gap-8">
-            <div className="flex items-center justify-center p-6 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
+          <div className="flex flex-wrap items-center gap-8">
+            <div className="flex items-center justify-center">
               <Image
                 src="/sponsor-media/others/RWA-Nexus-logo.png"
                 alt="RWA Nexus"
@@ -147,7 +133,7 @@ export default function HomeOrganizers() {
                 style={{ height: '100px' }}
               />
             </div>
-            <div className="flex items-center justify-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
+            <div className="flex items-center justify-center">
               <Image
                 src="/sponsor-media/others/deFintek-logo.png"
                 alt="deFintek"
@@ -156,7 +142,7 @@ export default function HomeOrganizers() {
                 className="h-20 w-auto object-contain"
               />
             </div>
-            <div className="flex items-center justify-center p-6 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
+            <div className="flex items-center justify-center">
               <Image
                 src="/sponsor-media/others/Pelith-logo.png"
                 alt="Pelith"
@@ -166,7 +152,7 @@ export default function HomeOrganizers() {
                 style={{ height: '100px' }}
               />
             </div>
-            <div className="flex items-center justify-center p-6 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
+            <div className="flex items-center justify-center">
               <Image
                 src="/sponsor-media/others/Sparklands-logo.png"
                 alt="SparkLands"
@@ -176,7 +162,7 @@ export default function HomeOrganizers() {
                 style={{ height: '120px' }}
               />
             </div>
-            <div className="flex items-center justify-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
+            <div className="flex items-center justify-center">
               <Image
                 src="/sponsor-media/others/AsiaVista-logo.svg"
                 alt="AsiaVista"
@@ -185,7 +171,7 @@ export default function HomeOrganizers() {
                 className="h-12 w-auto object-contain"
               />
             </div>
-            <div className="flex items-center justify-center p-6 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
+            <div className="flex items-center justify-center">
               <Image
                 src="/sponsor-media/others/Stockfeel-logo.png"
                 alt="Stockfeel"
@@ -195,7 +181,7 @@ export default function HomeOrganizers() {
                 style={{ height: '120px' }}
               />
             </div>
-            <div className="flex items-center justify-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
+            <div className="flex items-center justify-center">
               <Image
                 src="/sponsor-media/others/imKey-logo.svg"
                 alt="imKey"

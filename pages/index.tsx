@@ -42,8 +42,8 @@ export default function Home(props: { challenges: Challenge[]; sponsorCard: Spon
       <TSMCChallenges challenges={props.challenges} />
       <HomeSponsors sponsorCard={props.sponsorCard} />
       <HomeFaqSection />
-      <HomeLineGroup />
       <HomeOrganizers />
+      <HomeLineGroup />
       <HomeFooter />
     </>
   );
