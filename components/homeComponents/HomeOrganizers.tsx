@@ -15,7 +15,7 @@ export default function HomeOrganizers() {
             className="text-4xl font-bold mb-4"
             style={{ color: '#1a3a6e' }}
           >
-            主辦單位與贊助夥伴
+            協辦單位與贊助夥伴
           </h2>
           <div className="w-24 h-1 mx-auto" style={{ backgroundColor: '#d97706' }}></div>
         </div>
@@ -141,36 +141,36 @@ export default function HomeOrganizers() {
               <Image
                 src="/sponsor-media/others/RWA-Nexus-logo.png"
                 alt="RWA Nexus"
-                width={140}
-                height={60}
-                className="h-12 w-auto object-contain"
+                width={200}
+                height={80}
+                className="h-16 w-auto object-contain"
               />
             </div>
             <div className="flex items-center justify-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
               <Image
                 src="/sponsor-media/others/deFintek-logo.png"
                 alt="deFintek"
-                width={140}
-                height={60}
-                className="h-12 w-auto object-contain"
+                width={200}
+                height={80}
+                className="h-16 w-auto object-contain"
               />
             </div>
             <div className="flex items-center justify-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
               <Image
                 src="/sponsor-media/others/Pelith-logo.png"
                 alt="Pelith"
-                width={140}
-                height={60}
-                className="h-12 w-auto object-contain"
+                width={200}
+                height={80}
+                className="h-16 w-auto object-contain"
               />
             </div>
             <div className="flex items-center justify-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
               <Image
                 src="/sponsor-media/others/Sparklands-logo.svg"
                 alt="SparkLands"
-                width={140}
-                height={60}
-                className="h-12 w-auto object-contain"
+                width={200}
+                height={80}
+                className="h-16 w-auto object-contain"
               />
             </div>
             <div className="flex items-center justify-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
@@ -186,9 +186,9 @@ export default function HomeOrganizers() {
               <Image
                 src="/sponsor-media/others/Stockfeel-logo.webp"
                 alt="Stockfeel"
-                width={140}
-                height={60}
-                className="h-12 w-auto object-contain"
+                width={200}
+                height={80}
+                className="h-16 w-auto object-contain"
               />
             </div>
             <div className="flex items-center justify-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
