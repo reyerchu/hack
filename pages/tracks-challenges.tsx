@@ -157,7 +157,7 @@ export default function TracksChallengesPage() {
             {/* Important Resources */}
             <div className="flex flex-col sm:flex-row justify-center items-center gap-4 mb-4">
               <a
-                href="#"
+                href="https://www.notion.so/2025-RWA-Hackathon-Track-292deb3d23d8800394f3e2919de54329"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center px-6 py-3 rounded-lg font-semibold text-white transition-all duration-200 hover:opacity-90 hover:shadow-lg"
@@ -181,7 +181,7 @@ export default function TracksChallengesPage() {
               </a>
 
               <a
-                href="#"
+                href="https://www.youtube.com/playlist?list=PLgQqxmnk8AudMJgxZZ5kMOwcqHAjZ_4UJ"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center px-6 py-3 rounded-lg font-semibold text-white transition-all duration-200 hover:opacity-90 hover:shadow-lg"
