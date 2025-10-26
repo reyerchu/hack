@@ -614,26 +614,15 @@ export default function SingleEventPage({ event, error }: SingleEventPageProps) 
                       type="submit"
                       disabled={isSubmitting}
                       className="px-6 py-2 text-white font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                      style={{ backgroundColor: '#1a3a6e' }}
+                      style={{ backgroundColor: '#8B4049' }}
                       onMouseEnter={(e) =>
-                        !isSubmitting && (e.currentTarget.style.backgroundColor = '#2a4a7e')
+                        !isSubmitting && (e.currentTarget.style.backgroundColor = '#9B5059')
                       }
                       onMouseLeave={(e) =>
-                        !isSubmitting && (e.currentTarget.style.backgroundColor = '#1a3a6e')
+                        !isSubmitting && (e.currentTarget.style.backgroundColor = '#8B4049')
                       }
                     >
-                      {isSubmitting ? '送出中...' : '送出申請'}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setDefinitekEmail('');
-                        setApplicationMessage(null);
-                      }}
-                      disabled={isSubmitting}
-                      className="px-6 py-2 text-gray-700 font-semibold rounded-lg transition-colors border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      取消
+                      {isSubmitting ? '申請中...' : '申請參加'}
                     </button>
                   </div>
                 </form>
