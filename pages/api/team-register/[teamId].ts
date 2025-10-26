@@ -272,7 +272,7 @@ async function handlePut(req: NextApiRequest, res: NextApiResponse, teamId: stri
 
         validatedMembers.push({
           email: email,
-          name: member.name,
+          name: member.name || '',
           role: member.role.trim(),
           hasEditRight: member.hasEditRight || false,
         });
