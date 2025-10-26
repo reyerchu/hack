@@ -632,7 +632,6 @@ export default function SingleEventPage({ event, error }: SingleEventPageProps) 
 
             {/* 操作按钮 */}
             <div className="flex flex-wrap gap-3 pt-6 border-t border-gray-200">
-
               <a
                 href={generateGoogleCalendarLink()}
                 target="_blank"
