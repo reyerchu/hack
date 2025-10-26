@@ -23,7 +23,7 @@ export default function SingleEventPage({ event, error }: SingleEventPageProps) 
   const router = useRouter();
   const { isSignedIn, user } = useAuthContext();
   const [copySuccess, setCopySuccess] = React.useState(false);
-  const [showApplicationForm, setShowApplicationForm] = React.useState(false);
+  const [showApplicationForm, setShowApplicationForm] = React.useState(true); // Changed to true - show form by default
   const [definitekEmail, setDefinitekEmail] = React.useState('');
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [isCheckingApplication, setIsCheckingApplication] = React.useState(false);
@@ -34,6 +34,42 @@ export default function SingleEventPage({ event, error }: SingleEventPageProps) 
 
   // Check if this event requires application (specific event ID)
   const requiresApplication = event?.id === 'Elyt7SvclfTp43LPKmaq';
+
+  // Check if user has already applied when page loads
+  React.useEffect(() => {
+    const checkApplication = async () => {
+      if (!requiresApplication || !isSignedIn || !user) {
+        return;
+      }
+
+      try {
+        const currentUser = firebase.auth().currentUser;
+        if (!currentUser) return;
+
+        const token = await currentUser.getIdToken();
+        const response = await fetch(`/api/event-application?eventId=${event.id}&checkOnly=true`, {
+          method: 'GET',
+          headers: {
+            Authorization: token,
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.hasApplied) {
+            setApplicationMessage({
+              type: 'info',
+              text: '您已經申請過此活動',
+            });
+          }
+        }
+      } catch (error) {
+        console.error('[Application] Check error:', error);
+      }
+    };
+
+    checkApplication();
+  }, [requiresApplication, isSignedIn, user, event?.id]);
 
   if (error || !event) {
     return (
@@ -245,7 +281,7 @@ export default function SingleEventPage({ event, error }: SingleEventPageProps) 
           text: '申請已成功送出！我們已發送通知給主辦方。',
         });
         setDefinitekEmail('');
-        setShowApplicationForm(false);
+        // Keep form visible after successful submission
         setTimeout(() => {
           setApplicationMessage(null);
         }, 5000);
@@ -525,13 +561,27 @@ export default function SingleEventPage({ event, error }: SingleEventPageProps) 
               </div>
             )}
 
-            {/* 申请表单 */}
-            {requiresApplication && showApplicationForm && (
+            {/* 申请表单 - 直接显示，无需点击按钮 */}
+            {requiresApplication && (
               <div className="mb-6 p-6 bg-gray-50 rounded-lg border border-gray-200">
                 <h3 className="text-lg font-bold mb-4" style={{ color: '#1a3a6e' }}>
                   申請參加此活動
                 </h3>
-                <form onSubmit={handleApplicationSubmit}>
+                {!isSignedIn || !user ? (
+                  <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <p className="text-blue-800 mb-3">請先登入才能申請此活動</p>
+                    <button
+                      onClick={() => router.push('/auth')}
+                      className="px-6 py-2 text-white font-semibold rounded-lg transition-colors"
+                      style={{ backgroundColor: '#1a3a6e' }}
+                      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#2a4a7e')}
+                      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#1a3a6e')}
+                    >
+                      前往登入
+                    </button>
+                  </div>
+                ) : (
+                  <form onSubmit={handleApplicationSubmit}>
                   <div className="mb-4">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       「deFintek 線上課程網站」註冊信箱 <span className="text-red-500">*</span>
@@ -541,7 +591,7 @@ export default function SingleEventPage({ event, error }: SingleEventPageProps) 
                       value={definitekEmail}
                       onChange={(e) => setDefinitekEmail(e.target.value)}
                       placeholder="請輸入您在 defintek.io 註冊的信箱"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-opacity-50"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
                       disabled={isSubmitting}
                       required
                     />
@@ -577,7 +627,6 @@ export default function SingleEventPage({ event, error }: SingleEventPageProps) 
                     <button
                       type="button"
                       onClick={() => {
-                        setShowApplicationForm(false);
                         setDefinitekEmail('');
                         setApplicationMessage(null);
                       }}
@@ -588,28 +637,12 @@ export default function SingleEventPage({ event, error }: SingleEventPageProps) 
                     </button>
                   </div>
                 </form>
+                )}
               </div>
             )}
 
             {/* 操作按钮 */}
             <div className="flex flex-wrap gap-3 pt-6 border-t border-gray-200">
-              {requiresApplication && (
-                <button
-                  onClick={handleApplicationClick}
-                  disabled={isCheckingApplication}
-                  className="inline-flex items-center gap-2 px-6 py-3 text-white font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  style={{ backgroundColor: '#8B4049' }}
-                  onMouseEnter={(e) =>
-                    !isCheckingApplication && (e.currentTarget.style.backgroundColor = '#9B5059')
-                  }
-                  onMouseLeave={(e) =>
-                    !isCheckingApplication && (e.currentTarget.style.backgroundColor = '#8B4049')
-                  }
-                >
-                  <AssignmentIcon style={{ fontSize: '20px' }} />
-                  {isCheckingApplication ? '檢查中...' : '申請參加'}
-                </button>
-              )}
 
               <a
                 href={generateGoogleCalendarLink()}
