@@ -63,7 +63,7 @@ const mentors: Person[] = [
     name: 'Reyer 瞿孝洋',
     title: 'RWA Nexus 創辦人，CFP',
     bio: '致力於孵化 DeFi 及 Fintech 團隊並提供解決方案，現任 RWA Nexus CEO、區塊鏈顧問及清大創業車庫業師。曾在聯發科技服務近十年，並擔任過物聯網 IC 設計新創總經理及區塊鏈資安新創 CYBAVO（已被 Circle 收購）策略長。專精 DeFi、RWA、軟體開發及 AI 應用整合等。',
-    photo: '',
+    photo: '瞿孝洋.jpg',
   },
   {
     name: 'Ryan',
