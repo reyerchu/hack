@@ -96,6 +96,12 @@ const bestPresentationJudges: Person[] = [
 
 const firstPrizeJudges: Person[] = [
   {
+    name: 'Eric 林政憲',
+    title: '',
+    bio: '',
+    photo: '',
+  },
+  {
     name: 'Martinet Lee 李嵩聲',
     title: 'Zircuit Cofounder',
     bio: '',
