@@ -314,10 +314,10 @@ export default function HomeOrganizers() {
                 <Image
                   src="/sponsor-media/others/TaiwanBlockchainAcademia.jpeg"
                   alt="TaiwanBlockchainAcademia"
-                  width={300}
-                  height={130}
+                  width={340}
+                  height={150}
                   className="w-auto object-contain"
-                  style={{ height: '100px' }}
+                  style={{ height: '120px' }}
                 />
               </a>
             </div>
