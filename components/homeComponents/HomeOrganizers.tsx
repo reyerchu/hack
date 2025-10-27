@@ -154,7 +154,7 @@ export default function HomeOrganizers() {
             </div>
             <div className="flex items-center justify-center">
               <Image
-                src="/sponsor-media/others/Sparklands-logo.png"
+                src="/sponsor-media/others/Sparklands-logo.jpg"
                 alt="SparkLands"
                 width={340}
                 height={150}
