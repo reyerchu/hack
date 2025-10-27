@@ -298,16 +298,27 @@ export default function HomeOrganizers() {
           </div>
         </div>
 
-        {/* 特別感謝 Section */}
-        <div className="mt-16">
-          <h3 className="text-2xl font-bold text-center mb-8" style={{ color: '#1a3a6e' }}>
+        {/* 特別感謝 */}
+        <div>
+          <h3 className="text-[20px] font-normal mb-6" style={{ color: '#1a3a6e' }}>
             特別感謝
           </h3>
-          <div className="flex justify-center">
-            <div className="text-center">
-              <p className="text-xl font-semibold" style={{ color: '#374151' }}>
-                TaiwanBlockAcademia
-              </p>
+          <div className="flex flex-wrap items-center gap-8">
+            <div className="flex items-center justify-center">
+              <a
+                href="https://taiwanblockchainacademia.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="transition-opacity hover:opacity-80"
+              >
+                <Image
+                  src="/sponsor-media/others/TaiwanBlockchainAcademia.jpeg"
+                  alt="TaiwanBlockchainAcademia"
+                  width={140}
+                  height={60}
+                  className="h-12 w-auto object-contain"
+                />
+              </a>
             </div>
           </div>
         </div>
