@@ -11,6 +11,7 @@ import Link from 'next/link';
 import Head from 'next/head';
 import AppHeader from '../../components/AppHeader';
 import { useAuthContext } from '../../lib/user/AuthContext';
+import { linkifyText } from '../../lib/utils/linkify';
 import firebase from 'firebase/app';
 import 'firebase/auth';
 
@@ -427,7 +428,7 @@ export default function PublicTrackDetailPage() {
                   lineHeight: '1.75',
                 }}
               >
-                {track.description}
+                {linkifyText(track.description, '#2563eb')}
               </p>
             )}
             <div className="flex flex-wrap items-center gap-6 text-sm">
@@ -591,7 +592,7 @@ export default function PublicTrackDetailPage() {
                             lineHeight: '1.75',
                           }}
                         >
-                          {challenge.description}
+                          {linkifyText(challenge.description, '#2563eb')}
                         </p>
                       </div>
                     )}
@@ -622,7 +623,7 @@ export default function PublicTrackDetailPage() {
                             lineHeight: '1.75',
                           }}
                         >
-                          {challenge.submissionRequirements}
+                          {linkifyText(challenge.submissionRequirements, '#2563eb')}
                         </p>
                       </div>
                     )}
@@ -642,7 +643,7 @@ export default function PublicTrackDetailPage() {
                             lineHeight: '1.75',
                           }}
                         >
-                          {formatCriteria(challenge.evaluationCriteria)}
+                          {linkifyText(formatCriteria(challenge.evaluationCriteria), '#2563eb')}
                         </p>
                       </div>
                     )}
