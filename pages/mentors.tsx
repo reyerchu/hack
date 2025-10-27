@@ -83,7 +83,7 @@ const bestPresentationJudges: Person[] = [
   {
     name: 'Daniel 王心平',
     title: 'Spark Lands CEO',
-    bio: '',
+    bio: '具科技背景，曾擔任全智科北美及歐洲業務經理及美商 Amkor 大中華區業務經理，返台後專注於不動產及整合開發之投資事業，經歷高科技產業、商業經驗、不動產投資相關經驗，並在 2023 年開始進行研擬不動產在 RWA 賽道之趨勢及在台灣落地之法遵及應用可行性，並在隔年 2024 年創立 Spark Lands 星域數位地產，將資產配置、資產管理、資產上鏈應用等整合，成為台灣首發進入 RWA 賽道之項目。',
     photo: '王心平.jpg',
   },
   {
