@@ -297,6 +297,20 @@ export default function HomeOrganizers() {
             </div>
           </div>
         </div>
+
+        {/* 特別感謝 Section */}
+        <div className="mt-16">
+          <h3 className="text-2xl font-bold text-center mb-8" style={{ color: '#1a3a6e' }}>
+            特別感謝
+          </h3>
+          <div className="flex justify-center">
+            <div className="text-center">
+              <p className="text-xl font-semibold" style={{ color: '#374151' }}>
+                TaiwanBlockAcademia
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   );
