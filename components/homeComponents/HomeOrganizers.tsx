@@ -25,22 +25,36 @@ export default function HomeOrganizers() {
           </h3>
           <div className="flex flex-wrap items-center gap-8">
             <div className="flex items-center justify-center">
-              <Image
-                src="/sponsor-media/others/XueDAO-logo.webp"
-                alt="XueDAO"
-                width={180}
-                height={80}
-                className="h-16 w-auto object-contain"
-              />
+              <a
+                href="https://www.xuedao.xyz/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="transition-opacity hover:opacity-80"
+              >
+                <Image
+                  src="/sponsor-media/others/XueDAO-logo.webp"
+                  alt="XueDAO"
+                  width={180}
+                  height={80}
+                  className="h-16 w-auto object-contain"
+                />
+              </a>
             </div>
             <div className="flex items-center justify-center">
-              <Image
-                src="/sponsor-media/others/ETHTaipei-logo.jpg"
-                alt="ETHTaipei"
-                width={180}
-                height={80}
-                className="h-16 w-auto object-contain"
-              />
+              <a
+                href="https://ethtaipei.org/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="transition-opacity hover:opacity-80"
+              >
+                <Image
+                  src="/sponsor-media/others/ETHTaipei-logo.jpg"
+                  alt="ETHTaipei"
+                  width={180}
+                  height={80}
+                  className="h-16 w-auto object-contain"
+                />
+              </a>
             </div>
           </div>
         </div>
@@ -52,13 +66,20 @@ export default function HomeOrganizers() {
           </h3>
           <div className="flex">
             <div className="flex items-center justify-center">
-              <Image
-                src="/sponsor-media/imToken-logo.svg"
-                alt="imToken"
-                width={200}
-                height={90}
-                className="h-20 w-auto object-contain"
-              />
+              <a
+                href="https://token.im/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="transition-opacity hover:opacity-80"
+              >
+                <Image
+                  src="/sponsor-media/imToken-logo.svg"
+                  alt="imToken"
+                  width={200}
+                  height={90}
+                  className="h-20 w-auto object-contain"
+                />
+              </a>
             </div>
           </div>
         </div>
@@ -70,49 +91,84 @@ export default function HomeOrganizers() {
           </h3>
           <div className="flex flex-wrap items-center gap-8">
             <div className="flex items-center justify-center">
-              <Image
-                src="/sponsor-media/Cathay-logo-nologo.svg"
-                alt="Cathay"
-                width={180}
-                height={80}
-                className="h-16 w-auto object-contain"
-              />
+              <a
+                href="https://www.cathayholdings.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="transition-opacity hover:opacity-80"
+              >
+                <Image
+                  src="/sponsor-media/Cathay-logo-nologo.svg"
+                  alt="Cathay"
+                  width={180}
+                  height={80}
+                  className="h-16 w-auto object-contain"
+                />
+              </a>
             </div>
             <div className="flex items-center justify-center">
-              <Image
-                src="/sponsor-media/Oasis-logo.svg"
-                alt="Oasis"
-                width={150}
-                height={70}
-                className="h-14 w-auto object-contain"
-              />
+              <a
+                href="https://oasis.net/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="transition-opacity hover:opacity-80"
+              >
+                <Image
+                  src="/sponsor-media/Oasis-logo.svg"
+                  alt="Oasis"
+                  width={150}
+                  height={70}
+                  className="h-14 w-auto object-contain"
+                />
+              </a>
             </div>
             <div className="flex items-center justify-center">
-              <Image
-                src="/sponsor-media/Self-logo.svg"
-                alt="Self"
-                width={150}
-                height={70}
-                className="h-14 w-auto object-contain"
-              />
+              <a
+                href="https://self.xyz/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="transition-opacity hover:opacity-80"
+              >
+                <Image
+                  src="/sponsor-media/Self-logo.svg"
+                  alt="Self"
+                  width={150}
+                  height={70}
+                  className="h-14 w-auto object-contain"
+                />
+              </a>
             </div>
             <div className="flex items-center justify-center">
-              <Image
-                src="/sponsor-media/Zircuit-logo.svg"
-                alt="Zircuit"
-                width={150}
-                height={70}
-                className="h-14 w-auto object-contain"
-              />
+              <a
+                href="https://www.zircuit.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="transition-opacity hover:opacity-80"
+              >
+                <Image
+                  src="/sponsor-media/Zircuit-logo.svg"
+                  alt="Zircuit"
+                  width={150}
+                  height={70}
+                  className="h-14 w-auto object-contain"
+                />
+              </a>
             </div>
             <div className="flex items-center justify-center">
-              <Image
-                src="/sponsor-media/Sui-logo.svg"
-                alt="Sui"
-                width={150}
-                height={70}
-                className="h-14 w-auto object-contain"
-              />
+              <a
+                href="https://sui.io/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="transition-opacity hover:opacity-80"
+              >
+                <Image
+                  src="/sponsor-media/Sui-logo.svg"
+                  alt="Sui"
+                  width={150}
+                  height={70}
+                  className="h-14 w-auto object-contain"
+                />
+              </a>
             </div>
           </div>
         </div>
@@ -124,71 +180,120 @@ export default function HomeOrganizers() {
           </h3>
           <div className="flex flex-wrap items-center gap-8">
             <div className="flex items-center justify-center">
-              <Image
-                src="/sponsor-media/others/RWA-Nexus-logo.png"
-                alt="RWA Nexus"
-                width={300}
-                height={130}
-                className="w-auto object-contain"
-                style={{ height: '100px' }}
-              />
+              <a
+                href="https://rwa.nexus/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="transition-opacity hover:opacity-80"
+              >
+                <Image
+                  src="/sponsor-media/others/RWA-Nexus-logo.png"
+                  alt="RWA Nexus"
+                  width={300}
+                  height={130}
+                  className="w-auto object-contain"
+                  style={{ height: '100px' }}
+                />
+              </a>
             </div>
             <div className="flex items-center justify-center">
-              <Image
-                src="/sponsor-media/others/deFintek-logo.png"
-                alt="deFintek"
-                width={240}
-                height={100}
-                className="h-20 w-auto object-contain"
-              />
+              <a
+                href="https://defintek.io/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="transition-opacity hover:opacity-80"
+              >
+                <Image
+                  src="/sponsor-media/others/deFintek-logo.png"
+                  alt="deFintek"
+                  width={240}
+                  height={100}
+                  className="h-20 w-auto object-contain"
+                />
+              </a>
             </div>
             <div className="flex items-center justify-center">
-              <Image
-                src="/sponsor-media/others/Pelith-logo.png"
-                alt="Pelith"
-                width={300}
-                height={130}
-                className="w-auto object-contain"
-                style={{ height: '100px' }}
-              />
+              <a
+                href="https://pelith.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="transition-opacity hover:opacity-80"
+              >
+                <Image
+                  src="/sponsor-media/others/Pelith-logo.png"
+                  alt="Pelith"
+                  width={300}
+                  height={130}
+                  className="w-auto object-contain"
+                  style={{ height: '100px' }}
+                />
+              </a>
             </div>
             <div className="flex items-center justify-center">
-              <Image
-                src="/sponsor-media/others/Sparklands-logo.jpg"
-                alt="SparkLands"
-                width={340}
-                height={150}
-                className="w-auto object-contain"
-                style={{ height: '120px' }}
-              />
+              <a
+                href="https://sparklands.co/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="transition-opacity hover:opacity-80"
+              >
+                <Image
+                  src="/sponsor-media/others/Sparklands-logo.jpg"
+                  alt="SparkLands"
+                  width={340}
+                  height={150}
+                  className="w-auto object-contain"
+                  style={{ height: '120px' }}
+                />
+              </a>
             </div>
             <div className="flex items-center justify-center">
-              <Image
-                src="/sponsor-media/others/AsiaVista-logo.svg"
-                alt="AsiaVista"
-                width={140}
-                height={60}
-                className="h-12 w-auto object-contain"
-              />
+              <a
+                href="https://www.asiavista.com.tw/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="transition-opacity hover:opacity-80"
+              >
+                <Image
+                  src="/sponsor-media/others/AsiaVista-logo.svg"
+                  alt="AsiaVista"
+                  width={140}
+                  height={60}
+                  className="h-12 w-auto object-contain"
+                />
+              </a>
             </div>
             <div className="flex items-center justify-center">
-              <Image
-                src="/sponsor-media/others/Stockfeel-logo.png"
-                alt="Stockfeel"
-                width={340}
-                height={150}
-                className="w-auto object-contain"
-                style={{ height: '120px' }}
-              />
+              <a
+                href="https://www.stockfeel.com.tw/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="transition-opacity hover:opacity-80"
+              >
+                <Image
+                  src="/sponsor-media/others/Stockfeel-logo.png"
+                  alt="Stockfeel"
+                  width={340}
+                  height={150}
+                  className="w-auto object-contain"
+                  style={{ height: '120px' }}
+                />
+              </a>
             </div>
             <div className="flex items-center justify-center">
-              <Image
-                src="/sponsor-media/others/imKey-logo.svg"
-                alt="imKey"
-                width={140}
-                height={60}
-                className="h-12 w-auto object-contain"
-              />
+              <a
+                href="https://imkey.im/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="transition-opacity hover:opacity-80"
+              >
+                <Image
+                  src="/sponsor-media/others/imKey-logo.svg"
+                  alt="imKey"
+                  width={140}
+                  height={60}
+                  className="h-12 w-auto object-contain"
+                />
+              </a>
             </div>
           </div>
         </div>
