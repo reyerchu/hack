@@ -212,7 +212,7 @@ export default function MentorsPage() {
                 className="text-3xl font-bold mb-2"
                 style={{ color: '#1a3a6e' }}
               >
-                導師
+                導師｜Mentor
               </h2>
               <div
                 className="w-16 h-1"
@@ -233,7 +233,7 @@ export default function MentorsPage() {
                 className="text-3xl font-bold mb-2"
                 style={{ color: '#1a3a6e' }}
               >
-                「Demo Day 最佳簡報獎」評審
+                「Demo Day 最佳簡報獎」評審｜Judge
               </h2>
               <div
                 className="w-16 h-1"
@@ -254,7 +254,7 @@ export default function MentorsPage() {
                 className="text-3xl font-bold mb-2"
                 style={{ color: '#1a3a6e' }}
               >
-                「Demo Day 首獎」評審
+                「Demo Day 首獎」評審｜Judge
               </h2>
               <div
                 className="w-16 h-1"
