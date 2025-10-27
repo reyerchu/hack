@@ -81,6 +81,12 @@ const bestPresentationJudges: Person[] = [
     photo: '',
   },
   {
+    name: 'Daniel 王心平',
+    title: 'Spark Lands CEO',
+    bio: '',
+    photo: '王心平.jpg',
+  },
+  {
     name: 'Stella Hsu',
     title: '股感媒體科技 執行長',
     bio: '',
