@@ -15,7 +15,7 @@ const mentors: Person[] = [
     name: 'Aaron 顏培祐',
     title: '閎旺科技創辦人',
     bio: '區塊鏈顧問，專注於協助企業開發區塊鏈產品與設計產品架構，五年 DeFi 研究與開發經驗，同時是 SUI on - chain incentive system Liquidlink 的 Co-founder。',
-    photo: '',
+    photo: '顏培祐.jpg',
   },
   {
     name: 'Albert',
@@ -27,7 +27,7 @@ const mentors: Person[] = [
     name: 'Hsuanting 朱軒廷',
     title: 'Dinngo 創辦人暨執行長',
     bio: '團隊打造了兩款創新的 DeFi 產品：Furucombo.app—革命性的 DeFi 聚合平台，讓用戶無需寫程式就能在單一交易中串聯 Uniswap、Aave 等多個協議，開創「DeFi 樂高」新玩法。Portus.xyz—專業的 Intent-based Solver，在 CoWSwap 和 Uniswap 上競爭最優交易執行方案，提供更好的價格發現與 MEV 保護。他致力於讓複雜金融機制「看得懂、用得起」，讓更多人能直覺進入 DeFi 世界。',
-    photo: '',
+    photo: '朱軒廷.png',
   },
   {
     name: 'Jennifer',
@@ -51,13 +51,13 @@ const mentors: Person[] = [
     name: 'Nathan 余哲安',
     title: 'Macro in DeFi 研究者',
     bio: '專注研究 DeFi 金融制度與美元穩定幣架構，關注主權金融、RWA（真實世界資產代幣化）及利率市場的連結。長期撰寫分析文章，從制度與市場結構的角度探討加密金融的運作邏輯。在黑客松期間可協助團隊進行「協議設計邏輯」、「收益模型與制度可行性分析」等相關討論。',
-    photo: '',
+    photo: '余哲安.jpg',
   },
   {
     name: 'Ping 陳品',
     title: 'Pelith 創辦人',
     bio: '一位由興趣使然的區塊鏈開發者，也是 AppWorks School Blockchain Program 的導師，更是多個開源專案和區塊鏈應用的創造者，迄今已開發多項成熟區塊鏈應用產品，曾榮獲以太坊基金會開發補助與 Kyber Network DeFi 黑客松等獎項。',
-    photo: '',
+    photo: '陳品.jpg',
   },
   {
     name: 'Reyer 瞿孝洋',
@@ -84,7 +84,7 @@ const bestPresentationJudges: Person[] = [
     name: 'Stella Hsu',
     title: '股感媒體科技 執行長',
     bio: '',
-    photo: '',
+    photo: 'Stella.jpg',
   },
 ];
 
@@ -93,13 +93,13 @@ const firstPrizeJudges: Person[] = [
     name: 'Martinet Lee 李嵩聲',
     title: 'Zircuit Cofounder',
     bio: '',
-    photo: '',
+    photo: '李嵩聲.jpg',
   },
   {
     name: 'Ping 陳品',
     title: 'Pelith 創辦人',
     bio: '',
-    photo: '',
+    photo: '陳品.jpg',
   },
   {
     name: 'Randy',
