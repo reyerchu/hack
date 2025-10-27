@@ -18,10 +18,10 @@ const mentors: Person[] = [
     photo: '顏培祐.jpg',
   },
   {
-    name: 'Albert',
-    title: '',
-    bio: '',
-    photo: '',
+    name: 'Albert 鄭鈞元',
+    title: 'Oasis Ambassodor',
+    bio: '熱愛 AI × Blockchain 的技術落地，多次參與 ETHGlobal 黑客松並與 XueDAO 合辦多場技術工作坊，累積從原型到產品化的紮實經驗。近期聚焦 Agent Payment：讓 AI 代理安全發起、授權與完成鏈上支付與結算，降低使用者與開發者的整合成本。',
+    photo: 'Albert.jpg',
   },
   {
     name: 'Hsuanting 朱軒廷',
