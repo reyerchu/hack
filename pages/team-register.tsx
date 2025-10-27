@@ -571,17 +571,26 @@ export default function TeamRegisterPage() {
                 <div>
                   <label className="block text-sm font-medium mb-2" style={{ color: '#374151' }}>
                     團隊名稱 <span style={{ color: '#ef4444' }}>*</span>
+                    <span className="text-xs text-gray-500 ml-2">
+                      ({teamName.length}/30)
+                    </span>
                   </label>
                   <input
                     type="text"
                     value={teamName}
                     onChange={(e) => setTeamName(e.target.value)}
+                    maxLength={30}
                     className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     style={{ borderColor: '#d1d5db' }}
                     placeholder="例如：創新者聯盟"
                     disabled={isSubmitting}
                     required
                   />
+                  {teamName.length >= 30 && (
+                    <p className="text-xs text-orange-600 mt-1">
+                      已達到最大字數限制
+                    </p>
+                  )}
                 </div>
               </div>
 
