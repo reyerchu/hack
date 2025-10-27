@@ -97,7 +97,7 @@ const bestPresentationJudges: Person[] = [
 const firstPrizeJudges: Person[] = [
   {
     name: 'Eric 林政憲',
-    title: '',
+    title: '國泰金控',
     bio: '',
     photo: '',
   },
