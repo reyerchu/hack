@@ -306,7 +306,7 @@ export default function HomeOrganizers() {
           <div className="flex flex-wrap items-center gap-8">
             <div className="flex items-center justify-center">
               <a
-                href="https://taiwanblockchainacademia.com/"
+                href="https://tba.community/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="transition-opacity hover:opacity-80"
