@@ -39,7 +39,7 @@ const mentors: Person[] = [
     name: 'Jerry Ho',
     title: 'IOTA Foundation Asia Devrel',
     bio: '勉強算是有些密碼學與資安背景，興趣是看穿業界中的妖魔鬼怪。職涯跨度巨大，Chainlink智庫研究員 -> Ethereum L2協議工程師 -> Move L1 開發者關係，研究實務社群全都沾。唯一不變的初心是 - 想讓臺灣工程師看見世界的願望。',
-    photo: '',
+    photo: 'JerryHo.png',
   },
   {
     name: 'Kevin Lin',
@@ -78,7 +78,7 @@ const bestPresentationJudges: Person[] = [
     name: 'Brian Lin',
     title: '亞洲志遠科技 執行長',
     bio: '深耕FinTech與企業級系統整合25年，實戰版圖橫跨銀行、投信與保險等領域。專長於將商業策略精準轉譯為可落地的技術方案，兼顧效能、可用性與法遵要求。職涯至今主導之專案達成100%上線且穩定運行，持續以高可靠度與交付品質贏得客戶長期信任。',
-    photo: '',
+    photo: 'BrianLin.jpg',
   },
   {
     name: 'Daniel 王心平',
@@ -125,8 +125,8 @@ function PersonCard({ person }: { person: Person }) {
             <Image
               src={`/photo/${person.photo}`}
               alt={person.name}
-              fill
-              className="object-cover"
+              layout="fill"
+              objectFit="cover"
             />
           </div>
         ) : (
