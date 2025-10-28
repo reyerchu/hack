@@ -52,7 +52,7 @@ export default function TSMCAbout() {
               </div>
               <div>
                 <span className="font-semibold text-black">其他協辦：</span>
-                <span>XueDAO｜ETHTaipei｜台灣銀行</span>
+                <span>XueDAO｜ETHTaipei｜臺灣銀行</span>
               </div>
             </div>
           </div>
