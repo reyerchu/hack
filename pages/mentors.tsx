@@ -281,8 +281,7 @@ export default function MentorsPage() {
                             <div className="flex justify-center">
                               {mentor.photo ? (
                                 <div
-                                  className="relative w-10 h-10 rounded-full overflow-hidden bg-gray-200 border-2"
-                                  style={{ borderColor: '#8B4049' }}
+                                  className="relative w-10 h-10 rounded-full overflow-hidden bg-gray-200"
                                   title={`${mentor.name} 可預約`}
                                 >
                                   <Image
@@ -294,8 +293,8 @@ export default function MentorsPage() {
                                 </div>
                               ) : (
                                 <div
-                                  className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold border-2"
-                                  style={{ backgroundColor: '#8B4049', borderColor: '#8B4049' }}
+                                  className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold"
+                                  style={{ backgroundColor: '#8B4049' }}
                                   title={`${mentor.name} 可預約`}
                                 >
                                   {mentor.name.charAt(0)}
