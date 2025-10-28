@@ -251,16 +251,16 @@ export default function MentorsPage() {
                 </thead>
                 <tbody>
                   {[
-                    { name: 'Aaron 顏培祐', slots: [true, true, true, true, true] },
-                    { name: 'Albert 鄭鈞元', slots: [true, false, false, true, true] },
-                    { name: 'Hsuanting 朱軒廷', slots: [false, true, true, false, false] },
-                    { name: 'Jennifer Hsu 許芮甄', slots: [false, false, false, false, true] },
-                    { name: 'Jerry Ho', slots: [true, true, false, false, false] },
-                    { name: 'Kevin Lin 林柏呈', slots: [false, true, true, false, false] },
-                    { name: 'Nathan 余哲安', slots: [false, false, false, false, true] },
-                    { name: 'Ping 陳品', slots: [false, true, true, true, false] },
-                    { name: 'Reyer 瞿孝洋', slots: [true, true, true, true, true] },
-                    { name: 'Ryan', slots: [true, true, true, true, false] },
+                    { name: 'Aaron 顏培祐', photo: '顏培祐.jpg', slots: [true, true, true, true, true] },
+                    { name: 'Albert 鄭鈞元', photo: 'Albert.jpg', slots: [true, false, false, true, true] },
+                    { name: 'Hsuanting 朱軒廷', photo: '朱軒廷.png', slots: [false, true, true, false, false] },
+                    { name: 'Jennifer Hsu 許芮甄', photo: 'JenniferHsu.jpg', slots: [false, false, false, false, true] },
+                    { name: 'Jerry Ho', photo: 'JerryHo.png', slots: [true, true, false, false, false] },
+                    { name: 'Kevin Lin 林柏呈', photo: 'KevinLin.jpg', slots: [false, true, true, false, false] },
+                    { name: 'Nathan 余哲安', photo: '余哲安.jpg', slots: [false, false, false, false, true] },
+                    { name: 'Ping 陳品', photo: '陳品.jpg', slots: [false, true, true, true, false] },
+                    { name: 'Reyer 瞿孝洋', photo: '瞿孝洋.jpg', slots: [true, true, true, true, true] },
+                    { name: 'Ryan', photo: '', slots: [true, true, true, true, false] },
                   ].map((mentor, index) => (
                     <tr
                       key={index}
@@ -278,13 +278,30 @@ export default function MentorsPage() {
                           className="px-4 py-3 text-center border border-gray-300"
                         >
                           {available && (
-                            <span
-                              className="inline-flex w-6 h-6 rounded-full text-white items-center justify-center"
-                              style={{ backgroundColor: '#8B4049' }}
-                              title="可預約"
-                            >
-                              ✓
-                            </span>
+                            <div className="flex justify-center">
+                              {mentor.photo ? (
+                                <div
+                                  className="relative w-10 h-10 rounded-full overflow-hidden bg-gray-200 border-2"
+                                  style={{ borderColor: '#8B4049' }}
+                                  title={`${mentor.name} 可預約`}
+                                >
+                                  <Image
+                                    src={`/photo/${mentor.photo}`}
+                                    alt={mentor.name}
+                                    layout="fill"
+                                    objectFit="cover"
+                                  />
+                                </div>
+                              ) : (
+                                <div
+                                  className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold border-2"
+                                  style={{ backgroundColor: '#8B4049', borderColor: '#8B4049' }}
+                                  title={`${mentor.name} 可預約`}
+                                >
+                                  {mentor.name.charAt(0)}
+                                </div>
+                              )}
+                            </div>
                           )}
                         </td>
                       ))}
