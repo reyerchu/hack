@@ -211,6 +211,90 @@ export default function MentorsPage() {
             </p>
           </div>
 
+          {/* 導師時間表 Section */}
+          <section className="mb-20">
+            <div className="mb-8">
+              <h2
+                className="text-3xl font-bold mb-2"
+                style={{ color: '#1a3a6e' }}
+              >
+                導師時間表｜Mentor Schedule
+              </h2>
+              <div
+                className="w-16 h-1"
+                style={{ backgroundColor: '#8B4049' }}
+              ></div>
+            </div>
+            <div className="overflow-x-auto bg-white rounded-lg shadow-sm">
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr style={{ backgroundColor: '#1a3a6e' }}>
+                    <th className="px-4 py-3 text-left text-white font-semibold border border-gray-300">
+                      導師
+                    </th>
+                    <th className="px-4 py-3 text-center text-white font-semibold border border-gray-300">
+                      10/31<br />10:00-12:00
+                    </th>
+                    <th className="px-4 py-3 text-center text-white font-semibold border border-gray-300">
+                      10/31<br />13:00-15:00
+                    </th>
+                    <th className="px-4 py-3 text-center text-white font-semibold border border-gray-300">
+                      10/31<br />15:00-17:00
+                    </th>
+                    <th className="px-4 py-3 text-center text-white font-semibold border border-gray-300">
+                      10/31<br />18:00-22:00
+                    </th>
+                    <th className="px-4 py-3 text-center text-white font-semibold border border-gray-300">
+                      11/1<br />9:00-11:30
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    { name: 'Aaron', slots: [true, true, true, true, true] },
+                    { name: 'Albert', slots: [true, false, false, true, true] },
+                    { name: 'Hsuanting', slots: [false, true, true, false, false] },
+                    { name: 'Jennifer', slots: [false, false, false, false, true] },
+                    { name: 'Jerry Ho', slots: [true, true, false, false, false] },
+                    { name: 'Kevin', slots: [false, true, true, false, false] },
+                    { name: 'Nathan', slots: [false, false, false, false, true] },
+                    { name: 'Ping', slots: [false, true, true, true, false] },
+                    { name: 'Reyer', slots: [true, true, true, true, true] },
+                    { name: 'Ryan', slots: [true, true, true, true, false] },
+                  ].map((mentor, index) => (
+                    <tr
+                      key={index}
+                      className={index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}
+                    >
+                      <td
+                        className="px-4 py-3 font-semibold border border-gray-300"
+                        style={{ color: '#1a3a6e' }}
+                      >
+                        {mentor.name}
+                      </td>
+                      {mentor.slots.map((available, slotIndex) => (
+                        <td
+                          key={slotIndex}
+                          className="px-4 py-3 text-center border border-gray-300"
+                        >
+                          {available && (
+                            <span
+                              className="inline-block w-6 h-6 rounded-full"
+                              style={{ backgroundColor: '#4ade80' }}
+                              title="可預約"
+                            >
+                              ✓
+                            </span>
+                          )}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+
           {/* 導師 Section */}
           <section className="mb-20">
             <div className="mb-8">
