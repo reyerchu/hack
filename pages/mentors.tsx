@@ -279,8 +279,8 @@ export default function MentorsPage() {
                         >
                           {available && (
                             <span
-                              className="inline-block w-6 h-6 rounded-full text-white flex items-center justify-center"
-                              style={{ backgroundColor: '#2d5016' }}
+                              className="inline-flex w-6 h-6 rounded-full text-white items-center justify-center"
+                              style={{ backgroundColor: '#8B4049' }}
                               title="可預約"
                             >
                               ✓
