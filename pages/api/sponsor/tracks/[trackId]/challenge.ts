@@ -73,10 +73,10 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
       .where('trackId', '==', challengeData?.trackId)
       .limit(1)
       .get();
-    
+
     const trackDocId = trackDoc.empty ? null : trackDoc.docs[0].id;
     const isValidTrack = challengeData?.trackId === trackId || trackDocId === trackId;
-    
+
     console.log('[GET challenge] Track validation:', {
       urlTrackId: trackId,
       challengeTrackIdField: challengeData?.trackId,
@@ -160,10 +160,10 @@ async function handlePut(req: NextApiRequest, res: NextApiResponse) {
       .where('trackId', '==', existingChallenge?.trackId)
       .limit(1)
       .get();
-    
+
     const trackDocId = trackDoc.empty ? null : trackDoc.docs[0].id;
     const isValidTrack = existingChallenge?.trackId === trackId || trackDocId === trackId;
-    
+
     console.log('[PUT challenge] Track validation:', {
       urlTrackId: trackId,
       challengeTrackIdField: existingChallenge?.trackId,

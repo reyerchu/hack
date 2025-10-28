@@ -29,10 +29,12 @@ export default function ChallengeEditPage() {
 
   // 判断是否为只读模式
   const isReadOnly = mode === 'view';
-  
+
   // 返回链接：如果有returnUrl则使用，否则使用默认的sponsor track页面
-  const backUrl = returnUrl 
-    ? (typeof returnUrl === 'string' ? decodeURIComponent(returnUrl) : `/sponsor/tracks/${trackId}`)
+  const backUrl = returnUrl
+    ? typeof returnUrl === 'string'
+      ? decodeURIComponent(returnUrl)
+      : `/sponsor/tracks/${trackId}`
     : `/sponsor/tracks/${trackId}`;
 
   // 權限檢查

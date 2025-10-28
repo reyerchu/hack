@@ -83,7 +83,7 @@ export default function PublicChallengeDetailPage() {
     const checkPermission = async () => {
       // Use track.id (document ID) instead of trackId (field value) for permission check
       const trackDocId = challenge?.track?.id || challenge?.trackId;
-      
+
       if (!isSignedIn || !user || !challenge || !trackDocId) {
         setCanEdit(false);
         return;
@@ -99,14 +99,11 @@ export default function PublicChallengeDetailPage() {
 
         const token = await currentUser.getIdToken();
         console.log('[PublicChallengePage] Checking permission for track:', trackDocId);
-        const response = await fetch(
-          `/api/sponsor/tracks/${trackDocId}/check-permission`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
+        const response = await fetch(`/api/sponsor/tracks/${trackDocId}/check-permission`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
           },
-        );
+        });
 
         if (response.ok) {
           const result = await response.json();
@@ -351,7 +348,11 @@ export default function PublicChallengeDetailPage() {
                   <button
                     onClick={() =>
                       router.push(
-                        `/sponsor/tracks/${challenge.track?.id || challenge.trackId}/challenge?challengeId=${challengeId}&mode=edit&returnUrl=${encodeURIComponent(router.asPath)}`,
+                        `/sponsor/tracks/${
+                          challenge.track?.id || challenge.trackId
+                        }/challenge?challengeId=${challengeId}&mode=edit&returnUrl=${encodeURIComponent(
+                          router.asPath,
+                        )}`,
                       )
                     }
                     className="flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors"
@@ -363,12 +364,7 @@ export default function PublicChallengeDetailPage() {
                       e.currentTarget.style.backgroundColor = '#059669';
                     }}
                   >
-                    <svg
-                      className="w-5 h-5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
@@ -389,12 +385,7 @@ export default function PublicChallengeDetailPage() {
                       e.currentTarget.style.backgroundColor = '#dc2626';
                     }}
                   >
-                    <svg
-                      className="w-5 h-5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
@@ -426,15 +417,16 @@ export default function PublicChallengeDetailPage() {
                   lineHeight: '1.75',
                 }}
               >
-                {challenge.description
-                  ? linkifyText(challenge.description, '#2563eb')
-                  : '暫無描述'}
+                {challenge.description ? linkifyText(challenge.description, '#2563eb') : '暫無描述'}
               </div>
             </div>
 
             {/* 獎金詳情 */}
             <div className="bg-white rounded-lg p-6 shadow-sm">
-              <h2 className="text-xl font-bold mb-4 flex items-center gap-2" style={{ color: '#1a3a6e' }}>
+              <h2
+                className="text-xl font-bold mb-4 flex items-center gap-2"
+                style={{ color: '#1a3a6e' }}
+              >
                 <span className="text-2xl">💰</span>
                 獎金詳情
               </h2>
@@ -445,7 +437,10 @@ export default function PublicChallengeDetailPage() {
 
             {/* 提交要求 */}
             <div className="bg-white rounded-lg p-6 shadow-sm">
-              <h2 className="text-xl font-bold mb-4 flex items-center gap-2" style={{ color: '#1a3a6e' }}>
+              <h2
+                className="text-xl font-bold mb-4 flex items-center gap-2"
+                style={{ color: '#1a3a6e' }}
+              >
                 📋 提交要求
               </h2>
               <div
@@ -466,7 +461,10 @@ export default function PublicChallengeDetailPage() {
 
             {/* 評分標準 */}
             <div className="bg-white rounded-lg p-6 shadow-sm">
-              <h2 className="text-xl font-bold mb-4 flex items-center gap-2" style={{ color: '#1a3a6e' }}>
+              <h2
+                className="text-xl font-bold mb-4 flex items-center gap-2"
+                style={{ color: '#1a3a6e' }}
+              >
                 📊 評分標準
               </h2>
               <div
@@ -601,4 +599,3 @@ export default function PublicChallengeDetailPage() {
     </>
   );
 }
-

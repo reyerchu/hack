@@ -1,8 +1,8 @@
 /**
  * Sponsor Track Teams Page
- * 
+ *
  * Route: /sponsor/tracks/[trackId]/teams
- * 
+ *
  * Shows all teams registered for a specific track
  */
 
@@ -164,8 +164,12 @@ export default function SponsorTrackTeamsPage() {
     const query = searchQuery.toLowerCase().trim();
     const filtered = teams.filter((team) => {
       const teamNameMatch = team.teamName.toLowerCase().includes(query);
-      const leaderNameMatch = `${team.teamLeader.firstName || ''} ${team.teamLeader.lastName || ''}`.toLowerCase().includes(query);
-      const leaderEmailMatch = (team.teamLeader.preferredEmail || team.teamLeader.email || '').toLowerCase().includes(query);
+      const leaderNameMatch = `${team.teamLeader.firstName || ''} ${team.teamLeader.lastName || ''}`
+        .toLowerCase()
+        .includes(query);
+      const leaderEmailMatch = (team.teamLeader.preferredEmail || team.teamLeader.email || '')
+        .toLowerCase()
+        .includes(query);
       const membersMatch = team.teamMembers.some((member) => {
         const memberName = `${member.firstName || ''} ${member.lastName || ''}`.toLowerCase();
         const memberEmail = (member.email || '').toLowerCase();
@@ -187,10 +191,10 @@ export default function SponsorTrackTeamsPage() {
 
   const formatDate = (timestamp: any): string => {
     if (!timestamp) return '-';
-    
+
     try {
       let date: Date;
-      
+
       if (timestamp._seconds) {
         date = new Date(timestamp._seconds * 1000);
       } else if (timestamp.seconds) {
@@ -200,7 +204,7 @@ export default function SponsorTrackTeamsPage() {
       } else {
         date = new Date(timestamp);
       }
-      
+
       return date.toLocaleDateString('zh-TW', {
         year: 'numeric',
         month: '2-digit',
@@ -308,19 +312,34 @@ export default function SponsorTrackTeamsPage() {
               <table className="min-w-full divide-y divide-gray-200">
                 <thead style={{ backgroundColor: '#f3f4f6' }}>
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style={{ color: '#1a3a6e' }}>
+                    <th
+                      className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
+                      style={{ color: '#1a3a6e' }}
+                    >
                       團隊名稱
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style={{ color: '#1a3a6e' }}>
+                    <th
+                      className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
+                      style={{ color: '#1a3a6e' }}
+                    >
                       報名者
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style={{ color: '#1a3a6e' }}>
+                    <th
+                      className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
+                      style={{ color: '#1a3a6e' }}
+                    >
                       成員數
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style={{ color: '#1a3a6e' }}>
+                    <th
+                      className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
+                      style={{ color: '#1a3a6e' }}
+                    >
                       報名日期
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style={{ color: '#1a3a6e' }}>
+                    <th
+                      className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
+                      style={{ color: '#1a3a6e' }}
+                    >
                       操作
                     </th>
                   </tr>
@@ -381,7 +400,8 @@ export default function SponsorTrackTeamsPage() {
             {totalPages > 1 && (
               <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
                 <div className="text-sm" style={{ color: '#6b7280' }}>
-                  顯示 {startIndex + 1} - {Math.min(endIndex, filteredTeams.length)} / 共 {filteredTeams.length} 個團隊
+                  顯示 {startIndex + 1} - {Math.min(endIndex, filteredTeams.length)} / 共{' '}
+                  {filteredTeams.length} 個團隊
                 </div>
                 <div className="flex gap-2">
                   <button
@@ -529,4 +549,3 @@ export default function SponsorTrackTeamsPage() {
     </>
   );
 }
-

@@ -1,7 +1,7 @@
 /**
  * Public API endpoint to get challenge details
  * GET /api/challenges/[challengeId]
- * 
+ *
  * This is a public endpoint - no authentication required
  */
 
@@ -71,7 +71,7 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
     } else if (challengeData.requirements) {
       submissionReqs = challengeData.requirements;
     }
-    
+
     const response = {
       id: challengeDoc.id,
       title: challengeData.title || challengeData.name,
@@ -106,4 +106,3 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   return res.status(405).json({ error: 'Method not allowed' });
 }
-
