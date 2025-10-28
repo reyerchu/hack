@@ -348,10 +348,9 @@ export default function HomeOrganizers() {
                 <Image
                   src="/sponsor-media/others/abmedia.png"
                   alt="ABMedia"
-                  width={340}
-                  height={150}
-                  className="w-auto object-contain"
-                  style={{ height: '120px' }}
+                  width={240}
+                  height={100}
+                  className="h-20 w-auto object-contain"
                 />
               </a>
             </div>
