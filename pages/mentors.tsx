@@ -30,10 +30,10 @@ const mentors: Person[] = [
     photo: '朱軒廷.png',
   },
   {
-    name: 'Jennifer',
-    title: 'XueDAO 創辦人',
+    name: 'Jennifer Hsu 許芮甄',
+    title: 'XueDAO Co-founder',
     bio: '',
-    photo: '',
+    photo: 'JenniferHsu.jpg',
   },
   {
     name: 'Jerry Ho',
@@ -42,10 +42,10 @@ const mentors: Person[] = [
     photo: 'JerryHo.png',
   },
   {
-    name: 'Kevin Lin',
-    title: 'XueDAO 創辦人',
+    name: 'Kevin Lin 林柏呈',
+    title: 'Self Integration Engineer',
     bio: '',
-    photo: '',
+    photo: 'KevinLin.jpg',
   },
   {
     name: 'Nathan 余哲安',
