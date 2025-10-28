@@ -338,6 +338,23 @@ export default function HomeOrganizers() {
                 />
               </a>
             </div>
+            <div className="flex items-center justify-center">
+              <a
+                href="https://abmedia.io/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="transition-opacity hover:opacity-80"
+              >
+                <Image
+                  src="/sponsor-media/others/abmedia.png"
+                  alt="ABMedia"
+                  width={340}
+                  height={150}
+                  className="w-auto object-contain"
+                  style={{ height: '120px' }}
+                />
+              </a>
+            </div>
           </div>
         </div>
       </div>

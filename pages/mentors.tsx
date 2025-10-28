@@ -71,6 +71,12 @@ const mentors: Person[] = [
     bio: '',
     photo: '',
   },
+  {
+    name: 'Randy',
+    title: 'imToken 產品經理',
+    bio: '',
+    photo: 'Randy.jpg',
+  },
 ];
 
 const bestPresentationJudges: Person[] = [
