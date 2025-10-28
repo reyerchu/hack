@@ -251,15 +251,15 @@ export default function MentorsPage() {
                 </thead>
                 <tbody>
                   {[
-                    { name: 'Aaron', slots: [true, true, true, true, true] },
-                    { name: 'Albert', slots: [true, false, false, true, true] },
-                    { name: 'Hsuanting', slots: [false, true, true, false, false] },
-                    { name: 'Jennifer', slots: [false, false, false, false, true] },
+                    { name: 'Aaron 顏培祐', slots: [true, true, true, true, true] },
+                    { name: 'Albert 鄭鈞元', slots: [true, false, false, true, true] },
+                    { name: 'Hsuanting 朱軒廷', slots: [false, true, true, false, false] },
+                    { name: 'Jennifer Hsu 許芮甄', slots: [false, false, false, false, true] },
                     { name: 'Jerry Ho', slots: [true, true, false, false, false] },
-                    { name: 'Kevin', slots: [false, true, true, false, false] },
-                    { name: 'Nathan', slots: [false, false, false, false, true] },
-                    { name: 'Ping', slots: [false, true, true, true, false] },
-                    { name: 'Reyer', slots: [true, true, true, true, true] },
+                    { name: 'Kevin Lin 林柏呈', slots: [false, true, true, false, false] },
+                    { name: 'Nathan 余哲安', slots: [false, false, false, false, true] },
+                    { name: 'Ping 陳品', slots: [false, true, true, true, false] },
+                    { name: 'Reyer 瞿孝洋', slots: [true, true, true, true, true] },
                     { name: 'Ryan', slots: [true, true, true, true, false] },
                   ].map((mentor, index) => (
                     <tr
