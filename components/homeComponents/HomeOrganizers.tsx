@@ -354,6 +354,54 @@ export default function HomeOrganizers() {
                 />
               </a>
             </div>
+            <div className="flex items-center justify-center">
+              <a
+                href="https://www.facebook.com/NTUFintechClub"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="transition-opacity hover:opacity-80"
+              >
+                <Image
+                  src="/sponsor-media/others/NTUFC.png"
+                  alt="NTUFC"
+                  width={240}
+                  height={100}
+                  className="h-20 w-auto object-contain"
+                />
+              </a>
+            </div>
+            <div className="flex items-center justify-center">
+              <a
+                href="https://x.com/VisionM_F"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="transition-opacity hover:opacity-80"
+              >
+                <Image
+                  src="/sponsor-media/others/VisionM.jpg"
+                  alt="VisionM"
+                  width={240}
+                  height={100}
+                  className="h-20 w-auto object-contain"
+                />
+              </a>
+            </div>
+            <div className="flex items-center justify-center">
+              <a
+                href="https://luma.com/suicommunity"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="transition-opacity hover:opacity-80"
+              >
+                <Image
+                  src="/sponsor-media/others/SuiHub.jpg"
+                  alt="SuiHub"
+                  width={240}
+                  height={100}
+                  className="h-20 w-auto object-contain"
+                />
+              </a>
+            </div>
           </div>
         </div>
       </div>

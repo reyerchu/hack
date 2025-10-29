@@ -48,6 +48,12 @@ const mentors: Person[] = [
     photo: 'KevinLin.jpg',
   },
   {
+    name: 'Martin',
+    title: '',
+    bio: '',
+    photo: '',
+  },
+  {
     name: 'Nathan 余哲安',
     title: 'Macro in DeFi 研究者',
     bio: '專注研究 DeFi 金融制度與美元穩定幣架構，關注主權金融、RWA（真實世界資產代幣化）及利率市場的連結。長期撰寫分析文章，從制度與市場結構的角度探討加密金融的運作邏輯。在黑客松期間可協助團隊進行「協議設計邏輯」、「收益模型與制度可行性分析」等相關討論。',
@@ -110,7 +116,7 @@ const firstPrizeJudges: Person[] = [
   {
     name: 'Ping 陳品',
     title: 'Pelith 創辦人',
-    bio: '',
+    bio: '一位由興趣使然的區塊鏈開發者，也是 AppWorks School Blockchain Program 的導師，更是多個開源專案和區塊鏈應用的創造者，迄今已開發多項成熟區塊鏈應用產品，曾榮獲以太坊基金會開發補助與 Kyber Network DeFi 黑客松等獎項。',
     photo: '陳品.jpg',
   },
   {
@@ -257,6 +263,7 @@ export default function MentorsPage() {
                     { name: 'Jennifer Hsu 許芮甄', photo: 'JenniferHsu.jpg', slots: [false, false, false, false, true] },
                     { name: 'Jerry Ho', photo: 'JerryHo.png', slots: [true, true, false, false, false] },
                     { name: 'Kevin Lin 林柏呈', photo: 'KevinLin.jpg', slots: [false, true, true, false, false] },
+                    { name: 'Martin', photo: '', slots: [false, true, true, false, false] },
                     { name: 'Nathan 余哲安', photo: '余哲安.jpg', slots: [false, false, false, false, true] },
                     { name: 'Ping 陳品', photo: '陳品.jpg', slots: [false, true, true, true, false] },
                     { name: 'Reyer 瞿孝洋', photo: '瞿孝洋.jpg', slots: [true, true, true, true, true] },
