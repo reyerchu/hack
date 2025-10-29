@@ -48,10 +48,10 @@ const mentors: Person[] = [
     photo: 'KevinLin.jpg',
   },
   {
-    name: 'Martin',
-    title: '',
-    bio: '',
-    photo: '',
+    name: 'Martinet Lee 李嵩聲',
+    title: 'Zircuit Cofounder',
+    bio: 'Martinet, serving as Cofounder at Zircuit and Head of developer relations at Quantstamp. Also hosts ETHTaipei on the side, and lecture about Blockchain at NYCU (交大), a top engineering university in Taiwan.',
+    photo: '李嵩聲.jpg',
   },
   {
     name: 'Nathan 余哲安',
@@ -263,7 +263,7 @@ export default function MentorsPage() {
                     { name: 'Jennifer Hsu 許芮甄', photo: 'JenniferHsu.jpg', slots: [false, false, false, false, true] },
                     { name: 'Jerry Ho', photo: 'JerryHo.png', slots: [true, true, false, false, false] },
                     { name: 'Kevin Lin 林柏呈', photo: 'KevinLin.jpg', slots: [false, true, true, false, false] },
-                    { name: 'Martin', photo: '', slots: [false, true, true, false, false] },
+                    { name: 'Martinet Lee 李嵩聲', photo: '李嵩聲.jpg', slots: [false, true, true, false, false] },
                     { name: 'Nathan 余哲安', photo: '余哲安.jpg', slots: [false, false, false, false, true] },
                     { name: 'Ping 陳品', photo: '陳品.jpg', slots: [false, true, true, true, false] },
                     { name: 'Reyer 瞿孝洋', photo: '瞿孝洋.jpg', slots: [true, true, true, true, true] },
