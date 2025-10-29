@@ -67,9 +67,9 @@ const mentors: Person[] = [
   },
   {
     name: 'Ryan',
-    title: 'ETHTaipei 主辦',
+    title: 'Extra Ordinary Dev，Onflow',
     bio: '',
-    photo: '',
+    photo: 'Ryan.jpg',
   },
 ];
 
@@ -114,7 +114,7 @@ const firstPrizeJudges: Person[] = [
     photo: '陳品.jpg',
   },
   {
-    name: 'Randy',
+    name: 'Randy Lien',
     title: 'imToken 產品經理',
     bio: '',
     photo: 'Randy.jpg',
@@ -260,7 +260,7 @@ export default function MentorsPage() {
                     { name: 'Nathan 余哲安', photo: '余哲安.jpg', slots: [false, false, false, false, true] },
                     { name: 'Ping 陳品', photo: '陳品.jpg', slots: [false, true, true, true, false] },
                     { name: 'Reyer 瞿孝洋', photo: '瞿孝洋.jpg', slots: [true, true, true, true, true] },
-                    { name: 'Ryan', photo: '', slots: [true, true, true, true, false] },
+                    { name: 'Ryan', photo: 'Ryan.jpg', slots: [true, true, true, false, false] },
                   ].map((mentor, index) => (
                     <tr
                       key={index}
