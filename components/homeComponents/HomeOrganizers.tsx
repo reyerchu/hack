@@ -356,6 +356,38 @@ export default function HomeOrganizers() {
             </div>
             <div className="flex items-center justify-center">
               <a
+                href="https://cryptowesearch.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="transition-opacity hover:opacity-80"
+              >
+                <Image
+                  src="/sponsor-media/others/cryptowesearch.png"
+                  alt="Crypto Wesearch"
+                  width={240}
+                  height={100}
+                  className="h-20 w-auto object-contain"
+                />
+              </a>
+            </div>
+            <div className="flex items-center justify-center">
+              <a
+                href="https://grenade.tw/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="transition-opacity hover:opacity-80"
+              >
+                <Image
+                  src="/sponsor-media/others/Grenade.png"
+                  alt="Grenade"
+                  width={240}
+                  height={100}
+                  className="h-20 w-auto object-contain"
+                />
+              </a>
+            </div>
+            <div className="flex items-center justify-center">
+              <a
                 href="https://www.facebook.com/NTUFintechClub"
                 target="_blank"
                 rel="noopener noreferrer"
