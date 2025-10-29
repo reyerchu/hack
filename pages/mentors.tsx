@@ -105,7 +105,7 @@ const firstPrizeJudges: Person[] = [
     name: 'Eric 林政憲',
     title: '國泰金控 區塊鏈技術團隊主管',
     bio: '國泰金控區塊鏈技術團隊主管，亦為 Web3 電商平台創辦人，多項金融業區塊鏈專案落地經驗，專精於區塊鏈、去中心化身份（DID）與零知識證明等技術。致力推動金融科技數位化，亦偶爾擔任區塊鏈講師，推廣產業應用與前瞻技術知識。',
-    photo: '',
+    photo: '林政憲.jpg',
   },
   {
     name: 'Martinet Lee 李嵩聲',
