@@ -104,7 +104,7 @@ const firstPrizeJudges: Person[] = [
   {
     name: 'Martinet Lee 李嵩聲',
     title: 'Zircuit Cofounder',
-    bio: '',
+    bio: 'Martinet, serving as Cofounder at Zircuit and Head of developer relations at Quantstamp. Also hosts ETHTaipei on the side, and lecture about Blockchain at NYCU (交大), a top engineering university in Taiwan.',
     photo: '李嵩聲.jpg',
   },
   {
