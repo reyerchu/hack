@@ -251,7 +251,7 @@ export default function MentorsPage() {
                 </thead>
                 <tbody>
                   {[
-                    { name: 'Aaron 顏培祐', photo: '顏培祐.jpg', slots: [true, true, true, true, true] },
+                    { name: 'Aaron 顏培祐', photo: '顏培祐.jpg', slots: [true, false, false, true, true] },
                     { name: 'Albert 鄭鈞元', photo: 'Albert.jpg', slots: [true, false, false, true, true] },
                     { name: 'Hsuanting 朱軒廷', photo: '朱軒廷.png', slots: [false, true, true, false, false] },
                     { name: 'Jennifer Hsu 許芮甄', photo: 'JenniferHsu.jpg', slots: [false, false, false, false, true] },
