@@ -30,6 +30,12 @@ const mentors: Person[] = [
     photo: '詹前村.jpg',
   },
   {
+    name: 'Daniel 王心平',
+    title: 'Spark Lands CEO',
+    bio: '具科技背景，曾擔任全智科北美及歐洲業務經理及美商 Amkor 大中華區業務經理，返台後專注於不動產及整合開發之投資事業，經歷高科技產業、商業經驗、不動產投資相關經驗，並在 2023 年開始進行研擬不動產在 RWA 賽道之趨勢及在台灣落地之法遵及應用可行性，並在隔年 2024 年創立 Spark Lands 星域數位地產，將資產配置、資產管理、資產上鏈應用等整合，成為台灣首發進入 RWA 賽道之項目。',
+    photo: '王心平.jpg',
+  },
+  {
     name: 'Hsuanting 朱軒廷',
     title: 'Dinngo 創辦人暨執行長',
     bio: '團隊打造了兩款創新的 DeFi 產品：Furucombo.app—革命性的 DeFi 聚合平台，讓用戶無需寫程式就能在單一交易中串聯 Uniswap、Aave 等多個協議，開創「DeFi 樂高」新玩法。Portus.xyz—專業的 Intent-based Solver，在 CoWSwap 和 Uniswap 上競爭最優交易執行方案，提供更好的價格發現與 MEV 保護。他致力於讓複雜金融機制「看得懂、用得起」，讓更多人能直覺進入 DeFi 世界。',
