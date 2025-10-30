@@ -272,6 +272,7 @@ export default function MentorsPage() {
                     { name: 'Aaron 顏培祐', photo: '顏培祐.jpg', slots: [true, false, false, true, true] },
                     { name: 'Albert 鄭鈞元', photo: 'Albert.jpg', slots: [true, false, false, true, true] },
                     { name: 'CT 詹前村', photo: '詹前村.jpg', slots: [false, false, true, false, false] },
+                    { name: 'Daniel 王心平', photo: '王心平.jpg', slots: [false, true, true, true, false] },
                     { name: 'Hsuanting 朱軒廷', photo: '朱軒廷.png', slots: [false, true, true, false, false] },
                     { name: 'Jennifer Hsu 許芮甄', photo: 'JenniferHsu.jpg', slots: [false, false, false, false, true] },
                     { name: 'Jerry Ho', photo: 'JerryHo.png', slots: [true, true, false, false, false] },
