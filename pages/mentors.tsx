@@ -281,31 +281,34 @@ export default function MentorsPage() {
                 </thead>
                 <tbody>
                   {[
-                    { name: 'Aaron 顏培祐', photo: '顏培祐.jpg', slots: [true, false, false, true, true] },
-                    { name: 'Albert 鄭鈞元', photo: 'Albert.jpg', slots: [true, false, false, true, true] },
-                    { name: 'Brian Lin', photo: 'BrianLin.jpg', slots: [false, true, true, false, false] },
-                    { name: 'CT 詹前村', photo: '詹前村.jpg', slots: [false, false, true, false, false] },
-                    { name: 'Daniel 王心平', photo: '王心平.jpg', slots: [false, true, true, true, false] },
-                    { name: 'Hsuanting 朱軒廷', photo: '朱軒廷.png', slots: [false, true, true, false, false] },
-                    { name: 'Jennifer Hsu 許芮甄', photo: 'JenniferHsu.jpg', slots: [false, false, false, false, true] },
-                    { name: 'Jerry Ho', photo: 'JerryHo.png', slots: [true, true, false, false, false] },
-                    { name: 'Kevin Lin 林柏呈', photo: 'KevinLin.jpg', slots: [false, false, false, true, true] },
-                    { name: 'Martinet Lee 李嵩聲', photo: '李嵩聲.jpg', slots: [false, true, true, false, false] },
-                    { name: 'Nathan 余哲安', photo: '余哲安.jpg', slots: [false, false, false, false, true] },
-                    { name: 'Ping 陳品', photo: '陳品.jpg', slots: [false, true, true, true, false] },
-                    { name: 'Reyer 瞿孝洋', photo: '瞿孝洋.jpg', slots: [true, true, true, true, true] },
-                    { name: 'Ryan', photo: 'Ryan.jpg', slots: [true, true, true, false, false] },
-                    { name: 'Winnie Hsu 許晴', photo: '許晴.png', slots: [false, false, true, false, false] },
+                    { name: 'Aaron 顏培祐', photo: '顏培祐.jpg', skills: 'Coding｜DeFi｜Sui', slots: [true, false, false, true, true] },
+                    { name: 'Albert 鄭鈞元', photo: 'Albert.jpg', skills: 'Coding｜Oasis｜Sui｜AI', slots: [true, false, false, true, true] },
+                    { name: 'Brian Lin', photo: 'BrianLin.jpg', skills: 'Coding｜AI', slots: [false, true, true, false, false] },
+                    { name: 'CT 詹前村', photo: '詹前村.jpg', skills: '國泰', slots: [false, false, true, false, false] },
+                    { name: 'Daniel 王心平', photo: '王心平.jpg', skills: '不動產｜商模｜法規', slots: [false, true, true, true, false] },
+                    { name: 'Hsuanting 朱軒廷', photo: '朱軒廷.png', skills: 'DeFi｜UIUX｜商模', slots: [false, true, true, false, false] },
+                    { name: 'Jennifer Hsu 許芮甄', photo: 'JenniferHsu.jpg', skills: 'Pitch', slots: [false, false, false, false, true] },
+                    { name: 'Jerry Ho', photo: 'JerryHo.png', skills: 'Coding｜密碼學｜資安', slots: [true, true, false, false, false] },
+                    { name: 'Kevin Lin 林柏呈', photo: 'KevinLin.jpg', skills: 'Coding｜Self｜AI', slots: [false, false, false, true, true] },
+                    { name: 'Martinet Lee 李嵩聲', photo: '李嵩聲.jpg', skills: 'Coding｜Zircuit｜資安', slots: [false, true, true, false, false] },
+                    { name: 'Nathan 余哲安', photo: '余哲安.jpg', skills: 'DeFi｜Research', slots: [false, false, false, false, true] },
+                    { name: 'Ping 陳品', photo: '陳品.jpg', skills: 'Coding｜DeFi', slots: [false, true, true, true, false] },
+                    { name: 'Reyer 瞿孝洋', photo: '瞿孝洋.jpg', skills: 'Coding｜DeFi｜AI', slots: [true, true, true, true, true] },
+                    { name: 'Ryan', photo: 'Ryan.jpg', skills: 'Coding｜DeFi', slots: [true, true, true, false, false] },
+                    { name: 'Winnie Hsu 許晴', photo: '許晴.png', skills: '國泰', slots: [false, false, true, false, false] },
                   ].map((mentor, index) => (
                     <tr
                       key={index}
                       className={index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}
                     >
                       <td
-                        className="px-4 py-3 font-semibold border border-gray-300"
+                        className="px-4 py-3 border border-gray-300"
                         style={{ color: '#1a3a6e' }}
                       >
-                        {mentor.name}
+                        <div className="font-semibold">{mentor.name}</div>
+                        <div className="text-xs text-gray-600 mt-1">
+                          {mentor.skills}
+                        </div>
                       </td>
                       {mentor.slots.map((available, slotIndex) => (
                         <td
