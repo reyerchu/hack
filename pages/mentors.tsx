@@ -24,6 +24,12 @@ const mentors: Person[] = [
     photo: 'Albert.jpg',
   },
   {
+    name: 'CT 詹前村',
+    title: 'Cathay Blockchain Engineer',
+    bio: '',
+    photo: '詹前村.jpg',
+  },
+  {
     name: 'Hsuanting 朱軒廷',
     title: 'Dinngo 創辦人暨執行長',
     bio: '團隊打造了兩款創新的 DeFi 產品：Furucombo.app—革命性的 DeFi 聚合平台，讓用戶無需寫程式就能在單一交易中串聯 Uniswap、Aave 等多個協議，開創「DeFi 樂高」新玩法。Portus.xyz—專業的 Intent-based Solver，在 CoWSwap 和 Uniswap 上競爭最優交易執行方案，提供更好的價格發現與 MEV 保護。他致力於讓複雜金融機制「看得懂、用得起」，讓更多人能直覺進入 DeFi 世界。',
@@ -76,6 +82,12 @@ const mentors: Person[] = [
     title: 'Extra Ordinary Dev，Onflow',
     bio: '',
     photo: 'Ryan.jpg',
+  },
+  {
+    name: 'Winnie Hsu 許晴',
+    title: 'Cathay Blockchain Engineer',
+    bio: '',
+    photo: '許晴.png',
   },
 ];
 
@@ -259,6 +271,7 @@ export default function MentorsPage() {
                   {[
                     { name: 'Aaron 顏培祐', photo: '顏培祐.jpg', slots: [true, false, false, true, true] },
                     { name: 'Albert 鄭鈞元', photo: 'Albert.jpg', slots: [true, false, false, true, true] },
+                    { name: 'CT 詹前村', photo: '詹前村.jpg', slots: [false, false, true, false, false] },
                     { name: 'Hsuanting 朱軒廷', photo: '朱軒廷.png', slots: [false, true, true, false, false] },
                     { name: 'Jennifer Hsu 許芮甄', photo: 'JenniferHsu.jpg', slots: [false, false, false, false, true] },
                     { name: 'Jerry Ho', photo: 'JerryHo.png', slots: [true, true, false, false, false] },
@@ -268,6 +281,7 @@ export default function MentorsPage() {
                     { name: 'Ping 陳品', photo: '陳品.jpg', slots: [false, true, true, true, false] },
                     { name: 'Reyer 瞿孝洋', photo: '瞿孝洋.jpg', slots: [true, true, true, true, true] },
                     { name: 'Ryan', photo: 'Ryan.jpg', slots: [true, true, true, false, false] },
+                    { name: 'Winnie Hsu 許晴', photo: '許晴.png', slots: [false, false, true, false, false] },
                   ].map((mentor, index) => (
                     <tr
                       key={index}
