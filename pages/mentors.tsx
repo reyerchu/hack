@@ -24,6 +24,12 @@ const mentors: Person[] = [
     photo: 'Albert.jpg',
   },
   {
+    name: 'Brian Lin',
+    title: '亞洲志遠科技 執行長',
+    bio: '深耕 FinTech 與企業級系統整合 25 年，實戰版圖橫跨銀行、投信與保險等領域。專長於將商業策略精準轉譯為可落地的技術方案，兼顧效能、可用性與法遵要求。職涯至今主導之專案達成 100% 上線且穩定運行，持續以高可靠度與交付品質贏得客戶長期信任。',
+    photo: 'BrianLin.jpg',
+  },
+  {
     name: 'CT 詹前村',
     title: 'Cathay Blockchain Engineer',
     bio: '',
@@ -277,6 +283,7 @@ export default function MentorsPage() {
                   {[
                     { name: 'Aaron 顏培祐', photo: '顏培祐.jpg', slots: [true, false, false, true, true] },
                     { name: 'Albert 鄭鈞元', photo: 'Albert.jpg', slots: [true, false, false, true, true] },
+                    { name: 'Brian Lin', photo: 'BrianLin.jpg', slots: [false, true, true, false, false] },
                     { name: 'CT 詹前村', photo: '詹前村.jpg', slots: [false, false, true, false, false] },
                     { name: 'Daniel 王心平', photo: '王心平.jpg', slots: [false, true, true, true, false] },
                     { name: 'Hsuanting 朱軒廷', photo: '朱軒廷.png', slots: [false, true, true, false, false] },
