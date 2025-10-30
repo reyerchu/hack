@@ -275,7 +275,7 @@ export default function MentorsPage() {
                     { name: 'Hsuanting 朱軒廷', photo: '朱軒廷.png', slots: [false, true, true, false, false] },
                     { name: 'Jennifer Hsu 許芮甄', photo: 'JenniferHsu.jpg', slots: [false, false, false, false, true] },
                     { name: 'Jerry Ho', photo: 'JerryHo.png', slots: [true, true, false, false, false] },
-                    { name: 'Kevin Lin 林柏呈', photo: 'KevinLin.jpg', slots: [false, true, true, false, false] },
+                    { name: 'Kevin Lin 林柏呈', photo: 'KevinLin.jpg', slots: [false, false, false, true, true] },
                     { name: 'Martinet Lee 李嵩聲', photo: '李嵩聲.jpg', slots: [false, true, true, false, false] },
                     { name: 'Nathan 余哲安', photo: '余哲安.jpg', slots: [false, false, false, false, true] },
                     { name: 'Ping 陳品', photo: '陳品.jpg', slots: [false, true, true, true, false] },
