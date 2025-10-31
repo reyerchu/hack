@@ -1094,27 +1094,97 @@ export default function TeamRegisterPage() {
                           {isExpanded && (
                             <div className="px-4 pb-4 border-t" style={{ borderColor: '#e5e7eb' }}>
                               {/* Demo Day PDF Upload Section */}
-                              {isEditMode && track.name === 'Demo Day' && (
-                                <div
-                                  className="mt-4 mb-4 p-4 rounded-lg"
-                                  style={{ backgroundColor: '#fef3c7' }}
-                                >
-                                  <h4
-                                    className="font-medium text-sm mb-3"
-                                    style={{ color: '#92400e' }}
+                              {track.name === 'Demo Day' &&
+                                selectedTracks.includes(track.id) &&
+                                editTeamId && (
+                                  <div
+                                    className="mt-4 mb-4 p-4 rounded-lg"
+                                    style={{ backgroundColor: '#fef3c7' }}
                                   >
-                                    📄 Demo Day 申請文件
-                                  </h4>
-                                  <p className="text-xs mb-3" style={{ color: '#92400e' }}>
-                                    參加 Demo Day 賽道需要提交 PDF 文件
-                                  </p>
+                                    <h4
+                                      className="font-medium text-sm mb-3"
+                                      style={{ color: '#92400e' }}
+                                    >
+                                      📄 Demo Day 申請文件
+                                    </h4>
+                                    <p className="text-xs mb-3" style={{ color: '#92400e' }}>
+                                      參加 Demo Day 賽道需要提交 PDF 文件
+                                    </p>
 
-                                  {submittedPdf ? (
-                                    <div className="bg-white border border-green-500 rounded-lg p-4">
-                                      <div className="flex items-center justify-between">
-                                        <div className="flex items-center gap-3">
+                                    {submittedPdf ? (
+                                      <div className="bg-white border border-green-500 rounded-lg p-4">
+                                        <div className="flex items-center justify-between">
+                                          <div className="flex items-center gap-3">
+                                            <svg
+                                              className="w-8 h-8 text-green-600"
+                                              fill="none"
+                                              stroke="currentColor"
+                                              viewBox="0 0 24 24"
+                                            >
+                                              <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth={2}
+                                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                                              />
+                                            </svg>
+                                            <div>
+                                              <div className="font-medium text-green-800">
+                                                已提交
+                                              </div>
+                                              <div className="text-sm text-green-700">
+                                                文件：{submittedPdf.fileName}
+                                              </div>
+                                            </div>
+                                          </div>
+                                          <div className="flex gap-2">
+                                            <a
+                                              href={submittedPdf.fileUrl}
+                                              target="_blank"
+                                              rel="noopener noreferrer"
+                                              className="px-3 py-1.5 rounded-lg border-2 font-medium transition-colors text-sm"
+                                              style={{ borderColor: '#1a3a6e', color: '#1a3a6e' }}
+                                              onMouseEnter={(e) => {
+                                                e.currentTarget.style.backgroundColor = '#f0f4ff';
+                                              }}
+                                              onMouseLeave={(e) => {
+                                                e.currentTarget.style.backgroundColor =
+                                                  'transparent';
+                                              }}
+                                            >
+                                              查看
+                                            </a>
+                                            <button
+                                              type="button"
+                                              onClick={handlePdfDelete}
+                                              disabled={pdfDeleting}
+                                              className="px-3 py-1.5 rounded-lg font-medium transition-colors text-sm"
+                                              style={{
+                                                backgroundColor: pdfDeleting
+                                                  ? '#9ca3af'
+                                                  : '#dc2626',
+                                                color: 'white',
+                                                cursor: pdfDeleting ? 'not-allowed' : 'pointer',
+                                              }}
+                                              onMouseEnter={(e) => {
+                                                if (!pdfDeleting)
+                                                  e.currentTarget.style.backgroundColor = '#b91c1c';
+                                              }}
+                                              onMouseLeave={(e) => {
+                                                if (!pdfDeleting)
+                                                  e.currentTarget.style.backgroundColor = '#dc2626';
+                                              }}
+                                            >
+                                              {pdfDeleting ? '刪除中...' : '刪除'}
+                                            </button>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    ) : (
+                                      <div className="bg-white border-2 border-dashed border-gray-300 rounded-lg p-4">
+                                        <div className="text-center">
                                           <svg
-                                            className="w-8 h-8 text-green-600"
+                                            className="mx-auto h-12 w-12 text-gray-400"
                                             fill="none"
                                             stroke="currentColor"
                                             viewBox="0 0 24 24"
@@ -1123,138 +1193,77 @@ export default function TeamRegisterPage() {
                                               strokeLinecap="round"
                                               strokeLinejoin="round"
                                               strokeWidth={2}
-                                              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                                              d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
                                             />
                                           </svg>
-                                          <div>
-                                            <div className="font-medium text-green-800">已提交</div>
-                                            <div className="text-sm text-green-700">
-                                              文件：{submittedPdf.fileName}
-                                            </div>
+                                          <div className="mt-2">
+                                            <label
+                                              htmlFor="demo-day-pdf-upload"
+                                              className="cursor-pointer inline-flex items-center px-4 py-2 rounded-lg font-medium transition-colors"
+                                              style={{
+                                                backgroundColor: pdfUploading
+                                                  ? '#9ca3af'
+                                                  : '#1a3a6e',
+                                                color: 'white',
+                                              }}
+                                              onMouseEnter={(e) => {
+                                                if (!pdfUploading)
+                                                  e.currentTarget.style.backgroundColor = '#2a4a7e';
+                                              }}
+                                              onMouseLeave={(e) => {
+                                                if (!pdfUploading)
+                                                  e.currentTarget.style.backgroundColor = '#1a3a6e';
+                                              }}
+                                            >
+                                              {pdfUploading ? '上傳中...' : '選擇 PDF 文件'}
+                                            </label>
+                                            <input
+                                              id="demo-day-pdf-upload"
+                                              type="file"
+                                              accept=".pdf"
+                                              className="hidden"
+                                              disabled={pdfUploading}
+                                              onChange={(e) => {
+                                                const file = e.target.files?.[0];
+                                                if (file) {
+                                                  handlePdfUpload(file);
+                                                }
+                                                e.target.value = '';
+                                              }}
+                                            />
                                           </div>
-                                        </div>
-                                        <div className="flex gap-2">
-                                          <a
-                                            href={submittedPdf.fileUrl}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="px-3 py-1.5 rounded-lg border-2 font-medium transition-colors text-sm"
-                                            style={{ borderColor: '#1a3a6e', color: '#1a3a6e' }}
-                                            onMouseEnter={(e) => {
-                                              e.currentTarget.style.backgroundColor = '#f0f4ff';
-                                            }}
-                                            onMouseLeave={(e) => {
-                                              e.currentTarget.style.backgroundColor = 'transparent';
-                                            }}
-                                          >
-                                            查看
-                                          </a>
-                                          <button
-                                            type="button"
-                                            onClick={handlePdfDelete}
-                                            disabled={pdfDeleting}
-                                            className="px-3 py-1.5 rounded-lg font-medium transition-colors text-sm"
-                                            style={{
-                                              backgroundColor: pdfDeleting ? '#9ca3af' : '#dc2626',
-                                              color: 'white',
-                                              cursor: pdfDeleting ? 'not-allowed' : 'pointer',
-                                            }}
-                                            onMouseEnter={(e) => {
-                                              if (!pdfDeleting)
-                                                e.currentTarget.style.backgroundColor = '#b91c1c';
-                                            }}
-                                            onMouseLeave={(e) => {
-                                              if (!pdfDeleting)
-                                                e.currentTarget.style.backgroundColor = '#dc2626';
-                                            }}
-                                          >
-                                            {pdfDeleting ? '刪除中...' : '刪除'}
-                                          </button>
+                                          <p className="text-xs text-gray-500 mt-2">
+                                            僅接受 PDF 格式，最大 10MB
+                                          </p>
+                                          <p className="text-xs text-gray-500 mt-1">
+                                            提交後將發送通知郵件給管理員
+                                          </p>
                                         </div>
                                       </div>
-                                    </div>
-                                  ) : (
-                                    <div className="bg-white border-2 border-dashed border-gray-300 rounded-lg p-4">
-                                      <div className="text-center">
-                                        <svg
-                                          className="mx-auto h-12 w-12 text-gray-400"
-                                          fill="none"
-                                          stroke="currentColor"
-                                          viewBox="0 0 24 24"
-                                        >
-                                          <path
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            strokeWidth={2}
-                                            d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                                          />
-                                        </svg>
-                                        <div className="mt-2">
-                                          <label
-                                            htmlFor="demo-day-pdf-upload"
-                                            className="cursor-pointer inline-flex items-center px-4 py-2 rounded-lg font-medium transition-colors"
-                                            style={{
-                                              backgroundColor: pdfUploading ? '#9ca3af' : '#1a3a6e',
-                                              color: 'white',
-                                            }}
-                                            onMouseEnter={(e) => {
-                                              if (!pdfUploading)
-                                                e.currentTarget.style.backgroundColor = '#2a4a7e';
-                                            }}
-                                            onMouseLeave={(e) => {
-                                              if (!pdfUploading)
-                                                e.currentTarget.style.backgroundColor = '#1a3a6e';
-                                            }}
-                                          >
-                                            {pdfUploading ? '上傳中...' : '選擇 PDF 文件'}
-                                          </label>
-                                          <input
-                                            id="demo-day-pdf-upload"
-                                            type="file"
-                                            accept=".pdf"
-                                            className="hidden"
-                                            disabled={pdfUploading}
-                                            onChange={(e) => {
-                                              const file = e.target.files?.[0];
-                                              if (file) {
-                                                handlePdfUpload(file);
-                                              }
-                                              e.target.value = '';
-                                            }}
-                                          />
-                                        </div>
-                                        <p className="text-xs text-gray-500 mt-2">
-                                          僅接受 PDF 格式，最大 10MB
-                                        </p>
-                                        <p className="text-xs text-gray-500 mt-1">
-                                          提交後將發送通知郵件給管理員
-                                        </p>
-                                      </div>
-                                    </div>
-                                  )}
+                                    )}
 
-                                  {/* PDF Message */}
-                                  {pdfMessage && (
-                                    <div
-                                      className="mt-3 p-2 rounded-lg text-sm text-center"
-                                      style={{
-                                        backgroundColor: pdfMessage.includes('成功')
-                                          ? '#d1fae5'
-                                          : pdfMessage.includes('刪除')
-                                          ? '#fee2e2'
-                                          : '#fef3c7',
-                                        color: pdfMessage.includes('成功')
-                                          ? '#065f46'
-                                          : pdfMessage.includes('刪除')
-                                          ? '#991b1b'
-                                          : '#92400e',
-                                      }}
-                                    >
-                                      {pdfMessage}
-                                    </div>
-                                  )}
-                                </div>
-                              )}
+                                    {/* PDF Message */}
+                                    {pdfMessage && (
+                                      <div
+                                        className="mt-3 p-2 rounded-lg text-sm text-center"
+                                        style={{
+                                          backgroundColor: pdfMessage.includes('成功')
+                                            ? '#d1fae5'
+                                            : pdfMessage.includes('刪除')
+                                            ? '#fee2e2'
+                                            : '#fef3c7',
+                                          color: pdfMessage.includes('成功')
+                                            ? '#065f46'
+                                            : pdfMessage.includes('刪除')
+                                            ? '#991b1b'
+                                            : '#92400e',
+                                        }}
+                                      >
+                                        {pdfMessage}
+                                      </div>
+                                    )}
+                                  </div>
+                                )}
 
                               {/* Challenges Section */}
                               {track.challenges && track.challenges.length > 0 && (
