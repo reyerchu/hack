@@ -66,7 +66,7 @@ async function handleScan(req: NextApiRequest, res: NextApiResponse) {
     headers,
   } = req;
 
-  const bodyData = JSON.parse(body);
+  const bodyData = body;
 
   //
   // Check if request header contains token
