@@ -45,20 +45,23 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
   if (!(await requireTrackAccess(req, res, trackId))) return;
 
   try {
-    // 通過 document ID 直接獲取挑戰
-    const challengeDoc = await db
+    // 通過 challengeId 字段查詢挑戰
+    const challengeQuery = await db
       .collection(SPONSOR_COLLECTIONS.EXTENDED_CHALLENGES)
-      .doc(challengeId)
+      .where('challengeId', '==', challengeId)
+      .limit(1)
       .get();
 
     console.log(
-      '[GET /api/sponsor/tracks/[trackId]/challenge] Challenge exists:',
-      challengeDoc.exists,
+      '[GET /api/sponsor/tracks/[trackId]/challenge] Challenge query results:',
+      challengeQuery.size,
     );
 
-    if (!challengeDoc.exists) {
+    if (challengeQuery.empty) {
       return ApiResponse.notFound(res, 'Challenge not found');
     }
+
+    const challengeDoc = challengeQuery.docs[0];
 
     const challengeData = challengeDoc.data();
     console.log(
@@ -131,20 +134,23 @@ async function handlePut(req: NextApiRequest, res: NextApiResponse) {
   const userId = authReq.userId!;
 
   try {
-    // 1. 通過 document ID 直接獲取挑戰
-    const challengeDoc = await db
+    // 1. 通過 challengeId 字段查詢挑戰
+    const challengeQuery = await db
       .collection(SPONSOR_COLLECTIONS.EXTENDED_CHALLENGES)
-      .doc(challengeId)
+      .where('challengeId', '==', challengeId)
+      .limit(1)
       .get();
 
     console.log(
-      '[PUT /api/sponsor/tracks/[trackId]/challenge] Challenge exists:',
-      challengeDoc.exists,
+      '[PUT /api/sponsor/tracks/[trackId]/challenge] Challenge query results:',
+      challengeQuery.size,
     );
 
-    if (!challengeDoc.exists) {
+    if (challengeQuery.empty) {
       return ApiResponse.notFound(res, 'Challenge not found');
     }
+
+    const challengeDoc = challengeQuery.docs[0];
 
     const existingChallenge = challengeDoc.data();
 
