@@ -581,13 +581,17 @@ export default function TrackDetailPage() {
                       </div>
                       <div className="flex items-center gap-2 ml-4 shrink-0">
                         <Link
-                          href={`/sponsor/tracks/${trackId}/challenge?challengeId=${challenge.id}`}
+                          href={`/sponsor/tracks/${trackId}/challenge?challengeId=${
+                            challenge.challengeId || challenge.id
+                          }`}
                         >
                           <a
                             onClick={() => {
                               console.log('[Track Detail] Navigating to challenge:', {
-                                url: `/sponsor/tracks/${trackId}/challenge?challengeId=${challenge.id}`,
-                                challengeId: challenge.id,
+                                url: `/sponsor/tracks/${trackId}/challenge?challengeId=${
+                                  challenge.challengeId || challenge.id
+                                }`,
+                                challengeId: challenge.challengeId || challenge.id,
                                 challengeTitle: challenge.title,
                                 challengeTrackId: challenge.trackId,
                                 expectedTrackId: trackId,
@@ -613,7 +617,10 @@ export default function TrackDetailPage() {
                         {track.permissions?.canEdit && (
                           <button
                             onClick={() =>
-                              handleDeleteChallengeClick(challenge.id, challenge.title)
+                              handleDeleteChallengeClick(
+                                challenge.challengeId || challenge.id,
+                                challenge.title,
+                              )
                             }
                             className="px-4 py-2 rounded-lg text-sm font-medium border-2 transition-colors"
                             style={{
