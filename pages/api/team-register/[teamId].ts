@@ -141,6 +141,7 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse, teamId: stri
         createdAt: teamData.createdAt,
         updatedAt: teamData.updatedAt,
         agreedToCommitment: teamData.agreedToCommitment,
+        submittedPdf: teamData.submittedPdf || null,
       },
     });
   } catch (error: any) {
