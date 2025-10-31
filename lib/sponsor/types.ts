@@ -517,6 +517,7 @@ export interface TrackListResponse {
   tracks: Array<{
     id: string;
     name: string;
+    description?: string;
     sponsorId: string;
     sponsorName: string;
     challenges: ExtendedChallenge[];
