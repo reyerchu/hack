@@ -130,10 +130,15 @@ export default function TrackDetailPage() {
 
       if (response.ok) {
         // 跳转到挑战编辑页面
-        const newChallengeId = data.data?.id || data.id;
+        // API 返回格式: { success: true, challenge: { id, challengeId, ... } }
+        const newChallengeId = data.challenge?.challengeId || data.challengeId;
+        console.log('[AddChallenge] Response data:', data);
+        console.log('[AddChallenge] New challengeId:', newChallengeId);
+
         if (newChallengeId) {
           router.push(`/sponsor/tracks/${trackId}/challenge?challengeId=${newChallengeId}`);
         } else {
+          console.error('[AddChallenge] Failed to get challengeId from response:', data);
           alert('創建挑戰成功，但無法獲取挑戰 ID');
           fetchTrackDetails();
         }
