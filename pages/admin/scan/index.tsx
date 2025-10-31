@@ -2,7 +2,7 @@ import Head from 'next/head';
 import React, { useEffect, useState } from 'react';
 import AdminHeader from '../../../components/adminComponents/AdminHeader';
 import ScanType from '../../../components/ScanType';
-import QRCodeReader from '../../../components/dashboardComponents/QRCodeReader';
+import QRScanner from '../../../components/QRScanner';
 import LoadIcon from '../../../components/LoadIcon';
 import { useAuthContext } from '../../../lib/user/AuthContext';
 import { isAuthorized } from '..';
@@ -434,7 +434,12 @@ export default function Admin() {
                       <div className="flex flex-col items-center justify-center gap-y-6">
                         {currentScan && !scanData ? (
                           <div className="bg-gray-50 p-6 rounded-lg">
-                            <QRCodeReader width={200} height={200} callback={handleScan} />
+                            <QRScanner 
+                              onScanSuccess={handleScan}
+                              onScanError={(error) => console.error('掃描錯誤:', error)}
+                              width={350}
+                              height={350}
+                            />
                           </div>
                         ) : null}
 
