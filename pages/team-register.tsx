@@ -1017,6 +1017,12 @@ export default function TeamRegisterPage() {
                                   onClick={(e) => e.stopPropagation()}
                                 >
                                   {track.name}
+                                  {/* Debug: Show track ID */}
+                                  {editTeamId && track.name?.toLowerCase().includes('demo') && (
+                                    <span className="ml-2 text-xs text-red-500">
+                                      [PDF Upload Should Show]
+                                    </span>
+                                  )}
                                   <svg
                                     className="w-4 h-4"
                                     fill="none"
@@ -1089,7 +1095,9 @@ export default function TeamRegisterPage() {
                               </div>
 
                               {/* Demo Day PDF Upload - Show directly in card when selected */}
-                              {track.name === 'Demo Day' &&
+                              {(track.name === 'Demo Day' ||
+                                track.name?.toLowerCase().includes('demo') ||
+                                track.name?.toLowerCase().includes('簡報')) &&
                                 selectedTracks.includes(track.id) &&
                                 editTeamId && (
                                   <div
@@ -1183,7 +1191,9 @@ export default function TeamRegisterPage() {
                           {isExpanded && (
                             <div className="px-4 pb-4 border-t" style={{ borderColor: '#e5e7eb' }}>
                               {/* Demo Day PDF Upload Section */}
-                              {track.name === 'Demo Day' &&
+                              {(track.name === 'Demo Day' ||
+                                track.name?.toLowerCase().includes('demo') ||
+                                track.name?.toLowerCase().includes('簡報')) &&
                                 selectedTracks.includes(track.id) &&
                                 editTeamId && (
                                   <div
