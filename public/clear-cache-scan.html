@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>清除緩存並重新載入</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft JhengHei', sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .box {
+            background: #f0f9ff;
+            border: 2px solid #0284c7;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 20px 0;
+        }
+        
+        button {
+            background: #0284c7;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 10px;
+        }
+        
+        button:hover {
+            background: #0369a1;
+        }
+        
+        .steps {
+            text-align: left;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        
+        .steps li {
+            margin: 10px 0;
+            padding: 10px;
+            background: #f9fafb;
+            border-radius: 4px;
+        }
+        
+        .success {
+            color: #16a34a;
+            font-size: 24px;
+            margin: 20px 0;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔄 清除緩存工具</h1>
+    
+    <div class="box">
+        <h2>修復 "Add New Scan" 錯誤</h2>
+        <p>如果您看到 "Unexpected error" 訊息，請按照以下步驟操作：</p>
+    </div>
+    
+    <div class="steps">
+        <h3>方法 1：自動清除（推薦）</h3>
+        <ol>
+            <li>點擊下方的「清除緩存並重新載入」按鈕</li>
+            <li>等待頁面自動跳轉到掃描管理頁面</li>
+            <li>重新嘗試添加掃描類型</li>
+        </ol>
+        
+        <button onclick="clearAndReload()">🔄 清除緩存並重新載入</button>
+        
+        <div class="success" id="success">
+            ✅ 緩存已清除！正在跳轉...
+        </div>
+    </div>
+    
+    <div class="steps">
+        <h3>方法 2：手動清除（如果方法 1 無效）</h3>
+        <ol>
+            <li><strong>Chrome/Edge：</strong>
+                <ul>
+                    <li>按 <code>Ctrl + Shift + Delete</code> (Windows) 或 <code>Cmd + Shift + Delete</code> (Mac)</li>
+                    <li>選擇「緩存的圖片和文件」</li>
+                    <li>點擊「清除數據」</li>
+                </ul>
+            </li>
+            <li><strong>Firefox：</strong>
+                <ul>
+                    <li>按 <code>Ctrl + Shift + Delete</code></li>
+                    <li>選擇「緩存」</li>
+                    <li>點擊「立即清除」</li>
+                </ul>
+            </li>
+            <li>重新載入頁面（<code>F5</code> 或 <code>Ctrl + R</code>）</li>
+        </ol>
+        
+        <button onclick="window.location.href='/admin/scan'">前往掃描管理頁面</button>
+    </div>
+    
+    <div class="box" style="background: #fff7ed; border-color: #f59e0b;">
+        <h3>⚠️ 注意事項</h3>
+        <p>1. 確保您已經登入並有管理員權限</p>
+        <p>2. 如果問題持續，請嘗試使用無痕模式（Incognito/Private）</p>
+        <p>3. 確認您的 Firebase token 沒有過期（重新登入）</p>
+    </div>
+    
+    <script>
+        function clearAndReload() {
+            // Clear all caches
+            if ('caches' in window) {
+                caches.keys().then(function(names) {
+                    names.forEach(function(name) {
+                        caches.delete(name);
+                    });
+                });
+            }
+            
+            // Clear localStorage related to the app
+            try {
+                // Don't clear auth tokens, just app cache
+                const keysToRemove = [];
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (key && (key.includes('cache') || key.includes('_cache'))) {
+                        keysToRemove.push(key);
+                    }
+                }
+                keysToRemove.forEach(key => localStorage.removeItem(key));
+            } catch (e) {
+                console.error('Error clearing localStorage:', e);
+            }
+            
+            // Show success message
+            document.getElementById('success').style.display = 'block';
+            
+            // Redirect after 2 seconds
+            setTimeout(function() {
+                window.location.href = '/admin/scan?nocache=' + Date.now();
+            }, 2000);
+        }
+        
+        // Add cache-busting to current page load
+        if (!window.location.search.includes('nocache')) {
+            const url = new URL(window.location);
+            url.searchParams.set('nocache', Date.now());
+            window.history.replaceState({}, '', url);
+        }
+    </script>
+</body>
+</html>
+

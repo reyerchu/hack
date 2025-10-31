@@ -42,6 +42,11 @@ async function updateUserDoc(oldScanName: string, newScanName: string) {
 
 async function updateScanType(req: NextApiRequest, res: NextApiResponse) {
   const { scanData } = req.body;
+  if (!scanData || !scanData.name) {
+    return res.status(400).json({
+      msg: 'Invalid scan data',
+    });
+  }
   scanData.name = scanData.name.trim();
   try {
     const snapshot = await db
