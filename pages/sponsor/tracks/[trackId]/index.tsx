@@ -97,16 +97,55 @@ export default function TrackDetailPage() {
     fetchTrackDetails();
   }, [trackId, isSignedIn]);
 
-  // Handle add challenge
-  const handleAddChallengeClick = () => {
-    setNewChallengeData({
-      title: '',
-      description: '',
-      prizes: '',
-      submissionRequirements: '',
-    });
-    setCreateMessage('');
-    setShowAddChallengeModal(true);
+  // Handle add challenge - 创建空挑战后跳转到编辑页面
+  const handleAddChallengeClick = async () => {
+    try {
+      setIsCreating(true);
+      setCreateMessage('');
+
+      const currentUser = firebase.auth().currentUser;
+      if (!currentUser) {
+        alert('請先登入');
+        return;
+      }
+
+      const token = await currentUser.getIdToken();
+
+      // 创建一个带有基本信息的新挑战
+      const response = await fetch(`/api/sponsor/tracks/${trackId}/challenges/create`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          title: '新挑戰',
+          description: '',
+          prizes: '',
+          submissionRequirements: '',
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // 跳转到挑战编辑页面
+        const newChallengeId = data.data?.id || data.id;
+        if (newChallengeId) {
+          router.push(`/sponsor/tracks/${trackId}/challenge?challengeId=${newChallengeId}`);
+        } else {
+          alert('創建挑戰成功，但無法獲取挑戰 ID');
+          fetchTrackDetails();
+        }
+      } else {
+        alert(`❌ ${data.error || '創建失敗'}`);
+      }
+    } catch (error: any) {
+      console.error('Failed to create challenge:', error);
+      alert('❌ 創建挑戰時發生錯誤');
+    } finally {
+      setIsCreating(false);
+    }
   };
 
   const handleCreateChallenge = async () => {
@@ -331,27 +370,57 @@ export default function TrackDetailPage() {
             {track.permissions?.canEdit && (
               <button
                 onClick={handleAddChallengeClick}
+                disabled={isCreating}
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-colors shrink-0"
                 style={{
-                  backgroundColor: '#1a3a6e',
+                  backgroundColor: isCreating ? '#9ca3af' : '#1a3a6e',
                   color: '#ffffff',
+                  cursor: isCreating ? 'not-allowed' : 'pointer',
+                  opacity: isCreating ? 0.7 : 1,
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = '#2a4a7e';
+                  if (!isCreating) e.currentTarget.style.backgroundColor = '#2a4a7e';
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = '#1a3a6e';
+                  if (!isCreating) e.currentTarget.style.backgroundColor = '#1a3a6e';
                 }}
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 4v16m8-8H4"
-                  />
-                </svg>
-                新增挑戰
+                {isCreating ? (
+                  <>
+                    <svg
+                      className="w-5 h-5 animate-spin"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
+                    </svg>
+                    創建中...
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 4v16m8-8H4"
+                      />
+                    </svg>
+                    新增挑戰
+                  </>
+                )}
               </button>
             )}
           </div>
