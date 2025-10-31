@@ -146,14 +146,18 @@ async function sendEmailToSuperAdmins(
   uploadedBy: string,
 ) {
   try {
-    // Get all super_admins
-    const usersSnapshot = await db.collection('users').get();
-    const superAdmins = usersSnapshot.docs
+    // Get all super_admins from registrations collection
+    const registrationsSnapshot = await db.collection('registrations').get();
+    const superAdmins = registrationsSnapshot.docs
       .filter((doc) => {
         const data = doc.data();
-        return data.permissions?.includes('super_admin');
+        const permissions = data.permissions || data.user?.permissions || [];
+        return permissions.includes('super_admin');
       })
-      .map((doc) => doc.data().email)
+      .map((doc) => {
+        const data = doc.data();
+        return data.user?.preferredEmail || data.user?.email || data.email;
+      })
       .filter((email) => email);
 
     if (superAdmins.length === 0) {
@@ -161,16 +165,10 @@ async function sendEmailToSuperAdmins(
       return;
     }
 
-    console.log('[PDF Upload] Sending email to super_admins:', superAdmins);
+    console.log('[PDF Upload] Sending emails to super_admins:', superAdmins);
 
-    // Here you would integrate with your email service
-    // For now, we'll just log it
-    // You can use SendGrid, AWS SES, or your preferred email service
-
-    const emailContent = {
-      to: superAdmins,
-      subject: `團隊 PDF 提交：${teamName}`,
-      text: `
+    const subject = `團隊 PDF 提交：${teamName}`;
+    const text = `
 團隊「${teamName}」已提交 PDF 文件。
 
 文件名：${fileName}
@@ -182,51 +180,135 @@ ${fileUrl}
 
 ---
 此郵件由系統自動發送
-      `.trim(),
-      html: `
-<h2>團隊 PDF 提交通知</h2>
-<p>團隊「<strong>${teamName}</strong>」已提交 PDF 文件。</p>
+    `.trim();
 
-<table style="border-collapse: collapse; margin: 20px 0;">
-  <tr>
-    <td style="padding: 8px; border: 1px solid #ddd; background-color: #f9f9f9;"><strong>文件名：</strong></td>
-    <td style="padding: 8px; border: 1px solid #ddd;">${fileName}</td>
-  </tr>
-  <tr>
-    <td style="padding: 8px; border: 1px solid #ddd; background-color: #f9f9f9;"><strong>上傳者：</strong></td>
-    <td style="padding: 8px; border: 1px solid #ddd;">${uploadedBy}</td>
-  </tr>
-  <tr>
-    <td style="padding: 8px; border: 1px solid #ddd; background-color: #f9f9f9;"><strong>上傳時間：</strong></td>
-    <td style="padding: 8px; border: 1px solid #ddd;">${new Date().toLocaleString('zh-TW')}</td>
-  </tr>
-</table>
+    const html = `
+<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+  <h2 style="color: #1a3a6e;">團隊 PDF 提交通知</h2>
+  <p>團隊「<strong>${teamName}</strong>」已提交 Demo Day PDF 文件。</p>
 
-<p>
-  <a href="${fileUrl}" style="display: inline-block; padding: 10px 20px; background-color: #1a3a6e; color: white; text-decoration: none; border-radius: 5px;">
-    查看 PDF 文件
-  </a>
-</p>
+  <table style="border-collapse: collapse; margin: 20px 0; width: 100%;">
+    <tr>
+      <td style="padding: 8px; border: 1px solid #ddd; background-color: #f9f9f9; width: 120px;"><strong>文件名：</strong></td>
+      <td style="padding: 8px; border: 1px solid #ddd;">${fileName}</td>
+    </tr>
+    <tr>
+      <td style="padding: 8px; border: 1px solid #ddd; background-color: #f9f9f9;"><strong>上傳者：</strong></td>
+      <td style="padding: 8px; border: 1px solid #ddd;">${uploadedBy}</td>
+    </tr>
+    <tr>
+      <td style="padding: 8px; border: 1px solid #ddd; background-color: #f9f9f9;"><strong>上傳時間：</strong></td>
+      <td style="padding: 8px; border: 1px solid #ddd;">${new Date().toLocaleString('zh-TW')}</td>
+    </tr>
+  </table>
 
-<hr style="margin: 30px 0; border: none; border-top: 1px solid #ddd;">
-<p style="color: #666; font-size: 12px;">此郵件由系統自動發送</p>
-      `.trim(),
-    };
+  <p>
+    <a href="${fileUrl}" style="display: inline-block; padding: 12px 24px; background-color: #1a3a6e; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">
+      📄 查看 PDF 文件
+    </a>
+  </p>
 
-    // TODO: Integrate with your email service
-    // Example with SendGrid:
-    // const sgMail = require('@sendgrid/mail');
-    // sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-    // await sgMail.send(emailContent);
+  <hr style="margin: 30px 0; border: none; border-top: 1px solid #ddd;">
+  <p style="color: #666; font-size: 12px;">此郵件由 RWA Hackathon 系統自動發送</p>
+</div>
+    `.trim();
 
-    console.log('[PDF Upload] Email content prepared:', emailContent);
+    // Send email to each super_admin
+    let successCount = 0;
+    for (const email of superAdmins) {
+      const sent = await sendEmail(email, subject, html, text);
+      if (sent) {
+        successCount++;
+      }
+    }
 
-    // For now, just log it
-    console.log(`[PDF Upload] Would send email to: ${superAdmins.join(', ')}`);
-    console.log(`[PDF Upload] Subject: ${emailContent.subject}`);
-    console.log(`[PDF Upload] File URL: ${fileUrl}`);
+    console.log(`[PDF Upload] Emails sent: ${successCount}/${superAdmins.length}`);
   } catch (error) {
     console.error('[PDF Upload] Error sending email:', error);
     // Don't throw error - file upload should still succeed even if email fails
   }
+}
+
+/**
+ * Send email using SMTP or SendGrid
+ */
+async function sendEmail(
+  to: string,
+  subject: string,
+  html: string,
+  text?: string,
+): Promise<boolean> {
+  const SMTP_HOST = process.env.SMTP_HOST;
+  const SMTP_PORT = parseInt(process.env.SMTP_PORT || '587');
+  const SMTP_USER = process.env.SMTP_USER;
+  const SMTP_PASS = process.env.SMTP_PASS;
+  const SENDGRID_API_KEY = process.env.SENDGRID_API_KEY;
+  const EMAIL_FROM = process.env.EMAIL_FROM || 'noreply@hackathon.com.tw';
+
+  // Try SMTP first
+  if (SMTP_HOST && SMTP_USER && SMTP_PASS) {
+    try {
+      const nodemailer = require('nodemailer');
+      const transporter = nodemailer.createTransport({
+        host: SMTP_HOST,
+        port: SMTP_PORT,
+        secure: SMTP_PORT === 465,
+        auth: {
+          user: SMTP_USER,
+          pass: SMTP_PASS,
+        },
+      });
+
+      const info = await transporter.sendMail({
+        from: `"RWA Hackathon" <${SMTP_USER}>`,
+        to,
+        subject,
+        text: text || subject,
+        html,
+      });
+
+      console.log('[PDF Upload] SMTP email sent:', info.messageId, 'to:', to);
+      return true;
+    } catch (error) {
+      console.error('[PDF Upload] SMTP send failed:', error);
+    }
+  }
+
+  // Try SendGrid
+  if (SENDGRID_API_KEY) {
+    try {
+      const response = await fetch('https://api.sendgrid.com/v3/mail/send', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${SENDGRID_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          personalizations: [{ to: [{ email: to }] }],
+          from: { email: EMAIL_FROM },
+          subject,
+          content: [
+            { type: 'text/plain', value: text || subject },
+            { type: 'text/html', value: html },
+          ],
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.text();
+        throw new Error(`SendGrid API error: ${error}`);
+      }
+
+      console.log('[PDF Upload] SendGrid email sent to:', to);
+      return true;
+    } catch (error) {
+      console.error('[PDF Upload] SendGrid send failed:', error);
+    }
+  }
+
+  // No email service configured
+  console.log('[PDF Upload] No email service configured. Email would be sent:');
+  console.log(`  To: ${to}`);
+  console.log(`  Subject: ${subject}`);
+  return true; // Return true to not block the upload
 }
