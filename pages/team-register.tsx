@@ -1017,12 +1017,6 @@ export default function TeamRegisterPage() {
                                   onClick={(e) => e.stopPropagation()}
                                 >
                                   {track.name}
-                                  {/* Debug: Show track ID */}
-                                  {editTeamId && track.name?.toLowerCase().includes('demo') && (
-                                    <span className="ml-2 text-xs text-red-500">
-                                      [PDF Upload Should Show]
-                                    </span>
-                                  )}
                                   <svg
                                     className="w-4 h-4"
                                     fill="none"
