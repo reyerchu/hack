@@ -19,8 +19,16 @@ async function checkIfCheckInAlreadyExists() {
 
 async function createScan(req: NextApiRequest, res: NextApiResponse) {
   try {
+    console.log('[createScan] Request body:', req.body);
     const scanData = req.body;
+    if (!scanData || typeof scanData !== 'object') {
+      console.error('[createScan] Invalid scan data:', scanData);
+      return res.status(400).json({
+        msg: 'Invalid request body',
+      });
+    }
     scanData.name = scanData.name?.trim() || '';
+    console.log('[createScan] Processing scan:', scanData.name);
     if (await checkIfNameAlreadyExists(scanData.name)) {
       return res.status(400).json({
         msg: 'Scantype already exists',
@@ -41,8 +49,10 @@ async function createScan(req: NextApiRequest, res: NextApiResponse) {
       msg: 'ScanType created',
     });
   } catch (error) {
+    console.error('[createScan] Error:', error);
     return res.status(500).json({
       msg: 'Unexpected error. Please try again later',
+      error: error instanceof Error ? error.message : 'Unknown error',
     });
   }
 }

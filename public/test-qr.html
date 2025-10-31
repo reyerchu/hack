@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>測試 QR Code</title>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft JhengHei', sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        input {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            margin: 20px 0;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+        }
+        
+        #qrcode {
+            margin: 30px auto;
+            padding: 20px;
+            background: white;
+            display: inline-block;
+            border: 2px solid #eee;
+            border-radius: 12px;
+        }
+        
+        .info {
+            background: #f0f9ff;
+            border-left: 4px solid #0284c7;
+            padding: 15px;
+            margin: 20px 0;
+            text-align: left;
+            border-radius: 8px;
+        }
+        
+        button {
+            background: #0284c7;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 10px;
+        }
+        
+        button:hover {
+            background: #0369a1;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 測試 QR Code 生成器</h1>
+    
+    <div class="info">
+        <strong>說明：</strong>
+        <p>輸入用戶 ID 來生成測試用的 QR code。格式會自動加上 "hack:" 前綴。</p>
+    </div>
+    
+    <input type="text" id="userId" placeholder="輸入用戶 ID (例如: abc123def456)">
+    <button onclick="generateQR()">生成 QR Code</button>
+    
+    <div id="qrcode"></div>
+    <div id="qrText" style="margin-top: 20px; font-size: 14px; color: #666;"></div>
+    
+    <div class="info" style="margin-top: 40px;">
+        <strong>如何獲取真實用戶 ID：</strong>
+        <ol style="text-align: left;">
+            <li>登入網站</li>
+            <li>進入個人資料頁面 (/profile)</li>
+            <li>查看頁面上的 QR code</li>
+            <li>或打開瀏覽器控制台，輸入：<code>localStorage.getItem('userId')</code></li>
+        </ol>
+    </div>
+    
+    <script>
+        let qrcodeInstance = null;
+        
+        function generateQR() {
+            const userId = document.getElementById('userId').value.trim();
+            
+            if (!userId) {
+                alert('請輸入用戶 ID');
+                return;
+            }
+            
+            const qrData = 'hack:' + userId;
+            
+            // Clear previous QR code
+            const qrcodeDiv = document.getElementById('qrcode');
+            qrcodeDiv.innerHTML = '';
+            
+            // Generate new QR code
+            QRCode.toCanvas(qrData, { 
+                width: 250,
+                margin: 2,
+                color: {
+                    dark: '#000000',
+                    light: '#FFFFFF'
+                }
+            }, function (err, canvas) {
+                if (err) {
+                    console.error(err);
+                    alert('QR code 生成失敗');
+                    return;
+                }
+                qrcodeDiv.appendChild(canvas);
+                document.getElementById('qrText').innerHTML = 
+                    `<strong>QR Code 內容：</strong><br>${qrData}<br><br>` +
+                    `<strong>用戶 ID：</strong> ${userId}`;
+            });
+        }
+        
+        // Auto-generate if URL has userId parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlUserId = urlParams.get('userId');
+        if (urlUserId) {
+            document.getElementById('userId').value = urlUserId;
+            generateQR();
+        }
+    </script>
+</body>
+</html>
+
