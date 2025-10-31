@@ -126,6 +126,17 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse, teamId: stri
       }
     }
 
+    // Convert Firestore Timestamp to ISO string for submittedPdf
+    let submittedPdf = null;
+    if (teamData.submittedPdf) {
+      submittedPdf = {
+        ...teamData.submittedPdf,
+        uploadedAt: teamData.submittedPdf.uploadedAt?.toDate
+          ? teamData.submittedPdf.uploadedAt.toDate().toISOString()
+          : teamData.submittedPdf.uploadedAt,
+      };
+    }
+
     return res.status(200).json({
       data: {
         id: teamDoc.id,
@@ -141,7 +152,7 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse, teamId: stri
         createdAt: teamData.createdAt,
         updatedAt: teamData.updatedAt,
         agreedToCommitment: teamData.agreedToCommitment,
-        submittedPdf: teamData.submittedPdf || null,
+        submittedPdf: submittedPdf,
       },
     });
   } catch (error: any) {

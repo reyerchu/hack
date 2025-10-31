@@ -1165,14 +1165,17 @@ export default function TeamRegisterPage() {
                                                     上傳時間：
                                                   </span>
                                                   <span className="text-gray-700">
-                                                    {typeof submittedPdf.uploadedAt === 'object' &&
-                                                    submittedPdf.uploadedAt.toDate
-                                                      ? submittedPdf.uploadedAt
-                                                          .toDate()
-                                                          .toLocaleString('zh-TW')
-                                                      : new Date(
-                                                          submittedPdf.uploadedAt,
-                                                        ).toLocaleString('zh-TW')}
+                                                    {new Date(
+                                                      submittedPdf.uploadedAt,
+                                                    ).toLocaleString('zh-TW', {
+                                                      year: 'numeric',
+                                                      month: '2-digit',
+                                                      day: '2-digit',
+                                                      hour: '2-digit',
+                                                      minute: '2-digit',
+                                                      second: '2-digit',
+                                                      hour12: false,
+                                                    })}
                                                   </span>
                                                 </div>
                                               )}

@@ -58,6 +58,9 @@ async function generateRegistrationSheet() {
       const team = doc.data();
       const teamId = doc.id;
 
+      // 獲取團隊上傳的 PDF 檔名
+      const pdfFileName = team.submittedPdf?.fileName || '';
+
       // 添加隊長資訊（有姓名或有郵箱就添加）
       if (team.teamLeader && (team.teamLeader.name || team.teamLeader.email)) {
         const name =
@@ -73,6 +76,7 @@ async function generateRegistrationSheet() {
           teamName: team.teamName || '未命名團隊',
           name: name,
           email: email,
+          pdfFileName: pdfFileName,
           registeredAt: team.createdAt,
         });
       }
@@ -90,6 +94,7 @@ async function generateRegistrationSheet() {
               teamName: team.teamName || '未命名團隊',
               name: name,
               email: email,
+              pdfFileName: pdfFileName,
               registeredAt: team.createdAt,
             });
           }
@@ -143,10 +148,10 @@ async function generateRegistrationSheet() {
     const rowHeight = 25;
     const colWidths = {
       no: 40,
-      team: 140,
-      name: 100,
-      email: 180,
-      signature: 75,
+      team: 120,
+      name: 90,
+      email: 150,
+      pdfFile: 135,
     };
 
     // 繪製表頭
@@ -162,7 +167,7 @@ async function generateRegistrationSheet() {
         .rect(
           currentX,
           currentY,
-          colWidths.no + colWidths.team + colWidths.name + colWidths.email + colWidths.signature,
+          colWidths.no + colWidths.team + colWidths.name + colWidths.email + colWidths.pdfFile,
           rowHeight,
         )
         .fillAndStroke('#1a3a6e', '#000000');
@@ -182,7 +187,10 @@ async function generateRegistrationSheet() {
       doc.text('電子郵箱', currentX + 5, currentY + 8, { width: colWidths.email, align: 'center' });
       currentX += colWidths.email;
 
-      doc.text('簽名', currentX + 5, currentY + 8, { width: colWidths.signature, align: 'center' });
+      doc.text('上傳的 PDF 檔名', currentX + 5, currentY + 8, {
+        width: colWidths.pdfFile,
+        align: 'center',
+      });
 
       currentY += rowHeight;
       doc.fillColor('#000000');
@@ -208,7 +216,7 @@ async function generateRegistrationSheet() {
         .rect(
           currentX,
           currentY,
-          colWidths.no + colWidths.team + colWidths.name + colWidths.email + colWidths.signature,
+          colWidths.no + colWidths.team + colWidths.name + colWidths.email + colWidths.pdfFile,
           rowHeight,
         )
         .fillAndStroke(bgColor, '#d1d5db');
@@ -247,8 +255,12 @@ async function generateRegistrationSheet() {
       });
       currentX += colWidths.email;
 
-      // 簽名欄（空白）
-      // 已由邊框繪製
+      // 上傳的 PDF 檔名（有就顯示，沒有就空白）
+      doc.text(member.pdfFileName || '', currentX + 5, currentY + 8, {
+        width: colWidths.pdfFile - 10,
+        align: 'left',
+        ellipsis: true,
+      });
 
       currentY += rowHeight;
     });
@@ -275,7 +287,7 @@ async function generateRegistrationSheet() {
     console.log('   - 團隊名稱');
     console.log('   - 姓名');
     console.log('   - 電子郵箱');
-    console.log('   - 簽名欄');
+    console.log('   - 上傳的 PDF 檔名');
     console.log(`\n📄 總頁數: ${currentPageNumber} 頁\n`);
   } catch (error) {
     console.error('❌ 錯誤:', error);
