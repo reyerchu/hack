@@ -1087,6 +1087,95 @@ export default function TeamRegisterPage() {
                                   </div>
                                 )}
                               </div>
+
+                              {/* Demo Day PDF Upload - Show directly in card when selected */}
+                              {track.name === 'Demo Day' &&
+                                selectedTracks.includes(track.id) &&
+                                editTeamId && (
+                                  <div
+                                    className="mt-4 p-3 rounded-lg"
+                                    style={{ backgroundColor: '#fef3c7' }}
+                                  >
+                                    <div className="flex items-center justify-between">
+                                      <div className="flex items-center gap-2">
+                                        <span className="text-lg">📄</span>
+                                        <span
+                                          className="text-sm font-medium"
+                                          style={{ color: '#92400e' }}
+                                        >
+                                          Demo Day 申請文件
+                                        </span>
+                                      </div>
+                                      {submittedPdf ? (
+                                        <div className="flex items-center gap-2">
+                                          <span className="text-xs text-green-700">✓ 已提交</span>
+                                          <a
+                                            href={submittedPdf.fileUrl}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-xs px-2 py-1 rounded border"
+                                            style={{ borderColor: '#1a3a6e', color: '#1a3a6e' }}
+                                          >
+                                            查看
+                                          </a>
+                                          <button
+                                            type="button"
+                                            onClick={handlePdfDelete}
+                                            disabled={pdfDeleting}
+                                            className="text-xs px-2 py-1 rounded"
+                                            style={{
+                                              backgroundColor: '#dc2626',
+                                              color: 'white',
+                                              opacity: pdfDeleting ? 0.5 : 1,
+                                            }}
+                                          >
+                                            {pdfDeleting ? '刪除中...' : '刪除'}
+                                          </button>
+                                        </div>
+                                      ) : (
+                                        <div>
+                                          <label
+                                            htmlFor="demo-day-pdf-upload-inline"
+                                            className="cursor-pointer text-xs px-3 py-1.5 rounded font-medium"
+                                            style={{
+                                              backgroundColor: pdfUploading ? '#9ca3af' : '#1a3a6e',
+                                              color: 'white',
+                                              display: 'inline-block',
+                                            }}
+                                          >
+                                            {pdfUploading ? '上傳中...' : '上傳 PDF'}
+                                          </label>
+                                          <input
+                                            id="demo-day-pdf-upload-inline"
+                                            type="file"
+                                            accept=".pdf"
+                                            className="hidden"
+                                            disabled={pdfUploading}
+                                            onChange={(e) => {
+                                              const file = e.target.files?.[0];
+                                              if (file) {
+                                                handlePdfUpload(file);
+                                              }
+                                              e.target.value = '';
+                                            }}
+                                          />
+                                        </div>
+                                      )}
+                                    </div>
+                                    {pdfMessage && (
+                                      <div
+                                        className="mt-2 text-xs text-center"
+                                        style={{
+                                          color: pdfMessage.includes('成功')
+                                            ? '#065f46'
+                                            : '#92400e',
+                                        }}
+                                      >
+                                        {pdfMessage}
+                                      </div>
+                                    )}
+                                  </div>
+                                )}
                             </div>
                           </div>
 
