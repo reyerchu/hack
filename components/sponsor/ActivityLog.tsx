@@ -102,6 +102,7 @@ export default function ActivityLog({ logs, maxItems = 10 }: ActivityLogProps) {
       view_submission: '查看提交',
       edit_challenge: '編輯挑戰',
       update_challenge: '更新挑戰',
+      delete_challenge: '刪除挑戰',
       score_team: '評分隊伍',
       score_submission: '評分',
       update_track: '更新賽道',

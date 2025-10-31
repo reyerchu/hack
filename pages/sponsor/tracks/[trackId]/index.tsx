@@ -43,6 +43,13 @@ export default function TrackDetailPage() {
     description: '',
   });
 
+  // Delete Challenge Modal
+  const [showDeleteChallengeModal, setShowDeleteChallengeModal] = useState(false);
+  const [deletingChallengeId, setDeletingChallengeId] = useState<string | null>(null);
+  const [deletingChallengeTitle, setDeletingChallengeTitle] = useState('');
+  const [isDeletingChallenge, setIsDeletingChallenge] = useState(false);
+  const [deleteChallengeMessage, setDeleteChallengeMessage] = useState('');
+
   // 權限檢查
   useEffect(() => {
     if (!authLoading && !isSignedIn) {
@@ -209,6 +216,60 @@ export default function TrackDetailPage() {
       });
       setEditTrackMessage('');
       setShowEditTrackModal(true);
+    }
+  };
+
+  // Handle delete challenge
+  const handleDeleteChallengeClick = (challengeId: string, challengeTitle: string) => {
+    setDeletingChallengeId(challengeId);
+    setDeletingChallengeTitle(challengeTitle);
+    setDeleteChallengeMessage('');
+    setShowDeleteChallengeModal(true);
+  };
+
+  const handleConfirmDeleteChallenge = async () => {
+    if (!deletingChallengeId) return;
+
+    try {
+      setIsDeletingChallenge(true);
+      setDeleteChallengeMessage('');
+
+      const currentUser = firebase.auth().currentUser;
+      if (!currentUser) {
+        setDeleteChallengeMessage('❌ 請先登入');
+        return;
+      }
+
+      const token = await currentUser.getIdToken();
+
+      const response = await fetch(
+        `/api/sponsor/tracks/${trackId}/challenge?challengeId=${deletingChallengeId}`,
+        {
+          method: 'DELETE',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setDeleteChallengeMessage('✅ 挑戰已成功刪除！');
+        setTimeout(() => {
+          setShowDeleteChallengeModal(false);
+          setDeletingChallengeId(null);
+          setDeletingChallengeTitle('');
+          fetchTrackDetails(); // Refresh track data
+        }, 1500);
+      } else {
+        setDeleteChallengeMessage(`❌ ${data.error || '刪除失敗'}`);
+      }
+    } catch (error: any) {
+      console.error('Failed to delete challenge:', error);
+      setDeleteChallengeMessage('❌ 刪除挑戰時發生錯誤');
+    } finally {
+      setIsDeletingChallenge(false);
     }
   };
 
@@ -518,36 +579,60 @@ export default function TrackDetailPage() {
                           </div>
                         )}
                       </div>
-                      <Link
-                        href={`/sponsor/tracks/${trackId}/challenge?challengeId=${challenge.id}`}
-                      >
-                        <a
-                          onClick={() => {
-                            console.log('[Track Detail] Navigating to challenge:', {
-                              url: `/sponsor/tracks/${trackId}/challenge?challengeId=${challenge.id}`,
-                              challengeId: challenge.id,
-                              challengeTitle: challenge.title,
-                              challengeTrackId: challenge.trackId,
-                              expectedTrackId: trackId,
-                            });
-                          }}
-                          className="ml-4 px-4 py-2 rounded-lg text-sm font-medium border-2 transition-colors"
-                          style={{
-                            borderColor: '#1a3a6e',
-                            color: '#1a3a6e',
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.backgroundColor = '#1a3a6e';
-                            e.currentTarget.style.color = '#ffffff';
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.backgroundColor = 'transparent';
-                            e.currentTarget.style.color = '#1a3a6e';
-                          }}
+                      <div className="flex items-center gap-2 ml-4 shrink-0">
+                        <Link
+                          href={`/sponsor/tracks/${trackId}/challenge?challengeId=${challenge.id}`}
                         >
-                          編輯
-                        </a>
-                      </Link>
+                          <a
+                            onClick={() => {
+                              console.log('[Track Detail] Navigating to challenge:', {
+                                url: `/sponsor/tracks/${trackId}/challenge?challengeId=${challenge.id}`,
+                                challengeId: challenge.id,
+                                challengeTitle: challenge.title,
+                                challengeTrackId: challenge.trackId,
+                                expectedTrackId: trackId,
+                              });
+                            }}
+                            className="px-4 py-2 rounded-lg text-sm font-medium border-2 transition-colors"
+                            style={{
+                              borderColor: '#1a3a6e',
+                              color: '#1a3a6e',
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.backgroundColor = '#1a3a6e';
+                              e.currentTarget.style.color = '#ffffff';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.backgroundColor = 'transparent';
+                              e.currentTarget.style.color = '#1a3a6e';
+                            }}
+                          >
+                            編輯
+                          </a>
+                        </Link>
+                        {track.permissions?.canEdit && (
+                          <button
+                            onClick={() =>
+                              handleDeleteChallengeClick(challenge.id, challenge.title)
+                            }
+                            className="px-4 py-2 rounded-lg text-sm font-medium border-2 transition-colors"
+                            style={{
+                              borderColor: '#dc2626',
+                              color: '#dc2626',
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.backgroundColor = '#dc2626';
+                              e.currentTarget.style.color = '#ffffff';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.backgroundColor = 'transparent';
+                              e.currentTarget.style.color = '#dc2626';
+                            }}
+                          >
+                            刪除
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
                 );
@@ -939,6 +1024,87 @@ export default function TrackDetailPage() {
                   {isEditingTrack ? '更新中...' : '確認更新'}
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Challenge Confirmation Modal */}
+      {showDeleteChallengeModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="rounded-lg p-8 max-w-md w-full" style={{ backgroundColor: '#ffffff' }}>
+            <div className="mb-6">
+              <div
+                className="flex items-center justify-center w-12 h-12 rounded-full mx-auto mb-4"
+                style={{ backgroundColor: '#fee2e2' }}
+              >
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  style={{ color: '#dc2626' }}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                  />
+                </svg>
+              </div>
+              <h2 className="text-xl font-bold text-center mb-2" style={{ color: '#1a3a6e' }}>
+                確認刪除挑戰
+              </h2>
+              <p className="text-sm text-center mb-4" style={{ color: '#6b7280' }}>
+                您確定要刪除以下挑戰嗎？此操作無法撤銷。
+              </p>
+              <div className="p-4 rounded-lg" style={{ backgroundColor: '#f9fafb' }}>
+                <p className="text-sm font-medium" style={{ color: '#1a3a6e' }}>
+                  {deletingChallengeTitle}
+                </p>
+              </div>
+            </div>
+
+            {deleteChallengeMessage && (
+              <div
+                className="mb-4 p-3 rounded-lg text-sm text-center"
+                style={{
+                  backgroundColor: deleteChallengeMessage.includes('成功') ? '#d1fae5' : '#fee2e2',
+                  color: deleteChallengeMessage.includes('成功') ? '#065f46' : '#991b1b',
+                }}
+              >
+                {deleteChallengeMessage}
+              </div>
+            )}
+
+            <div className="flex gap-4">
+              <button
+                onClick={() => {
+                  setShowDeleteChallengeModal(false);
+                  setDeletingChallengeId(null);
+                  setDeletingChallengeTitle('');
+                }}
+                className="flex-1 px-6 py-2 rounded-lg font-medium border-2 transition-colors"
+                style={{
+                  borderColor: '#d1d5db',
+                  color: '#6b7280',
+                }}
+                disabled={isDeletingChallenge}
+              >
+                取消
+              </button>
+              <button
+                onClick={handleConfirmDeleteChallenge}
+                className="flex-1 px-6 py-2 rounded-lg font-medium transition-colors"
+                style={{
+                  backgroundColor: isDeletingChallenge ? '#9ca3af' : '#dc2626',
+                  color: '#ffffff',
+                }}
+                disabled={isDeletingChallenge}
+              >
+                {isDeletingChallenge ? '刪除中...' : '確認刪除'}
+              </button>
             </div>
           </div>
         </div>

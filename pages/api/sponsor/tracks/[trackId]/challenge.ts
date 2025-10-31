@@ -316,6 +316,138 @@ async function handlePut(req: NextApiRequest, res: NextApiResponse) {
   }
 }
 
+/**
+ * DELETE /api/sponsor/tracks/[trackId]/challenge?challengeId=xxx
+ * 刪除指定的挑戰題目
+ */
+async function handleDelete(req: NextApiRequest, res: NextApiResponse) {
+  const { trackId, challengeId } = req.query;
+
+  console.log('[DELETE /api/sponsor/tracks/[trackId]/challenge] Query params:', {
+    trackId,
+    challengeId,
+  });
+
+  if (!trackId || typeof trackId !== 'string') {
+    return ApiResponse.error(res, 'Invalid track ID', 400);
+  }
+
+  if (!challengeId || typeof challengeId !== 'string') {
+    return ApiResponse.error(res, 'Invalid challenge ID', 400);
+  }
+
+  if (!(await requireTrackAccess(req, res, trackId))) return;
+
+  const authReq = req as AuthenticatedRequest;
+  const userId = authReq.userId!;
+
+  try {
+    // 1. 通過 challengeId 字段查詢挑戰
+    const challengeQuery = await db
+      .collection(SPONSOR_COLLECTIONS.EXTENDED_CHALLENGES)
+      .where('challengeId', '==', challengeId)
+      .limit(1)
+      .get();
+
+    console.log(
+      '[DELETE /api/sponsor/tracks/[trackId]/challenge] Challenge query results:',
+      challengeQuery.size,
+    );
+
+    if (challengeQuery.empty) {
+      return ApiResponse.notFound(res, 'Challenge not found');
+    }
+
+    const challengeDoc = challengeQuery.docs[0];
+    const existingChallenge = challengeDoc.data();
+
+    console.log(
+      '[DELETE /api/sponsor/tracks/[trackId]/challenge] Challenge trackId:',
+      existingChallenge?.trackId,
+    );
+
+    // 驗證挑戰是否屬於該賽道
+    const trackDoc = await db
+      .collection(SPONSOR_COLLECTIONS.TRACKS)
+      .where('trackId', '==', existingChallenge?.trackId)
+      .limit(1)
+      .get();
+
+    const trackDocId = trackDoc.empty ? null : trackDoc.docs[0].id;
+    const isValidTrack = existingChallenge?.trackId === trackId || trackDocId === trackId;
+
+    console.log('[DELETE challenge] Track validation:', {
+      urlTrackId: trackId,
+      challengeTrackIdField: existingChallenge?.trackId,
+      trackDocumentId: trackDocId,
+      isValid: isValidTrack,
+    });
+
+    if (!isValidTrack) {
+      return ApiResponse.error(res, 'Challenge does not belong to this track', 403);
+    }
+
+    // 2. 檢查權限：是否可以刪除挑戰
+    const sponsorDoc = await db
+      .collection(SPONSOR_COLLECTIONS.EXTENDED_SPONSORS)
+      .doc(existingChallenge.sponsorId)
+      .get();
+
+    if (!sponsorDoc.exists) {
+      return ApiResponse.error(res, 'Sponsor not found', 404);
+    }
+
+    // 檢查用戶的贊助商角色
+    const userRole = await getUserSponsorRole(userId, existingChallenge.sponsorId);
+
+    console.log('[DELETE challenge] Permission check:', {
+      userId,
+      sponsorId: existingChallenge.sponsorId,
+      userRole,
+      userPermissions: authReq.userPermissions,
+    });
+
+    // 權限檢查：
+    // 1. 系統管理員 (admin/super_admin) 可以刪除任何挑戰
+    // 2. Sponsor 的 admin 角色可以刪除自己贊助商的挑戰
+    const canDelete =
+      authReq.userPermissions?.includes('admin') ||
+      authReq.userPermissions?.includes('super_admin') ||
+      userRole === 'admin';
+
+    console.log('[DELETE challenge] canDelete:', canDelete);
+
+    if (!canDelete) {
+      return ApiResponse.forbidden(res, 'You do not have permission to delete this challenge');
+    }
+
+    // 3. 刪除挑戰
+    await challengeDoc.ref.delete();
+
+    console.log('[DELETE /api/sponsor/tracks/[trackId]/challenge] Challenge deleted successfully');
+
+    // 4. 記錄活动日志
+    await logSponsorActivity({
+      sponsorId: existingChallenge.sponsorId,
+      userId: userId,
+      userName: authReq.userEmail || 'Unknown',
+      action: 'delete_challenge',
+      targetType: 'challenge',
+      targetId: challengeDoc.id,
+      details: {
+        trackId: trackId,
+        challengeId: challengeId,
+        title: existingChallenge.title,
+      },
+    });
+
+    return ApiResponse.success(res, { deleted: true }, 'Challenge deleted successfully');
+  } catch (error: any) {
+    console.error('[DELETE /api/sponsor/tracks/[trackId]/challenge] Error:', error);
+    return ApiResponse.error(res, error.message || 'Failed to delete challenge', 500);
+  }
+}
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { method } = req;
 
@@ -325,6 +457,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     case 'PUT':
       return handlePut(req, res);
+
+    case 'DELETE':
+      return handleDelete(req, res);
 
     default:
       return ApiResponse.error(res, 'Method not allowed', 405);

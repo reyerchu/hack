@@ -380,6 +380,7 @@ export type SponsorActivityAction =
   | 'view_submission'
   | 'edit_challenge'
   | 'update_challenge'
+  | 'delete_challenge'
   | 'score_team'
   | 'score_submission'
   | 'update_track'

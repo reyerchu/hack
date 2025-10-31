@@ -177,12 +177,13 @@ export async function getUserActivityLogs(
 export const ACTIVITY_ACTION_LABELS: Record<SponsorActivityAction, string> = {
   view_submission: '查看提交',
   edit_challenge: '編輯挑戰',
+  update_challenge: '更新挑戰',
+  delete_challenge: '刪除挑戰',
   score_team: '評分隊伍',
+  score_submission: '評分提交',
   update_track: '更新賽道',
   contact_team: '聯繫隊伍',
   export_report: '導出報告',
-  update_challenge: '更新挑戰',
-  score_submission: '評分提交',
   download_report: '下載報告',
   other: '其他操作',
 };
