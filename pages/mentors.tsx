@@ -288,7 +288,7 @@ export default function MentorsPage() {
                     { name: 'Daniel 王心平', photo: '王心平.jpg', skills: '不動產｜商模｜法規', slots: [false, true, true, true, false] },
                     { name: 'Hsuanting 朱軒廷', photo: '朱軒廷.png', skills: 'DeFi｜UIUX｜商模', slots: [false, true, true, false, false] },
                     { name: 'Jennifer Hsu 許芮甄', photo: 'JenniferHsu.jpg', skills: 'Pitch', slots: [false, false, false, false, true] },
-                    { name: 'Jerry Ho', photo: 'JerryHo.png', skills: 'Coding｜密碼學｜資安', slots: [true, true, false, false, false] },
+                    { name: 'Jerry Ho', photo: 'JerryHo.png', skills: 'Coding｜密碼學｜資安｜Sui', slots: [true, true, false, false, false] },
                     { name: 'Kevin Lin 林柏呈', photo: 'KevinLin.jpg', skills: 'Coding｜Self｜AI', slots: [false, false, false, true, true] },
                     { name: 'Martinet Lee 李嵩聲', photo: '李嵩聲.jpg', skills: 'Coding｜Zircuit｜資安', slots: [false, true, true, false, false] },
                     { name: 'Nathan 余哲安', photo: '余哲安.jpg', skills: 'DeFi｜Research', slots: [false, false, false, false, true] },
