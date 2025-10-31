@@ -24,6 +24,7 @@ import QuickActions from '../../components/sponsor/QuickActions';
 import NotificationCenter from '../../components/sponsor/NotificationCenter';
 import ActivityLog from '../../components/sponsor/ActivityLog';
 import SponsorHeader from '../../components/sponsor/SponsorHeader';
+import { linkifyText } from '../../lib/utils/linkify';
 import firebase from 'firebase/app';
 import 'firebase/auth';
 
@@ -636,6 +637,23 @@ export default function SponsorDashboard() {
                           {track.name}
                         </button>
                       </div>
+
+                      {/* Track Description */}
+                      {track.description && (
+                        <div
+                          className="text-sm mb-3"
+                          style={{
+                            color: '#374151',
+                            whiteSpace: 'pre-wrap',
+                            wordBreak: 'break-word',
+                            overflowWrap: 'break-word',
+                            lineHeight: '1.6',
+                          }}
+                        >
+                          {linkifyText(track.description, '#1a3a6e')}
+                        </div>
+                      )}
+
                       <p className="text-sm" style={{ color: '#6b7280' }}>
                         {track.challenges?.length || 0} 個挑戰 • {track.stats.submissionCount}{' '}
                         個提交 •{' '}
@@ -656,6 +674,84 @@ export default function SponsorDashboard() {
                           ` • 平均分: ${track.stats.averageScore.toFixed(1)}`}
                       </p>
                     </div>
+
+                    {/* Add Challenge Button */}
+                    {track.permissions?.canEdit && (
+                      <button
+                        onClick={async () => {
+                          try {
+                            const currentUser = firebase.auth().currentUser;
+                            if (!currentUser) {
+                              alert('請先登入');
+                              return;
+                            }
+
+                            const token = await currentUser.getIdToken();
+
+                            // Create new challenge
+                            const response = await fetch(
+                              `/api/sponsor/tracks/${track.id}/challenges/create`,
+                              {
+                                method: 'POST',
+                                headers: {
+                                  'Content-Type': 'application/json',
+                                  Authorization: `Bearer ${token}`,
+                                },
+                                body: JSON.stringify({
+                                  title: '新挑戰',
+                                  description: '',
+                                  prizes: '',
+                                  submissionRequirements: '',
+                                }),
+                              },
+                            );
+
+                            const data = await response.json();
+
+                            if (response.ok) {
+                              // Navigate to challenge edit page
+                              const newChallengeId = data.challenge?.id || data.id;
+                              if (newChallengeId) {
+                                router.push(
+                                  `/sponsor/tracks/${track.id}/challenge?challengeId=${newChallengeId}`,
+                                );
+                              }
+                            } else {
+                              alert(`❌ ${data.error || '創建失敗'}`);
+                            }
+                          } catch (error: any) {
+                            console.error('Failed to create challenge:', error);
+                            alert('❌ 創建挑戰時發生錯誤');
+                          }
+                        }}
+                        className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors shrink-0"
+                        style={{
+                          backgroundColor: '#1a3a6e',
+                          color: '#ffffff',
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.backgroundColor = '#2a4a7e';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = '#1a3a6e';
+                        }}
+                      >
+                        <svg
+                          className="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M12 4v16m8-8H4"
+                          />
+                        </svg>
+                        Add Challenge
+                      </button>
+                    )}
                   </div>
 
                   {/* Challenges List */}
@@ -688,10 +784,23 @@ export default function SponsorDashboard() {
                                 </button>
                               </div>
                               {challenge.description && (
-                                <p className="text-xs mt-1" style={{ color: '#6b7280' }}>
-                                  {challenge.description.substring(0, 100)}
-                                  {challenge.description.length > 100 ? '...' : ''}
-                                </p>
+                                <div
+                                  className="text-xs mt-1"
+                                  style={{
+                                    color: '#6b7280',
+                                    whiteSpace: 'pre-wrap',
+                                    wordBreak: 'break-word',
+                                    overflowWrap: 'break-word',
+                                    lineHeight: '1.5',
+                                  }}
+                                >
+                                  {challenge.description.length > 150
+                                    ? linkifyText(
+                                        challenge.description.substring(0, 150) + '...',
+                                        '#1a3a6e',
+                                      )
+                                    : linkifyText(challenge.description, '#1a3a6e')}
+                                </div>
                               )}
                               {challenge.prizes && (
                                 <p
