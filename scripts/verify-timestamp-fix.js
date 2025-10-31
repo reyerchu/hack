@@ -6,7 +6,7 @@ const fs = require('fs');
 // Load .env.local
 const envPath = path.join(__dirname, '..', '.env.local');
 const envContent = fs.readFileSync(envPath, 'utf8');
-envContent.split('\n').forEach(line => {
+envContent.split('\n').forEach((line) => {
   const match = line.match(/^([^=]+)=(.*)$/);
   if (match && match[1].startsWith('SERVICE_ACCOUNT_')) {
     process.env[match[1]] = match[2];
@@ -36,14 +36,14 @@ const db = admin.firestore();
 
 async function verifyFix() {
   console.log('\n=== Verifying Timestamp Fix ===\n');
-  
+
   const registrations = await db.collection('registrations').get();
-  
+
   let withTimestamp = 0;
   let withoutTimestamp = 0;
   const missingUsers = [];
-  
-  registrations.forEach(doc => {
+
+  registrations.forEach((doc) => {
     const data = doc.data();
     if (data.timestamp) {
       withTimestamp++;
@@ -51,15 +51,15 @@ async function verifyFix() {
       withoutTimestamp++;
       missingUsers.push({
         id: doc.id,
-        email: data.email || data.user?.email || data.user?.preferredEmail || 'N/A'
+        email: data.email || data.user?.email || data.user?.preferredEmail || 'N/A',
       });
     }
   });
-  
+
   console.log(`Total users: ${registrations.size}`);
   console.log(`✅ With timestamp: ${withTimestamp}`);
   console.log(`❌ Without timestamp: ${withoutTimestamp}\n`);
-  
+
   if (withoutTimestamp > 0) {
     console.log('Users still missing timestamp:');
     missingUsers.forEach((user, idx) => {
@@ -72,7 +72,7 @@ async function verifyFix() {
 
 verifyFix()
   .then(() => process.exit(0))
-  .catch(err => {
+  .catch((err) => {
     console.error('Error:', err);
     process.exit(1);
   });

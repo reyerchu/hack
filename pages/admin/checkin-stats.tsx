@@ -28,9 +28,10 @@ export default function CheckinStatsPage() {
     }
 
     if (user && user.permissions) {
-      const isAdmin = user.permissions.includes('admin') || 
-                      user.permissions.includes('super_admin') ||
-                      user.permissions.includes('organizer');
+      const isAdmin =
+        user.permissions.includes('admin') ||
+        user.permissions.includes('super_admin') ||
+        user.permissions.includes('organizer');
       if (!isAdmin) {
         router.push('/');
         return;
@@ -44,14 +45,14 @@ export default function CheckinStatsPage() {
   const loadData = async () => {
     try {
       if (!user?.token) return;
-      
+
       // Load check-ins via API
       const checkinsRes = await fetch('/api/checkins/list', {
         headers: {
           Authorization: user.token,
         },
       });
-      
+
       if (checkinsRes.ok) {
         const checkinsData = await checkinsRes.json();
         setCheckins(checkinsData.checkins || []);
@@ -65,13 +66,14 @@ export default function CheckinStatsPage() {
     }
   };
 
-  const filteredCheckins = checkins.filter(checkin =>
-    checkin.userName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    checkin.userEmail.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (checkin.teamName && checkin.teamName.toLowerCase().includes(searchQuery.toLowerCase()))
+  const filteredCheckins = checkins.filter(
+    (checkin) =>
+      checkin.userName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      checkin.userEmail.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (checkin.teamName && checkin.teamName.toLowerCase().includes(searchQuery.toLowerCase())),
   );
 
-  const checkinRate = totalUsers > 0 ? (checkins.length / totalUsers * 100).toFixed(1) : 0;
+  const checkinRate = totalUsers > 0 ? ((checkins.length / totalUsers) * 100).toFixed(1) : 0;
 
   if (authLoading || loading) {
     return (
@@ -88,12 +90,8 @@ export default function CheckinStatsPage() {
         <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
           <div className="flex justify-between items-center mb-4">
             <div>
-              <h1 className="text-3xl font-bold text-gray-800 mb-2">
-                報到統計
-              </h1>
-              <p className="text-gray-600">
-                RWA 黑客松 2025 - 參賽者報到記錄
-              </p>
+              <h1 className="text-3xl font-bold text-gray-800 mb-2">報到統計</h1>
+              <p className="text-gray-600">RWA 黑客松 2025 - 參賽者報到記錄</p>
             </div>
             <Link href="/admin/checkin" passHref>
               <button className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg shadow transition duration-200">
@@ -113,7 +111,11 @@ export default function CheckinStatsPage() {
               </div>
               <div className="bg-green-100 rounded-full p-4">
                 <svg className="w-8 h-8 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  <path
+                    fillRule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                    clipRule="evenodd"
+                  />
                 </svg>
               </div>
             </div>
@@ -141,7 +143,11 @@ export default function CheckinStatsPage() {
               </div>
               <div className="bg-purple-100 rounded-full p-4">
                 <svg className="w-8 h-8 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11.707 4.707a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293a1 1 0 00-1.414 0l-2 2a1 1 0 101.414 1.414L8 10.414l1.293 1.293a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  <path
+                    fillRule="evenodd"
+                    d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11.707 4.707a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293a1 1 0 00-1.414 0l-2 2a1 1 0 101.414 1.414L8 10.414l1.293 1.293a1 1 0 001.414 0l4-4z"
+                    clipRule="evenodd"
+                  />
                 </svg>
               </div>
             </div>
@@ -166,7 +172,7 @@ export default function CheckinStatsPage() {
               報到記錄 ({filteredCheckins.length})
             </h2>
           </div>
-          
+
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead className="bg-gray-50">
@@ -199,31 +205,23 @@ export default function CheckinStatsPage() {
                   filteredCheckins.map((checkin, index) => (
                     <tr key={index} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium text-gray-900">
-                          {checkin.userName}
-                        </div>
+                        <div className="text-sm font-medium text-gray-900">{checkin.userName}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-600">{checkin.userEmail}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-600">{checkin.teamName || '-'}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-gray-600">
-                          {checkin.userEmail}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-600">
-                          {checkin.teamName || '-'}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-600">
-                          {checkin.checkedInAt?.toDate 
+                          {checkin.checkedInAt?.toDate
                             ? new Date(checkin.checkedInAt.toDate()).toLocaleString('zh-TW')
                             : '-'}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-600">
-                          {checkin.checkedInBy}
-                        </div>
+                        <div className="text-sm text-gray-600">{checkin.checkedInBy}</div>
                       </td>
                     </tr>
                   ))
@@ -246,4 +244,3 @@ export default function CheckinStatsPage() {
     </div>
   );
 }
-

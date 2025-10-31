@@ -5,7 +5,7 @@ const fs = require('fs');
 // Load .env.local
 const envPath = path.join(__dirname, '..', '.env.local');
 const envContent = fs.readFileSync(envPath, 'utf8');
-envContent.split('\n').forEach(line => {
+envContent.split('\n').forEach((line) => {
   const match = line.match(/^([^=]+)=(.*)$/);
   if (match && match[1].startsWith('SERVICE_ACCOUNT_')) {
     process.env[match[1]] = match[2];
@@ -36,11 +36,11 @@ const db = admin.firestore();
 async function checkTeams() {
   console.log('\n检查数据库连接...');
   console.log('Project ID:', process.env.SERVICE_ACCOUNT_PROJECT_ID);
-  
+
   // 检查 teams 集合
   const teamsSnapshot = await db.collection('teams').get();
   console.log('\nteams 集合文档数:', teamsSnapshot.size);
-  
+
   if (teamsSnapshot.size > 0) {
     console.log('\n前3个团队样例:');
     let count = 0;
@@ -52,11 +52,11 @@ async function checkTeams() {
       }
     });
   }
-  
+
   // 检查其他可能的集合
   const collections = await db.listCollections();
   console.log('\n数据库中的所有集合:');
-  collections.forEach(col => {
+  collections.forEach((col) => {
     console.log(`- ${col.id}`);
   });
 }

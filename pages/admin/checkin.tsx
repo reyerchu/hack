@@ -30,9 +30,10 @@ export default function CheckinPage() {
 
     // Check if user is admin
     if (user && user.permissions) {
-      const isAdmin = user.permissions.includes('admin') || 
-                      user.permissions.includes('super_admin') ||
-                      user.permissions.includes('organizer');
+      const isAdmin =
+        user.permissions.includes('admin') ||
+        user.permissions.includes('super_admin') ||
+        user.permissions.includes('organizer');
       if (!isAdmin) {
         router.push('/');
         return;
@@ -48,7 +49,7 @@ export default function CheckinPage() {
         qrbox: { width: 250, height: 250 },
         aspectRatio: 1.0,
       },
-      false
+      false,
     );
 
     scanner.render(onScanSuccess, onScanError);
@@ -61,7 +62,7 @@ export default function CheckinPage() {
 
   const onScanSuccess = async (decodedText: string) => {
     if (processing) return;
-    
+
     setProcessing(true);
     setError(null);
     setSuccess(null);
@@ -69,7 +70,7 @@ export default function CheckinPage() {
     try {
       // Parse the QR code data
       let userId: string;
-      
+
       // Check if it's the hack:{userId} format
       if (decodedText.startsWith('hack:')) {
         userId = decodedText.replace('hack:', '');
@@ -91,7 +92,7 @@ export default function CheckinPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': user?.token || '',
+          Authorization: user?.token || '',
         },
         body: JSON.stringify({
           userId,
@@ -117,7 +118,7 @@ export default function CheckinPage() {
       const checkinRecord: CheckinRecord = data.checkin;
       setLastScanned(checkinRecord);
       setSuccess('✅ 報到成功！');
-      
+
       // Play success sound
       const audio = new Audio('/sounds/success.mp3');
       audio.play().catch(() => {}); // Ignore if sound file doesn't exist
@@ -126,7 +127,6 @@ export default function CheckinPage() {
         setSuccess(null);
         setProcessing(false);
       }, 2000);
-
     } catch (err: any) {
       console.error('Check-in error:', err);
       setError(err.message || '報到失敗');
@@ -153,12 +153,8 @@ export default function CheckinPage() {
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">
-            RWA 黑客松 2025 - 報到系統
-          </h1>
-          <p className="text-gray-600">
-            請將參賽者的 QR code 對準攝影機掃描
-          </p>
+          <h1 className="text-3xl font-bold text-gray-800 mb-2">RWA 黑客松 2025 - 報到系統</h1>
+          <p className="text-gray-600">請將參賽者的 QR code 對準攝影機掃描</p>
         </div>
 
         {/* Status Messages */}
@@ -166,7 +162,11 @@ export default function CheckinPage() {
           <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded">
             <div className="flex items-center">
               <svg className="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                  clipRule="evenodd"
+                />
               </svg>
               <span className="font-medium">{error}</span>
             </div>
@@ -177,7 +177,11 @@ export default function CheckinPage() {
           <div className="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded">
             <div className="flex items-center">
               <svg className="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                  clipRule="evenodd"
+                />
               </svg>
               <span className="font-medium text-2xl">{success}</span>
             </div>
@@ -187,7 +191,7 @@ export default function CheckinPage() {
         {/* Scanner */}
         <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
           <div id="qr-reader" className="w-full"></div>
-          
+
           {processing && (
             <div className="mt-4 text-center">
               <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -237,4 +241,3 @@ export default function CheckinPage() {
     </div>
   );
 }
-

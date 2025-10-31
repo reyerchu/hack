@@ -176,19 +176,13 @@ function PersonCard({ person }: { person: Person }) {
       </div>
 
       {/* 名字 */}
-      <h3
-        className="text-xl font-bold text-center mb-2"
-        style={{ color: '#1a3a6e' }}
-      >
+      <h3 className="text-xl font-bold text-center mb-2" style={{ color: '#1a3a6e' }}>
         {person.name}
       </h3>
 
       {/* 職稱 */}
       {person.title && (
-        <p
-          className="text-sm text-center mb-3"
-          style={{ color: '#8B4049' }}
-        >
+        <p className="text-sm text-center mb-3" style={{ color: '#8B4049' }}>
           {person.title}
         </p>
       )}
@@ -226,16 +220,10 @@ export default function MentorsPage() {
         <div className="max-w-7xl mx-auto px-4 py-16">
           {/* Page Header */}
           <div className="mb-16 text-center">
-            <h1
-              className="text-4xl md:text-5xl font-bold mb-4"
-              style={{ color: '#1a3a6e' }}
-            >
+            <h1 className="text-4xl md:text-5xl font-bold mb-4" style={{ color: '#1a3a6e' }}>
               黑客松導師及評審
             </h1>
-            <div
-              className="w-24 h-1 mx-auto mb-6"
-              style={{ backgroundColor: '#8B4049' }}
-            ></div>
+            <div className="w-24 h-1 mx-auto mb-6" style={{ backgroundColor: '#8B4049' }}></div>
             <p className="text-lg text-gray-600 max-w-3xl mx-auto">
               感謝所有導師與評審的專業指導與支持，讓參賽者能夠在黑客松中獲得最佳的學習體驗
             </p>
@@ -244,16 +232,10 @@ export default function MentorsPage() {
           {/* 導師時間表 Section */}
           <section className="mb-20">
             <div className="mb-8">
-              <h2
-                className="text-3xl font-bold mb-2"
-                style={{ color: '#1a3a6e' }}
-              >
+              <h2 className="text-3xl font-bold mb-2" style={{ color: '#1a3a6e' }}>
                 導師時間表｜Mentor Schedule
               </h2>
-              <div
-                className="w-16 h-1"
-                style={{ backgroundColor: '#8B4049' }}
-              ></div>
+              <div className="w-16 h-1" style={{ backgroundColor: '#8B4049' }}></div>
             </div>
             <div className="overflow-x-auto bg-white rounded-lg shadow-sm">
               <table className="w-full border-collapse">
@@ -263,52 +245,129 @@ export default function MentorsPage() {
                       導師
                     </th>
                     <th className="px-4 py-3 text-center text-white font-semibold border border-gray-300">
-                      10/31<br />10:00-12:00
+                      10/31
+                      <br />
+                      10:00-12:00
                     </th>
                     <th className="px-4 py-3 text-center text-white font-semibold border border-gray-300">
-                      10/31<br />13:00-15:00
+                      10/31
+                      <br />
+                      13:00-15:00
                     </th>
                     <th className="px-4 py-3 text-center text-white font-semibold border border-gray-300">
-                      10/31<br />15:00-17:00
+                      10/31
+                      <br />
+                      15:00-17:00
                     </th>
                     <th className="px-4 py-3 text-center text-white font-semibold border border-gray-300">
-                      10/31<br />18:00-22:00
+                      10/31
+                      <br />
+                      18:00-22:00
                     </th>
                     <th className="px-4 py-3 text-center text-white font-semibold border border-gray-300">
-                      11/1<br />9:00-11:30
+                      11/1
+                      <br />
+                      9:00-11:30
                     </th>
                   </tr>
                 </thead>
                 <tbody>
                   {[
-                    { name: 'Aaron 顏培祐', photo: '顏培祐.jpg', skills: 'Coding｜DeFi｜Sui', slots: [true, false, false, true, true] },
-                    { name: 'Albert 鄭鈞元', photo: 'Albert.jpg', skills: 'Coding｜Oasis｜Sui｜AI', slots: [true, false, false, true, true] },
-                    { name: 'Brian Lin', photo: 'BrianLin.jpg', skills: 'Coding｜AI', slots: [false, true, true, false, false] },
-                    { name: 'CT 詹前村', photo: '詹前村.jpg', skills: '國泰', slots: [false, false, true, false, false] },
-                    { name: 'Daniel 王心平', photo: '王心平.jpg', skills: '不動產｜商模｜法規', slots: [false, true, true, true, false] },
-                    { name: 'Hsuanting 朱軒廷', photo: '朱軒廷.png', skills: 'DeFi｜UIUX｜商模', slots: [false, true, true, false, false] },
-                    { name: 'Jennifer Hsu 許芮甄', photo: 'JenniferHsu.jpg', skills: 'Pitch', slots: [false, false, false, false, true] },
-                    { name: 'Jerry Ho', photo: 'JerryHo.png', skills: 'Coding｜密碼學｜資安｜Sui', slots: [true, true, false, false, false] },
-                    { name: 'Kevin Lin 林柏呈', photo: 'KevinLin.jpg', skills: 'Coding｜Self｜AI', slots: [false, false, false, true, true] },
-                    { name: 'Martinet Lee 李嵩聲', photo: '李嵩聲.jpg', skills: 'Coding｜Zircuit｜資安', slots: [false, true, true, false, false] },
-                    { name: 'Nathan 余哲安', photo: '余哲安.jpg', skills: 'DeFi｜Research', slots: [false, false, false, false, true] },
-                    { name: 'Ping 陳品', photo: '陳品.jpg', skills: 'Coding｜DeFi', slots: [false, true, true, true, false] },
-                    { name: 'Reyer 瞿孝洋', photo: '瞿孝洋.jpg', skills: 'Coding｜DeFi｜AI', slots: [true, true, true, true, true] },
-                    { name: 'Ryan', photo: 'Ryan.jpg', skills: 'Coding｜DeFi', slots: [true, true, true, false, false] },
-                    { name: 'Winnie Hsu 許晴', photo: '許晴.png', skills: '國泰', slots: [false, false, true, false, false] },
+                    {
+                      name: 'Aaron 顏培祐',
+                      photo: '顏培祐.jpg',
+                      skills: 'Coding｜DeFi｜Sui',
+                      slots: [true, false, false, true, true],
+                    },
+                    {
+                      name: 'Albert 鄭鈞元',
+                      photo: 'Albert.jpg',
+                      skills: 'Coding｜Oasis｜Sui｜AI',
+                      slots: [true, false, false, true, true],
+                    },
+                    {
+                      name: 'Brian Lin',
+                      photo: 'BrianLin.jpg',
+                      skills: 'Coding｜AI',
+                      slots: [false, true, true, false, false],
+                    },
+                    {
+                      name: 'CT 詹前村',
+                      photo: '詹前村.jpg',
+                      skills: '國泰',
+                      slots: [false, false, true, false, false],
+                    },
+                    {
+                      name: 'Daniel 王心平',
+                      photo: '王心平.jpg',
+                      skills: '不動產｜商模｜法規',
+                      slots: [false, true, true, true, false],
+                    },
+                    {
+                      name: 'Hsuanting 朱軒廷',
+                      photo: '朱軒廷.png',
+                      skills: 'DeFi｜UIUX｜商模',
+                      slots: [false, true, true, false, false],
+                    },
+                    {
+                      name: 'Jennifer Hsu 許芮甄',
+                      photo: 'JenniferHsu.jpg',
+                      skills: 'Pitch',
+                      slots: [false, false, false, false, true],
+                    },
+                    {
+                      name: 'Jerry Ho',
+                      photo: 'JerryHo.png',
+                      skills: 'Coding｜密碼學｜資安｜Sui',
+                      slots: [true, true, false, false, false],
+                    },
+                    {
+                      name: 'Kevin Lin 林柏呈',
+                      photo: 'KevinLin.jpg',
+                      skills: 'Coding｜Self｜AI',
+                      slots: [false, false, false, true, true],
+                    },
+                    {
+                      name: 'Martinet Lee 李嵩聲',
+                      photo: '李嵩聲.jpg',
+                      skills: 'Coding｜Zircuit｜資安',
+                      slots: [false, true, true, false, false],
+                    },
+                    {
+                      name: 'Nathan 余哲安',
+                      photo: '余哲安.jpg',
+                      skills: 'DeFi｜Research',
+                      slots: [false, false, false, false, true],
+                    },
+                    {
+                      name: 'Ping 陳品',
+                      photo: '陳品.jpg',
+                      skills: 'Coding｜DeFi',
+                      slots: [false, true, true, true, false],
+                    },
+                    {
+                      name: 'Reyer 瞿孝洋',
+                      photo: '瞿孝洋.jpg',
+                      skills: 'Coding｜DeFi｜AI',
+                      slots: [true, true, true, true, true],
+                    },
+                    {
+                      name: 'Ryan',
+                      photo: 'Ryan.jpg',
+                      skills: 'Coding｜DeFi',
+                      slots: [true, true, true, false, false],
+                    },
+                    {
+                      name: 'Winnie Hsu 許晴',
+                      photo: '許晴.png',
+                      skills: '國泰',
+                      slots: [false, false, true, false, false],
+                    },
                   ].map((mentor, index) => (
-                    <tr
-                      key={index}
-                      className={index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}
-                    >
-                      <td
-                        className="px-4 py-3 border border-gray-300"
-                        style={{ color: '#1a3a6e' }}
-                      >
+                    <tr key={index} className={index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
+                      <td className="px-4 py-3 border border-gray-300" style={{ color: '#1a3a6e' }}>
                         <div className="font-semibold">{mentor.name}</div>
-                        <div className="text-xs text-gray-600 mt-1">
-                          {mentor.skills}
-                        </div>
+                        <div className="text-xs text-gray-600 mt-1">{mentor.skills}</div>
                       </td>
                       {mentor.slots.map((available, slotIndex) => (
                         <td
@@ -352,16 +411,10 @@ export default function MentorsPage() {
           {/* 導師 Section */}
           <section className="mb-20">
             <div className="mb-8">
-              <h2
-                className="text-3xl font-bold mb-2"
-                style={{ color: '#1a3a6e' }}
-              >
+              <h2 className="text-3xl font-bold mb-2" style={{ color: '#1a3a6e' }}>
                 導師｜Mentor
               </h2>
-              <div
-                className="w-16 h-1"
-                style={{ backgroundColor: '#8B4049' }}
-              ></div>
+              <div className="w-16 h-1" style={{ backgroundColor: '#8B4049' }}></div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {mentors.map((mentor, index) => (
@@ -373,16 +426,10 @@ export default function MentorsPage() {
           {/* Demo Day 最佳簡報獎評審 Section */}
           <section className="mb-20">
             <div className="mb-8">
-              <h2
-                className="text-3xl font-bold mb-2"
-                style={{ color: '#1a3a6e' }}
-              >
+              <h2 className="text-3xl font-bold mb-2" style={{ color: '#1a3a6e' }}>
                 「Demo Day 最佳簡報獎」評審｜Judge
               </h2>
-              <div
-                className="w-16 h-1"
-                style={{ backgroundColor: '#8B4049' }}
-              ></div>
+              <div className="w-16 h-1" style={{ backgroundColor: '#8B4049' }}></div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {bestPresentationJudges.map((judge, index) => (
@@ -394,16 +441,10 @@ export default function MentorsPage() {
           {/* Demo Day 首獎評審 Section */}
           <section>
             <div className="mb-8">
-              <h2
-                className="text-3xl font-bold mb-2"
-                style={{ color: '#1a3a6e' }}
-              >
+              <h2 className="text-3xl font-bold mb-2" style={{ color: '#1a3a6e' }}>
                 「Demo Day 首獎」評審｜Judge
               </h2>
-              <div
-                className="w-16 h-1"
-                style={{ backgroundColor: '#8B4049' }}
-              ></div>
+              <div className="w-16 h-1" style={{ backgroundColor: '#8B4049' }}></div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {firstPrizeJudges.map((judge, index) => (
@@ -416,4 +457,3 @@ export default function MentorsPage() {
     </>
   );
 }
-

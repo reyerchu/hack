@@ -8,12 +8,12 @@ const db = firestore();
 
 /**
  * GET /api/checkins/list
- * 
+ *
  * Returns all check-in records and total user count
  */
 async function handleGet(req: NextApiRequest, res: NextApiResponse) {
   const userToken = req.headers['authorization'] as string;
-  
+
   // Check authorization
   const isAuthorized = await userIsAuthorized(userToken, ['admin', 'super_admin', 'organizer']);
   if (!isAuthorized) {
@@ -24,12 +24,9 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
 
   try {
     // Load check-ins
-    const checkinsSnapshot = await db
-      .collection('checkins')
-      .orderBy('checkedInAt', 'desc')
-      .get();
-    
-    const checkins = checkinsSnapshot.docs.map(doc => {
+    const checkinsSnapshot = await db.collection('checkins').orderBy('checkedInAt', 'desc').get();
+
+    const checkins = checkinsSnapshot.docs.map((doc) => {
       const data = doc.data();
       return {
         id: doc.id,
@@ -45,8 +42,8 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
     // Load total registered users (from team-registrations)
     const teamsSnapshot = await db.collection('team-registrations').get();
     let userCount = 0;
-    
-    teamsSnapshot.docs.forEach(doc => {
+
+    teamsSnapshot.docs.forEach((doc) => {
       const team = doc.data();
       // Count team leader
       if (team.teamLeader && (team.teamLeader.name || team.teamLeader.email)) {
@@ -72,7 +69,7 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
   const { method } = req;
-  
+
   switch (method) {
     case 'GET':
       return handleGet(req, res);
@@ -82,4 +79,3 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
       });
   }
 }
-

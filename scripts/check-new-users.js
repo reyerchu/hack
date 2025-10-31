@@ -6,7 +6,7 @@ const fs = require('fs');
 // Load .env.local
 const envPath = path.join(__dirname, '..', '.env.local');
 const envContent = fs.readFileSync(envPath, 'utf8');
-envContent.split('\n').forEach(line => {
+envContent.split('\n').forEach((line) => {
   const match = line.match(/^([^=]+)=(.*)$/);
   if (match && match[1].startsWith('SERVICE_ACCOUNT_')) {
     process.env[match[1]] = match[2];
@@ -36,18 +36,18 @@ const db = admin.firestore();
 
 async function checkRecentUsers() {
   console.log('\n=== Checking Recent Registrations ===\n');
-  
+
   const registrations = await db.collection('registrations').get();
-  
+
   console.log(`Total registrations: ${registrations.size}\n`);
-  
+
   // Get all users and sort by any available timestamp
   const users = [];
-  registrations.forEach(doc => {
+  registrations.forEach((doc) => {
     const data = doc.data();
     let timestamp = null;
     let timestampSource = 'NONE';
-    
+
     if (data.timestamp) {
       timestamp = data.timestamp;
       timestampSource = 'timestamp';
@@ -58,10 +58,12 @@ async function checkRecentUsers() {
       timestamp = data.user.timestamp;
       timestampSource = 'user.timestamp';
     } else if (data.user?.createdAt) {
-      timestamp = data.user.createdAt._seconds ? data.user.createdAt._seconds * 1000 : data.user.createdAt;
+      timestamp = data.user.createdAt._seconds
+        ? data.user.createdAt._seconds * 1000
+        : data.user.createdAt;
       timestampSource = 'user.createdAt';
     }
-    
+
     users.push({
       id: doc.id,
       email: data.email || data.user?.email || data.user?.preferredEmail || 'N/A',
@@ -74,11 +76,11 @@ async function checkRecentUsers() {
       hasUserCreatedAt: !!data.user?.createdAt,
       rawData: {
         topLevel: Object.keys(data),
-        userLevel: data.user ? Object.keys(data.user) : []
-      }
+        userLevel: data.user ? Object.keys(data.user) : [],
+      },
     });
   });
-  
+
   // Sort by timestamp (most recent first)
   users.sort((a, b) => {
     if (!a.timestamp && !b.timestamp) return 0;
@@ -86,14 +88,16 @@ async function checkRecentUsers() {
     if (!b.timestamp) return -1;
     return b.timestamp - a.timestamp;
   });
-  
+
   // Show last 10 users
   console.log('=== Last 10 Registered Users ===\n');
   users.slice(0, 10).forEach((user, idx) => {
     console.log(`${idx + 1}. ${user.email}`);
     console.log(`   ID: ${user.id}`);
     console.log(`   Name: ${user.name}`);
-    console.log(`   Timestamp: ${user.timestamp ? new Date(user.timestamp).toISOString() : 'MISSING'}`);
+    console.log(
+      `   Timestamp: ${user.timestamp ? new Date(user.timestamp).toISOString() : 'MISSING'}`,
+    );
     console.log(`   Source: ${user.timestampSource}`);
     console.log(`   Data structure:`);
     console.log(`   - timestamp field: ${user.hasTimestamp ? '✅' : '❌'}`);
@@ -104,11 +108,11 @@ async function checkRecentUsers() {
     console.log(`   User-level keys: ${user.rawData.userLevel.join(', ')}`);
     console.log('');
   });
-  
+
   // Count users without timestamp
-  const usersWithoutTimestamp = users.filter(u => !u.timestamp);
+  const usersWithoutTimestamp = users.filter((u) => !u.timestamp);
   console.log(`\n⚠️  Users without any timestamp: ${usersWithoutTimestamp.length}`);
-  
+
   if (usersWithoutTimestamp.length > 0) {
     console.log('\nUsers without timestamp:');
     usersWithoutTimestamp.forEach((user, idx) => {
@@ -119,7 +123,7 @@ async function checkRecentUsers() {
 
 checkRecentUsers()
   .then(() => process.exit(0))
-  .catch(err => {
+  .catch((err) => {
     console.error('Error:', err);
     process.exit(1);
   });

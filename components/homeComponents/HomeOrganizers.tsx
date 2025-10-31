@@ -11,7 +11,9 @@ export default function HomeOrganizers() {
       <div className="max-w-[1200px] mx-auto px-8 md:px-12">
         {/* Section Header - TSMC Style */}
         <div className="mb-12">
-          <h2 className="text-[28px] md:text-[36px] font-normal text-black mb-2">ORGANIZERS & SPONSORS</h2>
+          <h2 className="text-[28px] md:text-[36px] font-normal text-black mb-2">
+            ORGANIZERS & SPONSORS
+          </h2>
           <div className="w-16 h-[2px]" style={{ backgroundColor: '#1a3a6e' }}></div>
           <p className="text-[18px] mt-4 font-normal" style={{ color: '#1a3a6e' }}>
             協辦單位與贊助夥伴
@@ -440,4 +442,3 @@ export default function HomeOrganizers() {
     </section>
   );
 }
-

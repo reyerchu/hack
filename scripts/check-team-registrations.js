@@ -5,7 +5,7 @@ const fs = require('fs');
 // Load .env.local
 const envPath = path.join(__dirname, '..', '.env.local');
 const envContent = fs.readFileSync(envPath, 'utf8');
-envContent.split('\n').forEach(line => {
+envContent.split('\n').forEach((line) => {
   const match = line.match(/^([^=]+)=(.*)$/);
   if (match && match[1].startsWith('SERVICE_ACCOUNT_')) {
     process.env[match[1]] = match[2];
@@ -36,7 +36,7 @@ const db = admin.firestore();
 async function checkTeamRegistrations() {
   const snapshot = await db.collection('team-registrations').get();
   console.log('\nteam-registrations 集合文档数:', snapshot.size);
-  
+
   if (snapshot.size > 0) {
     console.log('\n前3个团队样例:');
     let count = 0;

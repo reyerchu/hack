@@ -8,7 +8,12 @@ interface QRScannerProps {
   height?: number;
 }
 
-export default function QRScanner({ onScanSuccess, onScanError, width = 300, height = 300 }: QRScannerProps) {
+export default function QRScanner({
+  onScanSuccess,
+  onScanError,
+  width = 300,
+  height = 300,
+}: QRScannerProps) {
   const scannerRef = useRef<Html5Qrcode | null>(null);
   const qrRegionId = 'qr-reader-region';
 
@@ -40,7 +45,7 @@ export default function QRScanner({ onScanSuccess, onScanError, width = 300, hei
         { facingMode: 'environment' }, // 使用后置摄像头
         config,
         qrCodeSuccessCallback,
-        qrCodeErrorCallback
+        qrCodeErrorCallback,
       )
       .catch((err) => {
         console.error('无法启动 QR 扫描器:', err);
@@ -76,10 +81,7 @@ export default function QRScanner({ onScanSuccess, onScanError, width = 300, hei
           overflow: 'hidden',
         }}
       />
-      <p className="mt-4 text-sm text-gray-600 text-center">
-        請將 QR code 對準掃描框
-      </p>
+      <p className="mt-4 text-sm text-gray-600 text-center">請將 QR code 對準掃描框</p>
     </div>
   );
 }
-

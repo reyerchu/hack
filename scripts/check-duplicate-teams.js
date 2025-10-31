@@ -5,7 +5,7 @@ const fs = require('fs');
 // Load .env.local
 const envPath = path.join(__dirname, '..', '.env.local');
 const envContent = fs.readFileSync(envPath, 'utf8');
-envContent.split('\n').forEach(line => {
+envContent.split('\n').forEach((line) => {
   const match = line.match(/^([^=]+)=(.*)$/);
   if (match && match[1].startsWith('SERVICE_ACCOUNT_')) {
     process.env[match[1]] = match[2];
@@ -42,7 +42,7 @@ async function checkDuplicateTeams() {
   const snapshot = await teamsRef.get();
 
   const teams = [];
-  snapshot.forEach(doc => {
+  snapshot.forEach((doc) => {
     const data = doc.data();
     teams.push({
       id: doc.id,
@@ -61,7 +61,7 @@ async function checkDuplicateTeams() {
   console.log('═══════════════════════════════════════════════════════════');
   console.log('1️⃣  检查重复的团队名称\n');
   const teamNameMap = {};
-  teams.forEach(team => {
+  teams.forEach((team) => {
     const name = team.teamName.trim().toLowerCase();
     if (!teamNameMap[name]) {
       teamNameMap[name] = [];
@@ -70,17 +70,23 @@ async function checkDuplicateTeams() {
   });
 
   const duplicateNames = Object.entries(teamNameMap).filter(([_, teams]) => teams.length > 1);
-  
+
   if (duplicateNames.length > 0) {
     console.log(`⚠️  发现 ${duplicateNames.length} 个重复的团队名称：\n`);
     duplicateNames.forEach(([name, dupeTeams], index) => {
-      console.log(`${index + 1}. 团队名称: "${dupeTeams[0].teamName}" (${dupeTeams.length} 个重复)`);
+      console.log(
+        `${index + 1}. 团队名称: "${dupeTeams[0].teamName}" (${dupeTeams.length} 个重复)`,
+      );
       dupeTeams.forEach((team, i) => {
         console.log(`   ${String.fromCharCode(97 + i)}. ID: ${team.id}`);
         console.log(`      队长: ${team.leaderName} (${team.leaderEmail})`);
         console.log(`      赛道: ${team.track}`);
         console.log(`      成员数: ${team.members.length}`);
-        console.log(`      创建时间: ${team.createdAt ? new Date(team.createdAt.seconds * 1000).toLocaleString('zh-CN') : 'N/A'}`);
+        console.log(
+          `      创建时间: ${
+            team.createdAt ? new Date(team.createdAt.seconds * 1000).toLocaleString('zh-CN') : 'N/A'
+          }`,
+        );
       });
       console.log('');
     });
@@ -92,7 +98,7 @@ async function checkDuplicateTeams() {
   console.log('═══════════════════════════════════════════════════════════');
   console.log('2️⃣  检查重复的队长邮箱\n');
   const leaderEmailMap = {};
-  teams.forEach(team => {
+  teams.forEach((team) => {
     const email = team.leaderEmail.trim().toLowerCase();
     if (email) {
       if (!leaderEmailMap[email]) {
@@ -102,8 +108,10 @@ async function checkDuplicateTeams() {
     }
   });
 
-  const duplicateLeaderEmails = Object.entries(leaderEmailMap).filter(([_, teams]) => teams.length > 1);
-  
+  const duplicateLeaderEmails = Object.entries(leaderEmailMap).filter(
+    ([_, teams]) => teams.length > 1,
+  );
+
   if (duplicateLeaderEmails.length > 0) {
     console.log(`⚠️  发现 ${duplicateLeaderEmails.length} 个重复的队长邮箱：\n`);
     duplicateLeaderEmails.forEach(([email, dupeTeams], index) => {
@@ -112,7 +120,11 @@ async function checkDuplicateTeams() {
         console.log(`   ${String.fromCharCode(97 + i)}. 团队: "${team.teamName}" (ID: ${team.id})`);
         console.log(`      队长: ${team.leaderName}`);
         console.log(`      赛道: ${team.track}`);
-        console.log(`      创建时间: ${team.createdAt ? new Date(team.createdAt.seconds * 1000).toLocaleString('zh-CN') : 'N/A'}`);
+        console.log(
+          `      创建时间: ${
+            team.createdAt ? new Date(team.createdAt.seconds * 1000).toLocaleString('zh-CN') : 'N/A'
+          }`,
+        );
       });
       console.log('');
     });
@@ -124,9 +136,9 @@ async function checkDuplicateTeams() {
   console.log('═══════════════════════════════════════════════════════════');
   console.log('3️⃣  检查在多个团队中的成员\n');
   const memberEmailMap = {};
-  teams.forEach(team => {
-    const allEmails = [team.leaderEmail, ...team.members.map(m => m.email)].filter(e => e);
-    allEmails.forEach(email => {
+  teams.forEach((team) => {
+    const allEmails = [team.leaderEmail, ...team.members.map((m) => m.email)].filter((e) => e);
+    allEmails.forEach((email) => {
       const normalizedEmail = email.trim().toLowerCase();
       if (normalizedEmail) {
         if (!memberEmailMap[normalizedEmail]) {
@@ -144,13 +156,15 @@ async function checkDuplicateTeams() {
   const duplicateMembers = Object.entries(memberEmailMap)
     .filter(([_, teams]) => teams.length > 1)
     .sort((a, b) => b[1].length - a[1].length);
-  
+
   if (duplicateMembers.length > 0) {
     console.log(`⚠️  发现 ${duplicateMembers.length} 个在多个团队中的成员：\n`);
     duplicateMembers.slice(0, 20).forEach(([email, memberTeams], index) => {
       console.log(`${index + 1}. 成员邮箱: ${email} (在 ${memberTeams.length} 个团队中)`);
       memberTeams.forEach((team, i) => {
-        console.log(`   ${String.fromCharCode(97 + i)}. 团队: "${team.teamName}" (ID: ${team.teamId})`);
+        console.log(
+          `   ${String.fromCharCode(97 + i)}. 团队: "${team.teamName}" (ID: ${team.teamId})`,
+        );
         console.log(`      赛道: ${team.track}`);
       });
       console.log('');
@@ -173,4 +187,3 @@ async function checkDuplicateTeams() {
 }
 
 checkDuplicateTeams().catch(console.error);
-

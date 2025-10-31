@@ -6,7 +6,7 @@ const path = require('path');
 // Load .env.local
 const envPath = path.join(__dirname, '..', '.env.local');
 const envContent = fs.readFileSync(envPath, 'utf8');
-envContent.split('\n').forEach(line => {
+envContent.split('\n').forEach((line) => {
   const match = line.match(/^([^=]+)=(.*)$/);
   if (match && match[1].startsWith('SERVICE_ACCOUNT_')) {
     process.env[match[1]] = match[2];
@@ -42,7 +42,7 @@ async function generateRegistrationSheet() {
   try {
     // 獲取所有團隊
     const teamsSnapshot = await db.collection('team-registrations').get();
-    
+
     if (teamsSnapshot.empty) {
       console.log('⚠️  資料庫中沒有團隊資料');
       return;
@@ -57,16 +57,16 @@ async function generateRegistrationSheet() {
     teamsSnapshot.forEach((doc) => {
       const team = doc.data();
       const teamId = doc.id;
-      
+
       // 添加隊長資訊（有姓名或有郵箱就添加）
       if (team.teamLeader && (team.teamLeader.name || team.teamLeader.email)) {
-        const name = team.teamLeader.name && team.teamLeader.name.trim() 
-          ? team.teamLeader.name.trim() 
-          : '未填寫姓名';
-        const email = team.teamLeader.email && team.teamLeader.email.trim()
-          ? team.teamLeader.email.trim()
-          : '';
-        
+        const name =
+          team.teamLeader.name && team.teamLeader.name.trim()
+            ? team.teamLeader.name.trim()
+            : '未填寫姓名';
+        const email =
+          team.teamLeader.email && team.teamLeader.email.trim() ? team.teamLeader.email.trim() : '';
+
         allMembers.push({
           teamNumber,
           teamId,
@@ -81,13 +81,9 @@ async function generateRegistrationSheet() {
       if (team.teamMembers && Array.isArray(team.teamMembers)) {
         team.teamMembers.forEach((member) => {
           if (member.name || member.email) {
-            const name = member.name && member.name.trim() 
-              ? member.name.trim() 
-              : '未填寫姓名';
-            const email = member.email && member.email.trim()
-              ? member.email.trim()
-              : '';
-            
+            const name = member.name && member.name.trim() ? member.name.trim() : '未填寫姓名';
+            const email = member.email && member.email.trim() ? member.email.trim() : '';
+
             allMembers.push({
               teamNumber,
               teamId,
@@ -113,16 +109,16 @@ async function generateRegistrationSheet() {
     // 生成 PDF
     const outputPath = path.join(__dirname, '../registration-sheet.pdf');
     const fontPath = path.join(__dirname, '../fonts/NotoSansCJKtc-Regular.otf');
-    
-    const doc = new PDFDocument({ 
-      size: 'A4', 
+
+    const doc = new PDFDocument({
+      size: 'A4',
       margin: 40,
-      bufferPages: true
+      bufferPages: true,
     });
-    
+
     const stream = fs.createWriteStream(outputPath);
     doc.pipe(stream);
-    
+
     // 創建 Promise 以等待檔案寫入完成
     const finishPromise = new Promise((resolve, reject) => {
       stream.on('finish', resolve);
@@ -137,7 +133,9 @@ async function generateRegistrationSheet() {
     doc.fontSize(20).text('RWA 黑客松 2025 - 報到單', { align: 'center' });
     doc.moveDown();
     doc.fontSize(12).text(`生成時間: ${new Date().toLocaleString('zh-TW')}`, { align: 'center' });
-    doc.fontSize(12).text(`總團隊數: ${teamsSnapshot.size} | 總人數: ${allMembers.length}`, { align: 'center' });
+    doc
+      .fontSize(12)
+      .text(`總團隊數: ${teamsSnapshot.size} | 總人數: ${allMembers.length}`, { align: 'center' });
     doc.moveDown(2);
 
     // 表格設定
@@ -154,35 +152,38 @@ async function generateRegistrationSheet() {
     // 繪製表頭
     let currentY = tableTop;
     doc.fontSize(10);
-    
+
     const drawTableHeader = () => {
       let currentX = 40;
       doc.font('NotoSansCJK');
-      
+
       // 繪製表頭背景
-      doc.rect(currentX, currentY, 
-        colWidths.no + colWidths.team + colWidths.name + 
-        colWidths.email + colWidths.signature, 
-        rowHeight
-      ).fillAndStroke('#1a3a6e', '#000000');
-      
+      doc
+        .rect(
+          currentX,
+          currentY,
+          colWidths.no + colWidths.team + colWidths.name + colWidths.email + colWidths.signature,
+          rowHeight,
+        )
+        .fillAndStroke('#1a3a6e', '#000000');
+
       doc.fillColor('#ffffff');
-      
+
       // 表頭文字
       doc.text('序號', currentX + 5, currentY + 8, { width: colWidths.no, align: 'center' });
       currentX += colWidths.no;
-      
+
       doc.text('團隊名稱', currentX + 5, currentY + 8, { width: colWidths.team, align: 'center' });
       currentX += colWidths.team;
-      
+
       doc.text('姓名', currentX + 5, currentY + 8, { width: colWidths.name, align: 'center' });
       currentX += colWidths.name;
-      
+
       doc.text('電子郵箱', currentX + 5, currentY + 8, { width: colWidths.email, align: 'center' });
       currentX += colWidths.email;
-      
+
       doc.text('簽名', currentX + 5, currentY + 8, { width: colWidths.signature, align: 'center' });
-      
+
       currentY += rowHeight;
       doc.fillColor('#000000');
       doc.font('NotoSansCJK');
@@ -200,71 +201,71 @@ async function generateRegistrationSheet() {
       }
 
       let currentX = 40;
-      
+
       // 繪製行背景
       const bgColor = index % 2 === 0 ? '#f9fafb' : '#ffffff';
-      doc.rect(currentX, currentY, 
-        colWidths.no + colWidths.team + colWidths.name + 
-        colWidths.email + colWidths.signature, 
-        rowHeight
-      ).fillAndStroke(bgColor, '#d1d5db');
-      
+      doc
+        .rect(
+          currentX,
+          currentY,
+          colWidths.no + colWidths.team + colWidths.name + colWidths.email + colWidths.signature,
+          rowHeight,
+        )
+        .fillAndStroke(bgColor, '#d1d5db');
+
       doc.fillColor('#000000');
       doc.fontSize(9);
-      
+
       // 序號
-      doc.text(String(index + 1), currentX + 5, currentY + 8, { 
-        width: colWidths.no - 10, 
-        align: 'center' 
+      doc.text(String(index + 1), currentX + 5, currentY + 8, {
+        width: colWidths.no - 10,
+        align: 'center',
       });
       currentX += colWidths.no;
-      
+
       // 團隊名稱
-      doc.text(member.teamName, currentX + 5, currentY + 8, { 
-        width: colWidths.team - 10, 
+      doc.text(member.teamName, currentX + 5, currentY + 8, {
+        width: colWidths.team - 10,
         align: 'left',
-        ellipsis: true 
+        ellipsis: true,
       });
       currentX += colWidths.team;
-      
+
       // 姓名
-      doc.text(member.name, currentX + 5, currentY + 8, { 
-        width: colWidths.name - 10, 
+      doc.text(member.name, currentX + 5, currentY + 8, {
+        width: colWidths.name - 10,
         align: 'left',
-        ellipsis: true 
+        ellipsis: true,
       });
       currentX += colWidths.name;
-      
+
       // 電子郵箱
-      doc.text(member.email, currentX + 5, currentY + 8, { 
-        width: colWidths.email - 10, 
+      doc.text(member.email, currentX + 5, currentY + 8, {
+        width: colWidths.email - 10,
         align: 'left',
-        ellipsis: true 
+        ellipsis: true,
       });
       currentX += colWidths.email;
-      
+
       // 簽名欄（空白）
       // 已由邊框繪製
-      
+
       currentY += rowHeight;
     });
 
     // 獲取實際使用的頁數
     const currentPageNumber = doc.bufferedPageRange().count;
-    
+
     // 添加頁腳到所有頁面
     for (let i = 0; i < currentPageNumber; i++) {
       doc.switchToPage(i);
-      doc.fontSize(8).text(
-        `第 ${i + 1} 頁，共 ${currentPageNumber} 頁`,
-        40,
-        doc.page.height - 30,
-        { align: 'center' }
-      );
+      doc.fontSize(8).text(`第 ${i + 1} 頁，共 ${currentPageNumber} 頁`, 40, doc.page.height - 30, {
+        align: 'center',
+      });
     }
 
     doc.end();
-    
+
     // 等待檔案寫入完成
     await finishPromise;
 
@@ -276,7 +277,6 @@ async function generateRegistrationSheet() {
     console.log('   - 電子郵箱');
     console.log('   - 簽名欄');
     console.log(`\n📄 總頁數: ${currentPageNumber} 頁\n`);
-
   } catch (error) {
     console.error('❌ 錯誤:', error);
     throw error;
@@ -293,4 +293,3 @@ generateRegistrationSheet()
     console.error('❌ 失敗:', error);
     process.exit(1);
   });
-

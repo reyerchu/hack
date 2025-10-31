@@ -5,7 +5,7 @@ const fs = require('fs');
 // Load .env.local
 const envPath = path.join(__dirname, '..', '.env.local');
 const envContent = fs.readFileSync(envPath, 'utf8');
-envContent.split('\n').forEach(line => {
+envContent.split('\n').forEach((line) => {
   const match = line.match(/^([^=]+)=(.*)$/);
   if (match && match[1].startsWith('SERVICE_ACCOUNT_')) {
     process.env[match[1]] = match[2];
@@ -51,7 +51,7 @@ async function checkSameTeamNames() {
     console.log('  1. 还没有团队注册');
     console.log('  2. 连接到了错误的 Firestore 项目');
     console.log('  3. 集合名称不正确\n');
-    
+
     console.log('检查 Firebase 项目配置：');
     console.log(`  Project ID: ${process.env.SERVICE_ACCOUNT_PROJECT_ID}`);
     console.log(`  Client Email: ${process.env.SERVICE_ACCOUNT_CLIENT_EMAIL}\n`);
@@ -61,10 +61,10 @@ async function checkSameTeamNames() {
   const teams = [];
   const teamNameMap = new Map();
 
-  snapshot.forEach(doc => {
+  snapshot.forEach((doc) => {
     const data = doc.data();
     const teamName = (data.teamName || '').trim();
-    
+
     const teamInfo = {
       id: doc.id,
       teamName: data.teamName || '',
@@ -76,9 +76,9 @@ async function checkSameTeamNames() {
       track: data.track || '',
       trackName: data.trackName || '',
     };
-    
+
     teams.push(teamInfo);
-    
+
     // Group by normalized name
     const normalizedName = teamInfo.normalizedName;
     if (!teamNameMap.has(normalizedName)) {
@@ -97,7 +97,7 @@ async function checkSameTeamNames() {
   if (duplicates.length === 0) {
     console.log('═══════════════════════════════════════════════════════════');
     console.log('✅ 没有发现重复的团队名称！\n');
-    
+
     console.log('所有团队名称：');
     teams.forEach((team, index) => {
       console.log(`  ${index + 1}. "${team.teamName}" (ID: ${team.id})`);
@@ -113,7 +113,7 @@ async function checkSameTeamNames() {
     console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
     console.log(`\n${index + 1}. 团队名称: "${dupeTeams[0].teamName}"`);
     console.log(`   重复次数: ${dupeTeams.length}\n`);
-    
+
     dupeTeams
       .sort((a, b) => {
         if (!a.createdAt) return 1;
@@ -123,20 +123,26 @@ async function checkSameTeamNames() {
       .forEach((team, i) => {
         const isFirst = i === 0;
         const label = isFirst ? '🟢 最早注册' : '🔴 重复注册';
-        
+
         console.log(`   ${label} ${String.fromCharCode(65 + i)}.`);
         console.log(`   ├─ ID: ${team.id}`);
         console.log(`   ├─ 队长: ${team.leaderName} <${team.leaderEmail}>`);
         console.log(`   ├─ 赛道: ${team.trackName || team.track || 'N/A'}`);
         console.log(`   ├─ 成员数: ${team.memberCount}`);
-        console.log(`   └─ 创建时间: ${team.createdAt ? new Date(team.createdAt.seconds * 1000).toLocaleString('zh-CN', {
-          year: 'numeric',
-          month: '2-digit',
-          day: '2-digit',
-          hour: '2-digit',
-          minute: '2-digit',
-          second: '2-digit'
-        }) : 'N/A'}`);
+        console.log(
+          `   └─ 创建时间: ${
+            team.createdAt
+              ? new Date(team.createdAt.seconds * 1000).toLocaleString('zh-CN', {
+                  year: 'numeric',
+                  month: '2-digit',
+                  day: '2-digit',
+                  hour: '2-digit',
+                  minute: '2-digit',
+                  second: '2-digit',
+                })
+              : 'N/A'
+          }`,
+        );
         console.log('');
       });
   });
@@ -158,8 +164,7 @@ async function checkSameTeamNames() {
   console.log('   4. 或者要求队长修改团队名称\n');
 }
 
-checkSameTeamNames().catch(error => {
+checkSameTeamNames().catch((error) => {
   console.error('\n❌ 错误:', error.message);
   console.error('\n详细信息:', error);
 });
-

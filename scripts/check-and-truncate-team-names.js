@@ -5,7 +5,7 @@ const fs = require('fs');
 // Load .env.local
 const envPath = path.join(__dirname, '..', '.env.local');
 const envContent = fs.readFileSync(envPath, 'utf8');
-envContent.split('\n').forEach(line => {
+envContent.split('\n').forEach((line) => {
   const match = line.match(/^([^=]+)=(.*)$/);
   if (match && match[1].startsWith('SERVICE_ACCOUNT_')) {
     process.env[match[1]] = match[2];
@@ -41,9 +41,9 @@ async function checkAndTruncateTeamNames() {
   try {
     // Get all teams
     const teamsSnapshot = await db.collection('team-registrations').get();
-    
+
     console.log(`📊 总共找到 ${teamsSnapshot.size} 个团队\n`);
-    
+
     if (teamsSnapshot.empty) {
       console.log('❌ 没有找到任何团队');
       return;
@@ -104,7 +104,7 @@ async function checkAndTruncateTeamNames() {
 
     // Check if --confirm flag is present
     const confirmFlag = process.argv.includes('--confirm');
-    
+
     if (!confirmFlag) {
       console.log('ℹ️  仅显示预览，未执行任何修改\n');
       return;
@@ -112,7 +112,7 @@ async function checkAndTruncateTeamNames() {
 
     // Execute truncation
     console.log('\n🔄 开始执行截断操作...\n');
-    
+
     let successCount = 0;
     let errorCount = 0;
 
@@ -135,7 +135,6 @@ async function checkAndTruncateTeamNames() {
     console.log(`✅ 成功: ${successCount}`);
     console.log(`❌ 失败: ${errorCount}`);
     console.log(`📊 总计: ${teamsToUpdate.length}\n`);
-
   } catch (error) {
     console.error('\n❌ 执行过程中发生错误:', error);
   }
@@ -151,4 +150,3 @@ checkAndTruncateTeamNames()
     console.error('❌ 脚本执行失败:', error);
     process.exit(1);
   });
-
