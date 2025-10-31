@@ -15,10 +15,19 @@ export interface ScanTypeProps {
 export default function ScanType({ name, onClick }: ScanTypeProps) {
   return (
     <div
-      className="bg-secondaryDark md:p-4 p-2 rounded-xl cursor-pointer m-3 hover:brightness-[1.15] hover:border-black border-transparent border-2 box-border md:whitespace-normal whitespace-nowrap"
+      className="bg-white p-6 rounded-lg cursor-pointer border-2 transition-all duration-300 hover:shadow-lg"
+      style={{ borderColor: '#e5e7eb' }}
       onClick={onClick}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.borderColor = '#1a3a6e';
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.borderColor = '#e5e7eb';
+      }}
     >
-      <div className="text-center md:text-lg font-bold">{name}</div>
+      <div className="text-center text-lg font-medium" style={{ color: '#1a3a6e' }}>
+        {name}
+      </div>
     </div>
   );
 }
