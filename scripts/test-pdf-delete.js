@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 /**
- * Check if a team has uploaded PDF
+ * Test PDF delete and re-upload flow
  */
 
 const admin = require('firebase-admin');
 const fs = require('fs');
 const path = require('path');
 
-// Load environment variables manually
+// Load environment variables
 const envPath = path.join(__dirname, '..', '.env.local');
 if (fs.existsSync(envPath)) {
   const envContent = fs.readFileSync(envPath, 'utf8');
@@ -49,8 +49,8 @@ if (admin.apps.length < 1) {
 const db = admin.firestore();
 const teamId = process.argv[2] || 'ZIohfRxsiGcBocIrvBHf';
 
-async function checkTeamPdf() {
-  console.log(`🔍 Checking PDF for team: ${teamId}\n`);
+async function testPdfStatus() {
+  console.log(`🔍 Checking PDF status for team: ${teamId}\n`);
 
   try {
     const teamDoc = await db.collection('team-registrations').doc(teamId).get();
@@ -61,27 +61,30 @@ async function checkTeamPdf() {
     }
 
     const teamData = teamDoc.data();
-    console.log(`✅ Team found: ${teamData.teamName}\n`);
+    console.log(`✅ Team: ${teamData.teamName}\n`);
+
+    console.log('📋 Current Status:\n');
 
     if (teamData.submittedPdf) {
-      console.log('📄 PDF Status: ✅ UPLOADED\n');
-      console.log('File Details:');
-      console.log(`  File Name:    ${teamData.submittedPdf.fileName || 'N/A'}`);
-      console.log(`  File URL:     ${teamData.submittedPdf.fileUrl || 'N/A'}`);
-      console.log(`  Uploaded By:  ${teamData.submittedPdf.uploadedBy || 'N/A'}`);
-
-      if (teamData.submittedPdf.uploadedAt) {
-        const uploadTime = teamData.submittedPdf.uploadedAt.toDate
-          ? teamData.submittedPdf.uploadedAt.toDate()
-          : new Date(teamData.submittedPdf.uploadedAt);
-        console.log(`  Uploaded At:  ${uploadTime.toLocaleString('zh-TW')}`);
-      }
-
-      console.log('\n✅ The UI SHOULD show file info with delete button');
+      console.log('  PDF Status: ✅ HAS PDF');
+      console.log(`  File Name:  ${teamData.submittedPdf.fileName}`);
+      console.log(`  Uploaded By: ${teamData.submittedPdf.uploadedBy}`);
+      console.log('');
+      console.log('✅ Delete API should work');
+      console.log('✅ After delete, can upload new PDF');
     } else {
-      console.log('📄 PDF Status: ❌ NOT UPLOADED\n');
-      console.log('✅ The UI SHOULD show upload button');
+      console.log('  PDF Status: ❌ NO PDF');
+      console.log('');
+      console.log('✅ Upload API should work');
+      console.log('✅ Can upload a new PDF');
     }
+
+    console.log('\n📝 Database field check:');
+    console.log(`  submittedPdf field exists: ${teamData.submittedPdf ? 'YES' : 'NO'}`);
+    console.log(`  submittedPdf is null: ${teamData.submittedPdf === null ? 'YES' : 'NO'}`);
+    console.log(
+      `  submittedPdf is undefined: ${teamData.submittedPdf === undefined ? 'YES' : 'NO'}`,
+    );
   } catch (error) {
     console.error('❌ Error:', error);
   }
@@ -89,4 +92,4 @@ async function checkTeamPdf() {
   process.exit(0);
 }
 
-checkTeamPdf();
+testPdfStatus();

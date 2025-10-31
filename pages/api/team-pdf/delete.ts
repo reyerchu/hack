@@ -68,8 +68,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // Delete file from Storage
     try {
-      const teamName = teamData.teamName.replace(/[^a-zA-Z0-9\u4e00-\u9fa5]/g, '_');
-      const fileName = `${teamName}.pdf`;
+      // Use the stored filename from database
+      const fileName = teamData.submittedPdf.fileName || 'document.pdf';
       const filePath = `team-pdfs/${teamId}/${fileName}`;
 
       const file = bucket.file(filePath);

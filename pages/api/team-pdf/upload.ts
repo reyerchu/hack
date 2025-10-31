@@ -88,9 +88,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ error: '只接受 PDF 文件' });
     }
 
-    // Generate filename: "隊名.pdf"
-    const safeTeamName = teamName.replace(/[^a-zA-Z0-9\u4e00-\u9fa5]/g, '_');
-    const fileName = `${safeTeamName}.pdf`;
+    // Use original filename
+    const fileName = pdfFile.originalFilename || 'document.pdf';
     const filePath = `team-pdfs/${teamId}/${fileName}`;
 
     // Upload to Firebase Storage
