@@ -11,6 +11,7 @@ import firebase from 'firebase/app';
 import 'firebase/auth';
 import { useAuthContext } from '../../../../lib/user/AuthContext';
 import { useIsSponsor } from '../../../../lib/sponsor/hooks';
+import { linkifyText } from '../../../../lib/utils/linkify';
 
 export default function TrackDetailPage() {
   const router = useRouter();
@@ -311,9 +312,20 @@ export default function TrackDetailPage() {
                   </button>
                 )}
               </div>
-              <p className="text-sm" style={{ color: '#6b7280' }}>
-                {track.description || '賽道管理與數據總覽'}
-              </p>
+              <div
+                className="text-sm"
+                style={{
+                  color: '#6b7280',
+                  whiteSpace: 'pre-wrap',
+                  wordBreak: 'break-word',
+                  overflowWrap: 'break-word',
+                  lineHeight: '1.6',
+                }}
+              >
+                {track.description
+                  ? linkifyText(track.description, '#1a3a6e')
+                  : '賽道管理與數據總覽'}
+              </div>
             </div>
 
             {track.permissions?.canEdit && (
