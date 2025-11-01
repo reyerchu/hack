@@ -6,23 +6,20 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { firestore } from 'firebase-admin';
 import initializeApi from '../../../../../lib/admin/init';
-import admin from 'firebase-admin';
+import { requireAuth, ApiResponse, AuthenticatedRequest } from '../../../../../lib/sponsor/middleware';
 
 initializeApi();
 const db = firestore();
 
 async function handleGet(req: NextApiRequest, res: NextApiResponse) {
   try {
-    // Verify authentication
-    const authHeader = req.headers.authorization;
-    if (!authHeader) {
-      return res.status(401).json({ error: 'Unauthorized' });
-    }
+    // Use unified authentication middleware
+    if (!(await requireAuth(req, res))) return;
 
-    const token = authHeader.replace('Bearer ', '');
-    const decodedToken = await admin.auth().verifyIdToken(token);
-    const userId = decodedToken.uid;
-    const userEmail = decodedToken.email;
+    const authReq = req as AuthenticatedRequest;
+    const userId = authReq.userId!;
+    const userEmail = authReq.userEmail!;
+    const permissions = authReq.userPermissions || [];
 
     // Get challengeId from query
     const { challengeId } = req.query;
@@ -31,18 +28,7 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
     }
 
     // Verify user is a sponsor
-    const usersSnapshot = await db
-      .collection('users')
-      .where('email', '==', userEmail)
-      .limit(1)
-      .get();
-
-    if (usersSnapshot.empty) {
-      return res.status(403).json({ error: 'User not found' });
-    }
-
-    const userData = usersSnapshot.docs[0].data();
-    if (!userData.permissions?.includes('sponsor')) {
+    if (!permissions.includes('sponsor') && !permissions.includes('admin') && !permissions.includes('super_admin')) {
       return res.status(403).json({ error: 'Not authorized as sponsor' });
     }
 
