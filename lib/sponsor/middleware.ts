@@ -58,10 +58,29 @@ async function getUserData(
       return { exists: true, data: doc.data(), docId: doc.id };
     }
 
-    // 4. 嘗試 users collection（向後兼容）
+    // 4. 嘗試 users collection by Firebase UID（向後兼容）
     userDoc = await db.collection('users').doc(firebaseUid).get();
     if (userDoc.exists) {
       return { exists: true, data: userDoc.data(), docId: userDoc.id };
+    }
+
+    // 5. 嘗試 users collection by email（某些用戶以email為document ID）
+    if (email) {
+      userDoc = await db.collection('users').doc(email).get();
+      if (userDoc.exists) {
+        return { exists: true, data: userDoc.data(), docId: userDoc.id };
+      }
+
+      // 6. 嘗試用email查詢users collection
+      const usersByEmail = await db
+        .collection('users')
+        .where('email', '==', email)
+        .limit(1)
+        .get();
+      if (!usersByEmail.empty) {
+        const doc = usersByEmail.docs[0];
+        return { exists: true, data: doc.data(), docId: doc.id };
+      }
     }
 
     return null;
