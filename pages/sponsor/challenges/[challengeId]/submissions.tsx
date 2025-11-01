@@ -67,7 +67,7 @@ export default function ChallengeSubmissionsPage() {
 
         const response = await fetch(`/api/sponsor/challenges/${challengeId}/submissions`, {
           headers: {
-            Authorization: user.token,
+            Authorization: `Bearer ${user.token}`,
           },
         });
 
