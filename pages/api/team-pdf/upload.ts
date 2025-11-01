@@ -47,7 +47,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const userEmail = decodedToken.email;
 
     // Parse form data
-    const form = formidable({ maxFileSize: 10 * 1024 * 1024 }); // 10MB max
+    const form = formidable({ maxFileSize: 10 * 1024 * 1024 * 1024 }); // 10GB max
 
     const [fields, files] = await new Promise<[formidable.Fields, formidable.Files]>(
       (resolve, reject) => {

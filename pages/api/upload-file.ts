@@ -35,7 +35,7 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
     const userId = decodedToken.uid;
 
     // Parse form data
-    const form = formidable({ maxFileSize: 100 * 1024 * 1024 }); // 100MB max
+    const form = formidable({ maxFileSize: 10 * 1024 * 1024 * 1024 }); // 10GB max
 
     const [fields, files] = await new Promise<[formidable.Fields, formidable.Files]>((resolve, reject) => {
       form.parse(req, (err, fields, files) => {
