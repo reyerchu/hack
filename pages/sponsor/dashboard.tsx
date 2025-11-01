@@ -989,34 +989,60 @@ export default function SponsorDashboard() {
                               )}
                             </div>
 
-                            {/* Delete Challenge Button */}
-                            {track.permissions?.canEdit && (
+                            {/* Action Buttons */}
+                            <div className="flex items-center gap-2 shrink-0">
+                              {/* View Submissions Button */}
                               <button
                                 onClick={() =>
-                                  handleDeleteChallengeClick(
-                                    challenge.id,
-                                    challenge.title || challenge.track,
-                                    track.id,
-                                  )
+                                  router.push(`/sponsor/challenges/${challenge.id}/submissions`)
                                 }
-                                className="px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors shrink-0"
+                                className="px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors"
                                 style={{
-                                  borderColor: '#dc2626',
-                                  color: '#dc2626',
+                                  borderColor: '#1a3a6e',
+                                  color: '#1a3a6e',
                                   backgroundColor: 'white',
                                 }}
                                 onMouseEnter={(e) => {
-                                  e.currentTarget.style.backgroundColor = '#dc2626';
+                                  e.currentTarget.style.backgroundColor = '#1a3a6e';
                                   e.currentTarget.style.color = 'white';
                                 }}
                                 onMouseLeave={(e) => {
                                   e.currentTarget.style.backgroundColor = 'white';
-                                  e.currentTarget.style.color = '#dc2626';
+                                  e.currentTarget.style.color = '#1a3a6e';
                                 }}
                               >
-                                刪除
+                                查看提交
                               </button>
-                            )}
+
+                              {/* Delete Challenge Button */}
+                              {track.permissions?.canEdit && (
+                                <button
+                                  onClick={() =>
+                                    handleDeleteChallengeClick(
+                                      challenge.id,
+                                      challenge.title || challenge.track,
+                                      track.id,
+                                    )
+                                  }
+                                  className="px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors"
+                                  style={{
+                                    borderColor: '#dc2626',
+                                    color: '#dc2626',
+                                    backgroundColor: 'white',
+                                  }}
+                                  onMouseEnter={(e) => {
+                                    e.currentTarget.style.backgroundColor = '#dc2626';
+                                    e.currentTarget.style.color = 'white';
+                                  }}
+                                  onMouseLeave={(e) => {
+                                    e.currentTarget.style.backgroundColor = 'white';
+                                    e.currentTarget.style.color = '#dc2626';
+                                  }}
+                                >
+                                  刪除
+                                </button>
+                              )}
+                            </div>
                           </div>
                         ))}
                       </div>

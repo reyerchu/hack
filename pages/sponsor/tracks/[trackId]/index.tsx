@@ -580,6 +580,28 @@ export default function TrackDetailPage() {
                         )}
                       </div>
                       <div className="flex items-center gap-2 ml-4 shrink-0">
+                        {/* View Submissions Button */}
+                        <button
+                          onClick={() =>
+                            router.push(`/sponsor/challenges/${challenge.id}/submissions`)
+                          }
+                          className="px-4 py-2 rounded-lg text-sm font-medium border-2 transition-colors"
+                          style={{
+                            borderColor: '#10b981',
+                            color: '#10b981',
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor = '#10b981';
+                            e.currentTarget.style.color = '#ffffff';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor = 'transparent';
+                            e.currentTarget.style.color = '#10b981';
+                          }}
+                        >
+                          查看提交
+                        </button>
+
                         <Link
                           href={`/sponsor/tracks/${trackId}/challenge?challengeId=${challenge.id}`}
                         >
