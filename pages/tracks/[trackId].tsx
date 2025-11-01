@@ -20,7 +20,7 @@ interface Challenge {
   title: string;
   description: string;
   prizes?: string | any[];
-  submissionRequirements?: string;
+  submissionRequirements?: string | any[];
   evaluationCriteria?: string | any[];
   trackId?: string;
 }
@@ -605,18 +605,43 @@ export default function PublicTrackDetailPage() {
                         <h4 className="text-sm font-medium mb-2" style={{ color: '#6b7280' }}>
                           📋 提交要求
                         </h4>
-                        <p
-                          className="text-sm"
-                          style={{
-                            color: '#374151',
-                            whiteSpace: 'pre-wrap',
-                            wordBreak: 'break-word',
-                            overflowWrap: 'break-word',
-                            lineHeight: '1.75',
-                          }}
-                        >
-                          {linkifyText(challenge.submissionRequirements, '#2563eb')}
-                        </p>
+                        {Array.isArray(challenge.submissionRequirements) ? (
+                          // New format: array of requirement objects
+                          <div className="space-y-2">
+                            {challenge.submissionRequirements.map((req: any, idx: number) => {
+                              let icon = '•';
+                              if (req.type === 'file') icon = '📎';
+                              if (req.type === 'link') icon = '🔗';
+                              if (req.type === 'checkbox') icon = '☑️';
+                              if (req.type === 'text') icon = '✍️';
+
+                              return (
+                                <div
+                                  key={idx}
+                                  className="flex items-start gap-2 text-sm"
+                                  style={{ color: '#374151' }}
+                                >
+                                  <span className="flex-shrink-0">{icon}</span>
+                                  <span>{req.description}</span>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        ) : (
+                          // Old format: string
+                          <p
+                            className="text-sm"
+                            style={{
+                              color: '#374151',
+                              whiteSpace: 'pre-wrap',
+                              wordBreak: 'break-word',
+                              overflowWrap: 'break-word',
+                              lineHeight: '1.75',
+                            }}
+                          >
+                            {linkifyText(challenge.submissionRequirements, '#2563eb')}
+                          </p>
+                        )}
                       </div>
                     )}
 

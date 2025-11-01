@@ -27,7 +27,7 @@ interface Challenge {
   title: string;
   description: string;
   prizes?: string | any[];
-  submissionRequirements?: string;
+  submissionRequirements?: string | any[];
   evaluationCriteria?: string | any[];
   trackId?: string;
   track?: Track;
@@ -443,20 +443,71 @@ export default function PublicChallengeDetailPage() {
               >
                 📋 提交要求
               </h2>
-              <div
-                className="text-base"
-                style={{
-                  color: '#374151',
-                  whiteSpace: 'pre-wrap',
-                  wordBreak: 'break-word',
-                  overflowWrap: 'break-word',
-                  lineHeight: '1.75',
-                }}
-              >
-                {challenge.submissionRequirements
-                  ? linkifyText(challenge.submissionRequirements, '#2563eb')
-                  : '暫無提交要求'}
-              </div>
+              {challenge.submissionRequirements ? (
+                Array.isArray(challenge.submissionRequirements) ? (
+                  // New format: array of requirement objects
+                  <div className="space-y-3">
+                    {challenge.submissionRequirements.map((req: any, idx: number) => {
+                      let icon = '•';
+                      let typeLabel = '';
+                      if (req.type === 'file') {
+                        icon = '📎';
+                        typeLabel = '檔案';
+                      } else if (req.type === 'link') {
+                        icon = '🔗';
+                        typeLabel = '連結';
+                      } else if (req.type === 'checkbox') {
+                        icon = '☑️';
+                        typeLabel = '勾選確認';
+                      } else if (req.type === 'text') {
+                        icon = '✍️';
+                        typeLabel = '文字回應';
+                      }
+
+                      return (
+                        <div
+                          key={idx}
+                          className="flex items-start gap-3 p-3 rounded-lg"
+                          style={{ backgroundColor: '#f9fafb' }}
+                        >
+                          <span className="text-2xl flex-shrink-0">{icon}</span>
+                          <div className="flex-1">
+                            {typeLabel && (
+                              <div
+                                className="text-xs font-semibold mb-1"
+                                style={{ color: '#1a3a6e' }}
+                              >
+                                {typeLabel}
+                              </div>
+                            )}
+                            <p className="text-base" style={{ color: '#374151' }}>
+                              {req.description}
+                            </p>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  // Old format: string
+                  <div
+                    className="text-base"
+                    style={{
+                      color: '#374151',
+                      whiteSpace: 'pre-wrap',
+                      wordBreak: 'break-word',
+                      overflowWrap: 'break-word',
+                      lineHeight: '1.75',
+                    }}
+                  >
+                    {linkifyText(challenge.submissionRequirements, '#2563eb')}
+                  </div>
+                )
+              ) : (
+                <div className="text-base" style={{ color: '#9ca3af' }}>
+                  暫無提交要求
+                </div>
+              )}
             </div>
 
             {/* 評分標準 */}
