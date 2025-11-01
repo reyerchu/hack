@@ -157,11 +157,25 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       // Get all challenges for these tracks
       const challenges = await getChallengesForTracks(data.tracks || []);
 
-      // Enrich tracks with trackId for matching
-      const enrichedTracks = (data.tracks || []).map((t: any) => ({
-        ...t,
-        trackId: t.id, // Add trackId field that matches challenge.trackId
+      // Enrich tracks with actual trackId from database
+      const enrichedTracks = await Promise.all((data.tracks || []).map(async (t: any) => {
+        let actualTrackId = t.id;
+        
+        // Try to get the actual trackId from tracks collection
+        const trackDoc = await db.collection('tracks').doc(t.id).get();
+        if (trackDoc.exists) {
+          const trackData = trackDoc.data();
+          actualTrackId = trackData?.trackId || t.id;
+        }
+        
+        return {
+          ...t,
+          trackId: actualTrackId, // Use the actual trackId field from database
+        };
       }));
+
+      console.log(`[GetMyTeams] Enriched tracks for team ${doc.id}:`, enrichedTracks.map((t: any) => ({ id: t.id, trackId: t.trackId })));
+      console.log(`[GetMyTeams] Challenges for team ${doc.id}:`, challenges.map((c: any) => ({ id: c.id, title: c.title, trackId: c.trackId })));
 
       teams.push({
         id: doc.id,
@@ -196,10 +210,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         // Get all challenges for these tracks
         const challenges = await getChallengesForTracks(data.tracks || []);
 
-        // Enrich tracks with trackId for matching
-        const enrichedTracks = (data.tracks || []).map((t: any) => ({
-          ...t,
-          trackId: t.id, // Add trackId field that matches challenge.trackId
+        // Enrich tracks with actual trackId from database
+        const enrichedTracks = await Promise.all((data.tracks || []).map(async (t: any) => {
+          let actualTrackId = t.id;
+          
+          // Try to get the actual trackId from tracks collection
+          const trackDoc = await db.collection('tracks').doc(t.id).get();
+          if (trackDoc.exists) {
+            const trackData = trackDoc.data();
+            actualTrackId = trackData?.trackId || t.id;
+          }
+          
+          return {
+            ...t,
+            trackId: actualTrackId, // Use the actual trackId field from database
+          };
         }));
 
         teams.push({
