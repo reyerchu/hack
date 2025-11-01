@@ -49,21 +49,27 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
     }
 
     // Verify user has permission to submit for this team
-    const teamDoc = await db.collection('teams').doc(teamId).get();
+    const teamDoc = await db.collection('team-registrations').doc(teamId).get();
     if (!teamDoc.exists) {
+      console.log(`[SubmitChallenge] Team not found: ${teamId}`);
       return res.status(404).json({ error: 'Team not found' });
     }
 
     const teamData = teamDoc.data()!;
+    const normalizedEmail = userEmail?.toLowerCase();
     const userHasPermission = 
-      teamData.teamLeader?.email === userEmail ||
+      teamData.teamLeader?.email?.toLowerCase() === normalizedEmail ||
+      teamData.teamLeader?.userId === userId ||
       teamData.teamMembers?.some((member: any) => 
-        member.email === userEmail && member.hasEditRight
+        member.email?.toLowerCase() === normalizedEmail && member.hasEditRight === true
       );
 
     if (!userHasPermission) {
+      console.log(`[SubmitChallenge] User ${userId} has no permission for team ${teamId}`);
       return res.status(403).json({ error: 'No permission to submit for this team' });
     }
+
+    console.log(`[SubmitChallenge] User ${userId} submitting to team ${teamId}, challenge ${challengeId}`);
 
     // Create submission document
     const submissionData = {
