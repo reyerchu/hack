@@ -749,7 +749,7 @@ export default function SponsorDashboard() {
                             d="M12 4v16m8-8H4"
                           />
                         </svg>
-                        Add Challenge
+                        新增挑戰
                       </button>
                     )}
                   </div>
