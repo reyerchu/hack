@@ -37,6 +37,8 @@ interface SubmissionItem {
   description: string;
   value?: any;
   file?: File | null;
+  existingFileUrl?: string | null;
+  existingFileName?: string | null;
 }
 
 export default function SubmitChallengePage() {
@@ -50,6 +52,7 @@ export default function SubmitChallengePage() {
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState('');
+  const [existingSubmission, setExistingSubmission] = useState<any>(null);
 
   // Submission form state
   const [submissions, setSubmissions] = useState<SubmissionItem[]>([]);
@@ -82,14 +85,36 @@ export default function SubmitChallengePage() {
         const teamData = await teamRes.json();
         setTeam(teamData.data || teamData);
 
+        // Load existing submission if any
+        const submissionRes = await fetch(
+          `/api/team-challenge-submissions/get?teamId=${teamId}&challengeId=${challengeId}`,
+          {
+            headers: { Authorization: user.token },
+          }
+        );
+
+        let existingData: any = null;
+        if (submissionRes.ok) {
+          const submissionData = await submissionRes.json();
+          existingData = submissionData.data || submissionData;
+          setExistingSubmission(existingData);
+        }
+
         // Initialize submission form
         if (challengeInfo.submissionRequirements && Array.isArray(challengeInfo.submissionRequirements)) {
-          const initialSubmissions = challengeInfo.submissionRequirements.map((req: SubmissionRequirement) => ({
-            type: req.type,
-            description: req.description,
-            value: req.type === 'checkbox' ? false : '',
-            file: null,
-          }));
+          const initialSubmissions = challengeInfo.submissionRequirements.map((req: SubmissionRequirement, index: number) => {
+            // Try to find existing submission for this requirement
+            const existing = existingData?.submissions?.[index];
+            
+            return {
+              type: req.type,
+              description: req.description,
+              value: existing?.value || existing?.checked || (req.type === 'checkbox' ? false : ''),
+              file: null, // Can't prefill file input
+              existingFileUrl: existing?.fileUrl || null,
+              existingFileName: existing?.fileName || null,
+            };
+          });
           setSubmissions(initialSubmissions);
         }
       } catch (err: any) {
@@ -329,6 +354,33 @@ export default function SubmitChallengePage() {
             </div>
           )}
 
+          {/* Existing Submission Info */}
+          {existingSubmission && (
+            <div className="mb-6 p-4 rounded-xl" style={{ backgroundColor: '#ecfdf5', border: '1px solid #86efac' }}>
+              <div className="flex items-start gap-3">
+                <svg className="w-5 h-5 mt-0.5" style={{ color: '#10b981' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <div className="flex-1">
+                  <p className="text-sm font-medium" style={{ color: '#065f46' }}>
+                    您已提交過此挑戰
+                  </p>
+                  <p className="text-xs mt-1" style={{ color: '#6b7280' }}>
+                    提交時間：{new Date(existingSubmission.submittedAt).toLocaleString('zh-TW')}
+                  </p>
+                  {existingSubmission.submittedBy && (
+                    <p className="text-xs" style={{ color: '#6b7280' }}>
+                      提交人：{existingSubmission.submittedBy.name || existingSubmission.submittedBy.email}
+                    </p>
+                  )}
+                  <p className="text-xs mt-2" style={{ color: '#059669' }}>
+                    您可以查看、修改並重新提交以下內容
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Submission Form */}
           <form onSubmit={handleSubmit} className="space-y-6">
             {submissions.length === 0 ? (
@@ -366,6 +418,38 @@ export default function SubmitChallengePage() {
                   {/* Input Field */}
                   {item.type === 'file' && (
                     <div>
+                      {/* Show existing file if any */}
+                      {item.existingFileUrl && !item.file && (
+                        <div className="mb-3 p-3 rounded-lg" style={{ backgroundColor: '#f0f9ff', border: '1px solid #bfdbfe' }}>
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <svg className="w-4 h-4" style={{ color: '#3b82f6' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                              </svg>
+                              <div>
+                                <p className="text-sm font-medium" style={{ color: '#1e40af' }}>
+                                  已上傳：{item.existingFileName}
+                                </p>
+                                <p className="text-xs" style={{ color: '#6b7280' }}>
+                                  {existingSubmission?.submittedAt && (
+                                    <>提交時間：{new Date(existingSubmission.submittedAt).toLocaleString('zh-TW')}</>
+                                  )}
+                                </p>
+                              </div>
+                            </div>
+                            <a
+                              href={item.existingFileUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-xs px-3 py-1 rounded hover:underline"
+                              style={{ color: '#3b82f6' }}
+                            >
+                              查看文件
+                            </a>
+                          </div>
+                        </div>
+                      )}
+                      
                       <input
                         type="file"
                         onChange={(e) => handleFileChange(index, e.target.files?.[0] || null)}
@@ -378,21 +462,35 @@ export default function SubmitChallengePage() {
                       />
                       {item.file && (
                         <p className="text-xs mt-2" style={{ color: '#6b7280' }}>
-                          已選擇：{item.file.name} ({(item.file.size / 1024).toFixed(2)} KB)
+                          新選擇：{item.file.name} ({(item.file.size / 1024).toFixed(2)} KB)
+                        </p>
+                      )}
+                      {item.existingFileUrl && (
+                        <p className="text-xs mt-2" style={{ color: '#10b981' }}>
+                          ✓ 選擇新文件將替換已上傳的文件
                         </p>
                       )}
                     </div>
                   )}
 
                   {item.type === 'link' && (
-                    <input
-                      type="url"
-                      value={item.value || ''}
-                      onChange={(e) => handleValueChange(index, e.target.value)}
-                      placeholder="https://..."
-                      className="w-full px-4 py-2 rounded-lg border"
-                      style={{ borderColor: '#d1d5db' }}
-                    />
+                    <div>
+                      <input
+                        type="url"
+                        value={item.value || ''}
+                        onChange={(e) => handleValueChange(index, e.target.value)}
+                        placeholder="https://..."
+                        className="w-full px-4 py-2 rounded-lg border"
+                        style={{ borderColor: '#d1d5db' }}
+                      />
+                      {item.value && (
+                        <p className="text-xs mt-2" style={{ color: '#6b7280' }}>
+                          <a href={item.value} target="_blank" rel="noopener noreferrer" className="hover:underline" style={{ color: '#3b82f6' }}>
+                            預覽連結 →
+                          </a>
+                        </p>
+                      )}
+                    </div>
                   )}
 
                   {item.type === 'checkbox' && (
