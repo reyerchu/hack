@@ -55,6 +55,21 @@ export default function SponsorDashboard() {
   const [sponsors, setSponsors] = useState<Array<{ id: string; name: string }>>([]);
   const [loadingSponsors, setLoadingSponsors] = useState(false);
 
+  // Delete challenge modal state
+  const [showDeleteChallengeModal, setShowDeleteChallengeModal] = useState(false);
+  const [deletingChallengeId, setDeletingChallengeId] = useState<string | null>(null);
+  const [deletingChallengeTitle, setDeletingChallengeTitle] = useState('');
+  const [deletingChallengeTrackId, setDeletingChallengeTrackId] = useState<string | null>(null);
+  const [isDeletingChallenge, setIsDeletingChallenge] = useState(false);
+  const [deleteChallengeMessage, setDeleteChallengeMessage] = useState('');
+
+  // Delete track modal state
+  const [showDeleteTrackModal, setShowDeleteTrackModal] = useState(false);
+  const [deletingTrackId, setDeletingTrackId] = useState<string | null>(null);
+  const [deletingTrackName, setDeletingTrackName] = useState('');
+  const [isDeletingTrack, setIsDeletingTrack] = useState(false);
+  const [deleteTrackMessage, setDeleteTrackMessage] = useState('');
+
   // 權限檢查
   useEffect(() => {
     if (!authLoading && !isSignedIn) {
@@ -193,6 +208,117 @@ export default function SponsorDashboard() {
       setCreateMessage(`❌ ${err.message}`);
     } finally {
       setIsCreating(false);
+    }
+  };
+
+  // Handle delete challenge
+  const handleDeleteChallengeClick = (
+    challengeId: string,
+    challengeTitle: string,
+    trackId: string,
+  ) => {
+    setDeletingChallengeId(challengeId);
+    setDeletingChallengeTitle(challengeTitle);
+    setDeletingChallengeTrackId(trackId);
+    setDeleteChallengeMessage('');
+    setShowDeleteChallengeModal(true);
+  };
+
+  const handleConfirmDeleteChallenge = async () => {
+    if (!deletingChallengeId || !deletingChallengeTrackId) return;
+
+    try {
+      setIsDeletingChallenge(true);
+      setDeleteChallengeMessage('');
+
+      const currentUser = firebase.auth().currentUser;
+      if (!currentUser) {
+        setDeleteChallengeMessage('❌ 請先登入');
+        return;
+      }
+
+      const token = await currentUser.getIdToken();
+
+      const response = await fetch(
+        `/api/sponsor/tracks/${deletingChallengeTrackId}/challenge?challengeId=${deletingChallengeId}`,
+        {
+          method: 'DELETE',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setDeleteChallengeMessage('✅ 挑戰已成功刪除！');
+        setTimeout(() => {
+          setShowDeleteChallengeModal(false);
+          setDeletingChallengeId(null);
+          setDeletingChallengeTitle('');
+          setDeletingChallengeTrackId(null);
+          refetchTracks(); // Refresh tracks data
+        }, 1500);
+      } else {
+        setDeleteChallengeMessage(`❌ ${data.error || '刪除失敗'}`);
+      }
+    } catch (error: any) {
+      console.error('Failed to delete challenge:', error);
+      setDeleteChallengeMessage('❌ 刪除挑戰時發生錯誤');
+    } finally {
+      setIsDeletingChallenge(false);
+    }
+  };
+
+  // Handle delete track
+  const handleDeleteTrackClick = (trackId: string, trackName: string) => {
+    setDeletingTrackId(trackId);
+    setDeletingTrackName(trackName);
+    setDeleteTrackMessage('');
+    setShowDeleteTrackModal(true);
+  };
+
+  const handleConfirmDeleteTrack = async () => {
+    if (!deletingTrackId) return;
+
+    try {
+      setIsDeletingTrack(true);
+      setDeleteTrackMessage('');
+
+      const currentUser = firebase.auth().currentUser;
+      if (!currentUser) {
+        setDeleteTrackMessage('❌ 請先登入');
+        return;
+      }
+
+      const token = await currentUser.getIdToken();
+
+      const response = await fetch(`/api/sponsor/tracks/${deletingTrackId}/delete`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setDeleteTrackMessage('✅ 賽道已成功刪除！');
+        setTimeout(() => {
+          setShowDeleteTrackModal(false);
+          setDeletingTrackId(null);
+          setDeletingTrackName('');
+          refetchTracks(); // Refresh tracks data
+        }, 1500);
+      } else {
+        setDeleteTrackMessage(`❌ ${data.error || '刪除失敗'}`);
+      }
+    } catch (error: any) {
+      console.error('Failed to delete track:', error);
+      setDeleteTrackMessage('❌ 刪除賽道時發生錯誤');
+    } finally {
+      setIsDeletingTrack(false);
     }
   };
 
@@ -675,82 +801,119 @@ export default function SponsorDashboard() {
                       </p>
                     </div>
 
-                    {/* Add Challenge Button */}
+                    {/* Action Buttons */}
                     {track.permissions?.canEdit && (
-                      <button
-                        onClick={async () => {
-                          try {
-                            const currentUser = firebase.auth().currentUser;
-                            if (!currentUser) {
-                              alert('請先登入');
-                              return;
-                            }
-
-                            const token = await currentUser.getIdToken();
-
-                            // Create new challenge
-                            const response = await fetch(
-                              `/api/sponsor/tracks/${track.id}/challenges/create`,
-                              {
-                                method: 'POST',
-                                headers: {
-                                  'Content-Type': 'application/json',
-                                  Authorization: `Bearer ${token}`,
-                                },
-                                body: JSON.stringify({
-                                  title: '新挑戰',
-                                  description: '',
-                                  prizes: '',
-                                  submissionRequirements: '',
-                                }),
-                              },
-                            );
-
-                            const data = await response.json();
-
-                            if (response.ok) {
-                              // Navigate to challenge edit page
-                              const newChallengeId = data.challenge?.id || data.id;
-                              if (newChallengeId) {
-                                router.push(
-                                  `/sponsor/tracks/${track.id}/challenge?challengeId=${newChallengeId}`,
-                                );
+                      <div className="flex items-center gap-2 shrink-0">
+                        {/* Add Challenge Button */}
+                        <button
+                          onClick={async () => {
+                            try {
+                              const currentUser = firebase.auth().currentUser;
+                              if (!currentUser) {
+                                alert('請先登入');
+                                return;
                               }
-                            } else {
-                              alert(`❌ ${data.error || '創建失敗'}`);
+
+                              const token = await currentUser.getIdToken();
+
+                              // Create new challenge
+                              const response = await fetch(
+                                `/api/sponsor/tracks/${track.id}/challenges/create`,
+                                {
+                                  method: 'POST',
+                                  headers: {
+                                    'Content-Type': 'application/json',
+                                    Authorization: `Bearer ${token}`,
+                                  },
+                                  body: JSON.stringify({
+                                    title: '新挑戰',
+                                    description: '',
+                                    prizes: '',
+                                    submissionRequirements: '',
+                                  }),
+                                },
+                              );
+
+                              const data = await response.json();
+
+                              if (response.ok) {
+                                // Navigate to challenge edit page
+                                const newChallengeId = data.challenge?.id || data.id;
+                                if (newChallengeId) {
+                                  router.push(
+                                    `/sponsor/tracks/${track.id}/challenge?challengeId=${newChallengeId}`,
+                                  );
+                                }
+                              } else {
+                                alert(`❌ ${data.error || '創建失敗'}`);
+                              }
+                            } catch (error: any) {
+                              console.error('Failed to create challenge:', error);
+                              alert('❌ 創建挑戰時發生錯誤');
                             }
-                          } catch (error: any) {
-                            console.error('Failed to create challenge:', error);
-                            alert('❌ 創建挑戰時發生錯誤');
-                          }
-                        }}
-                        className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors shrink-0"
-                        style={{
-                          backgroundColor: '#1a3a6e',
-                          color: '#ffffff',
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.backgroundColor = '#2a4a7e';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.backgroundColor = '#1a3a6e';
-                        }}
-                      >
-                        <svg
-                          className="w-4 h-4"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
+                          }}
+                          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                          style={{
+                            backgroundColor: '#1a3a6e',
+                            color: '#ffffff',
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor = '#2a4a7e';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor = '#1a3a6e';
+                          }}
                         >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M12 4v16m8-8H4"
-                          />
-                        </svg>
-                        新增挑戰
-                      </button>
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M12 4v16m8-8H4"
+                            />
+                          </svg>
+                          新增挑戰
+                        </button>
+
+                        {/* Delete Track Button */}
+                        <button
+                          onClick={() => handleDeleteTrackClick(track.id, track.name)}
+                          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border-2 transition-colors"
+                          style={{
+                            borderColor: '#dc2626',
+                            color: '#dc2626',
+                            backgroundColor: 'white',
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor = '#dc2626';
+                            e.currentTarget.style.color = 'white';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor = 'white';
+                            e.currentTarget.style.color = '#dc2626';
+                          }}
+                        >
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                            />
+                          </svg>
+                          刪除賽道
+                        </button>
+                      </div>
                     )}
                   </div>
 
@@ -825,6 +988,35 @@ export default function SponsorDashboard() {
                                 </p>
                               )}
                             </div>
+
+                            {/* Delete Challenge Button */}
+                            {track.permissions?.canEdit && (
+                              <button
+                                onClick={() =>
+                                  handleDeleteChallengeClick(
+                                    challenge.id,
+                                    challenge.title || challenge.track,
+                                    track.id,
+                                  )
+                                }
+                                className="px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors shrink-0"
+                                style={{
+                                  borderColor: '#dc2626',
+                                  color: '#dc2626',
+                                  backgroundColor: 'white',
+                                }}
+                                onMouseEnter={(e) => {
+                                  e.currentTarget.style.backgroundColor = '#dc2626';
+                                  e.currentTarget.style.color = 'white';
+                                }}
+                                onMouseLeave={(e) => {
+                                  e.currentTarget.style.backgroundColor = 'white';
+                                  e.currentTarget.style.color = '#dc2626';
+                                }}
+                              >
+                                刪除
+                              </button>
+                            )}
                           </div>
                         ))}
                       </div>
@@ -1151,6 +1343,218 @@ export default function SponsorDashboard() {
               >
                 {isCreating ? '創建中...' : '確認創建'}
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Challenge Confirmation Modal */}
+      {showDeleteChallengeModal && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+          onClick={() => !isDeletingChallenge && setShowDeleteChallengeModal(false)}
+        >
+          <div
+            className="bg-white rounded-xl shadow-xl max-w-md w-full mx-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div
+                  className="w-12 h-12 rounded-full flex items-center justify-center shrink-0"
+                  style={{ backgroundColor: '#fee2e2' }}
+                >
+                  <svg
+                    className="w-6 h-6"
+                    style={{ color: '#dc2626' }}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                    />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-bold" style={{ color: '#1a3a6e' }}>
+                    確認刪除挑戰
+                  </h3>
+                  <p className="text-sm mt-1" style={{ color: '#6b7280' }}>
+                    此操作無法撤銷
+                  </p>
+                </div>
+              </div>
+
+              <div className="mb-6">
+                <p className="text-sm mb-2" style={{ color: '#374151' }}>
+                  您確定要刪除以下挑戰嗎？
+                </p>
+                <div
+                  className="p-3 rounded-lg"
+                  style={{ backgroundColor: '#f3f4f6', border: '1px solid #e5e7eb' }}
+                >
+                  <p className="font-medium text-sm" style={{ color: '#1a3a6e' }}>
+                    {deletingChallengeTitle}
+                  </p>
+                </div>
+                <p className="text-xs mt-3" style={{ color: '#dc2626' }}>
+                  ⚠️ 刪除後，所有與此挑戰相關的提交、評分和數據都將無法訪問。
+                </p>
+              </div>
+
+              {deleteChallengeMessage && (
+                <div
+                  className={`p-3 mb-4 rounded-lg ${
+                    deleteChallengeMessage.includes('✅')
+                      ? 'bg-green-50 border border-green-200'
+                      : 'bg-red-50 border border-red-200'
+                  }`}
+                >
+                  <p
+                    className="text-sm text-center"
+                    style={{
+                      color: deleteChallengeMessage.includes('✅') ? '#166534' : '#991b1b',
+                    }}
+                  >
+                    {deleteChallengeMessage}
+                  </p>
+                </div>
+              )}
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowDeleteChallengeModal(false)}
+                  disabled={isDeletingChallenge}
+                  className="flex-1 px-6 py-2 rounded-lg font-medium transition-colors"
+                  style={{
+                    backgroundColor: '#f3f4f6',
+                    color: '#374151',
+                  }}
+                >
+                  取消
+                </button>
+                <button
+                  onClick={handleConfirmDeleteChallenge}
+                  disabled={isDeletingChallenge}
+                  className="flex-1 px-6 py-2 rounded-lg font-medium transition-colors"
+                  style={{
+                    backgroundColor: isDeletingChallenge ? '#9ca3af' : '#dc2626',
+                    color: '#ffffff',
+                  }}
+                >
+                  {isDeletingChallenge ? '刪除中...' : '確認刪除'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Track Confirmation Modal */}
+      {showDeleteTrackModal && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+          onClick={() => !isDeletingTrack && setShowDeleteTrackModal(false)}
+        >
+          <div
+            className="bg-white rounded-xl shadow-xl max-w-md w-full mx-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div
+                  className="w-12 h-12 rounded-full flex items-center justify-center shrink-0"
+                  style={{ backgroundColor: '#fee2e2' }}
+                >
+                  <svg
+                    className="w-6 h-6"
+                    style={{ color: '#dc2626' }}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                    />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-bold" style={{ color: '#1a3a6e' }}>
+                    確認刪除賽道
+                  </h3>
+                  <p className="text-sm mt-1" style={{ color: '#6b7280' }}>
+                    此操作無法撤銷
+                  </p>
+                </div>
+              </div>
+
+              <div className="mb-6">
+                <p className="text-sm mb-2" style={{ color: '#374151' }}>
+                  您確定要刪除以下賽道嗎？
+                </p>
+                <div
+                  className="p-3 rounded-lg"
+                  style={{ backgroundColor: '#f3f4f6', border: '1px solid #e5e7eb' }}
+                >
+                  <p className="font-medium text-sm" style={{ color: '#1a3a6e' }}>
+                    {deletingTrackName}
+                  </p>
+                </div>
+                <p className="text-xs mt-3" style={{ color: '#dc2626' }}>
+                  ⚠️ 刪除後，此賽道下的所有挑戰、提交、評分和數據都將無法訪問。
+                </p>
+              </div>
+
+              {deleteTrackMessage && (
+                <div
+                  className={`p-3 mb-4 rounded-lg ${
+                    deleteTrackMessage.includes('✅')
+                      ? 'bg-green-50 border border-green-200'
+                      : 'bg-red-50 border border-red-200'
+                  }`}
+                >
+                  <p
+                    className="text-sm text-center"
+                    style={{
+                      color: deleteTrackMessage.includes('✅') ? '#166534' : '#991b1b',
+                    }}
+                  >
+                    {deleteTrackMessage}
+                  </p>
+                </div>
+              )}
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowDeleteTrackModal(false)}
+                  disabled={isDeletingTrack}
+                  className="flex-1 px-6 py-2 rounded-lg font-medium transition-colors"
+                  style={{
+                    backgroundColor: '#f3f4f6',
+                    color: '#374151',
+                  }}
+                >
+                  取消
+                </button>
+                <button
+                  onClick={handleConfirmDeleteTrack}
+                  disabled={isDeletingTrack}
+                  className="flex-1 px-6 py-2 rounded-lg font-medium transition-colors"
+                  style={{
+                    backgroundColor: isDeletingTrack ? '#9ca3af' : '#dc2626',
+                    color: '#ffffff',
+                  }}
+                >
+                  {isDeletingTrack ? '刪除中...' : '確認刪除'}
+                </button>
+              </div>
             </div>
           </div>
         </div>
