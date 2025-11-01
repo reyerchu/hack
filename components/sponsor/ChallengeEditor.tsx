@@ -63,10 +63,24 @@ export default function ChallengeEditor({
     return [];
   };
 
+  const getSubmissionRequirements = (challenge: any) => {
+    if (!challenge) return [];
+    // Check if submissionRequirements is already an array of requirement items
+    if (Array.isArray(challenge.submissionRequirements) && challenge.submissionRequirements.length > 0) {
+      const firstItem = challenge.submissionRequirements[0];
+      if (firstItem && typeof firstItem === 'object' && 'type' in firstItem) {
+        return challenge.submissionRequirements;
+      }
+    }
+    // Otherwise return empty array for new format
+    return [];
+  };
+
   const [formData, setFormData] = useState<any>({
     title: challenge?.title || '',
     description: challenge?.description || '',
     requirements: getRequirementsString(challenge),
+    submissionRequirements: getSubmissionRequirements(challenge),
     prizes: getPrizesArray(challenge),
     evaluationCriteria: challenge?.evaluationCriteria || [],
     resources: challenge?.resources || [],
@@ -75,6 +89,7 @@ export default function ChallengeEditor({
   const [newCriterion, setNewCriterion] = useState({ name: '' });
   const [newPrize, setNewPrize] = useState({ currency: 'USD', amount: '', description: '' });
   const [newResource, setNewResource] = useState({ title: '', url: '' });
+  const [newRequirement, setNewRequirement] = useState({ type: 'file', description: '' });
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -83,6 +98,7 @@ export default function ChallengeEditor({
         title: challenge.title || '',
         description: challenge.description || '',
         requirements: getRequirementsString(challenge),
+        submissionRequirements: getSubmissionRequirements(challenge),
         prizes: getPrizesArray(challenge),
         evaluationCriteria: challenge.evaluationCriteria || [],
         resources: challenge.resources || [],
@@ -165,6 +181,44 @@ export default function ChallengeEditor({
     }));
   };
 
+  const addRequirement = () => {
+    if (newRequirement.description.trim()) {
+      setFormData((prev) => ({
+        ...prev,
+        submissionRequirements: [
+          ...prev.submissionRequirements,
+          {
+            type: newRequirement.type,
+            description: newRequirement.description,
+          },
+        ],
+      }));
+      setNewRequirement({ type: 'file', description: '' });
+    }
+  };
+
+  const removeRequirement = (index: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      submissionRequirements: prev.submissionRequirements.filter((_, i) => i !== index),
+    }));
+  };
+
+  const getRequirementTypeLabel = (type: string) => {
+    switch (type) {
+      case 'file':
+        return '📎 檔案';
+      case 'link':
+        return '🔗 連結';
+      case 'checkbox':
+        return '☑️ 勾選確認';
+      case 'text':
+        return '✍️ 文字回應';
+      default:
+        return type;
+    }
+  };
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* 基本資訊 */}
@@ -202,21 +256,104 @@ export default function ChallengeEditor({
         />
       </div>
 
+      {/* 提交要求 */}
       <div>
         <label className="block text-sm font-medium mb-2" style={{ color: '#1a3a6e' }}>
           提交要求 *
         </label>
-        <textarea
-          value={formData.requirements}
-          onChange={(e) => setFormData({ ...formData, requirements: e.target.value })}
-          rows={4}
-          className="w-full px-4 py-2 rounded-lg border focus:outline-none focus:ring-2"
-          style={{
-            borderColor: '#d1d5db',
-          }}
-          placeholder="列出參賽隊伍需要提交的內容（代码、Demo、文檔等）..."
-          required
-        />
+
+        {/* 已添加的要求列表 */}
+        {formData.submissionRequirements.length > 0 && (
+          <div className="space-y-2 mb-3">
+            {formData.submissionRequirements.map((req: any, index: number) => (
+              <div
+                key={index}
+                className="flex items-start gap-3 p-3 rounded-lg"
+                style={{ backgroundColor: '#f9fafb', border: '1px solid #e5e7eb' }}
+              >
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-sm font-medium" style={{ color: '#1a3a6e' }}>
+                      {getRequirementTypeLabel(req.type)}
+                    </span>
+                  </div>
+                  <p className="text-sm" style={{ color: '#374151' }}>
+                    {req.description}
+                  </p>
+                </div>
+                {!readOnly && (
+                  <button
+                    type="button"
+                    onClick={() => removeRequirement(index)}
+                    className="text-sm px-2 py-1 rounded hover:bg-red-100 flex-shrink-0"
+                    style={{ color: '#dc2626' }}
+                  >
+                    刪除
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* 添加新要求 */}
+        {!readOnly && (
+          <div className="space-y-2">
+            <div className="flex gap-3">
+              <select
+                value={newRequirement.type}
+                onChange={(e) => setNewRequirement({ ...newRequirement, type: e.target.value })}
+                className="px-3 py-2 rounded-lg border"
+                style={{ borderColor: '#d1d5db', minWidth: '140px' }}
+              >
+                <option value="file">📎 檔案</option>
+                <option value="link">🔗 連結</option>
+                <option value="checkbox">☑️ 勾選確認</option>
+                <option value="text">✍️ 文字回應</option>
+              </select>
+              <input
+                type="text"
+                value={newRequirement.description}
+                onChange={(e) => setNewRequirement({ ...newRequirement, description: e.target.value })}
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    addRequirement();
+                  }
+                }}
+                placeholder="說明文字（例如：請上傳專案簡報檔案）"
+                className="flex-1 px-4 py-2 rounded-lg border"
+                style={{ borderColor: '#d1d5db' }}
+              />
+              <button
+                type="button"
+                onClick={addRequirement}
+                className="px-4 py-2 rounded-lg font-medium transition-colors"
+                style={{
+                  backgroundColor: '#1a3a6e',
+                  color: '#ffffff',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#2a4a7e';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = '#1a3a6e';
+                }}
+              >
+                添加
+              </button>
+            </div>
+            <p className="text-xs" style={{ color: '#6b7280' }}>
+              選擇類型後輸入說明文字，團隊將根據這些要求提交資料
+            </p>
+          </div>
+        )}
+
+        {formData.submissionRequirements.length === 0 && !readOnly && (
+          <p className="text-xs mt-2" style={{ color: '#dc2626' }}>
+            * 請至少添加一個提交要求
+          </p>
+        )}
       </div>
 
       {/* 獎金詳情 */}
