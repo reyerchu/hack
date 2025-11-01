@@ -55,7 +55,6 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
     const submissionsSnapshot = await db
       .collection('team-challenge-submissions')
       .where('challengeId', '==', challengeId)
-      .orderBy('submittedAt', 'desc')
       .get();
 
     // Convert Firestore timestamps to ISO strings
@@ -74,6 +73,13 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
         submittedAt: formatTimestamp(data.submittedAt),
         updatedAt: formatTimestamp(data.updatedAt),
       };
+    });
+
+    // Sort by submittedAt in descending order (newest first) in JavaScript
+    submissions.sort((a, b) => {
+      const dateA = new Date(a.submittedAt || 0).getTime();
+      const dateB = new Date(b.submittedAt || 0).getTime();
+      return dateB - dateA; // Descending order
     });
 
     console.log(`[SponsorSubmissions] Found ${submissions.length} submissions for challenge ${challengeId}`);
