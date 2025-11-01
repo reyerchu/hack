@@ -86,10 +86,51 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const teams: any[] = [];
     const processedTeamIds = new Set<string>();
 
+    // Helper function to get all challenges for a team's tracks
+    const getChallengesForTracks = async (trackIds: string[]) => {
+      if (!trackIds || trackIds.length === 0) return [];
+
+      const allChallenges: any[] = [];
+      
+      for (const trackId of trackIds) {
+        try {
+          // Get challenges for this track
+          const challengesSnapshot = await db
+            .collection('extended-challenges')
+            .where('trackId', '==', trackId)
+            .where('status', '==', 'published')
+            .get();
+
+          challengesSnapshot.docs.forEach((doc) => {
+            const challengeData = doc.data();
+            allChallenges.push({
+              id: doc.id,
+              title: challengeData.title || challengeData.name,
+              description: challengeData.description || '',
+              trackId: challengeData.trackId,
+              submissionRequirements: challengeData.submissionRequirements || [],
+              prizes: challengeData.prizes || [],
+              evaluationCriteria: challengeData.evaluationCriteria || [],
+            });
+          });
+        } catch (error) {
+          console.error(`[GetMyTeams] Error getting challenges for track ${trackId}:`, error);
+        }
+      }
+
+      return allChallenges;
+    };
+
     // Process leader teams
-    leaderTeamsSnapshot.docs.forEach((doc) => {
+    for (const doc of leaderTeamsSnapshot.docs) {
       const data = doc.data();
       processedTeamIds.add(doc.id);
+
+      // Get track IDs
+      const trackIds = (data.tracks || []).map((t: any) => t.id);
+      
+      // Get all challenges for these tracks
+      const challenges = await getChallengesForTracks(trackIds);
 
       teams.push({
         id: doc.id,
@@ -97,7 +138,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         teamLeader: data.teamLeader,
         teamMembers: data.teamMembers || [],
         tracks: data.tracks || [],
-        challenges: data.challenges || [],
+        challenges: challenges,
         status: data.status || 'active',
         myRole: data.teamLeader.role,
         canEdit: data.teamLeader.hasEditRight !== false,
@@ -105,12 +146,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         createdAt: data.createdAt,
         updatedAt: data.updatedAt,
       });
-    });
+    }
 
     // Process member teams
-    memberTeamsSnapshot.docs.forEach((doc) => {
+    for (const doc of memberTeamsSnapshot.docs) {
       // Skip if already processed as leader
-      if (processedTeamIds.has(doc.id)) return;
+      if (processedTeamIds.has(doc.id)) continue;
 
       const data = doc.data();
       const teamMembers = data.teamMembers || [];
@@ -121,13 +162,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       );
 
       if (memberInfo) {
+        // Get track IDs
+        const trackIds = (data.tracks || []).map((t: any) => t.id);
+        
+        // Get all challenges for these tracks
+        const challenges = await getChallengesForTracks(trackIds);
+
         teams.push({
           id: doc.id,
           teamName: data.teamName,
           teamLeader: data.teamLeader,
           teamMembers: data.teamMembers || [],
           tracks: data.tracks || [],
-          challenges: data.challenges || [],
+          challenges: challenges,
           status: data.status || 'active',
           myRole: memberInfo.role,
           canEdit: memberInfo.hasEditRight === true,
@@ -136,7 +183,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           updatedAt: data.updatedAt,
         });
       }
-    });
+    }
 
     // Sort by createdAt descending (newest first)
     teams.sort((a, b) => {
