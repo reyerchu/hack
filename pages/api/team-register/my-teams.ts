@@ -87,19 +87,47 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const processedTeamIds = new Set<string>();
 
     // Helper function to get all challenges for a team's tracks
-    const getChallengesForTracks = async (trackIds: string[]) => {
-      if (!trackIds || trackIds.length === 0) return [];
+    const getChallengesForTracks = async (tracks: any[]) => {
+      if (!tracks || tracks.length === 0) return [];
 
       const allChallenges: any[] = [];
       
-      for (const trackId of trackIds) {
+      for (const track of tracks) {
         try {
-          // Get challenges for this track
+          const trackDocId = track.id;
+          
+          // First, try to get the track document to find its trackId
+          let actualTrackId = trackDocId;
+          
+          // Try to find track by document ID
+          const trackDoc = await db.collection('tracks').doc(trackDocId).get();
+          if (trackDoc.exists) {
+            const trackData = trackDoc.data();
+            actualTrackId = trackData?.trackId || trackDocId;
+          } else {
+            // Try to find by trackId field
+            const trackSnapshot = await db
+              .collection('tracks')
+              .where('trackId', '==', trackDocId)
+              .limit(1)
+              .get();
+            
+            if (!trackSnapshot.empty) {
+              const trackData = trackSnapshot.docs[0].data();
+              actualTrackId = trackData?.trackId || trackDocId;
+            }
+          }
+          
+          console.log(`[GetMyTeams] Track ${trackDocId} -> actualTrackId: ${actualTrackId}`);
+
+          // Get challenges for this track using the actual trackId
           const challengesSnapshot = await db
             .collection('extended-challenges')
-            .where('trackId', '==', trackId)
+            .where('trackId', '==', actualTrackId)
             .where('status', '==', 'published')
             .get();
+
+          console.log(`[GetMyTeams] Found ${challengesSnapshot.size} challenges for track ${actualTrackId}`);
 
           challengesSnapshot.docs.forEach((doc) => {
             const challengeData = doc.data();
@@ -107,14 +135,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
               id: doc.id,
               title: challengeData.title || challengeData.name,
               description: challengeData.description || '',
-              trackId: challengeData.trackId,
+              trackId: actualTrackId,
               submissionRequirements: challengeData.submissionRequirements || [],
               prizes: challengeData.prizes || [],
               evaluationCriteria: challengeData.evaluationCriteria || [],
             });
           });
         } catch (error) {
-          console.error(`[GetMyTeams] Error getting challenges for track ${trackId}:`, error);
+          console.error(`[GetMyTeams] Error getting challenges for track ${track.id}:`, error);
         }
       }
 
@@ -125,12 +153,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     for (const doc of leaderTeamsSnapshot.docs) {
       const data = doc.data();
       processedTeamIds.add(doc.id);
-
-      // Get track IDs
-      const trackIds = (data.tracks || []).map((t: any) => t.id);
       
       // Get all challenges for these tracks
-      const challenges = await getChallengesForTracks(trackIds);
+      const challenges = await getChallengesForTracks(data.tracks || []);
 
       teams.push({
         id: doc.id,
@@ -162,11 +187,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       );
 
       if (memberInfo) {
-        // Get track IDs
-        const trackIds = (data.tracks || []).map((t: any) => t.id);
-        
         // Get all challenges for these tracks
-        const challenges = await getChallengesForTracks(trackIds);
+        const challenges = await getChallengesForTracks(data.tracks || []);
 
         teams.push({
           id: doc.id,
