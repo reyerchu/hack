@@ -52,15 +52,28 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
-    // Verify user has permission for this team
-    const teamDoc = await db.collection('teams').doc(teamId).get();
+    // Verify team exists (check team-registrations collection)
+    const teamDoc = await db.collection('team-registrations').doc(teamId).get();
     if (!teamDoc.exists) {
-      // Try team-registrations collection
-      const teamRegDoc = await db.collection('team-registrations').doc(teamId).get();
-      if (!teamRegDoc.exists) {
-        return res.status(404).json({ error: 'Team not found' });
-      }
+      console.log(`[UploadFile] Team not found: ${teamId}`);
+      return res.status(404).json({ error: 'Team not found' });
     }
+
+    const teamData = teamDoc.data();
+    
+    // Verify user has permission for this team
+    const userEmail = decodedToken.email?.toLowerCase();
+    const isLeader = teamData?.teamLeader?.userId === userId || teamData?.teamLeader?.email?.toLowerCase() === userEmail;
+    const isMember = teamData?.teamMembers?.some((m: any) => 
+      m.email?.toLowerCase() === userEmail && m.hasEditRight === true
+    );
+
+    if (!isLeader && !isMember) {
+      console.log(`[UploadFile] User ${userId} has no permission for team ${teamId}`);
+      return res.status(403).json({ error: 'No permission to upload for this team' });
+    }
+
+    console.log(`[UploadFile] User ${userId} has permission for team ${teamId}`);
 
     // Upload file to Firebase Storage using Admin SDK
     const bucket = admin.storage().bucket();
