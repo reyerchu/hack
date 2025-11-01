@@ -157,12 +157,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       // Get all challenges for these tracks
       const challenges = await getChallengesForTracks(data.tracks || []);
 
+      // Enrich tracks with trackId for matching
+      const enrichedTracks = (data.tracks || []).map((t: any) => ({
+        ...t,
+        trackId: t.id, // Add trackId field that matches challenge.trackId
+      }));
+
       teams.push({
         id: doc.id,
         teamName: data.teamName,
         teamLeader: data.teamLeader,
         teamMembers: data.teamMembers || [],
-        tracks: data.tracks || [],
+        tracks: enrichedTracks,
         challenges: challenges,
         status: data.status || 'active',
         myRole: data.teamLeader.role,
@@ -190,12 +196,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         // Get all challenges for these tracks
         const challenges = await getChallengesForTracks(data.tracks || []);
 
+        // Enrich tracks with trackId for matching
+        const enrichedTracks = (data.tracks || []).map((t: any) => ({
+          ...t,
+          trackId: t.id, // Add trackId field that matches challenge.trackId
+        }));
+
         teams.push({
           id: doc.id,
           teamName: data.teamName,
           teamLeader: data.teamLeader,
           teamMembers: data.teamMembers || [],
-          tracks: data.tracks || [],
+          tracks: enrichedTracks,
           challenges: challenges,
           status: data.status || 'active',
           myRole: memberInfo.role,

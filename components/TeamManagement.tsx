@@ -20,6 +20,7 @@ interface TeamMember {
 
 interface Track {
   id: string;
+  trackId?: string;
   name: string;
   description?: string;
   sponsorName?: string;
@@ -413,14 +414,14 @@ const TeamManagement: React.FC = () => {
                     </div>
 
                     {/* Track Challenges */}
-                    {team.challenges && team.challenges.filter((c: any) => c.trackId === track.id).length > 0 && (
+                    {team.challenges && team.challenges.filter((c: any) => c.trackId === track.trackId || c.trackId === track.id).length > 0 && (
                       <div className="mt-3 space-y-2">
                         <h5 className="text-xs font-semibold" style={{ color: '#1a3a6e' }}>
                           挑戰列表：
                         </h5>
                         <div className="space-y-2">
                           {team.challenges
-                            .filter((c: any) => c.trackId === track.id)
+                            .filter((c: any) => c.trackId === track.trackId || c.trackId === track.id)
                             .map((challenge: any) => (
                               <div
                                 key={challenge.id}
