@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useAuthContext } from '../lib/user/AuthContext';
 import { RequestHelper } from '../lib/request-helper';
+import { linkifyText } from '../lib/utils/linkify';
 
 /**
  * Team Management Component
@@ -355,19 +356,161 @@ const TeamManagement: React.FC = () => {
             </div>
           </div>
 
-          {/* Quick view of tracks */}
+          {/* Detailed view of tracks and challenges */}
           {team.tracks.length > 0 && (
             <div className="mt-4 pt-4 border-t" style={{ borderColor: '#e5e7eb' }}>
-              <div className="text-sm font-medium text-gray-700 mb-2">參賽賽道：</div>
-              <div className="flex flex-wrap gap-2">
+              <div className="text-sm font-semibold mb-3" style={{ color: '#1a3a6e' }}>
+                參賽賽道與挑戰：
+              </div>
+              <div className="space-y-4">
                 {team.tracks.map((track) => (
-                  <span
+                  <div
                     key={track.id}
-                    className="px-3 py-1 rounded-full text-sm"
-                    style={{ backgroundColor: '#f0f4ff', color: '#1a3a6e' }}
+                    className="rounded-lg p-4"
+                    style={{ backgroundColor: '#f9fafb', border: '1px solid #e5e7eb' }}
                   >
-                    {track.name}
-                  </span>
+                    {/* Track Header */}
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <button
+                            onClick={() => router.push(`/tracks/${track.id}`)}
+                            className="text-base font-semibold hover:underline transition-all"
+                            style={{ color: '#1a3a6e' }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.color = '#2a4a7e';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.color = '#1a3a6e';
+                            }}
+                          >
+                            {track.name}
+                          </button>
+                        </div>
+                        
+                        {/* Track Description */}
+                        {track.description && (
+                          <div
+                            className="text-xs mb-2"
+                            style={{
+                              color: '#374151',
+                              whiteSpace: 'pre-wrap',
+                              wordBreak: 'break-word',
+                              overflowWrap: 'break-word',
+                              lineHeight: '1.5',
+                            }}
+                          >
+                            {linkifyText(track.description, '#1a3a6e')}
+                          </div>
+                        )}
+                        
+                        {track.sponsorName && (
+                          <p className="text-xs" style={{ color: '#6b7280' }}>
+                            贊助商：{track.sponsorName}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Track Challenges */}
+                    {team.challenges && team.challenges.filter((c: any) => c.trackId === track.id).length > 0 && (
+                      <div className="mt-3 space-y-2">
+                        <h5 className="text-xs font-semibold" style={{ color: '#1a3a6e' }}>
+                          挑戰列表：
+                        </h5>
+                        <div className="space-y-2">
+                          {team.challenges
+                            .filter((c: any) => c.trackId === track.id)
+                            .map((challenge: any) => (
+                              <div
+                                key={challenge.id}
+                                className="rounded-lg p-3"
+                                style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb' }}
+                              >
+                                <div className="flex items-start justify-between mb-2">
+                                  <button
+                                    onClick={() => router.push(`/challenges/${challenge.id}`)}
+                                    className="text-sm font-medium hover:underline transition-all"
+                                    style={{ color: '#1a3a6e' }}
+                                    onMouseEnter={(e) => {
+                                      e.currentTarget.style.color = '#2a4a7e';
+                                    }}
+                                    onMouseLeave={(e) => {
+                                      e.currentTarget.style.color = '#1a3a6e';
+                                    }}
+                                  >
+                                    {challenge.title}
+                                  </button>
+                                </div>
+
+                                {/* Challenge Description */}
+                                {challenge.description && (
+                                  <div
+                                    className="text-xs mb-2"
+                                    style={{
+                                      color: '#374151',
+                                      whiteSpace: 'pre-wrap',
+                                      wordBreak: 'break-word',
+                                      overflowWrap: 'break-word',
+                                      lineHeight: '1.5',
+                                    }}
+                                  >
+                                    {linkifyText(challenge.description, '#1a3a6e')}
+                                  </div>
+                                )}
+
+                                {/* Submission Requirements */}
+                                {challenge.submissionRequirements && 
+                                 Array.isArray(challenge.submissionRequirements) && 
+                                 challenge.submissionRequirements.length > 0 && (
+                                  <div className="mt-2">
+                                    <div className="text-xs font-semibold mb-1" style={{ color: '#1a3a6e' }}>
+                                      提交要求：
+                                    </div>
+                                    <div className="space-y-1">
+                                      {challenge.submissionRequirements.map((req: any, idx: number) => {
+                                        let icon = '•';
+                                        if (req.type === 'file') icon = '📎';
+                                        if (req.type === 'link') icon = '🔗';
+                                        if (req.type === 'checkbox') icon = '☑️';
+                                        if (req.type === 'text') icon = '✍️';
+                                        
+                                        return (
+                                          <div
+                                            key={idx}
+                                            className="text-xs flex items-start gap-2"
+                                            style={{ color: '#6b7280' }}
+                                          >
+                                            <span>{icon}</span>
+                                            <span>{req.description}</span>
+                                          </div>
+                                        );
+                                      })}
+                                    </div>
+                                  </div>
+                                )}
+
+                                {/* Prizes */}
+                                {challenge.prizes && Array.isArray(challenge.prizes) && challenge.prizes.length > 0 && (
+                                  <div className="mt-2">
+                                    <div className="text-xs font-semibold mb-1" style={{ color: '#1a3a6e' }}>
+                                      獎金：
+                                    </div>
+                                    <div className="space-y-1">
+                                      {challenge.prizes.map((prize: any, idx: number) => (
+                                        <div key={idx} className="text-xs" style={{ color: '#059669' }}>
+                                          💰 {prize.currency} {prize.amount.toLocaleString()} - {prize.description}
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 ))}
               </div>
             </div>
