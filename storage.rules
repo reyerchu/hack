@@ -1,0 +1,43 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Allow authenticated users to read and write to their team's submission folders
+    match /team-submissions/{teamId}/{challengeId}/{fileName} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null;
+      allow delete: if request.auth != null;
+    }
+    
+    // Allow authenticated users to read and write to team PDF submissions
+    match /team-pdfs/{teamId}/{fileName} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null;
+      allow delete: if request.auth != null;
+    }
+    
+    // Allow authenticated users to upload team materials
+    match /team-materials/{teamId}/{fileName} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null;
+      allow delete: if request.auth != null;
+    }
+    
+    // Public sponsor media
+    match /sponsor-media/{fileName} {
+      allow read: if true;
+      allow write: if false;
+    }
+    
+    // Public event media
+    match /event-media/{fileName} {
+      allow read: if true;
+      allow write: if false;
+    }
+    
+    // Deny all other paths by default
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
+

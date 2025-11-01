@@ -11,7 +11,6 @@ import AppHeader from '../../../../components/AppHeader';
 import { useAuthContext } from '../../../../lib/user/AuthContext';
 import firebase from 'firebase/app';
 import 'firebase/auth';
-import 'firebase/storage';
 
 interface SubmissionRequirement {
   type: 'file' | 'link' | 'checkbox' | 'text';
@@ -155,18 +154,33 @@ export default function SubmitChallengePage() {
       const processedSubmissions = [];
       for (const sub of submissions) {
         if (sub.type === 'file' && sub.file) {
-          // Upload file to Firebase Storage
-          const storage = firebase.storage();
-          const fileRef = storage.ref(`team-submissions/${teamId}/${challengeId}/${Date.now()}_${sub.file.name}`);
-          await fileRef.put(sub.file);
-          const fileUrl = await fileRef.getDownloadURL();
+          // Upload file via backend API (uses Admin SDK to bypass storage rules)
+          const formData = new FormData();
+          formData.append('file', sub.file);
+          formData.append('teamId', teamId as string);
+          formData.append('challengeId', challengeId as string);
+
+          const uploadResponse = await fetch('/api/upload-file', {
+            method: 'POST',
+            headers: {
+              Authorization: user.token,
+            },
+            body: formData,
+          });
+
+          if (!uploadResponse.ok) {
+            const uploadError = await uploadResponse.json();
+            throw new Error(uploadError.error || '文件上傳失敗');
+          }
+
+          const uploadData = await uploadResponse.json();
           
           processedSubmissions.push({
             type: sub.type,
             description: sub.description,
-            fileUrl,
-            fileName: sub.file.name,
-            fileSize: sub.file.size,
+            fileUrl: uploadData.fileUrl,
+            fileName: uploadData.fileName,
+            fileSize: uploadData.fileSize,
           });
         } else if (sub.type === 'checkbox') {
           processedSubmissions.push({
