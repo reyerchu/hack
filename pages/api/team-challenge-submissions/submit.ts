@@ -26,6 +26,7 @@ interface SubmitRequest {
   challengeId: string;
   trackId?: string;
   submissions: SubmissionItem[];
+  extraItems?: SubmissionItem[];
 }
 
 async function handlePost(req: NextApiRequest, res: NextApiResponse) {
@@ -41,7 +42,7 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
     const userId = decodedToken.uid;
     const userEmail = decodedToken.email;
 
-    const { teamId, challengeId, trackId, submissions } = req.body as SubmitRequest;
+    const { teamId, challengeId, trackId, submissions, extraItems } = req.body as SubmitRequest;
 
     // Validate input
     if (!teamId || !challengeId || !Array.isArray(submissions)) {
@@ -78,6 +79,7 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
       challengeId,
       trackId: trackId || null,
       submissions,
+      extraItems: extraItems || [],
       submittedBy: {
         userId,
         email: userEmail,

@@ -56,6 +56,12 @@ export default function SubmitChallengePage() {
 
   // Submission form state
   const [submissions, setSubmissions] = useState<SubmissionItem[]>([]);
+  const [extraItems, setExtraItems] = useState<SubmissionItem[]>([]);
+  const [showAddExtra, setShowAddExtra] = useState(false);
+  const [newExtraItem, setNewExtraItem] = useState({
+    type: 'file' as 'file' | 'link' | 'text',
+    description: '',
+  });
 
   // Load challenge and team data
   useEffect(() => {
@@ -117,6 +123,19 @@ export default function SubmitChallengePage() {
           });
           setSubmissions(initialSubmissions);
         }
+
+        // Load extra items if any
+        if (existingData?.extraItems && Array.isArray(existingData.extraItems)) {
+          const initialExtraItems = existingData.extraItems.map((item: any) => ({
+            type: item.type,
+            description: item.description,
+            value: item.value || '',
+            file: null,
+            existingFileUrl: item.fileUrl || null,
+            existingFileName: item.fileName || null,
+          }));
+          setExtraItems(initialExtraItems);
+        }
       } catch (err: any) {
         console.error('[SubmitChallenge] Load error:', err);
         setError(err.message || '載入失敗');
@@ -147,6 +166,49 @@ export default function SubmitChallengePage() {
     const newSubmissions = [...submissions];
     newSubmissions[index].value = value;
     setSubmissions(newSubmissions);
+  };
+
+  // Extra items handlers
+  const handleExtraFileChange = (index: number, file: File | null) => {
+    const newItems = [...extraItems];
+    newItems[index].file = file;
+    setExtraItems(newItems);
+  };
+
+  const handleExtraValueChange = (index: number, value: any) => {
+    const newItems = [...extraItems];
+    newItems[index].value = value;
+    setExtraItems(newItems);
+  };
+
+  const addExtraItem = () => {
+    if (!newExtraItem.description.trim()) {
+      setMessage('❌ 請輸入項目說明');
+      return;
+    }
+
+    setExtraItems([
+      ...extraItems,
+      {
+        type: newExtraItem.type,
+        description: newExtraItem.description,
+        value: newExtraItem.type === 'text' ? '' : '',
+        file: null,
+      },
+    ]);
+
+    // Reset form
+    setNewExtraItem({
+      type: 'file',
+      description: '',
+    });
+    setShowAddExtra(false);
+    setMessage('');
+  };
+
+  const removeExtraItem = (index: number) => {
+    const newItems = extraItems.filter((_, i) => i !== index);
+    setExtraItems(newItems);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -222,6 +284,58 @@ export default function SubmitChallengePage() {
         }
       }
 
+      // Process extra items
+      const processedExtraItems = [];
+      for (const extra of extraItems) {
+        if (extra.type === 'file') {
+          // Only upload if a new file is selected
+          if (extra.file) {
+            const formData = new FormData();
+            formData.append('file', extra.file);
+            formData.append('teamId', teamId as string);
+            formData.append('challengeId', challengeId as string);
+
+            const uploadResponse = await fetch('/api/upload-file', {
+              method: 'POST',
+              headers: {
+                Authorization: user.token,
+              },
+              body: formData,
+            });
+
+            if (!uploadResponse.ok) {
+              const uploadError = await uploadResponse.json();
+              throw new Error(uploadError.error || '額外檔案上傳失敗');
+            }
+
+            const uploadData = await uploadResponse.json();
+            
+            processedExtraItems.push({
+              type: extra.type,
+              description: extra.description,
+              fileUrl: uploadData.fileUrl,
+              fileName: uploadData.fileName,
+              fileSize: uploadData.fileSize,
+            });
+          } else if (extra.existingFileUrl) {
+            // Keep existing file
+            processedExtraItems.push({
+              type: extra.type,
+              description: extra.description,
+              fileUrl: extra.existingFileUrl,
+              fileName: extra.existingFileName,
+            });
+          }
+        } else if (extra.value?.trim()) {
+          // Only include non-empty text/link items
+          processedExtraItems.push({
+            type: extra.type,
+            description: extra.description,
+            value: extra.value,
+          });
+        }
+      }
+
       // Submit to backend
       const response = await fetch(`/api/team-challenge-submissions/submit`, {
         method: 'POST',
@@ -234,6 +348,7 @@ export default function SubmitChallengePage() {
           challengeId,
           trackId: challenge?.trackId,
           submissions: processedSubmissions,
+          extraItems: processedExtraItems,
         }),
       });
 
@@ -520,6 +635,201 @@ export default function SubmitChallengePage() {
                 </div>
               ))
             )}
+
+            {/* Extra Items Section */}
+            <div className="bg-gray-50 rounded-lg p-6 border-2 border-dashed border-gray-300">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h3 className="text-lg font-semibold" style={{ color: '#1a3a6e' }}>
+                    額外項目（選填）
+                  </h3>
+                  <p className="text-xs mt-1" style={{ color: '#6b7280' }}>
+                    您可以添加額外的資料或說明
+                  </p>
+                </div>
+                {!showAddExtra && (
+                  <button
+                    type="button"
+                    onClick={() => setShowAddExtra(true)}
+                    className="flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors"
+                    style={{
+                      backgroundColor: '#1a3a6e',
+                      color: '#ffffff',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = '#2a4a7e';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = '#1a3a6e';
+                    }}
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                    新增項目
+                  </button>
+                )}
+              </div>
+
+              {/* Add Extra Item Form */}
+              {showAddExtra && (
+                <div className="bg-white rounded-lg p-4 mb-4 border" style={{ borderColor: '#d1d5db' }}>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-sm font-medium mb-2" style={{ color: '#1a3a6e' }}>
+                        類型
+                      </label>
+                      <select
+                        value={newExtraItem.type}
+                        onChange={(e) => setNewExtraItem({ ...newExtraItem, type: e.target.value as any })}
+                        className="w-full px-3 py-2 rounded-lg border"
+                        style={{ borderColor: '#d1d5db' }}
+                      >
+                        <option value="file">📎 檔案</option>
+                        <option value="link">🔗 連結</option>
+                        <option value="text">✍️ 文字說明</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-2" style={{ color: '#1a3a6e' }}>
+                        說明
+                      </label>
+                      <input
+                        type="text"
+                        value={newExtraItem.description}
+                        onChange={(e) => setNewExtraItem({ ...newExtraItem, description: e.target.value })}
+                        placeholder="例如：團隊照片、補充資料..."
+                        className="w-full px-4 py-2 rounded-lg border"
+                        style={{ borderColor: '#d1d5db' }}
+                        onKeyPress={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            addExtraItem();
+                          }
+                        }}
+                      />
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={addExtraItem}
+                        className="px-4 py-2 rounded-lg font-medium transition-colors"
+                        style={{
+                          backgroundColor: '#10b981',
+                          color: '#ffffff',
+                        }}
+                      >
+                        確認新增
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowAddExtra(false);
+                          setNewExtraItem({ type: 'file', description: '' });
+                        }}
+                        className="px-4 py-2 rounded-lg font-medium border"
+                        style={{
+                          borderColor: '#d1d5db',
+                          color: '#6b7280',
+                        }}
+                      >
+                        取消
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Extra Items List */}
+              {extraItems.length > 0 && (
+                <div className="space-y-3">
+                  {extraItems.map((extra, index) => (
+                    <div
+                      key={index}
+                      className="bg-white rounded-lg p-4 border"
+                      style={{ borderColor: '#e5e7eb' }}
+                    >
+                      <div className="flex items-start gap-3 mb-3">
+                        <span className="text-xl">
+                          {extra.type === 'file' && '📎'}
+                          {extra.type === 'link' && '🔗'}
+                          {extra.type === 'text' && '✍️'}
+                        </span>
+                        <div className="flex-1">
+                          <p className="text-sm font-medium" style={{ color: '#1a3a6e' }}>
+                            {extra.description}
+                          </p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => removeExtraItem(index)}
+                          className="text-sm px-2 py-1 rounded hover:bg-red-50"
+                          style={{ color: '#dc2626' }}
+                        >
+                          刪除
+                        </button>
+                      </div>
+
+                      {/* Extra Item Input */}
+                      {extra.type === 'file' && (
+                        <div>
+                          {extra.existingFileUrl && !extra.file && (
+                            <div className="mb-2 p-2 rounded" style={{ backgroundColor: '#f0f9ff', border: '1px solid #bfdbfe' }}>
+                              <p className="text-xs" style={{ color: '#1e40af' }}>
+                                已上傳：{extra.existingFileName}
+                              </p>
+                            </div>
+                          )}
+                          <input
+                            type="file"
+                            onChange={(e) => handleExtraFileChange(index, e.target.files?.[0] || null)}
+                            className="block w-full text-sm"
+                            style={{
+                              padding: '8px',
+                              border: '1px solid #d1d5db',
+                              borderRadius: '8px',
+                            }}
+                          />
+                          {extra.file && (
+                            <p className="text-xs mt-1" style={{ color: '#6b7280' }}>
+                              已選擇：{extra.file.name}
+                            </p>
+                          )}
+                        </div>
+                      )}
+
+                      {extra.type === 'link' && (
+                        <input
+                          type="url"
+                          value={extra.value || ''}
+                          onChange={(e) => handleExtraValueChange(index, e.target.value)}
+                          placeholder="https://..."
+                          className="w-full px-3 py-2 rounded-lg border text-sm"
+                          style={{ borderColor: '#d1d5db' }}
+                        />
+                      )}
+
+                      {extra.type === 'text' && (
+                        <textarea
+                          value={extra.value || ''}
+                          onChange={(e) => handleExtraValueChange(index, e.target.value)}
+                          rows={3}
+                          placeholder="請輸入內容..."
+                          className="w-full px-3 py-2 rounded-lg border text-sm"
+                          style={{ borderColor: '#d1d5db' }}
+                        />
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {extraItems.length === 0 && !showAddExtra && (
+                <p className="text-center text-sm" style={{ color: '#9ca3af' }}>
+                  尚未添加額外項目
+                </p>
+              )}
+            </div>
 
             {/* Message */}
             {message && (
