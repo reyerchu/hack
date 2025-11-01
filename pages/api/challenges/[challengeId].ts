@@ -63,12 +63,19 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
     }
 
     // Format response
-    // Note: Some challenges use 'requirements' field, others use 'submissionRequirements'
-    // Use submissionRequirements if non-empty, otherwise fallback to requirements
-    let submissionReqs = '';
-    if (challengeData.submissionRequirements && challengeData.submissionRequirements.trim()) {
+    // Note: submissionRequirements can be:
+    // - Array of requirement objects (new format)
+    // - String (old format)
+    // Also fallback to 'requirements' field for legacy data
+    let submissionReqs: any = [];
+    if (Array.isArray(challengeData.submissionRequirements)) {
+      // New format: array of requirement objects
+      submissionReqs = challengeData.submissionRequirements;
+    } else if (typeof challengeData.submissionRequirements === 'string' && challengeData.submissionRequirements.trim()) {
+      // Old format: string
       submissionReqs = challengeData.submissionRequirements;
     } else if (challengeData.requirements) {
+      // Legacy fallback
       submissionReqs = challengeData.requirements;
     }
 
