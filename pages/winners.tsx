@@ -108,8 +108,8 @@ export default function WinnersPage() {
 
                 {track.announced ? (
                   <div className="space-y-8">
-                    {/* Major Prizes - 3 in one line */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {/* Major Prizes - responsive layout like 佳作 */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                       {track.awards.slice(0, 3).map((award, awardIndex) => (
                         <div key={awardIndex}>
                           {/* Award Title */}
