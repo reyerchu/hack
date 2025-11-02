@@ -108,7 +108,7 @@ export default function WinnersPage() {
 
                 {track.announced ? (
                   <div className="space-y-8">
-                    {/* Major Prizes - responsive layout like 佳作 */}
+                    {/* Major Prizes - responsive layout with dark background */}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                       {track.awards.slice(0, 3).map((award, awardIndex) => (
                         <div key={awardIndex}>
@@ -119,18 +119,19 @@ export default function WinnersPage() {
                           >
                             {award.title}
                           </h3>
-                          {/* Single Winner */}
+                          {/* Single Winner - Dark background with light text */}
                           <div 
-                            className="bg-white py-4 px-5 border-l-4 rounded-lg shadow-sm" 
+                            className="py-4 px-5 rounded-lg shadow-md border-l-4" 
                             style={{ 
-                              borderLeftColor: awardIndex === 0 ? '#8B4049' : '#1a3a6e',
+                              backgroundColor: awardIndex === 0 ? '#8B4049' : '#1a3a6e',
+                              borderLeftColor: awardIndex === 0 ? '#a85a63' : '#2a5a9e',
                             }}
                           >
-                            <p className="text-[15px] md:text-[16px] font-bold mb-1.5" style={{ color: '#1a3a6e' }}>
+                            <p className="text-[15px] md:text-[16px] font-bold mb-1.5 text-white">
                               {award.winners[0].name}
                             </p>
                             {award.winners[0].project && (
-                              <p className="text-[12px] md:text-[13px] text-gray-600 leading-relaxed">
+                              <p className="text-[12px] md:text-[13px] leading-relaxed" style={{ color: 'rgba(255, 255, 255, 0.85)' }}>
                                 {award.winners[0].project}
                               </p>
                             )}
