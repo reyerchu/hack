@@ -84,35 +84,35 @@ export default function WinnersPage() {
       <section className="bg-gray-50 py-16 md:py-24" style={{ paddingTop: '80px' }}>
         <div className="max-w-[1200px] mx-auto px-8 md:px-12">
           {/* Celebration Banner */}
-          <div className="mb-12 bg-white rounded-lg shadow-md p-8 md:p-12 border-l-4" style={{ borderLeftColor: '#8B4049' }}>
-            <h1 className="text-[32px] md:text-[48px] font-bold mb-4 text-center" style={{ color: '#1a3a6e' }}>
+          <div className="mb-10 bg-white rounded-lg shadow-md p-6 md:p-8 border-l-4" style={{ borderLeftColor: '#8B4049' }}>
+            <h1 className="text-[28px] md:text-[40px] font-bold mb-3 text-center" style={{ color: '#1a3a6e' }}>
               恭喜所有獲獎團隊
             </h1>
-            <div className="w-24 h-1 mx-auto mb-6" style={{ backgroundColor: '#8B4049' }}></div>
-            <p className="text-[16px] md:text-[18px] text-gray-700 leading-relaxed text-center max-w-3xl mx-auto">
-              感謝你們用創新與熱情，為台灣首屆 RWA 黑客松寫下精彩的篇章。經過激烈的競爭與評審團的仔細評選，以下團隊脫穎而出，展現了卓越的創新能力與技術實力。
+            <div className="w-20 h-1 mx-auto mb-4" style={{ backgroundColor: '#8B4049' }}></div>
+            <p className="text-[14px] md:text-[16px] text-gray-700 leading-relaxed text-center max-w-2xl mx-auto">
+              感謝你們用創新與熱情，為台灣首屆 RWA 黑客松寫下精彩的篇章。經過激烈的競爭與評審團的仔細評選，以下團隊脫穎而出。
             </p>
           </div>
 
           {/* Tracks Awards */}
-          <div className="space-y-16">
+          <div className="space-y-12">
             {tracksAwards.map((track, trackIndex) => (
               <div key={trackIndex}>
                 {/* Track Title */}
-                <div className="mb-10">
-                  <h2 className="text-[24px] md:text-[32px] font-bold mb-3" style={{ color: '#1a3a6e' }}>
+                <div className="mb-8">
+                  <h2 className="text-[22px] md:text-[28px] font-bold mb-2" style={{ color: '#1a3a6e' }}>
                     {track.trackName}
                   </h2>
-                  <div className="w-16 h-1" style={{ backgroundColor: '#8B4049' }}></div>
+                  <div className="w-14 h-1" style={{ backgroundColor: '#8B4049' }}></div>
                 </div>
 
                 {track.announced ? (
-                  <div className="space-y-12">
+                  <div className="space-y-8">
                     {track.awards.map((award, awardIndex) => (
                       <div key={awardIndex}>
                         {/* Award Title */}
                         <h3
-                          className="text-[18px] md:text-[20px] font-semibold mb-6"
+                          className="text-[16px] md:text-[18px] font-semibold mb-4"
                           style={{ color: '#1a3a6e' }}
                         >
                           {award.title}
@@ -120,36 +120,36 @@ export default function WinnersPage() {
 
                         {/* Winners List */}
                         {award.winners.length === 1 ? (
-                          // Single winner - elegant display with project
+                          // Single winner - compact display
                           <div 
-                            className="bg-white py-8 px-8 md:px-12 border-l-4 rounded-lg shadow-sm" 
+                            className="bg-white py-5 px-6 border-l-4 rounded-lg shadow-sm max-w-2xl" 
                             style={{ 
                               borderLeftColor: awardIndex === 0 ? '#8B4049' : '#1a3a6e',
                             }}
                           >
-                            <p className="text-[24px] md:text-[32px] font-bold mb-3" style={{ color: '#1a3a6e' }}>
+                            <p className="text-[17px] md:text-[19px] font-bold mb-1.5" style={{ color: '#1a3a6e' }}>
                               {award.winners[0].name}
                             </p>
                             {award.winners[0].project && (
-                              <p className="text-[14px] md:text-[16px] text-gray-600">
+                              <p className="text-[13px] md:text-[14px] text-gray-600">
                                 {award.winners[0].project}
                               </p>
                             )}
                           </div>
                         ) : (
-                          // Multiple winners - clean list with projects
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          // Multiple winners - compact 3-column grid
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                             {award.winners.map((winner, winnerIndex) => (
                               <div
                                 key={winnerIndex}
-                                className="bg-white py-5 px-6 border-l-4 rounded-lg shadow-sm hover:shadow-md transition-shadow"
+                                className="bg-white py-3 px-4 border-l-4 rounded-lg shadow-sm hover:shadow-md transition-shadow"
                                 style={{ borderLeftColor: '#94a3b8' }}
                               >
-                                <p className="text-[15px] md:text-[17px] text-gray-900 font-semibold mb-2">
+                                <p className="text-[14px] md:text-[15px] text-gray-900 font-semibold mb-1.5">
                                   {winner.name}
                                 </p>
                                 {winner.project && (
-                                  <p className="text-[13px] md:text-[14px] text-gray-600 leading-relaxed">
+                                  <p className="text-[12px] md:text-[13px] text-gray-600 leading-relaxed">
                                     {winner.project}
                                   </p>
                                 )}
@@ -173,23 +173,20 @@ export default function WinnersPage() {
           </div>
 
           {/* Closing Message */}
-          <div className="mt-20 pt-12 border-t-2" style={{ borderColor: '#8B4049' }}>
-            <div className="bg-white rounded-lg shadow-md p-8 md:p-12 border-l-4" style={{ borderLeftColor: '#1a3a6e' }}>
-              <h3 className="text-[24px] md:text-[32px] font-bold mb-6 text-center" style={{ color: '#1a3a6e' }}>
+          <div className="mt-16 pt-10 border-t-2" style={{ borderColor: '#8B4049' }}>
+            <div className="bg-white rounded-lg shadow-md p-6 md:p-8 border-l-4" style={{ borderLeftColor: '#1a3a6e' }}>
+              <h3 className="text-[20px] md:text-[26px] font-bold mb-4 text-center" style={{ color: '#1a3a6e' }}>
                 感謝所有參賽團隊
               </h3>
-              <div className="max-w-3xl mx-auto space-y-5 text-[15px] md:text-[16px] leading-relaxed">
+              <div className="max-w-2xl mx-auto space-y-3 text-[14px] md:text-[15px] leading-relaxed">
                 <p className="text-gray-700">
-                  感謝每一位參賽者的投入與熱情，你們的創新思維與技術實力，讓台灣首屆 RWA 黑客松成為一場精彩的盛會。
+                  感謝每一位參賽者的投入與熱情，讓台灣首屆 RWA 黑客松成為一場精彩的盛會。從資產代幣化、隱私保護、碳權交易，到醫療數據、能源管理、金融創新，你們展現了 RWA 技術的無限可能。
                 </p>
                 <p className="text-gray-700">
-                  無論是否獲獎，每一個團隊都是這次活動的重要貢獻者。從真實世界資產代幣化、隱私保護、碳權交易，到醫療數據、能源管理、金融創新，你們展現了 RWA 技術的無限可能。
+                  期待未來在 RWA 領域看到更多來自你們的創新與突破。
                 </p>
-                <p className="text-gray-700">
-                  期待未來在 RWA 領域看到更多來自你們的創新與突破，讓區塊鏈技術真正落地，為社會創造實質價值。
-                </p>
-                <div className="pt-6 mt-6 border-t border-gray-200">
-                  <p className="text-center text-gray-600 italic">
+                <div className="pt-4 mt-4 border-t border-gray-200">
+                  <p className="text-center text-gray-600 text-[13px] italic">
                     其他賽道獎項將陸續公布
                   </p>
                 </div>
