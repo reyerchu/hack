@@ -108,8 +108,40 @@ export default function WinnersPage() {
 
                 {track.announced ? (
                   <div className="space-y-8">
-                    {track.awards.map((award, awardIndex) => (
-                      <div key={awardIndex}>
+                    {/* Major Prizes - 3 in one line */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      {track.awards.slice(0, 3).map((award, awardIndex) => (
+                        <div key={awardIndex}>
+                          {/* Award Title */}
+                          <h3
+                            className="text-[14px] md:text-[16px] font-semibold mb-3"
+                            style={{ color: '#1a3a6e' }}
+                          >
+                            {award.title}
+                          </h3>
+                          {/* Single Winner */}
+                          <div 
+                            className="bg-white py-4 px-5 border-l-4 rounded-lg shadow-sm" 
+                            style={{ 
+                              borderLeftColor: awardIndex === 0 ? '#8B4049' : '#1a3a6e',
+                            }}
+                          >
+                            <p className="text-[15px] md:text-[16px] font-bold mb-1.5" style={{ color: '#1a3a6e' }}>
+                              {award.winners[0].name}
+                            </p>
+                            {award.winners[0].project && (
+                              <p className="text-[12px] md:text-[13px] text-gray-600 leading-relaxed">
+                                {award.winners[0].project}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Other Awards (佳作 etc.) */}
+                    {track.awards.slice(3).map((award, awardIndex) => (
+                      <div key={awardIndex + 3}>
                         {/* Award Title */}
                         <h3
                           className="text-[16px] md:text-[18px] font-semibold mb-4"
@@ -117,46 +149,25 @@ export default function WinnersPage() {
                         >
                           {award.title}
                         </h3>
-
-                        {/* Winners List */}
-                        {award.winners.length === 1 ? (
-                          // Single winner - compact display
-                          <div 
-                            className="bg-white py-5 px-6 border-l-4 rounded-lg shadow-sm max-w-2xl" 
-                            style={{ 
-                              borderLeftColor: awardIndex === 0 ? '#8B4049' : '#1a3a6e',
-                            }}
-                          >
-                            <p className="text-[17px] md:text-[19px] font-bold mb-1.5" style={{ color: '#1a3a6e' }}>
-                              {award.winners[0].name}
-                            </p>
-                            {award.winners[0].project && (
-                              <p className="text-[13px] md:text-[14px] text-gray-600">
-                                {award.winners[0].project}
+                        {/* Multiple winners - compact 3-column grid */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                          {award.winners.map((winner, winnerIndex) => (
+                            <div
+                              key={winnerIndex}
+                              className="bg-white py-3 px-4 border-l-4 rounded-lg shadow-sm hover:shadow-md transition-shadow"
+                              style={{ borderLeftColor: '#94a3b8' }}
+                            >
+                              <p className="text-[14px] md:text-[15px] text-gray-900 font-semibold mb-1.5">
+                                {winner.name}
                               </p>
-                            )}
-                          </div>
-                        ) : (
-                          // Multiple winners - compact 3-column grid
-                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                            {award.winners.map((winner, winnerIndex) => (
-                              <div
-                                key={winnerIndex}
-                                className="bg-white py-3 px-4 border-l-4 rounded-lg shadow-sm hover:shadow-md transition-shadow"
-                                style={{ borderLeftColor: '#94a3b8' }}
-                              >
-                                <p className="text-[14px] md:text-[15px] text-gray-900 font-semibold mb-1.5">
-                                  {winner.name}
+                              {winner.project && (
+                                <p className="text-[12px] md:text-[13px] text-gray-600 leading-relaxed">
+                                  {winner.project}
                                 </p>
-                                {winner.project && (
-                                  <p className="text-[12px] md:text-[13px] text-gray-600 leading-relaxed">
-                                    {winner.project}
-                                  </p>
-                                )}
-                              </div>
-                            ))}
-                          </div>
-                        )}
+                              )}
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     ))}
                   </div>
