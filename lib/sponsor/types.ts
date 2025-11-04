@@ -520,6 +520,7 @@ export interface TrackListResponse {
     description?: string;
     sponsorId: string;
     sponsorName: string;
+    submissionDeadline?: Date | Timestamp | string;
     challenges: ExtendedChallenge[];
     stats: {
       submissionCount: number;

@@ -36,49 +36,10 @@ export default function AppHeader() {
       }
     }
 
-    //creating dynamic nav items
+    //creating dynamic nav items - removed team registration, admin, and sponsor links
+    // These are now in the profile dropdown menu
     setDynamicNavItems(() => {
       let updatedNavItems = [...navItems]; // Always start from base navItems
-
-      // Add team registration link for ALL users (signed in or not)
-      // Always go to /team-register-info, which will show appropriate button based on login status
-      if (updatedNavItems.filter(({ text }) => text === '團隊報名').length === 0) {
-        updatedNavItems = [...updatedNavItems, { text: '團隊報名', path: '/team-register-info' }];
-        console.log('[AppHeader] Added 團隊報名 link with path: /team-register-info');
-      }
-
-      if (isSignedIn && profile && profile.user) {
-        // Get user permissions
-        const permissions = profile.user.permissions || [];
-        console.log('[AppHeader] User permissions:', permissions);
-        console.log('[AppHeader] Profile structure:', profile.user);
-
-        // Check if user is admin or super_admin
-        const isAdmin =
-          permissions.includes('admin') ||
-          permissions.includes('super_admin') ||
-          permissions[0] === 'admin' ||
-          permissions[0] === 'super_admin';
-
-        // Add admin link for admin/super_admin
-        if (isAdmin && updatedNavItems.filter(({ text }) => text === '管理員').length === 0) {
-          updatedNavItems = [...updatedNavItems, { text: '管理員', path: '/admin' }];
-          console.log('[AppHeader] Added 管理員 link');
-        }
-
-        // Check if user is sponsor, admin, or super_admin
-        const isSponsor =
-          permissions.includes('sponsor') ||
-          permissions.includes('admin') ||
-          permissions.includes('super_admin');
-
-        // Add sponsor link for sponsor users
-        if (isSponsor && updatedNavItems.filter(({ text }) => text === '賛助商').length === 0) {
-          updatedNavItems = [...updatedNavItems, { text: '賛助商', path: '/sponsor/dashboard' }];
-          console.log('[AppHeader] Added 賛助商 link');
-        }
-      }
-
       return updatedNavItems;
     });
 
@@ -124,11 +85,7 @@ export default function AppHeader() {
                 .filter(({ text }) => text !== 'Home')
                 .map((item) => (
                   <Link key={item.text} href={item.path}>
-                    <a
-                      className={`px-5 py-3 hover:bg-primaryDark hover:text-white border-b border-gray-100 ${
-                        item.text === '團隊報名' ? 'text-red-800' : 'text-complementary'
-                      }`}
-                    >
+                    <a className="px-5 py-3 hover:bg-primaryDark hover:text-white border-b border-gray-100 text-complementary">
                       <p className="text-sm font-medium">{item.text}</p>
                     </a>
                   </Link>
@@ -147,13 +104,7 @@ export default function AppHeader() {
           {dynamicNavItems.map((item) => (
             <Link key={item.text} href={item.path}>
               <a>
-                <p
-                  className={`md:mx-4 text-sm font-bold ${
-                    item.text === '團隊報名' ? 'text-red-800' : ''
-                  }`}
-                >
-                  {item.text}
-                </p>
+                <p className="md:mx-4 text-sm font-bold">{item.text}</p>
               </a>
             </Link>
           ))}

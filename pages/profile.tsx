@@ -37,6 +37,8 @@ export default function ProfilePage() {
     github: '',
     linkedin: '',
     website: '',
+    evmAddress: '',
+    walletAddresses: [] as Array<{ chainName: string; address: string }>,
   });
   const [myNeeds, setMyNeeds] = useState<TeamNeed[]>([]);
   const [myApplications, setMyApplications] = useState<any[]>([]);
@@ -45,12 +47,68 @@ export default function ProfilePage() {
   const [toggleLoading, setToggleLoading] = useState<{ [key: string]: boolean }>({});
   const [stats, setStats] = useState<any>(null);
 
+  // 隱私設置狀態
+  const [privacySettings, setPrivacySettings] = useState({
+    showName: false,
+    showEmail: false,
+    showRole: false,
+    showSchool: false,
+    showGithub: false,
+    showLinkedin: false,
+    showPhone: false,
+    showWebsite: false,
+    showResume: false,
+    showEvmAddress: false,
+    showWalletAddresses: false,
+  });
+  const [isLoadingPrivacy, setIsLoadingPrivacy] = useState(false);
+  const [isSavingPrivacy, setIsSavingPrivacy] = useState(false);
+
   // 多文件履历状态
   const [resumeFiles, setResumeFiles] = useState<any[]>([]);
   const [isLoadingResumes, setIsLoadingResumes] = useState(false);
   const [uploadingFile, setUploadingFile] = useState(false);
 
-  const handleEditClick = () => {
+  // 獲取用戶隱私設置
+  const fetchPrivacySettings = useCallback(async () => {
+    if (!user?.token) {
+      console.log('[fetchPrivacySettings] No user token, skipping');
+      return;
+    }
+
+    setIsLoadingPrivacy(true);
+    try {
+      const response = await fetch('/api/user/privacy-settings', {
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.settings) {
+          setPrivacySettings(data.settings);
+          console.log('[fetchPrivacySettings] Privacy settings loaded:', data.settings);
+        } else {
+          console.log('[fetchPrivacySettings] No settings in response, using defaults');
+        }
+      } else {
+        console.warn('[fetchPrivacySettings] Response not ok:', response.status);
+      }
+    } catch (error) {
+      console.error('[fetchPrivacySettings] Error:', error);
+      // 使用默認設置
+    } finally {
+      setIsLoadingPrivacy(false);
+    }
+  }, [user?.token]);
+
+  const handleEditClick = async () => {
+    if (!profile || !profile.user) {
+      console.error('[handleEditClick] Profile not loaded');
+      return;
+    }
+
     setEditData({
       firstName: profile.user.firstName || '',
       lastName: profile.user.lastName || '',
@@ -59,7 +117,18 @@ export default function ProfilePage() {
       github: profile.github || '',
       linkedin: profile.linkedin || '',
       website: profile.website || '',
+      evmAddress: profile.evmAddress || '',
+      walletAddresses: profile.walletAddresses || [],
     });
+
+    // 加載隱私設置
+    try {
+      await fetchPrivacySettings();
+    } catch (error) {
+      console.error('[handleEditClick] Failed to load privacy settings:', error);
+      // 即使隱私設置加載失敗，也允許編輯
+    }
+
     setIsEditing(true);
   };
 
@@ -126,46 +195,69 @@ export default function ProfilePage() {
         github: editData.github,
         linkedin: editData.linkedin,
         website: editData.website,
+        evmAddress: editData.evmAddress,
+        walletAddresses: editData.walletAddresses,
         resume: resumeFileName,
       };
 
-      await RequestHelper.put<any, any>(
-        `/api/applications/${user.id}`,
-        {
+      console.log('[handleSaveEdit] Saving profile:', updatedProfile);
+
+      // 使用正確的 API
+      const response = await fetch('/api/user/profile', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${user.token}`,
+        },
+        body: JSON.stringify(updatedProfile),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('[handleSaveEdit] Save failed:', response.status, errorText);
+        throw new Error(`保存失敗 (${response.status}): ${errorText}`);
+      }
+
+      const saveResult = await response.json();
+      console.log('[handleSaveEdit] Profile save response:', saveResult);
+
+      // 更新本地 profile
+      updateProfile(updatedProfile);
+      console.log('✅ Profile updated successfully');
+
+      // 保存隱私設置
+      console.log('[handleSaveEdit] Saving privacy settings:', privacySettings);
+      try {
+        const privacyResponse = await fetch('/api/user/privacy-settings', {
+          method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
+            Authorization: `Bearer ${user.token}`,
           },
-        },
-        updatedProfile,
-      );
-
-      // 保存成功後，重新從服務器獲取最新資料
-      try {
-        const response = await fetch(`/api/applications/${user.id}`, {
-          headers: {
-            Authorization: user.token,
-          },
+          body: JSON.stringify({ settings: privacySettings }),
         });
-        if (response.ok) {
-          const latestProfile = await response.json();
-          updateProfile(latestProfile);
-          console.log('✅ Profile updated with latest data:', latestProfile);
+
+        if (privacyResponse.ok) {
+          console.log('[handleSaveEdit] ✅ Privacy settings saved successfully');
         } else {
-          // 如果獲取失敗，仍使用本地更新的資料
-          updateProfile(updatedProfile);
+          console.warn('[handleSaveEdit] Privacy settings save failed:', privacyResponse.status);
         }
-      } catch (fetchError) {
-        console.error('Failed to fetch latest profile:', fetchError);
-        // 回退到本地更新
-        updateProfile(updatedProfile);
+      } catch (privacyError) {
+        console.error('Failed to save privacy settings:', privacyError);
+        // 即使隱私設置保存失敗，也繼續
       }
 
       setIsEditing(false);
       setResumeFile(null);
       alert('個人資料更新成功！');
-    } catch (error) {
-      console.error('Error updating profile:', error);
-      alert('更新失敗，請稍後再試。');
+    } catch (error: any) {
+      console.error('[handleSaveEdit] Error updating profile:', error);
+      console.error('[handleSaveEdit] Error details:', {
+        message: error?.message,
+        stack: error?.stack,
+        response: error?.response,
+      });
+      alert('更新失敗，請稍後再試。錯誤：' + (error?.message || '未知錯誤'));
     }
   };
 
@@ -403,19 +495,24 @@ export default function ProfilePage() {
               {!isEditing ? (
                 <button
                   onClick={handleEditClick}
-                  className="border-2 px-6 py-2 text-[14px] font-medium uppercase tracking-wider transition-colors duration-300"
+                  disabled={!profile || !profile.user}
+                  className="border-2 px-6 py-2 text-[14px] font-medium uppercase tracking-wider transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                   style={{
                     borderColor: '#1a3a6e',
                     color: '#1a3a6e',
                     backgroundColor: 'transparent',
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = '#1a3a6e';
-                    e.currentTarget.style.color = 'white';
+                    if (profile && profile.user) {
+                      e.currentTarget.style.backgroundColor = '#1a3a6e';
+                      e.currentTarget.style.color = 'white';
+                    }
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = 'transparent';
-                    e.currentTarget.style.color = '#1a3a6e';
+                    if (profile && profile.user) {
+                      e.currentTarget.style.backgroundColor = 'transparent';
+                      e.currentTarget.style.color = '#1a3a6e';
+                    }
                   }}
                 >
                   編輯個人資料
@@ -573,11 +670,13 @@ export default function ProfilePage() {
                 <h1 className="font-bold text-xl text-center">黑客松台灣</h1>
                 <QRCode data={'hack:' + user.id} loading={false} width={200} height={200} />
                 <div className="text-center">
-                  <h1 className="font-bold text-xl">{`${profile.user.firstName} ${profile.user.lastName}`}</h1>
+                  <h1 className="font-bold text-xl">{`${profile.user.firstName || ''} ${
+                    profile.user.lastName || ''
+                  }`}</h1>
                   <p className="text-gray-700">
-                    {profile.user.permissions[0] === 'hacker'
+                    {profile.user.permissions?.[0] === 'hacker'
                       ? '黑客'
-                      : profile.user.permissions[0]}
+                      : profile.user.permissions?.[0] || '未設置'}
                   </p>
                 </div>
               </div>
@@ -598,24 +697,45 @@ export default function ProfilePage() {
                   <div className="profile-field">
                     <div className="font-bold text-lg mb-2">姓名</div>
                     {isEditing ? (
-                      <div className="flex gap-2">
-                        <input
-                          type="text"
-                          value={editData.firstName}
-                          onChange={(e) => handleInputChange('firstName', e.target.value)}
-                          placeholder="名字"
-                          className="border-2 border-gray-400 rounded p-2 flex-1"
-                        />
-                        <input
-                          type="text"
-                          value={editData.lastName}
-                          onChange={(e) => handleInputChange('lastName', e.target.value)}
-                          placeholder="姓氏"
-                          className="border-2 border-gray-400 rounded p-2 flex-1"
-                        />
+                      <div>
+                        <div className="flex gap-2">
+                          <input
+                            type="text"
+                            value={editData.firstName}
+                            onChange={(e) => handleInputChange('firstName', e.target.value)}
+                            placeholder="名字"
+                            className="border-2 border-gray-400 rounded p-2 flex-1"
+                          />
+                          <input
+                            type="text"
+                            value={editData.lastName}
+                            onChange={(e) => handleInputChange('lastName', e.target.value)}
+                            placeholder="姓氏"
+                            className="border-2 border-gray-400 rounded p-2 flex-1"
+                          />
+                        </div>
+                        <div className="mt-2 flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            id="showName"
+                            checked={privacySettings.showName}
+                            onChange={(e) =>
+                              setPrivacySettings({ ...privacySettings, showName: e.target.checked })
+                            }
+                            className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                          />
+                          <label
+                            htmlFor="showName"
+                            className="text-sm text-gray-600 cursor-pointer"
+                          >
+                            在個人公開頁面顯示
+                          </label>
+                        </div>
                       </div>
                     ) : (
-                      <div className="text-gray-700">{`${profile.user.firstName} ${profile.user.lastName}`}</div>
+                      <div className="text-gray-700">{`${profile.user.firstName || ''} ${
+                        profile.user.lastName || ''
+                      }`}</div>
                     )}
                   </div>
 
@@ -623,29 +743,66 @@ export default function ProfilePage() {
                   <div className="profile-field">
                     <div className="font-bold text-lg mb-2">角色</div>
                     <div className="text-gray-700">
-                      {profile.user.permissions[0] === 'hacker'
+                      {profile.user.permissions?.[0] === 'hacker'
                         ? '黑客'
-                        : profile.user.permissions[0]}
+                        : profile.user.permissions?.[0] || '未設置'}
                     </div>
+                    {isEditing && (
+                      <div className="mt-2 flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          id="showRole"
+                          checked={privacySettings.showRole}
+                          onChange={(e) =>
+                            setPrivacySettings({ ...privacySettings, showRole: e.target.checked })
+                          }
+                          className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                        />
+                        <label htmlFor="showRole" className="text-sm text-gray-600 cursor-pointer">
+                          在個人公開頁面顯示
+                        </label>
+                      </div>
+                    )}
                   </div>
 
                   {/* Email - Read Only */}
                   <div className="profile-field">
                     <div className="font-bold text-lg mb-2">電子郵件</div>
-                    <div className="text-gray-700">{profile.user.preferredEmail}</div>
+                    <div className="text-gray-700">{profile.user.preferredEmail || '未設置'}</div>
+                    {isEditing && (
+                      <div className="mt-2 flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          id="showEmail"
+                          checked={privacySettings.showEmail}
+                          onChange={(e) =>
+                            setPrivacySettings({ ...privacySettings, showEmail: e.target.checked })
+                          }
+                          className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                        />
+                        <label htmlFor="showEmail" className="text-sm text-gray-600 cursor-pointer">
+                          在個人公開頁面顯示
+                        </label>
+                      </div>
+                    )}
                   </div>
 
                   {/* Nickname - Editable */}
                   <div className="profile-field">
                     <div className="font-bold text-lg mb-2">稱呼 / 暱稱</div>
                     {isEditing ? (
-                      <input
-                        type="text"
-                        value={editData.nickname}
-                        onChange={(e) => handleInputChange('nickname', e.target.value)}
-                        placeholder="例如：小明、Alex、阿福"
-                        className="border-2 border-gray-400 rounded p-2 w-full"
-                      />
+                      <>
+                        <input
+                          type="text"
+                          value={editData.nickname}
+                          onChange={(e) => handleInputChange('nickname', e.target.value)}
+                          placeholder="例如：小明、Alex、阿福"
+                          className="border-2 border-gray-400 rounded p-2 w-full"
+                        />
+                        <div className="mt-2 text-sm text-gray-500 italic">
+                          ✓ 暱稱將始終在個人公開頁面顯示
+                        </div>
+                      </>
                     ) : (
                       <div className="text-gray-700">{profile.nickname || '未設置'}</div>
                     )}
@@ -655,16 +812,21 @@ export default function ProfilePage() {
                   <div className="profile-field">
                     <div className="font-bold text-lg mb-2">組隊狀態</div>
                     {isEditing ? (
-                      <select
-                        value={editData.teamStatus}
-                        onChange={(e) => handleInputChange('teamStatus', e.target.value)}
-                        className="border-2 border-gray-400 rounded p-2 w-full"
-                      >
-                        <option value="">請選擇</option>
-                        <option value="individual">個人</option>
-                        <option value="needTeammates">有隊伍但缺隊友</option>
-                        <option value="fullTeam">有完整隊伍</option>
-                      </select>
+                      <>
+                        <select
+                          value={editData.teamStatus}
+                          onChange={(e) => handleInputChange('teamStatus', e.target.value)}
+                          className="border-2 border-gray-400 rounded p-2 w-full"
+                        >
+                          <option value="">請選擇</option>
+                          <option value="individual">個人</option>
+                          <option value="needTeammates">有隊伍但缺隊友</option>
+                          <option value="fullTeam">有完整隊伍</option>
+                        </select>
+                        <div className="mt-2 text-sm text-gray-500 italic">
+                          ✓ 組隊狀態將始終在個人公開頁面顯示
+                        </div>
+                      </>
                     ) : (
                       <div className="text-gray-700">
                         {profile.teamStatus === 'individual' && '個人'}
@@ -680,13 +842,35 @@ export default function ProfilePage() {
                     <div className="profile-field">
                       <div className="font-bold text-lg mb-2">Github</div>
                       {isEditing ? (
-                        <input
-                          type="text"
-                          value={editData.github}
-                          onChange={(e) => handleInputChange('github', e.target.value)}
-                          placeholder="GitHub 使用者名稱或網址"
-                          className="border-2 border-gray-400 rounded p-2 w-full"
-                        />
+                        <>
+                          <input
+                            type="text"
+                            value={editData.github}
+                            onChange={(e) => handleInputChange('github', e.target.value)}
+                            placeholder="GitHub 使用者名稱或網址"
+                            className="border-2 border-gray-400 rounded p-2 w-full"
+                          />
+                          <div className="mt-2 flex items-center gap-2">
+                            <input
+                              type="checkbox"
+                              id="showGithub"
+                              checked={privacySettings.showGithub}
+                              onChange={(e) =>
+                                setPrivacySettings({
+                                  ...privacySettings,
+                                  showGithub: e.target.checked,
+                                })
+                              }
+                              className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                            />
+                            <label
+                              htmlFor="showGithub"
+                              className="text-sm text-gray-600 cursor-pointer"
+                            >
+                              在個人公開頁面顯示
+                            </label>
+                          </div>
+                        </>
                       ) : (
                         <a
                           href={
@@ -710,13 +894,35 @@ export default function ProfilePage() {
                     <div className="profile-field">
                       <div className="font-bold text-lg mb-2">LinkedIn</div>
                       {isEditing ? (
-                        <input
-                          type="text"
-                          value={editData.linkedin}
-                          onChange={(e) => handleInputChange('linkedin', e.target.value)}
-                          placeholder="LinkedIn 使用者名稱或網址"
-                          className="border-2 border-gray-400 rounded p-2 w-full"
-                        />
+                        <>
+                          <input
+                            type="text"
+                            value={editData.linkedin}
+                            onChange={(e) => handleInputChange('linkedin', e.target.value)}
+                            placeholder="LinkedIn 使用者名稱或網址"
+                            className="border-2 border-gray-400 rounded p-2 w-full"
+                          />
+                          <div className="mt-2 flex items-center gap-2">
+                            <input
+                              type="checkbox"
+                              id="showLinkedin"
+                              checked={privacySettings.showLinkedin}
+                              onChange={(e) =>
+                                setPrivacySettings({
+                                  ...privacySettings,
+                                  showLinkedin: e.target.checked,
+                                })
+                              }
+                              className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                            />
+                            <label
+                              htmlFor="showLinkedin"
+                              className="text-sm text-gray-600 cursor-pointer"
+                            >
+                              在個人公開頁面顯示
+                            </label>
+                          </div>
+                        </>
                       ) : (
                         <a
                           href={
@@ -740,13 +946,35 @@ export default function ProfilePage() {
                     <div className="profile-field">
                       <div className="font-bold text-lg mb-2">個人網站</div>
                       {isEditing ? (
-                        <input
-                          type="text"
-                          value={editData.website}
-                          onChange={(e) => handleInputChange('website', e.target.value)}
-                          placeholder="個人網站網址"
-                          className="border-2 border-gray-400 rounded p-2 w-full"
-                        />
+                        <>
+                          <input
+                            type="text"
+                            value={editData.website}
+                            onChange={(e) => handleInputChange('website', e.target.value)}
+                            placeholder="個人網站網址"
+                            className="border-2 border-gray-400 rounded p-2 w-full"
+                          />
+                          <div className="mt-2 flex items-center gap-2">
+                            <input
+                              type="checkbox"
+                              id="showWebsite"
+                              checked={privacySettings.showWebsite}
+                              onChange={(e) =>
+                                setPrivacySettings({
+                                  ...privacySettings,
+                                  showWebsite: e.target.checked,
+                                })
+                              }
+                              className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                            />
+                            <label
+                              htmlFor="showWebsite"
+                              className="text-sm text-gray-600 cursor-pointer"
+                            >
+                              在個人公開頁面顯示
+                            </label>
+                          </div>
+                        </>
                       ) : (
                         <a
                           href={
@@ -761,6 +989,152 @@ export default function ProfilePage() {
                         >
                           {profile.website}
                         </a>
+                      )}
+                    </div>
+                  )}
+
+                  {/* EVM Wallet Address - Editable */}
+                  {(isEditing || profile.evmAddress) && (
+                    <div className="profile-field">
+                      <div className="font-bold text-lg mb-2">EVM 錢包地址</div>
+                      {isEditing ? (
+                        <>
+                          <input
+                            type="text"
+                            value={editData.evmAddress}
+                            onChange={(e) => handleInputChange('evmAddress', e.target.value)}
+                            placeholder="0x..."
+                            className="border-2 border-gray-400 rounded p-2 w-full font-mono text-sm"
+                          />
+                          <p className="text-xs text-gray-500 mt-1">
+                            支援 Ethereum、Arbitrum 等 EVM 兼容鏈
+                          </p>
+                          <div className="mt-2 flex items-center gap-2">
+                            <input
+                              type="checkbox"
+                              id="showEvmAddress"
+                              checked={privacySettings.showEvmAddress}
+                              onChange={(e) =>
+                                setPrivacySettings({
+                                  ...privacySettings,
+                                  showEvmAddress: e.target.checked,
+                                })
+                              }
+                              className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                            />
+                            <label
+                              htmlFor="showEvmAddress"
+                              className="text-sm text-gray-600 cursor-pointer"
+                            >
+                              在個人公開頁面顯示
+                            </label>
+                          </div>
+                        </>
+                      ) : (
+                        <div className="text-gray-700 font-mono text-sm break-all">
+                          {profile.evmAddress}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Other Wallet Addresses - Multiple Chains */}
+                  {(isEditing ||
+                    (profile.walletAddresses && profile.walletAddresses.length > 0)) && (
+                    <div className="profile-field">
+                      <div className="font-bold text-lg mb-2">其他錢包地址</div>
+                      {isEditing ? (
+                        <>
+                          <div className="space-y-3">
+                            {editData.walletAddresses.map((wallet, index) => (
+                              <div key={index} className="flex gap-2 items-start">
+                                <input
+                                  type="text"
+                                  value={wallet.chainName}
+                                  onChange={(e) => {
+                                    const newWallets = [...editData.walletAddresses];
+                                    newWallets[index].chainName = e.target.value;
+                                    setEditData({ ...editData, walletAddresses: newWallets });
+                                  }}
+                                  placeholder="鏈名（例如：BTC、Solana、Sui...）"
+                                  className="border-2 border-gray-400 rounded p-2 w-1/3"
+                                />
+                                <input
+                                  type="text"
+                                  value={wallet.address}
+                                  onChange={(e) => {
+                                    const newWallets = [...editData.walletAddresses];
+                                    newWallets[index].address = e.target.value;
+                                    setEditData({ ...editData, walletAddresses: newWallets });
+                                  }}
+                                  placeholder="錢包地址"
+                                  className="border-2 border-gray-400 rounded p-2 flex-1 font-mono text-sm"
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const newWallets = editData.walletAddresses.filter(
+                                      (_, i) => i !== index,
+                                    );
+                                    setEditData({ ...editData, walletAddresses: newWallets });
+                                  }}
+                                  className="px-3 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+                                >
+                                  刪除
+                                </button>
+                              </div>
+                            ))}
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setEditData({
+                                  ...editData,
+                                  walletAddresses: [
+                                    ...editData.walletAddresses,
+                                    { chainName: '', address: '' },
+                                  ],
+                                });
+                              }}
+                              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                            >
+                              + 新增錢包地址
+                            </button>
+                          </div>
+                          <div className="mt-2 flex items-center gap-2">
+                            <input
+                              type="checkbox"
+                              id="showWalletAddresses"
+                              checked={privacySettings.showWalletAddresses}
+                              onChange={(e) =>
+                                setPrivacySettings({
+                                  ...privacySettings,
+                                  showWalletAddresses: e.target.checked,
+                                })
+                              }
+                              className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                            />
+                            <label
+                              htmlFor="showWalletAddresses"
+                              className="text-sm text-gray-600 cursor-pointer"
+                            >
+                              在個人公開頁面顯示
+                            </label>
+                          </div>
+                        </>
+                      ) : (
+                        <div className="space-y-2">
+                          {profile.walletAddresses &&
+                            profile.walletAddresses.map((wallet, index) => (
+                              <div key={index} className="flex gap-2">
+                                <span className="text-gray-700 font-semibold min-w-[100px]">
+                                  {wallet.chainName}:
+                                </span>
+                                <span className="text-gray-700 font-mono text-sm break-all">
+                                  {wallet.address}
+                                </span>
+                              </div>
+                            ))}
+                        </div>
                       )}
                     </div>
                   )}
@@ -873,6 +1247,27 @@ export default function ProfilePage() {
                             接受 PDF、DOC、DOCX 格式，檔案大小限制 5MB
                           </p>
                         </div>
+                      </div>
+                    )}
+
+                    {/* Privacy Setting for Resume */}
+                    {isEditing && (
+                      <div className="mt-3 flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          id="showResume"
+                          checked={privacySettings.showResume}
+                          onChange={(e) =>
+                            setPrivacySettings({ ...privacySettings, showResume: e.target.checked })
+                          }
+                          className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                        />
+                        <label
+                          htmlFor="showResume"
+                          className="text-sm text-gray-600 cursor-pointer"
+                        >
+                          在個人公開頁面顯示
+                        </label>
                       </div>
                     )}
                   </div>

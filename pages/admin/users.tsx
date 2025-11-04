@@ -33,7 +33,7 @@ export default function UserPage() {
   let timer: NodeJS.Timeout;
 
   const [filter, setFilter] = useState({
-    hacker: true,
+    hacker: false,
     judge: false,
     sponsor: false,
     organizer: false,
@@ -51,16 +51,15 @@ export default function UserPage() {
       },
     });
 
-    // Apply default filter (hackers only) and sort by registration date (descending)
-    const hackersOnly = data.filter(({ user }) => user.permissions.includes('hacker'));
-    const sortedByDate = hackersOnly.sort((a, b) => {
+    // Sort all users by registration date (descending - newest first)
+    const sortedByDate = data.sort((a, b) => {
       const timeA = a.timestamp || 0;
       const timeB = b.timestamp || 0;
       return timeB - timeA; // Descending order (newest first)
     });
 
     setUsers(data);
-    setFilteredUsers(sortedByDate);
+    setFilteredUsers(sortedByDate); // Show all users initially
     setLoading(false);
   }
 
@@ -128,18 +127,26 @@ export default function UserPage() {
   }, [searchQuery, searchField, loading, users]);
 
   const updateFilter = (name: string) => {
+    // Toggle the clicked filter (multi-select mode with OR logic)
     const filterCriteria = {
       ...filter,
       [name]: !filter[name],
     };
-    const newFilteredUser = users.filter(({ user }) => {
-      for (let category of Object.keys(filterCriteria)) {
-        if (filterCriteria[category] && user.permissions.includes(category)) {
-          return true;
-        }
-      }
-      return false;
-    });
+
+    // If all filters are false, show all users
+    const allFalse = !Object.values(filterCriteria).some((v) => v);
+
+    const newFilteredUser = allFalse
+      ? users // Show all users if no filter is selected
+      : users.filter(({ user }) => {
+          // OR logic: user has ANY of the selected permissions
+          for (let category of Object.keys(filterCriteria)) {
+            if (filterCriteria[category] && user.permissions.includes(category)) {
+              return true;
+            }
+          }
+          return false;
+        });
 
     // Sort by registration date (descending - newest first)
     const sortedUsers = newFilteredUser.sort((a, b) => {

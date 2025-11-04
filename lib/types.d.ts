@@ -106,6 +106,8 @@ type Registration = {
   github?: string;
   linkedin?: string;
   website?: string;
+  evmAddress?: string;
+  walletAddresses?: Array<{ chainName: string; address: string }>;
   resume?: string;
   companies: Companies[];
   nickname?: string;

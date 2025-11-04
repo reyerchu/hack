@@ -3,6 +3,10 @@ import Image from 'next/image';
 import React from 'react';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import NotesIcon from '@material-ui/icons/Notes';
+import GroupIcon from '@material-ui/icons/Group';
+import SupervisorAccountIcon from '@material-ui/icons/SupervisorAccount';
+import BusinessIcon from '@material-ui/icons/Business';
+import PeopleIcon from '@material-ui/icons/People';
 import { useAuthContext } from '../lib/user/AuthContext';
 
 /**
@@ -35,12 +39,25 @@ export default function ProfileDialog({ onDismiss }: ProfileDialogProps) {
   const { user, isSignedIn, hasProfile } = useAuthContext();
   let name: string;
   let role: string;
+  let isAdmin = false;
+  let isSponsor = false;
+
   if (user != null) {
     const { firstName, lastName, permissions } = user;
 
     name = firstName !== null ? `${firstName} ${lastName}` : '';
     // TODO: Come up with more robust way of implementing this
     role = permissions && permissions.length > 0 ? ROLE_MAPPINGS[permissions[0]] : '黑客';
+
+    // Check if user is admin or super_admin
+    isAdmin = permissions && (permissions.includes('admin') || permissions.includes('super_admin'));
+
+    // Check if user is sponsor, admin, or super_admin
+    isSponsor =
+      permissions &&
+      (permissions.includes('sponsor') ||
+        permissions.includes('admin') ||
+        permissions.includes('super_admin'));
   } else {
     name = '訪客';
     role = '使用者';
@@ -81,6 +98,42 @@ export default function ProfileDialog({ onDismiss }: ProfileDialogProps) {
               </a>
             </Link>
           </div>
+          <div onClick={onDismiss}>
+            <Link href="/team-up">
+              <a className="block p-4 hover:bg-gray-700 text-white">
+                <PeopleIcon />
+                <span className="ml-4">找隊友</span>
+              </a>
+            </Link>
+          </div>
+          <div onClick={onDismiss}>
+            <Link href="/team-register-info">
+              <a className="block p-4 hover:bg-gray-700 text-white">
+                <GroupIcon />
+                <span className="ml-4">團隊報名</span>
+              </a>
+            </Link>
+          </div>
+          {isAdmin && (
+            <div onClick={onDismiss}>
+              <Link href="/admin">
+                <a className="block p-4 hover:bg-gray-700 text-white">
+                  <SupervisorAccountIcon />
+                  <span className="ml-4">管理員</span>
+                </a>
+              </Link>
+            </div>
+          )}
+          {isSponsor && (
+            <div onClick={onDismiss}>
+              <Link href="/sponsor/dashboard">
+                <a className="block p-4 hover:bg-gray-700 text-white">
+                  <BusinessIcon />
+                  <span className="ml-4">賛助商</span>
+                </a>
+              </Link>
+            </div>
+          )}
           <div className="rounded-b-md" onClick={onDismiss}>
             <Link href="/auth/signOut">
               <a className="block p-4 hover:bg-gray-700 rounded-b-md text-white">

@@ -158,6 +158,9 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
         description: trackData.description || '',
         sponsorId: trackData.sponsorId,
         sponsorName: trackData.sponsorName,
+        submissionDeadline: trackData.submissionDeadline
+          ? trackData.submissionDeadline.toDate().toISOString()
+          : null,
         challenges: challengesByTrack.get(trackId) || [],
         stats: stats,
         permissions: permissions,
@@ -273,27 +276,86 @@ async function getTrackStats(
   averageScore?: number;
 }> {
   try {
-    // 查詢該賽道的所有提交（用於統計提交數量和平均分）
-    const submissionsSnapshot = await db
-      .collection(SPONSOR_COLLECTIONS.TEAM_SUBMISSIONS)
-      .where('projectTrack', '==', trackId)
+    // 1. 獲取該賽道下的所有挑戰
+    // 嘗試用 trackDocId（document ID）查詢
+    let challengesSnapshot = await db
+      .collection(SPONSOR_COLLECTIONS.EXTENDED_CHALLENGES)
+      .where('trackId', '==', trackDocId)
       .get();
 
-    const submissionCount = submissionsSnapshot.size;
+    // 如果用 document ID 找不到，嘗試用 trackId 字段查詢
+    if (challengesSnapshot.empty && trackId !== trackDocId) {
+      console.log(
+        `[getTrackStats] No challenges found with trackDocId ${trackDocId}, trying trackId ${trackId}`,
+      );
+      challengesSnapshot = await db
+        .collection(SPONSOR_COLLECTIONS.EXTENDED_CHALLENGES)
+        .where('trackId', '==', trackId)
+        .get();
+    }
 
-    // 計算平均分
+    const challengeIds = challengesSnapshot.docs.map((doc) => doc.id);
+    console.log(
+      `[getTrackStats] Track ${trackDocId} (trackId: ${trackId}) has ${challengeIds.length} challenges:`,
+      challengeIds,
+    );
+
+    // 2. 查詢該賽道所有挑戰的提交，並計算平均分
+    // 使用 Set 來避免重複計算（同一個團隊可能有多次提交）
+    const uniqueSubmissions = new Set<string>();
     let totalScore = 0;
     let scoredSubmissions = 0;
 
-    submissionsSnapshot.docs.forEach((doc) => {
-      const submission = doc.data();
-      if (submission.averageScore !== undefined && submission.averageScore !== null) {
-        totalScore += submission.averageScore;
-        scoredSubmissions++;
-      }
-    });
+    if (challengeIds.length > 0) {
+      // Firestore 'in' 查詢最多支持 10 個值，所以需要分批查詢
+      const batchSize = 10;
+      for (let i = 0; i < challengeIds.length; i += batchSize) {
+        const batch = challengeIds.slice(i, i + batchSize);
+        console.log(`[getTrackStats] Querying submissions for challengeIds:`, batch);
 
+        const submissionsSnapshot = await db
+          .collection('team-challenge-submissions')
+          .where('challengeId', 'in', batch)
+          .get();
+
+        console.log(
+          `[getTrackStats] Batch ${i / batchSize + 1}: Found ${
+            submissionsSnapshot.size
+          } submissions`,
+        );
+
+        // 打印前几个提交的 challengeId 以便诊断
+        if (submissionsSnapshot.size > 0 && i === 0) {
+          const sampleSubmission = submissionsSnapshot.docs[0].data();
+          console.log(
+            `[getTrackStats] Sample submission challengeId:`,
+            sampleSubmission.challengeId,
+          );
+        }
+
+        submissionsSnapshot.docs.forEach((doc) => {
+          const submission = doc.data();
+          // 使用 teamId + challengeId 作為唯一標識
+          const key = `${submission.teamId}_${submission.challengeId}`;
+          uniqueSubmissions.add(key);
+
+          // 計算平均分
+          if (submission.averageScore !== undefined && submission.averageScore !== null) {
+            totalScore += submission.averageScore;
+            scoredSubmissions++;
+          }
+        });
+      }
+    } else {
+      console.log(
+        `[getTrackStats] Track ${trackDocId} has NO challenges, skipping submission query`,
+      );
+    }
+
+    const submissionCount = uniqueSubmissions.size;
     const averageScore = scoredSubmissions > 0 ? totalScore / scoredSubmissions : undefined;
+
+    console.log(`[getTrackStats] Track ${trackDocId}: ${submissionCount} unique submissions`);
 
     // 查詢參賽隊伍數量（從 team-registrations 集合）
     // 需要查詢 tracks 數組中包含此 trackDocId（Document ID）的團隊

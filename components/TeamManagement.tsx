@@ -288,7 +288,7 @@ const TeamManagement: React.FC = () => {
                     className="ml-2 text-sm font-normal px-2 py-1 rounded"
                     style={{ backgroundColor: '#dbeafe', color: '#1a3a6e' }}
                   >
-                    領導者
+                    隊長
                   </span>
                 )}
               </h3>
@@ -303,7 +303,7 @@ const TeamManagement: React.FC = () => {
 
             <div className="flex gap-2">
               <button
-                onClick={() => handleViewTeam(team)}
+                onClick={() => router.push(`/teams/${team.id}/public`)}
                 className="px-4 py-2 rounded-lg border-2 font-medium transition-colors"
                 style={{ borderColor: '#1a3a6e', color: '#1a3a6e' }}
                 onMouseEnter={(e) => {
@@ -388,7 +388,7 @@ const TeamManagement: React.FC = () => {
                             {track.name}
                           </button>
                         </div>
-                        
+
                         {/* Track Description */}
                         {track.description && (
                           <div
@@ -404,7 +404,7 @@ const TeamManagement: React.FC = () => {
                             {linkifyText(track.description, '#1a3a6e')}
                           </div>
                         )}
-                        
+
                         {track.sponsorName && (
                           <p className="text-xs" style={{ color: '#6b7280' }}>
                             贊助商：{track.sponsorName}
@@ -414,124 +414,182 @@ const TeamManagement: React.FC = () => {
                     </div>
 
                     {/* Track Challenges */}
-                    {team.challenges && team.challenges.filter((c: any) => c.trackId === track.trackId || c.trackId === track.id).length > 0 && (
-                      <div className="mt-3 space-y-2">
-                        <h5 className="text-xs font-semibold" style={{ color: '#1a3a6e' }}>
-                          挑戰列表：
-                        </h5>
-                        <div className="space-y-2">
-                          {team.challenges
-                            .filter((c: any) => c.trackId === track.trackId || c.trackId === track.id)
-                            .map((challenge: any) => (
-                              <div
-                                key={challenge.id}
-                                className="rounded-lg p-3"
-                                style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb' }}
-                              >
-                                <div className="flex items-start justify-between mb-2">
-                                  <button
-                                    onClick={() => router.push(`/challenges/${challenge.id}`)}
-                                    className="text-sm font-medium hover:underline transition-all"
-                                    style={{ color: '#1a3a6e' }}
-                                    onMouseEnter={(e) => {
-                                      e.currentTarget.style.color = '#2a4a7e';
-                                    }}
-                                    onMouseLeave={(e) => {
-                                      e.currentTarget.style.color = '#1a3a6e';
-                                    }}
-                                  >
-                                    {challenge.title}
-                                  </button>
-                                  
-                                  {/* Submit button for challenge */}
-                                  <button
-                                    onClick={() => router.push(`/team/${team.id}/submit-challenge/${challenge.id}`)}
-                                    className="flex items-center gap-1 px-3 py-1 rounded-lg text-xs font-medium transition-colors"
-                                    style={{
-                                      backgroundColor: '#1a3a6e',
-                                      color: '#ffffff',
-                                    }}
-                                    onMouseEnter={(e) => {
-                                      e.currentTarget.style.backgroundColor = '#2a4a7e';
-                                    }}
-                                    onMouseLeave={(e) => {
-                                      e.currentTarget.style.backgroundColor = '#1a3a6e';
-                                    }}
-                                  >
-                                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                                    </svg>
-                                    提交
-                                  </button>
-                                </div>
+                    {team.challenges &&
+                      team.challenges.filter(
+                        (c: any) => c.trackId === track.trackId || c.trackId === track.id,
+                      ).length > 0 && (
+                        <div className="mt-3 space-y-2">
+                          <h5 className="text-xs font-semibold" style={{ color: '#1a3a6e' }}>
+                            挑戰列表：
+                          </h5>
+                          <div className="space-y-2">
+                            {team.challenges
+                              .filter(
+                                (c: any) => c.trackId === track.trackId || c.trackId === track.id,
+                              )
+                              .map((challenge: any) => (
+                                <div
+                                  key={challenge.id}
+                                  className="rounded-lg p-3"
+                                  style={{
+                                    backgroundColor: '#ffffff',
+                                    border: '1px solid #e5e7eb',
+                                  }}
+                                >
+                                  <div className="flex items-start justify-between mb-2">
+                                    <div className="flex-1">
+                                      <button
+                                        onClick={() => router.push(`/challenges/${challenge.id}`)}
+                                        className="text-sm font-medium hover:underline transition-all"
+                                        style={{ color: '#1a3a6e' }}
+                                        onMouseEnter={(e) => {
+                                          e.currentTarget.style.color = '#2a4a7e';
+                                        }}
+                                        onMouseLeave={(e) => {
+                                          e.currentTarget.style.color = '#1a3a6e';
+                                        }}
+                                      >
+                                        {challenge.title}
+                                      </button>
 
-                                {/* Challenge Description */}
-                                {challenge.description && (
-                                  <div
-                                    className="text-xs mb-2"
-                                    style={{
-                                      color: '#374151',
-                                      whiteSpace: 'pre-wrap',
-                                      wordBreak: 'break-word',
-                                      overflowWrap: 'break-word',
-                                      lineHeight: '1.5',
-                                    }}
-                                  >
-                                    {linkifyText(challenge.description, '#1a3a6e')}
+                                      {/* Submission Status */}
+                                      {challenge.submissionStatus && (
+                                        <span
+                                          className="ml-2 text-xs px-2 py-0.5 rounded-full font-medium"
+                                          style={{
+                                            backgroundColor:
+                                              challenge.submissionStatus === '提交完成'
+                                                ? '#dcfce7'
+                                                : '#fee2e2',
+                                            color:
+                                              challenge.submissionStatus === '提交完成'
+                                                ? '#166534'
+                                                : '#991b1b',
+                                          }}
+                                        >
+                                          {challenge.submissionStatus}
+                                        </span>
+                                      )}
+                                    </div>
+
+                                    {/* Submit button for challenge */}
+                                    <button
+                                      onClick={() =>
+                                        router.push(
+                                          `/team/${team.id}/submit-challenge/${challenge.id}`,
+                                        )
+                                      }
+                                      className="flex items-center gap-1 px-3 py-1 rounded-lg text-xs font-medium transition-colors flex-shrink-0"
+                                      style={{
+                                        backgroundColor: '#1a3a6e',
+                                        color: '#ffffff',
+                                      }}
+                                      onMouseEnter={(e) => {
+                                        e.currentTarget.style.backgroundColor = '#2a4a7e';
+                                      }}
+                                      onMouseLeave={(e) => {
+                                        e.currentTarget.style.backgroundColor = '#1a3a6e';
+                                      }}
+                                    >
+                                      <svg
+                                        className="w-3 h-3"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                      >
+                                        <path
+                                          strokeLinecap="round"
+                                          strokeLinejoin="round"
+                                          strokeWidth={2}
+                                          d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                                        />
+                                      </svg>
+                                      提交
+                                    </button>
                                   </div>
-                                )}
 
-                                {/* Submission Requirements */}
-                                {challenge.submissionRequirements && 
-                                 Array.isArray(challenge.submissionRequirements) && 
-                                 challenge.submissionRequirements.length > 0 && (
-                                  <div className="mt-2">
-                                    <div className="text-xs font-semibold mb-1" style={{ color: '#1a3a6e' }}>
-                                      提交要求：
+                                  {/* Challenge Description */}
+                                  {challenge.description && (
+                                    <div
+                                      className="text-xs mb-2"
+                                      style={{
+                                        color: '#374151',
+                                        whiteSpace: 'pre-wrap',
+                                        wordBreak: 'break-word',
+                                        overflowWrap: 'break-word',
+                                        lineHeight: '1.5',
+                                      }}
+                                    >
+                                      {linkifyText(challenge.description, '#1a3a6e')}
                                     </div>
-                                    <div className="space-y-1">
-                                      {challenge.submissionRequirements.map((req: any, idx: number) => {
-                                        let icon = '•';
-                                        if (req.type === 'file') icon = '📎';
-                                        if (req.type === 'link') icon = '🔗';
-                                        if (req.type === 'checkbox') icon = '☑️';
-                                        if (req.type === 'text') icon = '✍️';
-                                        
-                                        return (
-                                          <div
-                                            key={idx}
-                                            className="text-xs flex items-start gap-2"
-                                            style={{ color: '#6b7280' }}
-                                          >
-                                            <span>{icon}</span>
-                                            <span>{req.description}</span>
-                                          </div>
-                                        );
-                                      })}
-                                    </div>
-                                  </div>
-                                )}
+                                  )}
 
-                                {/* Prizes */}
-                                {challenge.prizes && Array.isArray(challenge.prizes) && challenge.prizes.length > 0 && (
-                                  <div className="mt-2">
-                                    <div className="text-xs font-semibold mb-1" style={{ color: '#1a3a6e' }}>
-                                      獎金：
-                                    </div>
-                                    <div className="space-y-1">
-                                      {challenge.prizes.map((prize: any, idx: number) => (
-                                        <div key={idx} className="text-xs" style={{ color: '#059669' }}>
-                                          💰 {prize.currency} {prize.amount.toLocaleString()} - {prize.description}
+                                  {/* Submission Requirements */}
+                                  {challenge.submissionRequirements &&
+                                    Array.isArray(challenge.submissionRequirements) &&
+                                    challenge.submissionRequirements.length > 0 && (
+                                      <div className="mt-2">
+                                        <div
+                                          className="text-xs font-semibold mb-1"
+                                          style={{ color: '#1a3a6e' }}
+                                        >
+                                          提交要求：
                                         </div>
-                                      ))}
-                                    </div>
-                                  </div>
-                                )}
-                              </div>
-                            ))}
+                                        <div className="space-y-1">
+                                          {challenge.submissionRequirements.map(
+                                            (req: any, idx: number) => {
+                                              let icon = '•';
+                                              if (req.type === 'file') icon = '📎';
+                                              if (req.type === 'link') icon = '🔗';
+                                              if (req.type === 'checkbox') icon = '☑️';
+                                              if (req.type === 'text') icon = '✍️';
+
+                                              return (
+                                                <div
+                                                  key={idx}
+                                                  className="text-xs flex items-start gap-2"
+                                                  style={{ color: '#6b7280' }}
+                                                >
+                                                  <span>{icon}</span>
+                                                  <span>{req.description}</span>
+                                                </div>
+                                              );
+                                            },
+                                          )}
+                                        </div>
+                                      </div>
+                                    )}
+
+                                  {/* Prizes */}
+                                  {challenge.prizes &&
+                                    Array.isArray(challenge.prizes) &&
+                                    challenge.prizes.length > 0 && (
+                                      <div className="mt-2">
+                                        <div
+                                          className="text-xs font-semibold mb-1"
+                                          style={{ color: '#1a3a6e' }}
+                                        >
+                                          獎金：
+                                        </div>
+                                        <div className="space-y-1">
+                                          {challenge.prizes.map((prize: any, idx: number) => (
+                                            <div
+                                              key={idx}
+                                              className="text-xs"
+                                              style={{ color: '#059669' }}
+                                            >
+                                              💰 {prize.currency} {prize.amount.toLocaleString()} -{' '}
+                                              {prize.description}
+                                            </div>
+                                          ))}
+                                        </div>
+                                      </div>
+                                    )}
+                                </div>
+                              ))}
+                          </div>
                         </div>
-                      </div>
-                    )}
+                      )}
                   </div>
                 ))}
               </div>
@@ -589,7 +647,7 @@ const TeamManagement: React.FC = () => {
                 {/* Team Leader */}
                 <div>
                   <label className="block text-sm font-medium mb-2" style={{ color: '#374151' }}>
-                    團隊領導者
+                    隊長
                   </label>
                   <div className="p-4 bg-gray-50 rounded-lg">
                     <div className="font-medium">{selectedTeam.teamLeader.name}</div>

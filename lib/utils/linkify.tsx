@@ -16,7 +16,7 @@ const URL_REGEX =
  * @returns React 元素数组
  */
 export function linkifyText(text: string, linkColor: string = '#2563eb'): React.ReactNode[] {
-  if (!text) return [];
+  if (!text || typeof text !== 'string') return [''];
 
   const parts: React.ReactNode[] = [];
   let lastIndex = 0;

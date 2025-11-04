@@ -1,12 +1,13 @@
 /**
  * 赞助商查看挑战提交页面
- * 
+ *
  * 显示某个挑战的所有团队提交数据
  */
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
+import Link from 'next/link';
 import { useAuthContext } from '../../../../lib/user/AuthContext';
 import { useIsSponsor } from '../../../../lib/sponsor/hooks';
 import SponsorHeader from '../../../../components/sponsor/SponsorHeader';
@@ -104,21 +105,31 @@ export default function ChallengeSubmissionsPage() {
 
   const getTypeIcon = (type: string) => {
     switch (type) {
-      case 'file': return '📎';
-      case 'link': return '🔗';
-      case 'checkbox': return '☑️';
-      case 'text': return '✍️';
-      default: return '📝';
+      case 'file':
+        return '📎';
+      case 'link':
+        return '🔗';
+      case 'checkbox':
+        return '☑️';
+      case 'text':
+        return '✍️';
+      default:
+        return '📝';
     }
   };
 
   const getTypeLabel = (type: string) => {
     switch (type) {
-      case 'file': return '檔案';
-      case 'link': return '連結';
-      case 'checkbox': return '勾選確認';
-      case 'text': return '文字回應';
-      default: return type;
+      case 'file':
+        return '檔案';
+      case 'link':
+        return '連結';
+      case 'checkbox':
+        return '勾選確認';
+      case 'text':
+        return '文字回應';
+      default:
+        return type;
     }
   };
 
@@ -143,7 +154,12 @@ export default function ChallengeSubmissionsPage() {
               style={{ color: '#6b7280' }}
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15 19l-7-7 7-7"
+                />
               </svg>
               返回
             </button>
@@ -163,8 +179,13 @@ export default function ChallengeSubmissionsPage() {
           {/* Loading State */}
           {loading && (
             <div className="bg-white rounded-lg shadow-sm p-8 text-center">
-              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2" style={{ borderColor: '#1a3a6e' }}></div>
-              <p className="mt-4" style={{ color: '#6b7280' }}>載入中...</p>
+              <div
+                className="inline-block animate-spin rounded-full h-8 w-8 border-b-2"
+                style={{ borderColor: '#1a3a6e' }}
+              ></div>
+              <p className="mt-4" style={{ color: '#6b7280' }}>
+                載入中...
+              </p>
             </div>
           )}
 
@@ -186,11 +207,28 @@ export default function ChallengeSubmissionsPage() {
           {!loading && !error && submissions.length > 0 && (
             <div className="space-y-4">
               {/* Summary Card */}
-              <div className="bg-white rounded-lg shadow-sm p-6 border-l-4" style={{ borderColor: '#1a3a6e' }}>
+              <div
+                className="bg-white rounded-lg shadow-sm p-6 border-l-4"
+                style={{ borderColor: '#1a3a6e' }}
+              >
                 <div className="flex items-center gap-4">
-                  <div className="flex items-center justify-center w-12 h-12 rounded-full" style={{ backgroundColor: '#e0e7ff' }}>
-                    <svg className="w-6 h-6" style={{ color: '#1a3a6e' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  <div
+                    className="flex items-center justify-center w-12 h-12 rounded-full"
+                    style={{ backgroundColor: '#e0e7ff' }}
+                  >
+                    <svg
+                      className="w-6 h-6"
+                      style={{ color: '#1a3a6e' }}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                      />
                     </svg>
                   </div>
                   <div>
@@ -207,7 +245,7 @@ export default function ChallengeSubmissionsPage() {
               {/* Submissions */}
               {submissions.map((submission) => {
                 const isExpanded = expandedSubmissions.has(submission.id);
-                
+
                 return (
                   <div
                     key={submission.id}
@@ -222,13 +260,19 @@ export default function ChallengeSubmissionsPage() {
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <div className="flex items-center gap-3 mb-2">
-                            <h3 className="text-xl font-bold" style={{ color: '#1a3a6e' }}>
-                              {submission.teamName}
-                            </h3>
+                            <Link href={`/teams/${submission.teamId}/public`}>
+                              <a
+                                className="text-xl font-bold hover:underline"
+                                style={{ color: '#1a3a6e' }}
+                              >
+                                {submission.teamName}
+                              </a>
+                            </Link>
                             <span
                               className="text-xs px-2 py-1 rounded-full"
                               style={{
-                                backgroundColor: submission.status === 'submitted' ? '#dcfce7' : '#f3f4f6',
+                                backgroundColor:
+                                  submission.status === 'submitted' ? '#dcfce7' : '#f3f4f6',
                                 color: submission.status === 'submitted' ? '#166534' : '#6b7280',
                               }}
                             >
@@ -236,21 +280,34 @@ export default function ChallengeSubmissionsPage() {
                             </span>
                           </div>
                           <div className="text-sm space-y-1" style={{ color: '#6b7280' }}>
-                            <p>提交人：{submission.submittedBy.name || submission.submittedBy.email}</p>
-                            <p>提交時間：{new Date(submission.submittedAt).toLocaleString('zh-TW')}</p>
+                            <p>
+                              提交人：{submission.submittedBy.name || submission.submittedBy.email}
+                            </p>
+                            <p>
+                              提交時間：{new Date(submission.submittedAt).toLocaleString('zh-TW')}
+                            </p>
                             {submission.updatedAt !== submission.submittedAt && (
-                              <p>更新時間：{new Date(submission.updatedAt).toLocaleString('zh-TW')}</p>
+                              <p>
+                                更新時間：{new Date(submission.updatedAt).toLocaleString('zh-TW')}
+                              </p>
                             )}
                           </div>
                         </div>
                         <svg
-                          className={`w-5 h-5 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+                          className={`w-5 h-5 transition-transform ${
+                            isExpanded ? 'rotate-180' : ''
+                          }`}
                           style={{ color: '#6b7280' }}
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
                         >
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M19 9l-7 7-7-7"
+                          />
                         </svg>
                       </div>
                     </div>
@@ -269,16 +326,25 @@ export default function ChallengeSubmissionsPage() {
                                 <div
                                   key={index}
                                   className="p-4 rounded-lg"
-                                  style={{ backgroundColor: '#f9fafb', border: '1px solid #e5e7eb' }}
+                                  style={{
+                                    backgroundColor: '#f9fafb',
+                                    border: '1px solid #e5e7eb',
+                                  }}
                                 >
                                   <div className="flex items-start gap-3">
                                     <span className="text-xl">{getTypeIcon(item.type)}</span>
                                     <div className="flex-1">
                                       <div className="flex items-center gap-2 mb-2">
-                                        <span className="text-xs font-medium px-2 py-1 rounded" style={{ backgroundColor: '#e0e7ff', color: '#1a3a6e' }}>
+                                        <span
+                                          className="text-xs font-medium px-2 py-1 rounded"
+                                          style={{ backgroundColor: '#e0e7ff', color: '#1a3a6e' }}
+                                        >
                                           {getTypeLabel(item.type)}
                                         </span>
-                                        <p className="text-sm font-medium" style={{ color: '#374151' }}>
+                                        <p
+                                          className="text-sm font-medium"
+                                          style={{ color: '#374151' }}
+                                        >
                                           {item.description}
                                         </p>
                                       </div>
@@ -293,12 +359,24 @@ export default function ChallengeSubmissionsPage() {
                                             className="inline-flex items-center gap-2 text-sm px-3 py-2 rounded hover:underline"
                                             style={{ backgroundColor: '#dbeafe', color: '#1e40af' }}
                                           >
-                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            <svg
+                                              className="w-4 h-4"
+                                              fill="none"
+                                              stroke="currentColor"
+                                              viewBox="0 0 24 24"
+                                            >
+                                              <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth={2}
+                                                d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                                              />
                                             </svg>
                                             {item.fileName || '下載文件'}
                                             {item.fileSize && (
-                                              <span className="text-xs">({(item.fileSize / 1024).toFixed(2)} KB)</span>
+                                              <span className="text-xs">
+                                                ({(item.fileSize / 1024).toFixed(2)} KB)
+                                              </span>
                                             )}
                                           </a>
                                         </div>
@@ -321,14 +399,24 @@ export default function ChallengeSubmissionsPage() {
 
                                       {/* Checkbox */}
                                       {item.type === 'checkbox' && (
-                                        <div className="mt-2 text-sm" style={{ color: item.checked ? '#059669' : '#dc2626' }}>
+                                        <div
+                                          className="mt-2 text-sm"
+                                          style={{ color: item.checked ? '#059669' : '#dc2626' }}
+                                        >
                                           {item.checked ? '✓ 已確認' : '✗ 未確認'}
                                         </div>
                                       )}
 
                                       {/* Text */}
                                       {item.type === 'text' && item.value && (
-                                        <div className="mt-2 p-3 rounded text-sm" style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb', whiteSpace: 'pre-wrap' }}>
+                                        <div
+                                          className="mt-2 p-3 rounded text-sm"
+                                          style={{
+                                            backgroundColor: '#ffffff',
+                                            border: '1px solid #e5e7eb',
+                                            whiteSpace: 'pre-wrap',
+                                          }}
+                                        >
                                           {item.value}
                                         </div>
                                       )}
@@ -351,12 +439,18 @@ export default function ChallengeSubmissionsPage() {
                                 <div
                                   key={index}
                                   className="p-4 rounded-lg"
-                                  style={{ backgroundColor: '#fef3c7', border: '1px solid #fbbf24' }}
+                                  style={{
+                                    backgroundColor: '#fef3c7',
+                                    border: '1px solid #fbbf24',
+                                  }}
                                 >
                                   <div className="flex items-start gap-3">
                                     <span className="text-xl">{getTypeIcon(item.type)}</span>
                                     <div className="flex-1">
-                                      <p className="text-sm font-medium mb-2" style={{ color: '#92400e' }}>
+                                      <p
+                                        className="text-sm font-medium mb-2"
+                                        style={{ color: '#92400e' }}
+                                      >
                                         {item.description}
                                       </p>
 
@@ -369,8 +463,18 @@ export default function ChallengeSubmissionsPage() {
                                           className="inline-flex items-center gap-2 text-sm px-3 py-2 rounded hover:underline"
                                           style={{ backgroundColor: '#fde68a', color: '#92400e' }}
                                         >
-                                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                          <svg
+                                            className="w-4 h-4"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24"
+                                          >
+                                            <path
+                                              strokeLinecap="round"
+                                              strokeLinejoin="round"
+                                              strokeWidth={2}
+                                              d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                                            />
                                           </svg>
                                           {item.fileName || '下載文件'}
                                         </a>
@@ -391,7 +495,14 @@ export default function ChallengeSubmissionsPage() {
 
                                       {/* Text */}
                                       {item.type === 'text' && item.value && (
-                                        <div className="p-3 rounded text-sm" style={{ backgroundColor: '#fef9e7', border: '1px solid #fbbf24', whiteSpace: 'pre-wrap' }}>
+                                        <div
+                                          className="p-3 rounded text-sm"
+                                          style={{
+                                            backgroundColor: '#fef9e7',
+                                            border: '1px solid #fbbf24',
+                                            whiteSpace: 'pre-wrap',
+                                          }}
+                                        >
                                           {item.value}
                                         </div>
                                       )}
@@ -414,4 +525,3 @@ export default function ChallengeSubmissionsPage() {
     </div>
   );
 }
-

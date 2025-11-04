@@ -93,6 +93,9 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
       sponsorName: trackData.sponsorName || '',
       sponsorId: trackData.sponsorId || '',
       totalPrize: Math.round(totalPrize),
+      submissionDeadline: trackData.submissionDeadline
+        ? trackData.submissionDeadline.toDate().toISOString()
+        : null,
       challenges: challenges,
       status: trackData.status,
     };

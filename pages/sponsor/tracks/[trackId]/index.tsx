@@ -41,6 +41,7 @@ export default function TrackDetailPage() {
   const [editTrackData, setEditTrackData] = useState({
     name: '',
     description: '',
+    submissionDeadline: '',
   });
 
   // Delete Challenge Modal
@@ -210,9 +211,24 @@ export default function TrackDetailPage() {
   // Handle edit track
   const handleEditTrackClick = () => {
     if (track) {
+      // Convert Firestore timestamp to datetime-local format
+      let deadlineValue = '';
+      if (track.submissionDeadline) {
+        try {
+          const date = track.submissionDeadline.toDate
+            ? track.submissionDeadline.toDate()
+            : new Date(track.submissionDeadline);
+          // Format to YYYY-MM-DDTHH:MM (datetime-local format)
+          deadlineValue = date.toISOString().slice(0, 16);
+        } catch (e) {
+          console.error('Error converting deadline:', e);
+        }
+      }
+
       setEditTrackData({
         name: track.name || '',
         description: track.description || '',
+        submissionDeadline: deadlineValue,
       });
       setEditTrackMessage('');
       setShowEditTrackModal(true);
@@ -1005,6 +1021,26 @@ export default function TrackDetailPage() {
                   placeholder="描述這個賽道的主題、目標和特色..."
                   disabled={isEditingTrack}
                 />
+              </div>
+
+              {/* Submission Deadline */}
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: '#374151' }}>
+                  截止提交時間 <span style={{ color: '#ef4444' }}>*</span>
+                </label>
+                <input
+                  type="datetime-local"
+                  value={editTrackData.submissionDeadline}
+                  onChange={(e) =>
+                    setEditTrackData({ ...editTrackData, submissionDeadline: e.target.value })
+                  }
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  style={{ borderColor: '#d1d5db' }}
+                  disabled={isEditingTrack}
+                />
+                <p className="text-xs mt-1" style={{ color: '#6b7280' }}>
+                  在此時間後將禁止團隊提交作品
+                </p>
               </div>
 
               {/* Message */}

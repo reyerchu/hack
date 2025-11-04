@@ -32,6 +32,7 @@ interface Track {
   sponsorName?: string;
   sponsorId?: string;
   totalPrize?: number;
+  submissionDeadline?: any;
   challenges?: Challenge[];
 }
 
@@ -55,6 +56,7 @@ export default function PublicTrackDetailPage() {
   const [editTrackData, setEditTrackData] = useState({
     name: '',
     description: '',
+    submissionDeadline: '',
   });
 
   // 獲取賽道詳情（公開 API，不需要認證）
@@ -171,9 +173,25 @@ export default function PublicTrackDetailPage() {
   // 打開編輯模態窗口
   const handleEditClick = () => {
     if (!track) return;
+
+    // 格式化截止时间为 datetime-local 格式
+    let deadlineStr = '';
+    if (track.submissionDeadline) {
+      try {
+        const deadline = new Date(track.submissionDeadline);
+        // Format: YYYY-MM-DDTHH:mm
+        deadlineStr = new Date(deadline.getTime() - deadline.getTimezoneOffset() * 60000)
+          .toISOString()
+          .slice(0, 16);
+      } catch (err) {
+        console.error('[TrackPage] Error formatting deadline:', err);
+      }
+    }
+
     setEditTrackData({
       name: track.name || '',
       description: track.description || '',
+      submissionDeadline: deadlineStr,
     });
     setUpdateMessage('');
     setShowEditModal(true);
@@ -216,11 +234,18 @@ export default function PublicTrackDetailPage() {
       setUpdateMessage('✅ 賽道已成功更新！');
 
       // Update local track data
-      setTrack({
+      const updatedTrack = {
         ...track,
         name: editTrackData.name,
         description: editTrackData.description,
-      });
+      };
+
+      // Include submissionDeadline if it was set
+      if (editTrackData.submissionDeadline) {
+        updatedTrack.submissionDeadline = new Date(editTrackData.submissionDeadline).toISOString();
+      }
+
+      setTrack(updatedTrack);
 
       // Close modal after 1.5 seconds
       setTimeout(() => {
@@ -475,6 +500,48 @@ export default function PublicTrackDetailPage() {
                   <span style={{ color: '#6b7280' }}>挑戰數量：</span>
                   <span className="font-medium" style={{ color: '#1a3a6e' }}>
                     {track.challenges.length}
+                  </span>
+                </div>
+              )}
+              {track.submissionDeadline && (
+                <div className="flex items-center gap-2">
+                  <svg
+                    className="w-5 h-5"
+                    style={{ color: '#6b7280' }}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                  <span style={{ color: '#6b7280' }}>截止時間：</span>
+                  <span
+                    className="font-medium"
+                    style={{
+                      color:
+                        new Date(track.submissionDeadline) < new Date() ? '#dc2626' : '#1a3a6e',
+                    }}
+                  >
+                    {new Date(track.submissionDeadline).toLocaleString('zh-TW', {
+                      year: 'numeric',
+                      month: '2-digit',
+                      day: '2-digit',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}
+                    {new Date(track.submissionDeadline) < new Date() && (
+                      <span
+                        className="ml-2 text-xs px-2 py-0.5 rounded-full font-medium"
+                        style={{ backgroundColor: '#fee2e2', color: '#991b1b' }}
+                      >
+                        已截止
+                      </span>
+                    )}
                   </span>
                 </div>
               )}
@@ -874,6 +941,26 @@ export default function PublicTrackDetailPage() {
                   style={{ borderColor: '#d1d5db' }}
                   disabled={isUpdating}
                 />
+              </div>
+
+              {/* Submission Deadline */}
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: '#1a3a6e' }}>
+                  截止提交時間
+                </label>
+                <input
+                  type="datetime-local"
+                  value={editTrackData.submissionDeadline}
+                  onChange={(e) =>
+                    setEditTrackData({ ...editTrackData, submissionDeadline: e.target.value })
+                  }
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  style={{ borderColor: '#d1d5db' }}
+                  disabled={isUpdating}
+                />
+                <p className="text-xs mt-1" style={{ color: '#6b7280' }}>
+                  在此時間後，團隊將無法提交作品
+                </p>
               </div>
             </div>
 

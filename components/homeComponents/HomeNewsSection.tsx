@@ -21,56 +21,14 @@ export default function HomeNewsSection() {
 
         {/* Content */}
         <div className="max-w-[900px]">
-          {/* Message 1: Workshops */}
-          <div className="mb-6 pb-6 border-b-2 border-gray-200">
-            <p className="text-[18px] leading-relaxed text-gray-800 mb-4">
-              🎓 <span className="font-semibold">黑客松工作坊已經開跑！</span>從 2025/10/20
-              起，每晚都有賽道介紹、獎項說明及活動 QA
-              的工作坊，歡迎一起來了解挑戰、補充技能、找到隊友、腦力激盪。
-            </p>
-            <Link href="/schedule">
-              <a
-                className="inline-block border-2 px-8 py-3 text-[14px] font-medium uppercase tracking-wider transition-colors duration-300"
-                style={{
-                  borderColor: '#1a3a6e',
-                  color: '#1a3a6e',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = '#1a3a6e';
-                  e.currentTarget.style.color = 'white';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'transparent';
-                  e.currentTarget.style.color = '#1a3a6e';
-                }}
-              >
-                查看時程表 View Schedule
-              </a>
-            </Link>
-          </div>
-
-          {/* Message 2: Solidity Course */}
+          {/* Hackathon Completion Announcement */}
           <div>
             <p className="text-[18px] leading-relaxed text-gray-800 mb-4">
-              💡 沒寫過 Solidity 智能合約，也能挑戰這場總獎金價值高達 40 萬的 RWA 黑客松競賽嗎？
-              <span className="font-semibold">可以！</span>只要報名黑客松，免費索取「
-              <Link href="/schedule/Elyt7SvclfTp43LPKmaq">
-                <a
-                  className="font-semibold underline transition-colors"
-                  style={{ color: '#1a3a6e' }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.color = '#2a4a7e';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.color = '#1a3a6e';
-                  }}
-                >
-                  Solidity 智能合約免費線上課程
-                </a>
-              </Link>
-              」（5 小時完整教學 + 10/29 賽前線下實作 QA）- 讓您從零到挑戰黑客松的最佳利器！
+              🎉 我們「<span className="font-semibold">RWA 黑客松 Taiwan</span>」的活動已於{' '}
+              <span className="font-semibold">2025/11/1 圓滿落幕</span>
+              ！感謝所有參與者、贊助商和合作夥伴的熱情支持。讓我們一起見證優秀團隊的創新成果！
             </p>
-            <Link href="/schedule/Elyt7SvclfTp43LPKmaq">
+            <Link href="/winners">
               <a
                 className="inline-block border-2 px-8 py-3 text-[14px] font-medium uppercase tracking-wider transition-colors duration-300"
                 style={{
@@ -86,7 +44,7 @@ export default function HomeNewsSection() {
                   e.currentTarget.style.color = '#1a3a6e';
                 }}
               >
-                申請課程 Apply Course
+                得獎名單 Winners
               </a>
             </Link>
           </div>

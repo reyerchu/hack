@@ -3,7 +3,7 @@
  *
  * 功能：
  * - 顯示贊助商負責的賽道概覽
- * - 統計數據（賽道数、提交数、隊伍数、平均分）
+ * - 統計數據（賽道数、提交数、隊伍数）
  * - 快速操作入口
  * - 通知中心
  * - 活动日志
@@ -657,53 +657,6 @@ export default function SponsorDashboard() {
 
           <SponsorHeader />
 
-          {/* Getting Started Guide - 移到最上方 */}
-          <div
-            className="mb-4 rounded-lg p-4"
-            style={{ backgroundColor: '#e8f4fd', border: '2px solid #1a3a6e' }}
-          >
-            <div className="flex items-start gap-3">
-              <div className="flex-shrink-0">
-                <svg
-                  className="w-6 h-6"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  style={{ color: '#1a3a6e' }}
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-              </div>
-              <div className="flex-1">
-                <h3 className="text-base font-bold mb-1.5" style={{ color: '#1a3a6e' }}>
-                  📋 贊助商功能指南
-                </h3>
-                <div
-                  className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-1 text-sm"
-                  style={{ color: '#374151' }}
-                >
-                  <div>
-                    • <strong>查看賽道</strong>：點擊下方賽道卡片
-                  </div>
-                  <div>
-                    • <strong>管理挑戰</strong>：編輯題目、上傳文件
-                  </div>
-                  <div>
-                    • <strong>審核提交</strong>：查看團隊項目、評分
-                  </div>
-                  <div>
-                    • <strong>聯繫團隊</strong>：與優秀團隊互動
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
           {/* Statistics */}
           <DashboardStats stats={stats} loading={statsLoading} />
 
@@ -796,14 +749,78 @@ export default function SponsorDashboard() {
                         >
                           {track.stats.teamCount} 個隊伍
                         </button>
-                        {track.stats.averageScore !== undefined &&
-                          ` • 平均分: ${track.stats.averageScore.toFixed(1)}`}
                       </p>
+
+                      {/* Submission Deadline */}
+                      {track.submissionDeadline &&
+                        (() => {
+                          // Convert Firestore Timestamp to Date if needed
+                          let deadlineDate: Date;
+                          if (typeof track.submissionDeadline === 'string') {
+                            deadlineDate = new Date(track.submissionDeadline);
+                          } else if (track.submissionDeadline instanceof Date) {
+                            deadlineDate = track.submissionDeadline;
+                          } else if (
+                            track.submissionDeadline &&
+                            typeof track.submissionDeadline === 'object' &&
+                            'toDate' in track.submissionDeadline
+                          ) {
+                            deadlineDate = (track.submissionDeadline as any).toDate();
+                          } else {
+                            return null;
+                          }
+
+                          const isExpired = deadlineDate < new Date();
+
+                          return (
+                            <div className="flex items-center gap-2 mt-2">
+                              <svg
+                                className="w-4 h-4"
+                                style={{ color: '#6b7280' }}
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                                />
+                              </svg>
+                              <span className="text-sm" style={{ color: '#6b7280' }}>
+                                截止時間：
+                              </span>
+                              <span
+                                className="text-sm font-medium"
+                                style={{
+                                  color: isExpired ? '#dc2626' : '#059669',
+                                }}
+                              >
+                                {deadlineDate.toLocaleString('zh-TW', {
+                                  year: 'numeric',
+                                  month: '2-digit',
+                                  day: '2-digit',
+                                  hour: '2-digit',
+                                  minute: '2-digit',
+                                })}
+                                {isExpired && (
+                                  <span
+                                    className="ml-2 text-xs px-2 py-0.5 rounded-full font-medium"
+                                    style={{ backgroundColor: '#fee2e2', color: '#991b1b' }}
+                                  >
+                                    已截止
+                                  </span>
+                                )}
+                              </span>
+                            </div>
+                          );
+                        })()}
                     </div>
 
                     {/* Action Buttons */}
                     {track.permissions?.canEdit && (
-                      <div className="flex items-center gap-2 shrink-0">
+                      <div className="flex flex-col md:flex-row items-stretch md:items-center gap-2 shrink-0">
                         {/* Add Challenge Button */}
                         <button
                           onClick={async () => {
@@ -852,7 +869,7 @@ export default function SponsorDashboard() {
                               alert('❌ 創建挑戰時發生錯誤');
                             }
                           }}
-                          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                          className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
                           style={{
                             backgroundColor: '#1a3a6e',
                             color: '#ffffff',
@@ -883,7 +900,7 @@ export default function SponsorDashboard() {
                         {/* Delete Track Button */}
                         <button
                           onClick={() => handleDeleteTrackClick(track.id, track.name)}
-                          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border-2 transition-colors"
+                          className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border-2 transition-colors"
                           style={{
                             borderColor: '#dc2626',
                             color: '#dc2626',
@@ -990,7 +1007,7 @@ export default function SponsorDashboard() {
                             </div>
 
                             {/* Action Buttons */}
-                            <div className="flex items-center gap-2 shrink-0">
+                            <div className="flex flex-col md:flex-row items-stretch md:items-center gap-2 shrink-0">
                               {/* View Submissions Button */}
                               <button
                                 onClick={() =>
@@ -1039,7 +1056,7 @@ export default function SponsorDashboard() {
                                     e.currentTarget.style.color = '#dc2626';
                                   }}
                                 >
-                                  刪除
+                                  刪除挑戰
                                 </button>
                               )}
                             </div>
@@ -1050,152 +1067,6 @@ export default function SponsorDashboard() {
                   )}
                 </div>
               ))}
-            </div>
-          </div>
-
-          {/* Quick Actions */}
-          <div className="mb-4">
-            <h2 className="text-lg font-semibold mb-3" style={{ color: '#1a3a6e' }}>
-              快速操作
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-              <button
-                onClick={() =>
-                  router.push(
-                    tracks[0] ? `/sponsor/tracks/${tracks[0].id}/challenge` : '/sponsor/tracks',
-                  )
-                }
-                className="rounded-lg p-3 border-2 transition-all duration-200 hover:shadow-lg text-left"
-                style={{ borderColor: '#e5e7eb', backgroundColor: '#ffffff' }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = '#1a3a6e';
-                  e.currentTarget.style.backgroundColor = '#f9fafb';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = '#e5e7eb';
-                  e.currentTarget.style.backgroundColor = '#ffffff';
-                }}
-              >
-                <div className="mb-1.5" style={{ color: '#1a3a6e' }}>
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                    />
-                  </svg>
-                </div>
-                <h3 className="text-xs font-semibold mb-0.5" style={{ color: '#1a3a6e' }}>
-                  管理挑戰題目
-                </h3>
-                <p className="text-xs" style={{ color: '#6b7280' }}>
-                  上傳或編輯賽道內容
-                </p>
-              </button>
-
-              <button
-                onClick={() =>
-                  router.push(
-                    tracks[0]
-                      ? `/sponsor/tracks/${tracks[0].id}/submissions`
-                      : '/sponsor/submissions',
-                  )
-                }
-                className="rounded-lg p-3 border-2 transition-all duration-200 hover:shadow-lg text-left"
-                style={{ borderColor: '#e5e7eb', backgroundColor: '#ffffff' }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = '#1a3a6e';
-                  e.currentTarget.style.backgroundColor = '#f9fafb';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = '#e5e7eb';
-                  e.currentTarget.style.backgroundColor = '#ffffff';
-                }}
-              >
-                <div className="mb-1.5" style={{ color: '#1a3a6e' }}>
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                    />
-                  </svg>
-                </div>
-                <h3 className="text-xs font-semibold mb-0.5" style={{ color: '#1a3a6e' }}>
-                  查看提交
-                </h3>
-                <p className="text-xs" style={{ color: '#6b7280' }}>
-                  瀏覽隊伍的項目提交
-                </p>
-              </button>
-
-              <button
-                onClick={() =>
-                  router.push(
-                    tracks[0] ? `/sponsor/tracks/${tracks[0].id}/judging` : '/sponsor/judging',
-                  )
-                }
-                className="rounded-lg p-3 border-2 transition-all duration-200 hover:shadow-lg text-left"
-                style={{ borderColor: '#e5e7eb', backgroundColor: '#ffffff' }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = '#1a3a6e';
-                  e.currentTarget.style.backgroundColor = '#f9fafb';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = '#e5e7eb';
-                  e.currentTarget.style.backgroundColor = '#ffffff';
-                }}
-              >
-                <div className="mb-1.5" style={{ color: '#1a3a6e' }}>
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
-                    />
-                  </svg>
-                </div>
-                <h3 className="text-xs font-semibold mb-0.5" style={{ color: '#1a3a6e' }}>
-                  評審與決選
-                </h3>
-                <p className="text-xs" style={{ color: '#6b7280' }}>
-                  對提交進行評分排名
-                </p>
-              </button>
-
-              <button
-                onClick={() => router.push('/sponsor/reports')}
-                className="rounded-lg p-3 border-2 transition-all duration-200 hover:shadow-lg text-left"
-                style={{ borderColor: '#e5e7eb', backgroundColor: '#ffffff' }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = '#1a3a6e';
-                  e.currentTarget.style.backgroundColor = '#f9fafb';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = '#e5e7eb';
-                  e.currentTarget.style.backgroundColor = '#ffffff';
-                }}
-              >
-                <div className="mb-1.5" style={{ color: '#1a3a6e' }}>
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-                    />
-                  </svg>
-                </div>
-                <h3 className="text-xs font-semibold mb-0.5" style={{ color: '#1a3a6e' }}>
-                  數據報告
-                </h3>
-                <p className="text-xs" style={{ color: '#6b7280' }}>
-                  查看參與度與品牌曝光
-                </p>
-              </button>
             </div>
           </div>
 

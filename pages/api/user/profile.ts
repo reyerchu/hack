@@ -114,11 +114,57 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
 }
 
 /**
+ * PUT - 更新用戶資料
+ */
+async function handlePut(req: NextApiRequest, res: NextApiResponse) {
+  console.log('[/api/user/profile] ========== PUT 請求開始 ==========');
+
+  if (!(await requireAuth(req, res))) {
+    return;
+  }
+
+  const authReq = req as AuthenticatedRequest;
+  const userId = authReq.userId!;
+
+  console.log('[/api/user/profile] userId:', userId);
+  console.log('[/api/user/profile] Update data:', req.body);
+
+  try {
+    // 獲取用戶資料
+    const userData = await getUserData(userId);
+
+    if (!userData || !userData.exists) {
+      console.log('[/api/user/profile] ❌ 用戶不存在');
+      return ApiResponse.notFound(res, '找不到用戶資料');
+    }
+
+    // 更新資料
+    const updateData = {
+      ...userData.data,
+      ...req.body,
+      updatedAt: firestore.FieldValue.serverTimestamp(),
+    };
+
+    await userData.ref.update(updateData);
+
+    console.log('[/api/user/profile] ✅ 更新成功');
+    return ApiResponse.success(res, { message: '更新成功', data: updateData });
+  } catch (error: any) {
+    console.error('[/api/user/profile] ❌ Error:', error);
+    return ApiResponse.error(res, error.message || 'Failed to update user profile', 500);
+  }
+}
+
+/**
  * Main handler
  */
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'GET') {
     return handleGet(req, res);
+  }
+
+  if (req.method === 'PUT') {
+    return handlePut(req, res);
   }
 
   return res.status(405).json({ error: 'Method not allowed' });

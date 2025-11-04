@@ -49,6 +49,53 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
+    // Get trackId from challenge if not provided
+    let actualTrackId = trackId;
+    if (!actualTrackId) {
+      try {
+        const challengeDoc = await db.collection('extended-challenges').doc(challengeId).get();
+        if (challengeDoc.exists) {
+          actualTrackId = challengeDoc.data()?.trackId;
+        }
+      } catch (err) {
+        console.log('[SubmitChallenge] Error fetching challenge:', err);
+      }
+    }
+
+    // Check submission deadline
+    if (actualTrackId) {
+      try {
+        const trackSnapshot = await db
+          .collection('tracks')
+          .where('trackId', '==', actualTrackId)
+          .limit(1)
+          .get();
+
+        if (!trackSnapshot.empty) {
+          const trackData = trackSnapshot.docs[0].data();
+          const deadline = trackData.submissionDeadline;
+
+          if (deadline) {
+            const deadlineDate = deadline.toDate ? deadline.toDate() : new Date(deadline);
+            const now = new Date();
+
+            if (now > deadlineDate) {
+              console.log(
+                `[SubmitChallenge] Deadline passed for track ${actualTrackId}: ${deadlineDate} < ${now}`,
+              );
+              return res.status(403).json({
+                error: '此賽道已過截止時間，無法提交',
+                deadline: deadlineDate.toISOString(),
+              });
+            }
+          }
+        }
+      } catch (err) {
+        console.error('[SubmitChallenge] Error checking deadline:', err);
+        // Continue submission if deadline check fails
+      }
+    }
+
     // Verify user has permission to submit for this team
     const teamDoc = await db.collection('team-registrations').doc(teamId).get();
     if (!teamDoc.exists) {
@@ -58,11 +105,12 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
 
     const teamData = teamDoc.data()!;
     const normalizedEmail = userEmail?.toLowerCase();
-    const userHasPermission = 
+    const userHasPermission =
       teamData.teamLeader?.email?.toLowerCase() === normalizedEmail ||
       teamData.teamLeader?.userId === userId ||
-      teamData.teamMembers?.some((member: any) => 
-        member.email?.toLowerCase() === normalizedEmail && member.hasEditRight === true
+      teamData.teamMembers?.some(
+        (member: any) =>
+          member.email?.toLowerCase() === normalizedEmail && member.hasEditRight === true,
       );
 
     if (!userHasPermission) {
@@ -70,7 +118,9 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
       return res.status(403).json({ error: 'No permission to submit for this team' });
     }
 
-    console.log(`[SubmitChallenge] User ${userId} submitting to team ${teamId}, challenge ${challengeId}`);
+    console.log(
+      `[SubmitChallenge] User ${userId} submitting to team ${teamId}, challenge ${challengeId}`,
+    );
 
     // Create submission document
     const submissionData = {
@@ -115,7 +165,6 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
       submissionId: submissionRef.id,
       message: 'Submission successful',
     });
-
   } catch (error: any) {
     console.error('[SubmitChallenge] Error:', error);
     return res.status(500).json({
@@ -131,4 +180,3 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   return res.status(405).json({ error: 'Method not allowed' });
 }
-

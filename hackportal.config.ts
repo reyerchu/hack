@@ -130,6 +130,14 @@ export const hackPortalConfig: HackPortalConfig = {
             required: false,
             initialValue: '',
           },
+          {
+            //EVM Wallet Address question
+            question: 'EVM 錢包地址 (e.g. Ethereum, Arbitrum...):',
+            id: 'evmAddress',
+            name: 'evmAddress',
+            required: false,
+            initialValue: '',
+          },
         ],
       },
       {
@@ -166,6 +174,8 @@ export const fieldNames = {
   github: 'Github',
   linkedin: 'LinkedIn',
   website: '個人網站',
+  evmAddress: 'EVM 錢包地址',
+  walletAddresses: '其他錢包地址',
   resume: '履歷',
   preferredEmail: '電子郵件',
 };
@@ -180,6 +190,7 @@ export const singleField = [
   'github',
   'linkedin',
   'website',
+  'evmAddress',
   'resume',
   'preferredEmail',
 ];

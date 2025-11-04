@@ -119,15 +119,29 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
     );
 
     console.log('[/api/applications] 💾 BACKEND STEP 5: 準備數據');
+
+    // Check if this is a new registration or an update
+    const existingDoc = await db.collection('registrations').doc(userId).get();
+    const isNewRegistration = !existingDoc.exists;
+
     // 准备要保存的数据
-    const dataToSave = {
+    const dataToSave: any = {
       ...registrationData,
       id: userId,
       email: userEmail || registrationData.email || registrationData.preferredEmail,
-      timestamp: Date.now(), // 用於 admin 頁面顯示註冊時間
       updatedAt: firestore.FieldValue.serverTimestamp(),
-      createdAt: firestore.FieldValue.serverTimestamp(),
     };
+
+    // Only set timestamp and createdAt for new registrations
+    if (isNewRegistration) {
+      dataToSave.timestamp = Date.now(); // 用於 admin 頁面顯示註冊時間
+      dataToSave.createdAt = firestore.FieldValue.serverTimestamp();
+      console.log('[/api/applications] New registration - setting timestamp and createdAt');
+    } else {
+      console.log(
+        '[/api/applications] Updating existing registration - preserving original timestamp',
+      );
+    }
 
     console.log('[/api/applications] Data to save keys:', Object.keys(dataToSave));
     console.log('[/api/applications] User ID for document:', userId);

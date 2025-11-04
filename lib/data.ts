@@ -10,7 +10,6 @@ export const navItems = [
   { text: '時程表', path: '/schedule' },
   { text: '導師評審', path: '/mentors' },
   { text: '得獎名單', path: '/winners' },
-  { text: '找隊友', path: '/team-up' },
   //  { text: '儀表板', path: '/dashboard' },
   //  { text: '黑客包', path: '/hackerpacks' },
 ];

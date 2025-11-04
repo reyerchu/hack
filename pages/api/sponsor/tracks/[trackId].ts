@@ -140,6 +140,7 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
       description: track.description || '',
       sponsorId: track.sponsorId,
       sponsorName: track.sponsorName,
+      submissionDeadline: track.submissionDeadline,
       challenges: challenges,
       stats: stats,
       permissions: permissions,
@@ -167,11 +168,15 @@ async function handlePut(req: NextApiRequest, res: NextApiResponse) {
   const authReq = req as AuthenticatedRequest;
   const userId = authReq.userId!;
   const { trackId } = req.query;
-  const { name, description } = req.body;
+  const { name, description, submissionDeadline } = req.body;
 
   console.log('[/api/sponsor/tracks/[trackId]] userId:', userId);
   console.log('[/api/sponsor/tracks/[trackId]] trackId:', trackId);
-  console.log('[/api/sponsor/tracks/[trackId]] update data:', { name, description });
+  console.log('[/api/sponsor/tracks/[trackId]] update data:', {
+    name,
+    description,
+    submissionDeadline,
+  });
 
   if (!trackId || typeof trackId !== 'string') {
     return ApiResponse.error(res, 'Invalid track ID', 400);
@@ -202,11 +207,16 @@ async function handlePut(req: NextApiRequest, res: NextApiResponse) {
     }
 
     const trackDoc = trackSnapshot.docs[0];
-    const updateData = {
+    const updateData: any = {
       name: name.trim(),
       description: description?.trim() || '',
       updatedAt: firestore.FieldValue.serverTimestamp(),
     };
+
+    // Handle submission deadline
+    if (submissionDeadline) {
+      updateData.submissionDeadline = firestore.Timestamp.fromDate(new Date(submissionDeadline));
+    }
 
     await trackDoc.ref.update(updateData);
 

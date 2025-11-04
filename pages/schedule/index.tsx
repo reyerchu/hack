@@ -31,7 +31,7 @@ export default function SchedulePage({ scheduleCard }: SchedulePageProps) {
     'disconnected',
   );
   const [selectedTagFilters, setSelectedTagFilters] = useState<Set<string>>(new Set());
-  const [includeHistoryEvents, setIncludeHistoryEvents] = useState(false);
+  const [includeHistoryEvents, setIncludeHistoryEvents] = useState(true);
   const [copiedEventId, setCopiedEventId] = useState<string | null>(null);
 
   // Check if user is admin - must be signed in AND have admin permissions

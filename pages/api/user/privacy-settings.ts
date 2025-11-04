@@ -1,6 +1,6 @@
 /**
  * API: 用户隐私设置
- * 
+ *
  * GET: 获取当前用户的隐私设置
  * PUT: 更新当前用户的隐私设置
  */
@@ -19,7 +19,7 @@ async function verifyUser(req: NextApiRequest): Promise<{ userId: string; email:
 
     const token = authHeader.split('Bearer ')[1];
     const decodedToken = await admin.auth().verifyIdToken(token);
-    
+
     return {
       userId: decodedToken.uid,
       email: decodedToken.email || '',
@@ -32,7 +32,7 @@ async function verifyUser(req: NextApiRequest): Promise<{ userId: string; email:
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   initializeApi();
-  
+
   if (req.method === 'GET') {
     return handleGet(req, res);
   } else if (req.method === 'PUT') {
@@ -50,43 +50,32 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
     }
 
     const db = admin.firestore();
-    
-    // 尝试从 registrations 获取用户信息
-    let userDoc = await db.collection('registrations').doc(userAuth.userId).get();
-    
-    if (!userDoc.exists) {
-      // 尝试用 email 查找
-      const usersByEmail = await db
-        .collection('registrations')
-        .where('email', '==', userAuth.email)
-        .limit(1)
-        .get();
-      
-      if (!usersByEmail.empty) {
-        userDoc = usersByEmail.docs[0];
-      }
-    }
 
-    if (!userDoc.exists) {
-      return res.status(404).json({ error: 'User not found' });
-    }
+    // 从 user-privacy-settings 集合获取隐私设置
+    const privacyDoc = await db.collection('user-privacy-settings').doc(userAuth.userId).get();
 
-    const userData = userDoc.data();
-    
-    // 返回用户的隐私设置，如果没有则返回默认值
-    const privacySettings = userData?.privacySettings || {
-      showEmail: false,
-      showRole: false,
-      showSchool: false,
-      showGithub: false,
-      showLinkedin: false,
-      showPhone: false,
-    };
+    // 如果有隐私设置，返回它；否则返回默认值
+    const settings = privacyDoc.exists
+      ? privacyDoc.data()
+      : {
+          showName: false,
+          showEmail: false,
+          showRole: false,
+          showSchool: false,
+          showGithub: false,
+          showLinkedin: false,
+          showPhone: false,
+          showWebsite: false,
+          showResume: false,
+          showEvmAddress: false,
+          showWalletAddresses: false,
+        };
+
+    console.log('[PrivacySettings GET] Loaded settings for', userAuth.userId, ':', settings);
 
     return res.status(200).json({
       success: true,
-      privacySettings,
-      displayName: userData?.displayName || userData?.firstName || userAuth.email,
+      settings, // 前端期望的字段名是 settings
     });
   } catch (error: any) {
     console.error('[PrivacySettings GET] Error:', error);
@@ -101,48 +90,35 @@ async function handlePut(req: NextApiRequest, res: NextApiResponse) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
-    const { privacySettings } = req.body;
+    const { settings } = req.body;
 
-    if (!privacySettings || typeof privacySettings !== 'object') {
+    if (!settings || typeof settings !== 'object') {
       return res.status(400).json({ error: 'Invalid privacy settings' });
     }
 
     const db = admin.firestore();
-    
-    // 尝试从 registrations 获取用户信息
-    let userDocRef = db.collection('registrations').doc(userAuth.userId);
-    let userDoc = await userDocRef.get();
-    
-    if (!userDoc.exists) {
-      // 尝试用 email 查找
-      const usersByEmail = await db
-        .collection('registrations')
-        .where('email', '==', userAuth.email)
-        .limit(1)
-        .get();
-      
-      if (!usersByEmail.empty) {
-        userDocRef = usersByEmail.docs[0].ref;
-        userDoc = usersByEmail.docs[0];
-      }
-    }
 
-    if (!userDoc.exists) {
-      return res.status(404).json({ error: 'User not found' });
-    }
+    // 保存到 user-privacy-settings 集合
+    const privacyDocRef = db.collection('user-privacy-settings').doc(userAuth.userId);
 
-    // 更新隐私设置
-    await userDocRef.update({
-      privacySettings: {
-        showEmail: privacySettings.showEmail || false,
-        showRole: privacySettings.showRole || false,
-        showSchool: privacySettings.showSchool || false,
-        showGithub: privacySettings.showGithub || false,
-        showLinkedin: privacySettings.showLinkedin || false,
-        showPhone: privacySettings.showPhone || false,
-      },
+    const privacyData = {
+      showName: settings.showName === true,
+      showEmail: settings.showEmail === true,
+      showRole: settings.showRole === true,
+      showSchool: settings.showSchool === true,
+      showGithub: settings.showGithub === true,
+      showLinkedin: settings.showLinkedin === true,
+      showPhone: settings.showPhone === true,
+      showWebsite: settings.showWebsite === true,
+      showResume: settings.showResume === true,
+      showEvmAddress: settings.showEvmAddress === true,
+      showWalletAddresses: settings.showWalletAddresses === true,
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-    });
+    };
+
+    await privacyDocRef.set(privacyData, { merge: true });
+
+    console.log('[PrivacySettings PUT] Saved settings for', userAuth.userId, ':', privacyData);
 
     return res.status(200).json({
       success: true,
@@ -153,4 +129,3 @@ async function handlePut(req: NextApiRequest, res: NextApiResponse) {
     return res.status(500).json({ error: error.message || 'Failed to update privacy settings' });
   }
 }
-
