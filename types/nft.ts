@@ -5,7 +5,7 @@ export interface NFTCampaign {
   description: string;
   imageUrl: string;
   contractAddress?: string; // Ethereum contract address
-  network: 'ethereum' | 'sepolia' | 'goerli'; // Support testnet
+  network: 'ethereum' | 'sepolia' | 'arbitrum'; // Blockchain networks
   eligibleEmails: string[]; // Whitelist of emails
   startDate: Date;
   endDate: Date;
@@ -42,12 +42,22 @@ export interface NFTMint {
 // Mint Status Check Response
 export interface MintStatus {
   eligible: boolean;
-  campaignId?: string;
-  campaignName?: string;
-  campaignImage?: string;
   alreadyMinted: boolean;
-  mintRecord?: NFTMint;
   reason?: string; // Why not eligible
-  endDate?: Date;
+  campaign?: {
+    id: string;
+    name: string;
+    description: string;
+    imageUrl: string;
+    network?: string;
+    contractAddress?: string;
+    maxSupply?: number;
+    currentSupply?: number;
+    endDate?: Date;
+  };
+  mintRecord?: {
+    mintedAt: Date;
+    transactionHash: string;
+  };
 }
 

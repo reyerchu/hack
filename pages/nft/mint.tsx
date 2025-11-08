@@ -4,6 +4,7 @@ import Head from 'next/head';
 import AppHeader from '../../components/AppHeader';
 import HomeFooter from '../../components/homeComponents/HomeFooter';
 import { useAuthContext } from '../../lib/user/AuthContext';
+import { useNFTContract } from '../../lib/hooks/useNFTContract';
 
 interface NFTCampaign {
   id: string;
@@ -37,6 +38,13 @@ export default function NFTMintPage() {
   const [error, setError] = useState('');
   const [walletConnected, setWalletConnected] = useState(false);
   const [walletAddress, setWalletAddress] = useState('');
+  const [transactionHash, setTransactionHash] = useState('');
+
+  // Use NFT contract hook
+  const nftContract = useNFTContract(
+    mintStatus?.campaign?.contractAddress,
+    walletAddress
+  );
 
   useEffect(() => {
     if (!authLoading && !isSignedIn) {
@@ -101,36 +109,52 @@ export default function NFTMintPage() {
       return;
     }
 
+    if (!mintStatus.campaign.contractAddress) {
+      alert('合約地址尚未設定，請聯繫管理員');
+      return;
+    }
+
     try {
       setMinting(true);
       setError('');
 
-      // TODO: Implement actual minting logic with smart contract
-      // For now, just simulate the minting process
+      // Call smart contract mint function
+      const result = await nftContract.mint();
+
+      if (!result.success) {
+        throw new Error(result.error || '鑄造失敗');
+      }
+
+      // Record mint in database
+      const response = await fetch('/api/nft/record-mint', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          campaignId: mintStatus.campaign.id,
+          userEmail: user?.preferredEmail,
+          userId: user?.id,
+          walletAddress,
+          transactionHash: result.txHash,
+        }),
+      });
+
+      if (!response.ok) {
+        console.error('Failed to record mint in database');
+        // Don't fail the whole process if recording fails
+      }
+
+      // Success!
+      setTransactionHash(result.txHash || '');
+      alert(`NFT 鑄造成功！\n交易哈希：${result.txHash}`);
       
-      alert('NFT 鑄造功能正在開發中，請稍後再試。');
-
-      // After successful minting, record it in the database
-      // const response = await fetch('/api/nft/record-mint', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({
-      //     campaignId: mintStatus.campaign.id,
-      //     userEmail: user?.preferredEmail,
-      //     userId: user?.id,
-      //     walletAddress,
-      //     transactionHash: 'tx_hash_here',
-      //   }),
-      // });
-
-      // if (!response.ok) {
-      //   throw new Error('記錄鑄造失敗');
-      // }
-
-      // router.push(`/user/${user?.id}`);
+      // Redirect to user page after a short delay
+      setTimeout(() => {
+        router.push(`/user/${user?.id}`);
+      }, 2000);
     } catch (err: any) {
       console.error('Error minting NFT:', err);
       setError(err.message || '鑄造失敗');
+      alert('鑄造失敗：' + (err.message || '未知錯誤'));
     } finally {
       setMinting(false);
     }
@@ -290,18 +314,38 @@ export default function NFTMintPage() {
                     className="w-full max-w-md mx-auto rounded-lg shadow-md mb-6"
                   />
 
-                  <div className="flex justify-center gap-8 text-sm text-gray-600 mb-8">
+                  <div className="flex justify-center gap-8 text-sm text-gray-600 mb-4">
                     <div>
                       <span className="font-semibold">網路：</span>
-                      <span className="ml-1">{mintStatus.campaign.network}</span>
+                      <span className="ml-1 capitalize">{mintStatus.campaign.network}</span>
                     </div>
                     <div>
                       <span className="font-semibold">供應量：</span>
                       <span className="ml-1">
-                        {mintStatus.campaign.currentSupply} / {mintStatus.campaign.maxSupply}
+                        {nftContract.loading ? '載入中...' : `${nftContract.totalSupply} / ${nftContract.maxSupply}`}
                       </span>
                     </div>
                   </div>
+
+                  {/* Contract Status */}
+                  {mintStatus.campaign.contractAddress && walletConnected && (
+                    <div className="mb-8 p-4 bg-blue-50 rounded-lg text-sm">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <span className="text-gray-600">合約狀態：</span>
+                          <span className={`ml-2 font-semibold ${nftContract.mintingEnabled ? 'text-green-600' : 'text-orange-600'}`}>
+                            {nftContract.loading ? '檢查中...' : nftContract.mintingEnabled ? '✓ 開放鑄造' : '✗ 未開放'}
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-gray-600">您的狀態：</span>
+                          <span className={`ml-2 font-semibold ${nftContract.canMint ? 'text-green-600' : nftContract.hasMinted ? 'text-gray-600' : 'text-orange-600'}`}>
+                            {nftContract.loading ? '檢查中...' : nftContract.hasMinted ? '已鑄造' : nftContract.canMint ? '✓ 可鑄造' : '不可鑄造'}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Minting Steps */}
