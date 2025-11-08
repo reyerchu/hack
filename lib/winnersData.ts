@@ -76,7 +76,7 @@ export const winnersData: TrackAwards[] = [
     ],
   },
   {
-    trackName: '國泰金控 賽道',
+    trackName: '國泰金控賽道',
     announced: true,
     awards: [
       {
@@ -104,7 +104,7 @@ export const winnersData: TrackAwards[] = [
     ],
   },
   {
-    trackName: 'Self 賽道',
+    trackName: 'Self Protocol 賽道',
     announced: false,
     awards: [],
   },

@@ -144,7 +144,7 @@ export default function WinnersPage({ tracksAwards }: WinnersPageProps) {
                                     rel="noopener noreferrer"
                                     className="flex-shrink-0 hover:opacity-80 transition-opacity"
                                   >
-                                    <div className="w-12 h-12 md:w-14 md:h-14 rounded-full border-2 border-white shadow-md overflow-hidden">
+                                    <div className="w-10 h-10 md:w-12 md:h-12 rounded-full border-2 border-white shadow-md overflow-hidden">
                                       <img
                                         src={award.winners[0].icon}
                                         alt={`${award.winners[0].name} icon`}
@@ -268,9 +268,9 @@ export const getServerSideProps: GetServerSideProps<WinnersPageProps> = async ()
       'Demo Day 賽道',
       'imToken 賽道',
       'AWS 賽道',
-      '國泰金控 賽道',
+      '國泰金控賽道',
       'Oasis 賽道',
-      'Self 賽道',
+      'Self Protocol 賽道',
       'Sui 賽道',
       'Zircuit 賽道',
     ];
@@ -343,8 +343,8 @@ export const getServerSideProps: GetServerSideProps<WinnersPageProps> = async ()
         ],
       },
       {
-        trackName: '國泰金控 賽道',
-        trackId: trackIds['國泰金控 賽道'],
+        trackName: '國泰金控賽道',
+        trackId: trackIds['國泰金控賽道'],
         announced: true,
         awards: [
           {
@@ -372,8 +372,8 @@ export const getServerSideProps: GetServerSideProps<WinnersPageProps> = async ()
         ],
       },
       {
-        trackName: 'Self 賽道',
-        trackId: trackIds['Self 賽道'],
+        trackName: 'Self Protocol 賽道',
+        trackId: trackIds['Self Protocol 賽道'],
         announced: false,
         awards: [],
       },
