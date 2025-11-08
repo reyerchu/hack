@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from '../../../lib/firebase/auth';
+import { useAuthContext } from '../../../lib/user/AuthContext';
 import { useRouter } from 'next/router';
 import Layout from '../../../components/Layout';
 
@@ -20,7 +20,7 @@ interface NFTCampaign {
 }
 
 export default function NFTCampaignsAdmin() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, isSignedIn, loading: authLoading } = useAuthContext();
   const router = useRouter();
   const [campaigns, setCampaigns] = useState<NFTCampaign[]>([]);
   const [loading, setLoading] = useState(true);

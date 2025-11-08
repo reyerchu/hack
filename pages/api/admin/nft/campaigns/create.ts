@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { getFirebaseAdmin } from '../../../../../lib/firebase/firebaseAdmin';
+import { firestore, auth } from 'firebase-admin';
+import initializeApi from '../../../../../lib/admin/init';
 
 /**
  * Create a new NFT campaign
@@ -11,7 +12,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    const { auth, db } = getFirebaseAdmin();
+    initializeApi();
+    const db = firestore();
 
     // Verify admin authentication
     const token = req.headers.authorization?.split('Bearer ')[1];
@@ -19,7 +21,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
-    const decodedToken = await auth.verifyIdToken(token);
+    const decodedToken = await auth().verifyIdToken(token);
     const userId = decodedToken.uid;
 
     // Check if user is admin

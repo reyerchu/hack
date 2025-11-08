@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { getFirebaseAdmin } from '../../../lib/firebase/firebaseAdmin';
+import { firestore } from 'firebase-admin';
+import initializeApi from '../../../lib/admin/init';
 import type { MintStatus } from '../../../types/nft';
 
 /**
@@ -16,7 +17,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
   }
 
   try {
-    const { auth, db } = getFirebaseAdmin();
+    initializeApi();
+    const db = firestore();
     const { email } = req.query;
 
     if (!email || typeof email !== 'string') {

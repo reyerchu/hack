@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { getFirebaseAdmin } from '../../../lib/firebase/firebaseAdmin';
+import { firestore } from 'firebase-admin';
+import initializeApi from '../../../lib/admin/init';
 
 /**
  * Record a successful NFT mint
@@ -11,7 +12,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    const { auth, db } = getFirebaseAdmin();
+    initializeApi();
+    const db = firestore();
 
     const {
       campaignId,
