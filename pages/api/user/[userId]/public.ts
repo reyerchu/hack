@@ -516,10 +516,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     let nftMintStatus = null;
     if (userEmail) {
       try {
-        const nftCheckResponse = await fetch(`http://localhost:${process.env.PORT || 3009}/api/nft/check-eligibility?email=${encodeURIComponent(userEmail)}`);
-        if (nftCheckResponse.ok) {
-          nftMintStatus = await nftCheckResponse.json();
-        }
+        const { checkNFTEligibility } = await import('../../../../lib/nft/check-eligibility');
+        nftMintStatus = await checkNFTEligibility(userEmail);
       } catch (error) {
         console.log('[UserPublic] Could not check NFT eligibility:', error);
         // Don't fail the request if NFT check fails
