@@ -1,6 +1,6 @@
 {
   "name": "hackportal",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "scripts": {
     "dev": "next dev -p 3009",
@@ -83,6 +83,7 @@
     "@types/jquery": "^3.5.8",
     "@types/qrcode": "^1.4.1",
     "@types/react": "17.0.38",
+    "archiver": "^7.0.1",
     "autoprefixer": "^10.4.13",
     "cz-conventional-changelog": "^3.3.0",
     "eslint": "7.29.0",
