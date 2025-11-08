@@ -4,6 +4,7 @@
  * Example: node scripts/set-super-admin.js reyerchu@defintek.io
  */
 
+require('dotenv').config({ path: '.env.local' });
 const admin = require('firebase-admin');
 
 // Initialize Firebase Admin

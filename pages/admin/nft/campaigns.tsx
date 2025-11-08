@@ -26,6 +26,9 @@ export default function NFTCampaignsAdmin() {
   const [campaigns, setCampaigns] = useState<NFTCampaign[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string>('');
 
   // Form state
   const [formData, setFormData] = useState({
@@ -53,15 +56,30 @@ export default function NFTCampaignsAdmin() {
 
   const fetchCampaigns = async () => {
     try {
-      if (!user?.token) {
-        console.error('No auth token available');
-        alert('Authentication required. Please refresh the page.');
+      // Get fresh token from Firebase
+      const auth = (await import('firebase/app')).default.auth();
+      const currentUser = auth.currentUser;
+      
+      if (!currentUser) {
+        console.error('No authenticated user');
+        alert('請重新登入。');
+        router.push('/login');
         return;
       }
 
+      // Force refresh token to get latest claims
+      const freshToken = await currentUser.getIdToken(true);
+
+      console.log('User info:', {
+        email: user?.preferredEmail,
+        permissions: user?.permissions,
+        permissionsDetail: JSON.stringify(user?.permissions),
+        hasToken: !!freshToken,
+      });
+
       const response = await fetch('/api/admin/nft/campaigns/list', {
         headers: {
-          Authorization: `Bearer ${user.token}`,
+          Authorization: `Bearer ${freshToken}`,
         },
       });
 
@@ -74,22 +92,75 @@ export default function NFTCampaignsAdmin() {
       setCampaigns(data.campaigns || []);
     } catch (error: any) {
       console.error('Error fetching campaigns:', error);
-      alert(`Failed to load campaigns: ${error.message}`);
+      alert(`載入活動失敗：${error.message}`);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedImage(file);
+      // Create preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const uploadImage = async (file: File): Promise<string> => {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const response = await fetch('/api/upload', {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!response.ok) throw new Error('圖片上傳失敗');
+
+    const data = await response.json();
+    return data.url;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     try {
-      if (!user?.token) {
-        alert('Authentication required');
+      // Get fresh token from Firebase
+      const auth = (await import('firebase/app')).default.auth();
+      const currentUser = auth.currentUser;
+      
+      if (!currentUser) {
+        alert('請重新登入。');
+        router.push('/login');
         return;
       }
 
-      const token = user.token;
+      // Upload image first if selected
+      let imageUrl = formData.imageUrl;
+      if (selectedImage) {
+        setUploadingImage(true);
+        try {
+          imageUrl = await uploadImage(selectedImage);
+        } catch (error) {
+          alert('圖片上傳失敗，請重試');
+          setUploadingImage(false);
+          return;
+        }
+        setUploadingImage(false);
+      }
+
+      if (!imageUrl) {
+        alert('請上傳 NFT 圖片');
+        return;
+      }
+
+      // Force refresh token to get latest claims
+      const token = await currentUser.getIdToken(true);
       
       // Parse emails (comma or newline separated)
       const emailList = formData.eligibleEmails
@@ -105,13 +176,14 @@ export default function NFTCampaignsAdmin() {
         },
         body: JSON.stringify({
           ...formData,
+          imageUrl,
           eligibleEmails: emailList,
         }),
       });
 
-      if (!response.ok) throw new Error('Failed to create campaign');
+      if (!response.ok) throw new Error('建立活動失敗');
 
-      alert('Campaign created successfully!');
+      alert('活動建立成功！');
       setShowCreateForm(false);
       fetchCampaigns();
       
@@ -126,9 +198,11 @@ export default function NFTCampaignsAdmin() {
         endDate: '',
         maxSupply: '100',
       });
+      setSelectedImage(null);
+      setImagePreview('');
     } catch (error) {
       console.error('Error creating campaign:', error);
-      alert('Failed to create campaign');
+      alert('建立活動失敗');
     }
   };
 
@@ -136,11 +210,11 @@ export default function NFTCampaignsAdmin() {
     return (
       <>
         <Head>
-          <title>NFT Campaigns - Admin</title>
+          <title>NFT 活動管理 - 管理員</title>
         </Head>
         <AdminHeader />
         <div className="min-h-screen flex items-center justify-center">
-          <div className="text-xl">Loading...</div>
+          <div className="text-xl">載入中...</div>
         </div>
       </>
     );
@@ -149,76 +223,87 @@ export default function NFTCampaignsAdmin() {
   return (
     <>
       <Head>
-        <title>NFT Campaigns Management - Admin</title>
+        <title>NFT 活動管理 - 管理員</title>
       </Head>
       <AdminHeader />
       <div className="max-w-7xl mx-auto px-4 py-8 mt-16">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold">NFT Campaigns Management</h1>
+          <h1 className="text-3xl font-bold">NFT 活動管理</h1>
           <button
             onClick={() => setShowCreateForm(!showCreateForm)}
             className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
           >
-            {showCreateForm ? 'Cancel' : 'Create New Campaign'}
+            {showCreateForm ? '取消' : '建立新活動'}
           </button>
         </div>
 
         {showCreateForm && (
           <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-            <h2 className="text-2xl font-bold mb-4">Create NFT Campaign</h2>
+            <h2 className="text-2xl font-bold mb-4">建立 NFT 活動</h2>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-1">Campaign Name</label>
+                <label className="block text-sm font-medium mb-1">活動名稱</label>
                 <input
                   type="text"
                   required
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   className="w-full px-4 py-2 border rounded-lg"
-                  placeholder="e.g., Hackathon Taiwan 2025 NFT"
+                  placeholder="例如：RWA 黑客松台灣 2025 NFT"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">Description</label>
+                <label className="block text-sm font-medium mb-1">活動描述</label>
                 <textarea
                   required
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   className="w-full px-4 py-2 border rounded-lg"
                   rows={3}
-                  placeholder="Describe the NFT campaign..."
+                  placeholder="描述此 NFT 活動..."
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">Image URL</label>
+                <label className="block text-sm font-medium mb-1">NFT 圖片</label>
                 <input
-                  type="url"
-                  required
-                  value={formData.imageUrl}
-                  onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
                   className="w-full px-4 py-2 border rounded-lg"
-                  placeholder="https://example.com/nft-image.png"
+                  required={!formData.imageUrl}
                 />
+                {imagePreview && (
+                  <div className="mt-2">
+                    <img
+                      src={imagePreview}
+                      alt="Preview"
+                      className="w-32 h-32 object-cover rounded-lg border"
+                    />
+                  </div>
+                )}
+                {uploadingImage && (
+                  <p className="mt-2 text-sm text-blue-600">上傳中...</p>
+                )}
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">Network</label>
+                <label className="block text-sm font-medium mb-1">區塊鏈網路</label>
                 <select
                   value={formData.network}
                   onChange={(e) => setFormData({ ...formData, network: e.target.value })}
                   className="w-full px-4 py-2 border rounded-lg"
                 >
-                  <option value="sepolia">Sepolia (Testnet)</option>
-                  <option value="ethereum">Ethereum Mainnet</option>
-                  <option value="goerli">Goerli (Testnet)</option>
+                  <option value="sepolia">Sepolia（測試網）</option>
+                  <option value="ethereum">Ethereum 主網</option>
+                  <option value="arbitrum">Arbitrum</option>
                 </select>
               </div>
 
               <div>
                 <label className="block text-sm font-medium mb-1">
-                  Eligible Emails (one per line or comma-separated)
+                  符合資格的電子郵件（每行一個或用逗號分隔）
                 </label>
                 <textarea
                   required
@@ -232,7 +317,7 @@ export default function NFTCampaignsAdmin() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1">Start Date</label>
+                  <label className="block text-sm font-medium mb-1">開始日期</label>
                   <input
                     type="datetime-local"
                     required
@@ -243,7 +328,7 @@ export default function NFTCampaignsAdmin() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-1">End Date</label>
+                  <label className="block text-sm font-medium mb-1">結束日期</label>
                   <input
                     type="datetime-local"
                     required
@@ -255,7 +340,7 @@ export default function NFTCampaignsAdmin() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">Max Supply</label>
+                <label className="block text-sm font-medium mb-1">最大供應量</label>
                 <input
                   type="number"
                   required
@@ -270,17 +355,17 @@ export default function NFTCampaignsAdmin() {
                 type="submit"
                 className="w-full px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium"
               >
-                Create Campaign
+                建立活動
               </button>
             </form>
           </div>
         )}
 
         <div className="space-y-4">
-          <h2 className="text-2xl font-bold mb-4">Existing Campaigns</h2>
+          <h2 className="text-2xl font-bold mb-4">現有活動</h2>
           {campaigns.length === 0 ? (
             <div className="bg-white rounded-lg shadow-md p-8 text-center text-gray-500">
-              No campaigns yet. Create your first NFT campaign!
+              目前尚無活動。建立您的第一個 NFT 活動！
             </div>
           ) : (
             campaigns.map((campaign) => (
@@ -311,23 +396,23 @@ export default function NFTCampaignsAdmin() {
                     </div>
                     <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                       <div>
-                        <div className="text-gray-500">Network</div>
+                        <div className="text-gray-500">區塊鏈網路</div>
                         <div className="font-medium">{campaign.network}</div>
                       </div>
                       <div>
-                        <div className="text-gray-500">Supply</div>
+                        <div className="text-gray-500">供應量</div>
                         <div className="font-medium">
                           {campaign.currentSupply} / {campaign.maxSupply}
                         </div>
                       </div>
                       <div>
-                        <div className="text-gray-500">Eligible Users</div>
+                        <div className="text-gray-500">符合資格用戶數</div>
                         <div className="font-medium">{campaign.eligibleEmails.length}</div>
                       </div>
                       <div>
-                        <div className="text-gray-500">End Date</div>
+                        <div className="text-gray-500">結束日期</div>
                         <div className="font-medium">
-                          {new Date(campaign.endDate).toLocaleDateString()}
+                          {new Date(campaign.endDate).toLocaleDateString('zh-TW')}
                         </div>
                       </div>
                     </div>
