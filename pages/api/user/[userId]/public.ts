@@ -512,9 +512,26 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     publicInfo.teams = teams;
 
+    // Check NFT mint eligibility
+    let nftMintStatus = null;
+    if (userEmail) {
+      try {
+        const nftCheckResponse = await fetch(`http://localhost:${process.env.PORT || 3009}/api/nft/check-eligibility?email=${encodeURIComponent(userEmail)}`);
+        if (nftCheckResponse.ok) {
+          nftMintStatus = await nftCheckResponse.json();
+        }
+      } catch (error) {
+        console.log('[UserPublic] Could not check NFT eligibility:', error);
+        // Don't fail the request if NFT check fails
+      }
+    }
+
     return res.status(200).json({
       success: true,
-      user: publicInfo,
+      user: {
+        ...publicInfo,
+        nftMintStatus,
+      },
     });
   } catch (error: any) {
     console.error('[UserPublic] Error:', error);
