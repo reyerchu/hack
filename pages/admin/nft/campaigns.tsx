@@ -53,20 +53,28 @@ export default function NFTCampaignsAdmin() {
 
   const fetchCampaigns = async () => {
     try {
-      const token = await user?.getIdToken();
+      if (!user?.token) {
+        console.error('No auth token available');
+        alert('Authentication required. Please refresh the page.');
+        return;
+      }
+
       const response = await fetch('/api/admin/nft/campaigns/list', {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${user.token}`,
         },
       });
 
-      if (!response.ok) throw new Error('Failed to fetch campaigns');
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to fetch campaigns');
+      }
 
       const data = await response.json();
       setCampaigns(data.campaigns || []);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching campaigns:', error);
-      alert('Failed to load campaigns');
+      alert(`Failed to load campaigns: ${error.message}`);
     } finally {
       setLoading(false);
     }
@@ -76,7 +84,12 @@ export default function NFTCampaignsAdmin() {
     e.preventDefault();
 
     try {
-      const token = await user?.getIdToken();
+      if (!user?.token) {
+        alert('Authentication required');
+        return;
+      }
+
+      const token = user.token;
       
       // Parse emails (comma or newline separated)
       const emailList = formData.eligibleEmails
