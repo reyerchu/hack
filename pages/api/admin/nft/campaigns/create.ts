@@ -28,7 +28,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const userDoc = await db.collection('users').doc(userId).get();
     const userData = userDoc.data();
 
-    if (!userData || userData.role !== 'admin') {
+    if (!userData || !userData.permissions?.includes('super_admin')) {
       return res.status(403).json({ error: 'Forbidden: Admin access required' });
     }
 
