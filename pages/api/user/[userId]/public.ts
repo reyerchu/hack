@@ -8,6 +8,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import admin from 'firebase-admin';
 import initializeApi from '../../../../lib/admin/init';
 import { emailToHash, isValidHash } from '../../../../lib/utils/email-hash';
+import { getTeamAwards } from '../../../../lib/winnersData';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   initializeApi();
@@ -467,10 +468,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       if (!teamSet.has(doc.id)) {
         teamSet.add(doc.id);
         const teamData = doc.data();
+        const awards = getTeamAwards(teamData.teamName);
         teams.push({
           teamId: doc.id,
           teamName: teamData.teamName,
           role: teamData.teamLeader?.role || '',
+          awards: awards,
         });
       }
     });
@@ -479,10 +482,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       if (!teamSet.has(doc.id)) {
         teamSet.add(doc.id);
         const teamData = doc.data();
+        const awards = getTeamAwards(teamData.teamName);
         teams.push({
           teamId: doc.id,
           teamName: teamData.teamName,
           role: teamData.teamLeader?.role || '',
+          awards: awards,
         });
       }
     });
@@ -495,10 +500,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const member = teamData.teamMembers?.find(
           (m: any) => m.email === userEmail || m.userId === userDoc.id,
         );
+        const awards = getTeamAwards(teamData.teamName);
         teams.push({
           teamId: doc.id,
           teamName: teamData.teamName,
           role: member?.role || '隊員',
+          awards: awards,
         });
       }
     });

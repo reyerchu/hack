@@ -8,6 +8,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import admin from 'firebase-admin';
 import initializeApi from '../../../../lib/admin/init';
 import { emailToHash } from '../../../../lib/utils/email-hash';
+import { getTeamAwards } from '../../../../lib/winnersData';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   initializeApi();
@@ -40,6 +41,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       teamName: teamData.teamName,
       description: teamData.description || '',
       createdAt: teamData.createdAt,
+      evmWalletAddress: teamData.evmWalletAddress || '',
+      otherWallets: teamData.otherWallets || [],
+      demoDaySubmission: null, // 將填入 Demo Day 賽道的提交資料
     };
 
     // 获取队长信息（只显示暱称）
@@ -236,6 +240,87 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 trackName: trackName,
                 submissionStatus: '提交完成',
               });
+
+              // 檢查是否為 Demo Day 賽道的提交
+              console.log(
+                `[TeamPublic] Challenge trackName: "${trackName}", challengeTitle: "${challengeData?.title}"`,
+              );
+
+              if (trackName && trackName.includes('Demo Day')) {
+                console.log(`[TeamPublic] Found Demo Day track submission for team ${teamId}`);
+                const demoDayData: any = {};
+
+                // 檢查是否有團隊的一頁簡介 PDF
+                const teamName = teamData.teamName;
+                const pdfPath = `/team-media/2025/DemoDay/${teamName}.pdf`;
+                console.log(`[TeamPublic] Checking for one-pager PDF: ${pdfPath}`);
+
+                // 添加一頁簡介 PDF
+                demoDayData.onePager = {
+                  title: '一頁簡介',
+                  value: pdfPath,
+                  type: '檔案',
+                  teamName: teamName,
+                };
+
+                // 從提交中提取所有 Github 原始碼連結
+                const items = [
+                  ...(submissionData.submissions || []),
+                  ...(submissionData.extraItems || []),
+                ];
+                console.log(`[TeamPublic] Checking ${items.length} items for GitHub repos`);
+                console.log(
+                  `[TeamPublic] Items details:`,
+                  JSON.stringify(
+                    items.map((i) => ({ title: i.title, type: i.type, hasValue: !!i.value })),
+                  ),
+                );
+
+                const githubRepos: any[] = [];
+                for (const item of items) {
+                  console.log(
+                    `[TeamPublic] Checking item: title="${item.title}", type="${
+                      item.type
+                    }", value="${item.value?.substring(0, 50)}..."`,
+                  );
+                  if (item.value) {
+                    const valueLower = item.value.toLowerCase();
+                    const titleLower = item.title?.toLowerCase() || '';
+
+                    // 檢查 value 或 title 是否包含 GitHub 相關關鍵字
+                    if (
+                      valueLower.includes('github') ||
+                      titleLower.includes('github') ||
+                      titleLower.includes('原始碼') ||
+                      titleLower.includes('source') ||
+                      titleLower.includes('code') ||
+                      titleLower.includes('repo')
+                    ) {
+                      githubRepos.push({
+                        title: item.title || 'Github 連結',
+                        value: item.value,
+                        type: item.type,
+                      });
+                      console.log(`[TeamPublic] Found githubRepo: ${item.value}`);
+                    }
+                  }
+                }
+
+                // 如果找到 GitHub 連結，儲存所有連結
+                if (githubRepos.length > 0) {
+                  demoDayData.githubRepos = githubRepos;
+                  console.log(`[TeamPublic] Found ${githubRepos.length} GitHub repos`);
+                }
+
+                // 儲存 Demo Day 資料
+                if (Object.keys(demoDayData).length > 0) {
+                  teamInfo.demoDaySubmission = demoDayData;
+                  console.log(
+                    `[TeamPublic] Saved Demo Day submission for team ${teamId}:`,
+                    JSON.stringify(demoDayData),
+                  );
+                }
+              }
             }
           } catch (err) {
             console.error(`[TeamPublic] Error fetching challenge ${challengeId}:`, err);
@@ -278,9 +363,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     teamInfo.challenges = challenges;
 
-    // 获取得奖信息（从 winners 页面数据推断，实际应该从专门的 awards 集合获取）
-    // 这里暂时不实现，等有明确的获奖数据结构后再添加
-    teamInfo.awards = [];
+    // 獲取得獎紀錄（使用團隊名稱匹配）
+    const awards = getTeamAwards(teamData.teamName);
+    teamInfo.awards = awards;
+    console.log(`[TeamPublic] Found ${awards.length} awards for team ${teamData.teamName}`);
 
     return res.status(200).json({
       success: true,

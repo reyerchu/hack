@@ -10,6 +10,8 @@ import Head from 'next/head';
 import Link from 'next/link';
 import AppHeader from '../../components/AppHeader';
 import HomeFooter from '../../components/homeComponents/HomeFooter';
+import { useAuthContext } from '../../lib/user/AuthContext';
+import { emailToHash } from '../../lib/utils/email-hash';
 
 interface UserPublicInfo {
   userId: string;
@@ -31,21 +33,48 @@ interface UserPublicInfo {
     teamId: string;
     teamName: string;
     role: string;
+    awards?: Array<{ trackName: string; awardTitle: string; project?: string }>;
   }[];
 }
 
 export default function UserPublicPage() {
   const router = useRouter();
   const { userId } = router.query;
+  const { user: currentUser, isSignedIn } = useAuthContext();
   const [user, setUser] = useState<UserPublicInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [canEdit, setCanEdit] = useState(false);
+  const [copiedAddress, setCopiedAddress] = useState<string | null>(null);
 
   useEffect(() => {
     if (!userId) return;
 
     fetchUserInfo();
   }, [userId]);
+
+  // Check if current user can edit this profile
+  useEffect(() => {
+    if (!isSignedIn || !currentUser?.preferredEmail || !userId) {
+      setCanEdit(false);
+      return;
+    }
+
+    // Check if the current user's email hash matches the userId in the URL
+    const currentUserHash = emailToHash(currentUser.preferredEmail);
+    setCanEdit(currentUserHash === userId);
+  }, [isSignedIn, currentUser?.preferredEmail, userId]);
+
+  // Copy wallet address to clipboard
+  const copyToClipboard = async (address: string) => {
+    try {
+      await navigator.clipboard.writeText(address);
+      setCopiedAddress(address);
+      setTimeout(() => setCopiedAddress(null), 2000); // Clear after 2 seconds
+    } catch (err) {
+      console.error('Failed to copy:', err);
+    }
+  };
 
   const fetchUserInfo = async () => {
     try {
@@ -138,9 +167,39 @@ export default function UserPublicPage() {
             className="mb-10 bg-white rounded-lg shadow-md p-6 md:p-8 border-l-4"
             style={{ borderLeftColor: '#1a3a6e' }}
           >
-            <h1 className="text-[28px] md:text-[36px] font-bold mb-2" style={{ color: '#1a3a6e' }}>
-              {user.displayName}
-            </h1>
+            <div className="flex items-start justify-between mb-2">
+              <div className="flex-1">
+                <h1 className="text-[28px] md:text-[36px] font-bold" style={{ color: '#1a3a6e' }}>
+                  {user.displayName}
+                </h1>
+              </div>
+              {canEdit && (
+                <button
+                  onClick={() => router.push('/profile?edit=true')}
+                  className="ml-4 px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"
+                  style={{
+                    backgroundColor: '#1a3a6e',
+                    color: '#ffffff',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#2a4a7e';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = '#1a3a6e';
+                  }}
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                    />
+                  </svg>
+                  編輯
+                </button>
+              )}
+            </div>
             <div className="w-20 h-1 mb-4" style={{ backgroundColor: '#8B4049' }}></div>
 
             {/* User Info Grid */}
@@ -161,7 +220,17 @@ export default function UserPublicPage() {
                   <div>
                     <span className="text-sm font-semibold text-gray-700">姓名:</span>
                     <p className="text-sm text-gray-600">
-                      {`${user.firstName || ''} ${user.lastName || ''}`.trim()}
+                      {(() => {
+                        const firstName = user.firstName || '';
+                        const lastName = user.lastName || '';
+                        // Check if name contains Chinese characters
+                        const hasChinese = /[\u4e00-\u9fa5]/.test(firstName + lastName);
+                        // For Chinese names: lastName + firstName (姓 + 名)
+                        // For English names: firstName + lastName
+                        return hasChinese
+                          ? `${lastName}${firstName}`.trim()
+                          : `${firstName} ${lastName}`.trim();
+                      })()}
                     </p>
                   </div>
                 )}
@@ -242,8 +311,55 @@ export default function UserPublicPage() {
                 )}
                 {user.evmAddress && (
                   <div>
-                    <span className="text-sm font-semibold text-gray-700">EVM 錢包地址:</span>
-                    <p className="text-sm text-gray-600 font-mono break-all">{user.evmAddress}</p>
+                    <span className="text-sm font-semibold text-gray-700 block mb-1">
+                      EVM 錢包地址:
+                    </span>
+                    <div
+                      className="flex items-center gap-2 p-2 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors group"
+                      onClick={() => copyToClipboard(user.evmAddress!)}
+                      style={{
+                        backgroundColor:
+                          copiedAddress === user.evmAddress ? '#f0fdf4' : 'transparent',
+                      }}
+                    >
+                      <p className="text-sm text-gray-600 font-mono break-all flex-1">
+                        {user.evmAddress}
+                      </p>
+                      <div className="flex-shrink-0">
+                        {copiedAddress === user.evmAddress ? (
+                          <div className="flex items-center gap-1 text-green-600">
+                            <svg
+                              className="w-4 h-4"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M5 13l4 4L19 7"
+                              />
+                            </svg>
+                            <span className="text-xs font-medium">已複製</span>
+                          </div>
+                        ) : (
+                          <svg
+                            className="w-4 h-4 text-gray-400 group-hover:text-gray-600"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                            />
+                          </svg>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 )}
                 {user.walletAddresses && user.walletAddresses.length > 0 && (
@@ -251,15 +367,57 @@ export default function UserPublicPage() {
                     <span className="text-sm font-semibold text-gray-700 block mb-2">
                       其他錢包地址:
                     </span>
-                    <div className="space-y-1">
+                    <div className="space-y-2">
                       {user.walletAddresses.map((wallet, index) => (
-                        <div key={index} className="flex gap-2 text-sm">
-                          <span className="text-gray-700 font-semibold min-w-[100px]">
+                        <div
+                          key={index}
+                          className="flex items-center gap-3 p-2 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors group"
+                          onClick={() => copyToClipboard(wallet.address)}
+                          style={{
+                            backgroundColor:
+                              copiedAddress === wallet.address ? '#f0fdf4' : 'transparent',
+                          }}
+                        >
+                          <span className="text-gray-700 font-semibold text-sm min-w-[100px]">
                             {wallet.chainName}:
                           </span>
-                          <span className="text-gray-600 font-mono break-all">
+                          <span className="text-gray-600 font-mono text-sm break-all flex-1">
                             {wallet.address}
                           </span>
+                          <div className="flex-shrink-0">
+                            {copiedAddress === wallet.address ? (
+                              <div className="flex items-center gap-1 text-green-600">
+                                <svg
+                                  className="w-4 h-4"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M5 13l4 4L19 7"
+                                  />
+                                </svg>
+                                <span className="text-xs font-medium">已複製</span>
+                              </div>
+                            ) : (
+                              <svg
+                                className="w-4 h-4 text-gray-400 group-hover:text-gray-600"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                                />
+                              </svg>
+                            )}
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -315,7 +473,33 @@ export default function UserPublicPage() {
                       >
                         {team.teamName}
                       </h3>
-                      {team.role && <p className="text-sm text-gray-600">{team.role}</p>}
+                      {team.role && <p className="text-sm text-gray-600 mb-2">{team.role}</p>}
+
+                      {/* Team Awards */}
+                      {team.awards && team.awards.length > 0 && (
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          {team.awards.map((award: any, awardIndex: number) => {
+                            // Extract main award title (remove content in parentheses)
+                            const mainTitle = award.awardTitle
+                              .replace(/[（(][^）)]*[）)]/g, '')
+                              .trim();
+
+                            return (
+                              <div
+                                key={awardIndex}
+                                className="inline-flex items-center px-3 py-1 rounded-md text-xs font-semibold"
+                                style={{
+                                  backgroundColor: '#1a3a6e',
+                                  color: '#ffffff',
+                                }}
+                              >
+                                <span className="mr-1">🏆</span>
+                                <span>{mainTitle}</span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
                     </a>
                   </Link>
                 ))}
