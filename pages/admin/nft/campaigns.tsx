@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useAuthContext } from '../../../lib/user/AuthContext';
 import { useRouter } from 'next/router';
-import Layout from '../../../components/Layout';
+import Head from 'next/head';
+import AdminHeader from '../../../components/adminComponents/AdminHeader';
 
 interface NFTCampaign {
   id: string;
@@ -120,17 +121,25 @@ export default function NFTCampaignsAdmin() {
 
   if (authLoading || loading) {
     return (
-      <Layout>
+      <>
+        <Head>
+          <title>NFT Campaigns - Admin</title>
+        </Head>
+        <AdminHeader />
         <div className="min-h-screen flex items-center justify-center">
           <div className="text-xl">Loading...</div>
         </div>
-      </Layout>
+      </>
     );
   }
 
   return (
-    <Layout>
-      <div className="max-w-7xl mx-auto px-4 py-8">
+    <>
+      <Head>
+        <title>NFT Campaigns Management - Admin</title>
+      </Head>
+      <AdminHeader />
+      <div className="max-w-7xl mx-auto px-4 py-8 mt-16">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold">NFT Campaigns Management</h1>
           <button
@@ -316,7 +325,7 @@ export default function NFTCampaignsAdmin() {
           )}
         </div>
       </div>
-    </Layout>
+    </>
   );
 }
 
