@@ -114,10 +114,18 @@ export default function NFTAutoSetup({ campaignId, campaignName, network, onSucc
       // Import contract ABI and bytecode
       const CONTRACT_ARTIFACT = await import('../../lib/contracts/RWAHackathonNFT.json');
       
+      // Get a fresh signer for deployment
+      const deployProvider = new ethers.providers.Web3Provider(window.ethereum);
+      const deploySigner = deployProvider.getSigner();
+      
+      // Verify signer is ready
+      const signerAddress = await deploySigner.getAddress();
+      console.log('[AutoSetup] Deploying with address:', signerAddress);
+      
       const factory = new ethers.ContractFactory(
         CONTRACT_ARTIFACT.abi,
         CONTRACT_ARTIFACT.bytecode,
-        setupSigner
+        deploySigner
       );
 
       console.log('[AutoSetup] Contract parameters:', {
