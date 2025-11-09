@@ -3,8 +3,7 @@ import formidable, { File } from 'formidable';
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
-import FormData from 'form-data';
-import fetch from 'node-fetch';
+import { PinataSDK } from 'pinata-web3';
 
 // Disable Next.js body parsing (we'll use formidable)
 export const config = {
@@ -74,25 +73,20 @@ export default async function handler(
 
     console.log('[IPFS Upload] Uploading image to Pinata...');
 
-    // Step 1: Upload image to IPFS using Pinata API
-    const imageFormData = new FormData();
-    imageFormData.append('file', fs.createReadStream(imageFile.filepath));
-
-    const imageUploadResponse = await fetch('https://api.pinata.cloud/pinning/pinFileToIPFS', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${pinataJWT}`,
-        ...imageFormData.getHeaders(),
-      },
-      body: imageFormData,
+    // Initialize Pinata SDK (used for both image and metadata uploads)
+    const pinata = new PinataSDK({
+      pinataJwt: pinataJWT,
     });
 
-    if (!imageUploadResponse.ok) {
-      const error = await imageUploadResponse.text();
-      throw new Error(`Image upload failed: ${error}`);
-    }
+    // Step 1: Upload image to IPFS using Pinata SDK
+    // Read the image file and create a File object
+    const imageBuffer = fs.readFileSync(imageFile.filepath);
+    const imageBlob = new Blob([imageBuffer], { type: imageFile.mimetype || 'image/png' });
+    const imageFileObj = new File([imageBlob], imageFile.originalFilename || 'nft-image.png', {
+      type: imageFile.mimetype || 'image/png',
+    });
 
-    const imageResult = await imageUploadResponse.json();
+    const imageResult = await pinata.upload.file(imageFileObj);
     const imageCID = imageResult.IpfsHash;
     const imageURL = `ipfs://${imageCID}`;
 
@@ -132,47 +126,12 @@ export default async function handler(
       console.log('[IPFS Upload] Created', totalSupply, 'metadata files');
       console.log('[IPFS Upload] Uploading metadata folder to Pinata...');
 
-      // Step 4: Upload the entire folder to IPFS using multipart/form-data
-      // Strategy: Create a FormData where each file has the SAME 'file' field name
-      // but with different filenames to create a directory structure
-      const metadataFormData = new FormData();
-
-      // Add each JSON file to the form with a relative path
-      const files = fs.readdirSync(tempDir);
-      for (const file of files) {
-        const filePath = path.join(tempDir, file);
-        // Use 'file' as the field name for ALL files
-        // Pinata will group them into a directory when wrapWithDirectory is true
-        metadataFormData.append('file', fs.createReadStream(filePath), {
-          filename: file, // Use 'filename' instead of 'filepath'
-        });
-      }
-
-      // Add metadata for the entire pin
-      metadataFormData.append('pinataMetadata', JSON.stringify({
-        name: `${name}-metadata-collection`,
-      }));
-
-      // Add options - wrapWithDirectory groups multiple files under one CID
-      metadataFormData.append('pinataOptions', JSON.stringify({
-        wrapWithDirectory: true,
-      }));
-
-      const metadataUploadResponse = await fetch('https://api.pinata.cloud/pinning/pinFileToIPFS', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${pinataJWT}`,
-          ...metadataFormData.getHeaders(),
-        },
-        body: metadataFormData,
+      // Step 4: Upload the directory using Pinata SDK
+      // Upload the entire directory
+      const metadataResult = await pinata.upload.directory(tempDir, {
+        name: `${name}-metadata-${Date.now()}`,
       });
-
-      if (!metadataUploadResponse.ok) {
-        const error = await metadataUploadResponse.text();
-        throw new Error(`Metadata folder upload failed: ${error}`);
-      }
-
-      const metadataResult = await metadataUploadResponse.json();
+      
       const metadataCID = metadataResult.IpfsHash;
       
       // BaseURI format: ipfs://CID/
