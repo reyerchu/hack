@@ -392,9 +392,9 @@ export default function NFTAutoSetup({ campaignId, campaignName, network, onSucc
       <button
         onClick={handleAutoSetup}
         disabled={step !== 'idle'}
-        className={`w-full px-5 py-3 rounded-lg font-medium transition-all ${
+        className={`w-full px-8 py-3 rounded-lg font-bold transition-all duration-300 ${
           step === 'idle'
-            ? 'text-white hover:opacity-90 shadow-md'
+            ? 'text-white transform hover:scale-105 shadow-lg hover:shadow-xl'
             : 'bg-gray-200 text-gray-500 cursor-not-allowed'
         }`}
         style={step === 'idle' ? { backgroundColor: '#8B4049' } : {}}

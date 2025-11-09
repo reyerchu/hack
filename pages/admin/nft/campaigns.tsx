@@ -399,7 +399,7 @@ export default function NFTCampaignsAdmin() {
 
                 <button
                   type="submit"
-                  className="w-full px-6 py-3 text-white rounded-lg font-medium transition-all hover:opacity-90"
+                  className="w-full px-8 py-3 text-white rounded-lg font-bold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
                   style={{ backgroundColor: '#8B4049' }}
                 >
                   建立活動
@@ -466,7 +466,14 @@ export default function NFTCampaignsAdmin() {
                       <div>
                         <div className="text-gray-500">結束日期</div>
                         <div className="font-medium">
-                          {new Date(campaign.endDate).toLocaleDateString('zh-TW')}
+                          {new Date(campaign.endDate).toLocaleString('zh-TW', {
+                            year: 'numeric',
+                            month: '2-digit',
+                            day: '2-digit',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            hour12: false
+                          })}
                         </div>
                       </div>
                     </div>
