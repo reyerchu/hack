@@ -50,6 +50,15 @@ export default function NFTMintPage() {
     emailHash
   );
 
+  // Helper function to get blockchain explorer URL
+  const getTxExplorerUrl = (network: string, txHash: string) => {
+    if (network.toLowerCase() === 'arbitrum') {
+      return `https://arbiscan.io/tx/${txHash}`;
+    }
+    const prefix = network === 'mainnet' ? '' : `${network}.`;
+    return `https://${prefix}etherscan.io/tx/${txHash}`;
+  };
+
   useEffect(() => {
     if (!authLoading && !isSignedIn) {
       router.push('/login');
@@ -338,7 +347,7 @@ export default function NFTMintPage() {
                   <p className="text-sm text-gray-600">
                     <span className="font-semibold">交易雜湊：</span>
                     <a
-                      href={`https://etherscan.io/tx/${mintStatus.mintRecord.transactionHash}`}
+                      href={getTxExplorerUrl(mintStatus.campaign?.network || 'sepolia', mintStatus.mintRecord.transactionHash)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-blue-600 hover:underline break-all"

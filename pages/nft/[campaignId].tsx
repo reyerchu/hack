@@ -78,11 +78,21 @@ export default function NFTCampaignPage() {
   };
 
   const getNetworkExplorerUrl = (network: string, address: string) => {
+    // Handle Arbitrum network
+    if (network.toLowerCase() === 'arbitrum') {
+      return `https://arbiscan.io/address/${address}`;
+    }
+    // Handle Ethereum networks
     const prefix = network === 'mainnet' ? '' : `${network}.`;
     return `https://${prefix}etherscan.io/address/${address}`;
   };
 
   const getTxExplorerUrl = (network: string, txHash: string) => {
+    // Handle Arbitrum network
+    if (network.toLowerCase() === 'arbitrum') {
+      return `https://arbiscan.io/tx/${txHash}`;
+    }
+    // Handle Ethereum networks
     const prefix = network === 'mainnet' ? '' : `${network}.`;
     return `https://${prefix}etherscan.io/tx/${txHash}`;
   };
