@@ -282,7 +282,7 @@ export default function NFTAutoSetup({ campaignId, campaignName, network, onSucc
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           campaignId,
-          contractAddress: manualContractAddress,
+          contractAddress: contractAddress,
           status: 'active',
           whitelistSummary: {
             totalEmails: result.summary.totalEligibleEmails,
