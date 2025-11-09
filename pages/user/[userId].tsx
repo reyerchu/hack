@@ -593,7 +593,7 @@ export default function UserPublicPage() {
                             <img
                               src={campaign.imageUrl}
                               alt={campaign.name}
-                              className="w-full h-full object-cover"
+                              className="w-full h-full object-contain"
                               onError={(e) => {
                                 e.currentTarget.style.display = 'none';
                                 e.currentTarget.parentElement!.innerHTML = `
@@ -639,40 +639,21 @@ export default function UserPublicPage() {
 
                       {/* Status / Action - 只有頁面所有者才能看到 mint 按鈕 */}
                       {campaign.alreadyMinted && campaign.mintRecord ? (
-                        <div className="space-y-2">
-                          <div className="flex items-center gap-2 px-3 py-2 bg-green-50 rounded-lg">
-                            <svg
-                              className="w-5 h-5 text-green-600 flex-shrink-0"
-                              fill="currentColor"
-                              viewBox="0 0 20 20"
-                            >
-                              <path
-                                fillRule="evenodd"
-                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                                clipRule="evenodd"
-                              />
-                            </svg>
-                            <div className="flex-1">
-                              <p className="text-sm font-semibold text-green-800">已鑄造</p>
-                              {campaign.mintRecord.tokenId && (
-                                <p className="text-xs text-green-600">
-                                  Token #{campaign.mintRecord.tokenId}
-                                </p>
-                              )}
-                            </div>
+                        <div className="flex items-center gap-2 px-3 py-2 bg-green-50 rounded-lg">
+                          <svg
+                            className="w-5 h-5 text-green-600 flex-shrink-0"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                          <div className="flex-1">
+                            <p className="text-sm font-semibold text-green-800">已鑄造</p>
                           </div>
-                          {campaign.mintRecord.transactionHash && (
-                            <a
-                              href={`https://${
-                                campaign.network === 'mainnet' ? '' : campaign.network + '.'
-                              }etherscan.io/tx/${campaign.mintRecord.transactionHash}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="block text-center text-xs text-blue-600 hover:underline"
-                            >
-                              查看交易記錄 →
-                            </a>
-                          )}
                         </div>
                       ) : canEdit && campaign.eligible ? (
                         // 只有頁面所有者（canEdit=true）才顯示 mint 按鈕
