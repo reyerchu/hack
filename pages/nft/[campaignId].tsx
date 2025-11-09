@@ -247,61 +247,20 @@ export default function NFTCampaignPage() {
             <h2 className="text-2xl font-bold mb-6 text-gray-900">
               鑄造記錄 ({mintRecords.length})
             </h2>
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Token ID
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      用戶
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      鑄造時間
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      交易
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {mintRecords.map((record) => (
-                    <tr key={record.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium text-gray-900">#{record.tokenId}</div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        {record.userEmail ? (
-                          <Link href={`/user/${emailToHash(record.userEmail)}`}>
-                            <a className="text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline">
-                              {record.displayName}
-                            </a>
-                          </Link>
-                        ) : (
-                          <div className="text-sm font-medium text-gray-900">{record.displayName}</div>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-600">
-                          {new Date(record.mintedAt).toLocaleString('zh-TW')}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <a
-                          href={getTxExplorerUrl(campaign.network, record.transactionHash)}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-sm text-blue-600 hover:text-blue-800 font-mono"
-                        >
-                          {record.transactionHash.substring(0, 10)}...
-                          {record.transactionHash.substring(record.transactionHash.length - 8)}
-                        </a>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <div className="flex flex-wrap gap-3">
+              {mintRecords.map((record) => (
+                record.userEmail ? (
+                  <Link key={record.id} href={`/user/${emailToHash(record.userEmail)}`}>
+                    <a className="inline-flex items-center px-4 py-2 rounded-full bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors">
+                      <span className="text-sm font-medium">{record.displayName}</span>
+                    </a>
+                  </Link>
+                ) : (
+                  <div key={record.id} className="inline-flex items-center px-4 py-2 rounded-full bg-gray-50 text-gray-700">
+                    <span className="text-sm font-medium">{record.displayName}</span>
+                  </div>
+                )
+              ))}
             </div>
           </div>
         )}
