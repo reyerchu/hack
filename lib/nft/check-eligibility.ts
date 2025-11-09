@@ -119,14 +119,121 @@ export async function getAllUserNFTCampaigns(email: string): Promise<NFTCampaign
 /**
  * Check if user is eligible to mint NFT
  * This is a shared function that can be called from API routes or SSR
- * Returns the first eligible campaign (for backward compatibility)
+ * 
+ * @param email User's email address
+ * @param specificCampaignId Optional campaign ID to check. If provided, only check this campaign.
+ * @returns MintStatus for the specified campaign, or the first eligible campaign if not specified
  */
-export async function checkNFTEligibility(email: string): Promise<MintStatus> {
+export async function checkNFTEligibility(email: string, specificCampaignId?: string): Promise<MintStatus> {
   try {
     const db = firestore();
     const normalizedEmail = email.toLowerCase().trim();
+    const now = new Date();
 
-    // Find active campaigns
+    // If specific campaign is requested, check only that campaign
+    if (specificCampaignId) {
+      const campaignDoc = await db.collection('nft-campaigns').doc(specificCampaignId).get();
+      
+      if (!campaignDoc.exists) {
+        return {
+          eligible: false,
+          alreadyMinted: false,
+          reason: 'Campaign not found',
+        };
+      }
+
+      const campaign = campaignDoc.data();
+      const startDate = campaign?.startDate?.toDate();
+      const endDate = campaign?.endDate?.toDate();
+
+      // Check if user is in the whitelist
+      if (!campaign?.merkleProofs || !campaign.merkleProofs[normalizedEmail]) {
+        return {
+          eligible: false,
+          alreadyMinted: false,
+          reason: 'Not in campaign whitelist',
+        };
+      }
+
+      // Check if user already minted
+      const mintSnapshot = await db
+        .collection('nft-mints')
+        .where('campaignId', '==', specificCampaignId)
+        .where('userEmail', '==', normalizedEmail)
+        .limit(1)
+        .get();
+
+      if (!mintSnapshot.empty) {
+        const mintRecord = mintSnapshot.docs[0].data();
+        return {
+          eligible: false,
+          alreadyMinted: true,
+          reason: 'NFT already minted for this campaign',
+          campaign: {
+            id: specificCampaignId,
+            name: campaign.name,
+            description: campaign.description,
+            imageUrl: campaign.imageUrl,
+          },
+          mintRecord: {
+            mintedAt: mintRecord.mintedAt?.toDate(),
+            transactionHash: mintRecord.transactionHash,
+          },
+        };
+      }
+
+      // Check campaign status and dates
+      if (campaign.status !== 'active') {
+        return {
+          eligible: false,
+          alreadyMinted: false,
+          reason: 'Campaign is not active',
+        };
+      }
+
+      if (campaign.currentSupply >= campaign.maxSupply) {
+        return {
+          eligible: false,
+          alreadyMinted: false,
+          reason: 'Supply exhausted',
+        };
+      }
+
+      if (startDate && now < startDate) {
+        return {
+          eligible: false,
+          alreadyMinted: false,
+          reason: 'Campaign not started',
+        };
+      }
+
+      if (endDate && now > endDate) {
+        return {
+          eligible: false,
+          alreadyMinted: false,
+          reason: 'Campaign ended',
+        };
+      }
+
+      // User is eligible
+      return {
+        eligible: true,
+        alreadyMinted: false,
+        campaign: {
+          id: specificCampaignId,
+          name: campaign.name,
+          description: campaign.description,
+          imageUrl: campaign.imageUrl,
+          network: campaign.network,
+          contractAddress: campaign.contractAddress,
+          maxSupply: campaign.maxSupply,
+          currentSupply: campaign.currentSupply,
+          endDate: campaign.endDate?.toDate(),
+        },
+      };
+    }
+
+    // Original logic: Find first eligible campaign
     const campaignsSnapshot = await db
       .collection('nft-campaigns')
       .where('status', '==', 'active')
@@ -140,7 +247,6 @@ export async function checkNFTEligibility(email: string): Promise<MintStatus> {
       };
     }
 
-    const now = new Date();
     let eligibleCampaign: any = null;
 
     // Find a campaign that's currently active (within date range) and user is eligible

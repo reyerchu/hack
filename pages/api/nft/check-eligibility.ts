@@ -18,7 +18,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 
   try {
     initializeApi();
-    const { email } = req.query;
+    const { email, campaignId } = req.query;
 
     if (!email || typeof email !== 'string') {
       return res.status(400).json({
@@ -28,7 +28,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
       } as MintStatus);
     }
 
-    const result = await checkNFTEligibility(email);
+    // If campaignId is provided, check eligibility for that specific campaign
+    const result = await checkNFTEligibility(
+      email, 
+      typeof campaignId === 'string' ? campaignId : undefined
+    );
     return res.status(200).json(result);
   } catch (error: any) {
     console.error('[NFT Check Eligibility] Error:', error);
