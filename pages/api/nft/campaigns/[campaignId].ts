@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { firestore } from 'firebase-admin';
+import { firestore, auth } from 'firebase-admin';
 import initializeApi from '../../../../lib/admin/init';
 
 export default async function handler(
@@ -28,8 +28,23 @@ export default async function handler(
 
     const campaignData = campaignDoc.data();
 
-    // Return public information only
-    const publicCampaign = {
+    // Check if user is admin
+    let isAdmin = false;
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      try {
+        const token = authHeader.split('Bearer ')[1];
+        const decodedToken = await auth().verifyIdToken(token);
+        const userDoc = await db.collection('users').doc(decodedToken.uid).get();
+        const userData = userDoc.data();
+        isAdmin = userData?.permissions?.includes('super_admin') || false;
+      } catch (err) {
+        console.log('[NFT Campaign API] Auth check failed:', err);
+      }
+    }
+
+    // Build campaign response
+    const publicCampaign: any = {
       id: campaignDoc.id,
       name: campaignData?.name || '',
       description: campaignData?.description || '',
@@ -43,6 +58,11 @@ export default async function handler(
       endDate: campaignData?.endDate?.toDate?.()?.toISOString() || campaignData?.endDate,
       createdAt: campaignData?.createdAt?.toDate?.()?.toISOString() || campaignData?.createdAt,
     };
+
+    // Include whitelist for admin users
+    if (isAdmin && campaignData?.eligibleEmails) {
+      publicCampaign.whitelistedEmails = campaignData.eligibleEmails;
+    }
 
     return res.status(200).json({
       success: true,

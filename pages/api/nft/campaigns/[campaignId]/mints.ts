@@ -39,7 +39,6 @@ export default async function handler(
     
     // Fetch user information by userId (check both users and registrations collections)
     const userInfoMap: { [key: string]: any } = {};
-    console.log(`[NFT Mints] Fetching user info for ${userIds.length} userIds:`, userIds);
     await Promise.all(
       userIds.map(async (userId) => {
         try {

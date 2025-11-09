@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import Head from 'next/head';
@@ -20,6 +20,7 @@ interface NFTCampaign {
   startDate?: string;
   endDate?: string;
   createdAt: string;
+  whitelistedEmails?: string[];
 }
 
 interface MintRecord {
@@ -30,6 +31,14 @@ interface MintRecord {
   tokenId: number;
   transactionHash: string;
   mintedAt: string;
+}
+
+interface WhitelistStatus {
+  email: string;
+  status: 'minted' | 'not_minted';
+  tokenId?: number;
+  transactionHash?: string;
+  mintedAt?: string;
 }
 
 export default function NFTCampaignPage() {
@@ -44,19 +53,51 @@ export default function NFTCampaignPage() {
   // Check if user is admin
   const isAdmin = user?.permissions?.includes('super_admin') || false;
 
+  // Calculate whitelist status for admin view
+  const whitelistStatus: WhitelistStatus[] = useMemo(() => {
+    if (!campaign?.whitelistedEmails || !isAdmin) return [];
+
+    return campaign.whitelistedEmails.map(email => {
+      const mintRecord = mintRecords.find(
+        record => record.userEmail.toLowerCase() === email.toLowerCase()
+      );
+
+      if (mintRecord) {
+        return {
+          email,
+          status: 'minted' as const,
+          tokenId: mintRecord.tokenId,
+          transactionHash: mintRecord.transactionHash,
+          mintedAt: mintRecord.mintedAt,
+        };
+      }
+
+      return {
+        email,
+        status: 'not_minted' as const,
+      };
+    });
+  }, [campaign, mintRecords, isAdmin]);
+
   useEffect(() => {
     if (campaignId) {
       fetchCampaignData();
     }
-  }, [campaignId]);
+  }, [campaignId, user]); // Re-fetch when user changes (e.g., after login)
 
   const fetchCampaignData = async () => {
     try {
       setLoading(true);
       setError('');
 
+      // Prepare headers with auth token if available
+      const headers: HeadersInit = {};
+      if (user?.token) {
+        headers['Authorization'] = `Bearer ${user.token}`;
+      }
+
       // Fetch campaign details
-      const campaignRes = await fetch(`/api/nft/campaigns/${campaignId}`);
+      const campaignRes = await fetch(`/api/nft/campaigns/${campaignId}`, { headers });
       if (!campaignRes.ok) {
         throw new Error('無法載入 NFT 活動資訊');
       }
@@ -378,6 +419,126 @@ export default function NFTCampaignPage() {
                 ))}
               </div>
             )}
+          </div>
+        )}
+
+        {/* Whitelist Status - Admin Only */}
+        {isAdmin && whitelistStatus.length > 0 && (
+          <div className="bg-white rounded-lg shadow-lg p-6 mt-8">
+            <h2 className="text-2xl font-bold mb-6 text-gray-900">
+              白名單狀態 ({whitelistStatus.length})
+            </h2>
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      #
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Email
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      狀態
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Token ID
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      交易
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {whitelistStatus.map((item, index) => (
+                    <tr key={item.email} className="hover:bg-gray-50">
+                      <td className="px-4 py-3 whitespace-nowrap">
+                        <span className="text-sm text-gray-500">
+                          {index + 1}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className="text-sm text-gray-900 font-mono">
+                          {item.email}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 whitespace-nowrap">
+                        {item.status === 'minted' ? (
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            ✓ 已鑄造
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                            ⏳ 未鑄造
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3 whitespace-nowrap">
+                        {item.tokenId !== undefined ? (
+                          <span className="text-sm font-medium text-gray-900">
+                            #{item.tokenId}
+                          </span>
+                        ) : (
+                          <span className="text-sm text-gray-400">-</span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3 whitespace-nowrap">
+                        {item.transactionHash ? (
+                          <a
+                            href={getTxExplorerUrl(campaign.network, item.transactionHash)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-sm text-blue-600 hover:text-blue-800"
+                          >
+                            <div className="flex items-center gap-1">
+                              <span className="font-mono">
+                                {item.transactionHash.substring(0, 6)}...
+                                {item.transactionHash.substring(item.transactionHash.length - 4)}
+                              </span>
+                              <svg
+                                className="w-3 h-3"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                                />
+                              </svg>
+                            </div>
+                          </a>
+                        ) : (
+                          <span className="text-sm text-gray-400">-</span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            
+            {/* Summary */}
+            <div className="mt-4 flex gap-4 text-sm">
+              <div className="flex items-center gap-2">
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                  ✓ 已鑄造
+                </span>
+                <span className="text-gray-600">
+                  {whitelistStatus.filter(item => item.status === 'minted').length} 人
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                  ⏳ 未鑄造
+                </span>
+                <span className="text-gray-600">
+                  {whitelistStatus.filter(item => item.status === 'not_minted').length} 人
+                </span>
+              </div>
+            </div>
           </div>
         )}
       </div>
