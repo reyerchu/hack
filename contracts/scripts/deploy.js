@@ -19,18 +19,19 @@ async function main() {
   const RWAHackathonNFT = await hre.ethers.getContractFactory("RWAHackathonNFT");
   const nft = await RWAHackathonNFT.deploy(name, symbol, maxSupply, baseURI);
 
-  await nft.waitForDeployment();
+  // Wait for deployment (ethers v5)
+  await nft.deployed();
 
-  const contractAddress = await nft.getAddress();
+  const contractAddress = nft.address;
 
   console.log(`✅ 合約已部署到: ${contractAddress}`);
   console.log(`   網路: ${hre.network.name}`);
-  console.log(`   區塊: ${nft.deploymentTransaction().blockNumber}\n`);
+  console.log(`   交易哈希: ${nft.deployTransaction.hash}\n`);
 
   // 等待幾個區塊確認
   if (hre.network.name !== "localhost" && hre.network.name !== "hardhat") {
     console.log("等待區塊確認...");
-    await nft.deploymentTransaction().wait(5);
+    await nft.deployTransaction.wait(5);
     console.log("✅ 已確認\n");
 
     // 驗證合約（如果在公開測試網或主網）

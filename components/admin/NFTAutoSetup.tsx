@@ -80,25 +80,39 @@ export default function NFTAutoSetup({ campaignId, campaignName, network, onSucc
         }
       }
 
-      // Guide user to deploy contract via terminal (secure way)
+      // Automatically deploy contract via API
       setStep('deploying');
       
-      const deploymentInstructions = 
-        `🚀 步驟 1: 在終端機部署合約\n\n` +
-        `開啟終端機並執行：\n\n` +
-        `cd /home/reyerchu/hack/hack-dev/contracts\n` +
-        `npm run deploy:${network}\n\n` +
-        `部署完成後，請複製合約地址並點擊「確定」繼續。`;
+      console.log('[AutoSetup] Starting automatic contract deployment...');
       
-      alert(deploymentInstructions);
+      const deployResponse = await fetch('/api/admin/nft/campaigns/deploy-contract', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          campaignId,
+          network,
+        }),
+      });
 
-      const manualContractAddress = prompt('請輸入已部署的合約地址：');
-
-      if (!manualContractAddress || !ethers.isAddress(manualContractAddress)) {
-        throw new Error('無效的合約地址');
+      if (!deployResponse.ok) {
+        const deployError = await deployResponse.json();
+        throw new Error(deployError.error || '合約部署失敗');
       }
 
-      setDeployedAddress(manualContractAddress);
+      const deployResult = await deployResponse.json();
+      const contractAddress = deployResult.contractAddress;
+      
+      console.log('[AutoSetup] Contract deployed to:', contractAddress);
+      setDeployedAddress(contractAddress);
+      
+      alert(
+        `✅ 合約部署成功！\n\n` +
+        `合約地址: ${contractAddress}\n` +
+        `網路: ${network}\n\n` +
+        `接下來將自動設置白名單和啟用鑄造。`
+      );
 
       // Step 2: Auto setup (whitelist + enable minting) using wallet signature
       setStep('setting-up');
