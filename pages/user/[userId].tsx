@@ -72,6 +72,16 @@ export default function UserPublicPage() {
   useEffect(() => {
     if (!userId) return;
 
+    // Check if userId is a valid MD5 hash (32 hex characters)
+    const isMd5Hash = typeof userId === 'string' && /^[a-f0-9]{32}$/i.test(userId);
+    
+    if (!isMd5Hash) {
+      console.log('[UserPublic] ❌ Invalid URL format. Only email hash URLs are allowed.');
+      setError('此頁面 URL 格式已過時。請使用正確的個人頁面連結。');
+      setLoading(false);
+      return;
+    }
+
     fetchUserInfo();
   }, [userId, router.query.refresh]); // Re-fetch when refresh parameter changes
 
@@ -101,6 +111,31 @@ export default function UserPublicPage() {
   const fetchUserInfo = async () => {
     try {
       setLoading(true);
+      
+      // Check if userId is a Firebase UID (not a MD5 hash)
+      // MD5 hash is always 32 characters of hex (0-9a-f)
+      const isMd5Hash = typeof userId === 'string' && /^[a-f0-9]{32}$/i.test(userId);
+      
+      if (!isMd5Hash && typeof userId === 'string') {
+        console.log('[UserPublic] Detected Firebase UID, fetching user to get email hash...');
+        // This is a Firebase UID, try to get the email and redirect
+        try {
+          const response = await fetch(`/api/user/${userId}/public`);
+          if (response.ok) {
+            const data = await response.json();
+            const email = data.user?.email;
+            if (email) {
+              const hash = emailToHash(email);
+              console.log('[UserPublic] Redirecting to email hash URL:', `/user/${hash}`);
+              router.replace(`/user/${hash}`);
+              return;
+            }
+          }
+        } catch (err) {
+          console.error('[UserPublic] Failed to get user email for redirect:', err);
+        }
+      }
+      
       const response = await fetch(`/api/user/${userId}/public`);
 
       if (!response.ok) {
