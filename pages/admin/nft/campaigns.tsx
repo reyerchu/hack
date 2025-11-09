@@ -431,6 +431,7 @@ export default function NFTCampaignsAdmin() {
                           campaignId={campaign.id}
                           campaignName={campaign.name}
                           network={campaign.network}
+                          campaign={campaign}
                           onSuccess={() => fetchCampaigns()}
                         />
                       </div>

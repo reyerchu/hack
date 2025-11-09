@@ -6,9 +6,10 @@ interface NFTAutoSetupProps {
   campaignName: string;
   network: string;
   onSuccess: () => void;
+  campaign?: any; // Optional: pass full campaign data to avoid extra API call
 }
 
-export default function NFTAutoSetup({ campaignId, campaignName, network, onSuccess }: NFTAutoSetupProps) {
+export default function NFTAutoSetup({ campaignId, campaignName, network, onSuccess, campaign: campaignProp }: NFTAutoSetupProps) {
   const [step, setStep] = useState<'idle' | 'connecting' | 'deploying' | 'setting-up' | 'complete'>('idle');
   const [error, setError] = useState('');
   const [deployedAddress, setDeployedAddress] = useState('');
@@ -85,19 +86,30 @@ export default function NFTAutoSetup({ campaignId, campaignName, network, onSucc
       
       console.log('[AutoSetup] Deploying contract via MetaMask...');
 
-      // Get campaign details for contract constructor
-      const campaignResponse = await fetch(`/api/admin/nft/campaigns/list`);
-      if (!campaignResponse.ok) {
-        throw new Error('無法獲取活動列表');
-      }
+      // Get campaign details - use prop if available, otherwise fetch
+      let campaign = campaignProp;
       
-      const campaignsData = await campaignResponse.json();
-      const campaigns = Array.isArray(campaignsData) ? campaignsData : (campaignsData.campaigns || []);
-      const campaign = campaigns.find((c: any) => c.id === campaignId);
+      if (!campaign) {
+        console.log('[AutoSetup] Fetching campaign details from API...');
+        const campaignDoc = await fetch(`/api/admin/nft/campaigns/${campaignId}`);
+        
+        if (!campaignDoc.ok) {
+          throw new Error('無法獲取活動資料，請重新整理頁面');
+        }
+        
+        campaign = await campaignDoc.json();
+      }
 
       if (!campaign) {
         throw new Error('找不到活動資料');
       }
+      
+      console.log('[AutoSetup] Using campaign:', {
+        id: campaign.id,
+        name: campaign.name,
+        symbol: campaign.symbol,
+        maxSupply: campaign.maxSupply,
+      });
 
       // Import contract ABI and bytecode
       const CONTRACT_ARTIFACT = await import('../../lib/contracts/RWAHackathonNFT.json');
