@@ -27,16 +27,16 @@ export default function NFTAutoSetup({ campaignId, campaignName, network, onSucc
       // Request account access
       await window.ethereum.request({ method: 'eth_requestAccounts' });
 
-      // Get provider and signer
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      const signer = await provider.getSigner();
+      // Get provider and signer (ethers v5)
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const signer = provider.getSigner();
       const address = await signer.getAddress();
 
       console.log('[AutoSetup] Connected wallet:', address);
 
-      // Check network
-      const networkInfo = await provider.getNetwork();
-      console.log('[AutoSetup] Current network:', networkInfo.name, networkInfo.chainId);
+      // Check network (ethers v5)
+      const network = await provider.getNetwork();
+      console.log('[AutoSetup] Current network:', network.name, network.chainId);
 
       // Verify correct network
       const expectedChainIds: Record<string, number> = {
@@ -46,8 +46,8 @@ export default function NFTAutoSetup({ campaignId, campaignName, network, onSucc
       };
 
       const expectedChainId = expectedChainIds[network];
-      if (Number(networkInfo.chainId) !== expectedChainId) {
-        throw new Error(`請切換到 ${network} 網路`);
+      if (network.chainId !== expectedChainId) {
+        throw new Error(`請切換到對應的網路。當前: ${network.chainId}, 需要: ${expectedChainId}`);
       }
 
       // Get private key (NOTE: This is for demo purposes only!)

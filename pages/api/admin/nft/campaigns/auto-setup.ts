@@ -69,7 +69,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     };
 
     const rpcUrl = rpcUrls[campaign.network || network];
-    const provider = new ethers.JsonRpcProvider(rpcUrl);
+    const provider = new ethers.providers.JsonRpcProvider(rpcUrl);
     const deployer = new ethers.Wallet(deployerPrivateKey, provider);
 
     console.log(`[AutoSetup] Deployer address: ${deployer.address}`);

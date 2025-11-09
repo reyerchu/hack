@@ -49,8 +49,8 @@ export function useNFTContract(
           return;
         }
 
-        const provider = new ethers.BrowserProvider(window.ethereum);
-        const signer = await provider.getSigner();
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        const signer = provider.getSigner();
         const nftContract = new ethers.Contract(contractAddress, CONTRACT_ABI, signer);
         
         setContract(nftContract);

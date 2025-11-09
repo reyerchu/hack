@@ -90,16 +90,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const rpcUrl = rpcUrls[network] || rpcUrls.sepolia;
 
     // Step 2: Connect to network with deployer wallet
-    const provider = new ethers.JsonRpcProvider(rpcUrl);
+    const provider = new ethers.providers.JsonRpcProvider(rpcUrl);
     const deployer = new ethers.Wallet(deployerPrivateKey, provider);
 
     console.log(`[Deploy] Deployer address: ${deployer.address}`);
 
     // Check deployer balance
     const balance = await provider.getBalance(deployer.address);
-    console.log(`[Deploy] Deployer balance: ${ethers.formatEther(balance)} ETH`);
+    console.log(`[Deploy] Deployer balance: ${ethers.utils.formatEther(balance)} ETH`);
 
-    if (balance === 0n) {
+    if (balance.isZero()) {
       return res.status(400).json({ 
         error: 'Deployer wallet has no balance',
         deployerAddress: deployer.address
