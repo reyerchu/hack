@@ -4,7 +4,7 @@ import Head from 'next/head';
 import AppHeader from '../../components/AppHeader';
 import HomeFooter from '../../components/homeComponents/HomeFooter';
 import { useAuthContext } from '../../lib/user/AuthContext';
-import { useNFTContract } from '../../lib/hooks/useNFTContract';
+import { useNFTContractMerkle } from '../../lib/hooks/useNFTContractMerkle';
 
 interface NFTCampaign {
   id: string;
@@ -39,11 +39,14 @@ export default function NFTMintPage() {
   const [walletConnected, setWalletConnected] = useState(false);
   const [walletAddress, setWalletAddress] = useState('');
   const [transactionHash, setTransactionHash] = useState('');
+  const [merkleProof, setMerkleProof] = useState<string[] | null>(null);
+  const [emailHash, setEmailHash] = useState<string>('');
 
-  // Use NFT contract hook
-  const nftContract = useNFTContract(
+  // Use NFT contract hook with Merkle support
+  const nftContract = useNFTContractMerkle(
     mintStatus?.campaign?.contractAddress,
-    walletAddress
+    walletAddress,
+    emailHash
   );
 
   useEffect(() => {
@@ -71,11 +74,42 @@ export default function NFTMintPage() {
 
       const data = await response.json();
       setMintStatus(data);
+
+      // If eligible, get Merkle proof
+      if (data.eligible && data.campaign?.id) {
+        await getMerkleProof(user?.preferredEmail || '', data.campaign.id);
+      }
     } catch (err: any) {
       console.error('Error checking eligibility:', err);
       setError(err.message || '檢查資格時發生錯誤');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const getMerkleProof = async (email: string, campaignId: string) => {
+    try {
+      const response = await fetch(
+        `/api/nft/get-merkle-proof?email=${encodeURIComponent(email)}&campaignId=${campaignId}`
+      );
+
+      if (!response.ok) {
+        throw new Error('獲取 Merkle Proof 失敗');
+      }
+
+      const data = await response.json();
+      
+      if (data.eligible && data.proof && data.emailHash) {
+        setMerkleProof(data.proof);
+        setEmailHash(data.emailHash);
+        console.log('[Mint] Got Merkle Proof:', {
+          emailHash: data.emailHash,
+          proofLength: data.proof.length,
+        });
+      }
+    } catch (err: any) {
+      console.error('Error getting Merkle proof:', err);
+      setError('無法獲取鑄造憑證');
     }
   };
 
@@ -114,12 +148,22 @@ export default function NFTMintPage() {
       return;
     }
 
+    if (!merkleProof || !emailHash) {
+      alert('無法獲取鑄造憑證，請重新整理頁面');
+      return;
+    }
+
     try {
       setMinting(true);
       setError('');
 
-      // Call smart contract mint function
-      const result = await nftContract.mint();
+      console.log('[Mint] Starting mint with:', {
+        emailHash,
+        proofLength: merkleProof.length,
+      });
+
+      // Call smart contract mint function with Merkle proof
+      const result = await nftContract.mint(emailHash, merkleProof);
 
       if (!result.success) {
         throw new Error(result.error || '鑄造失敗');
@@ -135,6 +179,7 @@ export default function NFTMintPage() {
           userId: user?.id,
           walletAddress,
           transactionHash: result.txHash,
+          emailHash,
         }),
       });
 
@@ -164,18 +209,23 @@ export default function NFTMintPage() {
     return (
       <>
         <Head>
-          <title>鑄造 NFT - RWA Hackathon Taiwan</title>
+          <title>載入中...</title>
         </Head>
         <AppHeader />
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center" style={{ paddingTop: '80px' }}>
-          <div className="text-center">
-            <div
-              className="animate-spin rounded-full h-12 w-12 border-b-2 mx-auto mb-4"
-              style={{ borderColor: '#1a3a6e' }}
-            ></div>
-            <p className="text-gray-600">載入中...</p>
-          </div>
-        </div>
+        <div className="min-h-screen flex items-center justify-center pt-16">載入中...</div>
+        <HomeFooter />
+      </>
+    );
+  }
+
+  if (!isSignedIn) {
+    return (
+      <>
+        <Head>
+          <title>請登入</title>
+        </Head>
+        <AppHeader />
+        <div className="min-h-screen flex items-center justify-center pt-16">請登入以查看 NFT 鑄造頁面。</div>
         <HomeFooter />
       </>
     );
@@ -185,40 +235,38 @@ export default function NFTMintPage() {
     return (
       <>
         <Head>
-          <title>鑄造 NFT - RWA Hackathon Taiwan</title>
+          <title>不符合資格 - RWA Hackathon Taiwan</title>
         </Head>
         <AppHeader />
         <div className="min-h-screen bg-gray-50 flex items-center justify-center" style={{ paddingTop: '80px' }}>
-          <div className="max-w-md mx-auto px-4 text-center">
-            <div className="bg-white rounded-lg shadow-md p-8">
+          <div className="max-w-md mx-auto px-4">
+            <div className="bg-white rounded-lg shadow-md p-8 text-center">
               <svg
-                className="w-16 h-16 mx-auto mb-4 text-gray-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+                className="w-16 h-16 mx-auto mb-4 text-red-500"
+                fill="currentColor"
+                viewBox="0 0 20 20"
               >
                 <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                  clipRule="evenodd"
                 />
               </svg>
               <h1 className="text-2xl font-bold mb-4" style={{ color: '#1a3a6e' }}>
-                不符合鑄造資格
+                您不符合此 NFT 活動的鑄造資格
               </h1>
               <p className="text-gray-600 mb-6">
-                {mintStatus?.reason || '您目前不符合 NFT 鑄造資格'}
+                {mintStatus?.reason || '請確認您的電子郵件是否在白名單中，或活動是否已開始/結束。'}
               </p>
               <button
-                onClick={() => router.push('/')}
+                onClick={() => router.push(`/user/${user?.id}`)}
                 className="px-6 py-2 rounded-lg font-medium transition-colors"
                 style={{
                   backgroundColor: '#1a3a6e',
                   color: '#ffffff',
                 }}
               >
-                返回首頁
+                返回個人頁面
               </button>
             </div>
           </div>
@@ -355,106 +403,59 @@ export default function NFTMintPage() {
                   </h2>
 
                   {/* Step 1: Connect Wallet */}
-                  <div
-                    className={`border-2 rounded-lg p-4 ${
-                      walletConnected ? 'border-green-500 bg-green-50' : 'border-gray-300'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div
-                          className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                            walletConnected ? 'bg-green-500' : 'bg-gray-300'
-                          }`}
-                        >
-                          <span className="text-white font-bold">1</span>
-                        </div>
-                        <div>
-                          <h3 className="font-semibold">連接錢包</h3>
-                          {walletConnected && (
-                            <p className="text-sm text-gray-600">
-                              {walletAddress.slice(0, 6)}...{walletAddress.slice(-4)}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                      {!walletConnected && (
+                  <div className="flex items-center p-4 border rounded-lg bg-gray-50">
+                    <span className="text-2xl font-bold mr-4 text-gray-600">1.</span>
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-lg mb-1">連接錢包</h4>
+                      {!walletConnected ? (
                         <button
                           onClick={connectWallet}
-                          className="px-4 py-2 rounded-lg font-medium transition-colors"
-                          style={{
-                            backgroundColor: '#1a3a6e',
-                            color: '#ffffff',
-                          }}
+                          className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
                         >
                           連接 MetaMask
                         </button>
-                      )}
-                      {walletConnected && (
-                        <svg className="w-6 h-6 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                          <path
-                            fillRule="evenodd"
-                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
+                      ) : (
+                        <p className="text-green-600 font-medium">
+                          錢包已連接！
+                          <span className="ml-2 text-gray-600 text-sm font-mono break-all">
+                            {walletAddress}
+                          </span>
+                        </p>
                       )}
                     </div>
                   </div>
 
                   {/* Step 2: Mint NFT */}
-                  <div
-                    className={`border-2 rounded-lg p-4 ${
-                      walletConnected ? 'border-gray-300' : 'border-gray-200 opacity-50'
-                    }`}
-                  >
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">
-                        <span className="text-white font-bold">2</span>
-                      </div>
-                      <h3 className="font-semibold">鑄造 NFT</h3>
-                    </div>
-                    <p className="text-sm text-gray-600 ml-11 mb-4">
-                      確認交易並鑄造您的專屬 NFT
-                    </p>
-                    {error && (
-                      <div className="ml-11 mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-                        <p className="text-sm text-red-600">{error}</p>
-                      </div>
-                    )}
-                    <div className="ml-11">
+                  <div className={`flex items-center p-4 border rounded-lg ${!walletConnected || !nftContract.canMint || !merkleProof ? 'bg-gray-100 text-gray-400' : 'bg-gray-50'}`}>
+                    <span className="text-2xl font-bold mr-4 text-gray-600">2.</span>
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-lg mb-1">鑄造 NFT</h4>
+                      {merkleProof && (
+                        <p className="text-xs text-green-600 mb-2">
+                          ✓ 已驗證白名單資格（使用 email: {user?.preferredEmail}）
+                        </p>
+                      )}
                       <button
                         onClick={handleMint}
-                        disabled={!walletConnected || minting}
-                        className="w-full px-6 py-3 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                        style={{
-                          backgroundColor: walletConnected ? '#8B4049' : '#cccccc',
-                          color: '#ffffff',
-                        }}
+                        disabled={!walletConnected || minting || !nftContract.canMint || !merkleProof}
+                        className={`px-6 py-2 rounded-lg font-medium transition-colors ${
+                          !walletConnected || minting || !nftContract.canMint || !merkleProof
+                            ? 'bg-gray-400 text-gray-700 cursor-not-allowed'
+                            : 'bg-blue-600 text-white hover:bg-blue-700'
+                        }`}
                       >
                         {minting ? '鑄造中...' : '立即鑄造'}
                       </button>
+                      {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
                     </div>
                   </div>
-                </div>
-
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <h3 className="font-semibold text-blue-900 mb-2">注意事項</h3>
-                  <ul className="text-sm text-blue-800 space-y-1">
-                    <li>• 每個地址只能鑄造一次</li>
-                    <li>• 鑄造需要支付 Gas 費用</li>
-                    <li>• 鑄造後 NFT 將發送到您的錢包地址</li>
-                    <li>• 請確保您的錢包連接到正確的網路</li>
-                  </ul>
                 </div>
               </>
             )}
           </div>
         </div>
       </section>
-
       <HomeFooter />
     </>
   );
 }
-
