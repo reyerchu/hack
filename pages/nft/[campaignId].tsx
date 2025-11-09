@@ -340,9 +340,11 @@ export default function NFTCampaignPage() {
                             </span>
                           </td>
                           <td className="px-4 py-3">
-                            <span className="text-sm text-gray-900 font-mono">
-                              {item.email}
-                            </span>
+                            <Link href={`/user/${emailToHash(item.email)}`}>
+                              <a className="text-sm text-blue-600 hover:text-blue-800 font-mono hover:underline">
+                                {item.email}
+                              </a>
+                            </Link>
                           </td>
                           <td className="px-4 py-3 whitespace-nowrap">
                             {item.status === 'minted' ? (
