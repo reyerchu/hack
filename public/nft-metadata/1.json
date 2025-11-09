@@ -1,0 +1,20 @@
+{
+  "name": "RWA Hackathon Taiwan NFT #1",
+  "description": "Commemorative NFT for participants of the first RWA Hackathon Taiwan",
+  "image": "https://hackathon.com.tw/images/nft-badge.png",
+  "attributes": [
+    {
+      "trait_type": "Event",
+      "value": "RWA Hackathon Taiwan 2025"
+    },
+    {
+      "trait_type": "Type",
+      "value": "Participant Badge"
+    },
+    {
+      "trait_type": "Edition",
+      "value": "First Edition"
+    }
+  ]
+}
+
