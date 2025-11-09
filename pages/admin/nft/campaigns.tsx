@@ -437,11 +437,12 @@ export default function NFTCampaignsAdmin() {
                       <span
                         className={`px-3 py-1 rounded-full text-sm font-medium ${
                           campaign.status === 'active'
-                            ? 'bg-green-100 text-green-900'
+                            ? 'text-white'
                             : campaign.status === 'ended'
                             ? 'bg-gray-100 text-gray-800'
                             : 'bg-yellow-100 text-yellow-900'
                         }`}
+                        style={campaign.status === 'active' ? { backgroundColor: '#8B4049' } : {}}
                       >
                         {campaign.status}
                       </span>
@@ -470,8 +471,8 @@ export default function NFTCampaignsAdmin() {
                     </div>
 
                     {campaign.contractAddress ? (
-                      <div className="mt-4 bg-green-50 border border-green-300 rounded p-3">
-                        <div className="text-sm text-green-900">
+                      <div className="mt-4 bg-gray-50 border border-gray-300 rounded p-3">
+                        <div className="text-sm text-gray-900">
                           <div className="font-semibold mb-1">✅ 合約已部署</div>
                           <div className="font-mono text-xs break-all">{campaign.contractAddress}</div>
                         </div>
