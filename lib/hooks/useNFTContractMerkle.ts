@@ -142,12 +142,21 @@ export const useNFTContractMerkle = (
       });
 
       const tx = await contract.mint(emailHashParam, proof);
-      await tx.wait();
+      const receipt = await tx.wait();
+      
+      // Extract tokenId from Transfer event
+      let tokenId: number | undefined;
+      if (receipt.events) {
+        const transferEvent = receipt.events.find((e: any) => e.event === 'Transfer');
+        if (transferEvent && transferEvent.args) {
+          tokenId = transferEvent.args.tokenId?.toNumber();
+        }
+      }
       
       // Refresh status
       await checkContractStatus(contract, emailHashParam);
       
-      return { success: true, txHash: tx.hash };
+      return { success: true, txHash: tx.hash, tokenId };
     } catch (err: any) {
       console.error('Minting error:', err);
       setError(err.message || '鑄造失敗');

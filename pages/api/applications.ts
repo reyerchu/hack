@@ -151,14 +151,20 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
     // 保存到 registrations collection (唯一数据源)
     await db.collection('registrations').doc(userId).set(dataToSave, { merge: true });
 
-    console.log('[/api/applications] ✅ 注册数据已保存');
+    console.log('[/api/applications] ✅ 注册数据已保存到 registrations');
 
-    console.log('[/api/applications] 📝 BACKEND STEP 7: 更新 miscellaneous/allusers');
+    console.log('[/api/applications] 📝 BACKEND STEP 7: 保存到 users collection（用於 /api/userinfo）');
+    // 同时保存到 users collection，确保 /api/userinfo 能找到用户
+    await db.collection('users').doc(userId).set(dataToSave, { merge: true });
+
+    console.log('[/api/applications] ✅ 注册数据已保存到 users');
+
+    console.log('[/api/applications] 📝 BACKEND STEP 8: 更新 miscellaneous/allusers');
     // 更新 allusers 缓存文档
     await updateAllUsersDoc(userId, dataToSave);
 
     console.log('========================================');
-    console.log('[/api/applications] ✅✅✅ BACKEND STEP 8: 註冊成功！');
+    console.log('[/api/applications] ✅✅✅ BACKEND STEP 9: 註冊成功！');
     console.log('[/api/applications] User ID:', userId);
     console.log('[/api/applications] Email:', dataToSave.email);
     console.log('========================================');

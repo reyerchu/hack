@@ -13,6 +13,27 @@ import HomeFooter from '../../components/homeComponents/HomeFooter';
 import { useAuthContext } from '../../lib/user/AuthContext';
 import { emailToHash } from '../../lib/utils/email-hash';
 
+interface NFTCampaignInfo {
+  campaignId: string;
+  name: string;
+  description: string;
+  imageUrl: string;
+  network: string;
+  contractAddress: string;
+  maxSupply: number;
+  currentSupply: number;
+  startDate?: Date;
+  endDate?: Date;
+  eligible: boolean;
+  alreadyMinted: boolean;
+  mintRecord?: {
+    mintedAt: Date;
+    transactionHash: string;
+    tokenId?: number;
+  };
+  reason?: string;
+}
+
 interface UserPublicInfo {
   userId: string;
   displayName: string;
@@ -35,20 +56,7 @@ interface UserPublicInfo {
     role: string;
     awards?: Array<{ trackName: string; awardTitle: string; project?: string }>;
   }[];
-  nftMintStatus?: {
-    eligible: boolean;
-    alreadyMinted: boolean;
-    campaign?: {
-      id: string;
-      name: string;
-      description: string;
-      imageUrl: string;
-    };
-    mintRecord?: {
-      mintedAt: Date;
-      transactionHash: string;
-    };
-  };
+  nftCampaigns?: NFTCampaignInfo[];
 }
 
 export default function UserPublicPage() {
@@ -188,45 +196,6 @@ export default function UserPublicPage() {
                 </h1>
               </div>
               <div className="flex gap-2">
-                {canEdit && user.nftMintStatus?.eligible && !user.nftMintStatus.alreadyMinted && (
-                  <Link href="/nft/mint">
-                    <a
-                      className="px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"
-                      style={{
-                        backgroundColor: '#8B4049',
-                        color: '#ffffff',
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = '#a05059';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = '#8B4049';
-                      }}
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M12 4v16m8-8H4"
-                        />
-                      </svg>
-                      鑄造 NFT
-                    </a>
-                  </Link>
-                )}
-                {canEdit && user.nftMintStatus?.alreadyMinted && user.nftMintStatus.mintRecord && (
-                  <div className="px-4 py-2 rounded-lg bg-green-100 text-green-800 flex items-center gap-2">
-                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                      <path
-                        fillRule="evenodd"
-                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                    <span className="text-sm">已鑄造</span>
-                  </div>
-                )}
                 {canEdit && (
                   <button
                     onClick={() => router.push('/profile?edit=true')}
@@ -565,6 +534,145 @@ export default function UserPublicPage() {
               </div>
             )}
           </div>
+
+          {/* NFT Campaigns Section */}
+          {canEdit && user.nftCampaigns && user.nftCampaigns.length > 0 && (
+            <div className="mb-8">
+              <h2 className="text-[22px] md:text-[28px] font-bold mb-4" style={{ color: '#1a3a6e' }}>
+                NFT 紀念品
+              </h2>
+              <div className="w-14 h-1 mb-6" style={{ backgroundColor: '#8B4049' }}></div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {user.nftCampaigns.map((campaign, index) => (
+                  <div
+                    key={index}
+                    className="bg-white rounded-lg shadow-sm border-l-4 overflow-hidden hover:shadow-md transition-shadow"
+                    style={{ borderLeftColor: campaign.alreadyMinted ? '#10b981' : '#8B4049' }}
+                  >
+                    {/* Image */}
+                    {campaign.imageUrl && (
+                      <Link href={`/nft/${campaign.campaignId}`}>
+                        <a>
+                          <div className="w-full h-48 bg-gray-100 flex items-center justify-center overflow-hidden cursor-pointer hover:opacity-90 transition-opacity">
+                            <img
+                              src={campaign.imageUrl}
+                              alt={campaign.name}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                e.currentTarget.style.display = 'none';
+                                e.currentTarget.parentElement!.innerHTML = `
+                                  <div class="flex flex-col items-center justify-center h-full text-gray-400">
+                                    <svg class="w-16 h-16 mb-2" fill="currentColor" viewBox="0 0 20 20">
+                                      <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd" />
+                                    </svg>
+                                    <span class="text-sm">NFT 圖片</span>
+                                  </div>
+                                `;
+                              }}
+                            />
+                          </div>
+                        </a>
+                      </Link>
+                    )}
+
+                    {/* Content */}
+                    <div className="p-5">
+                      <Link href={`/nft/${campaign.campaignId}`}>
+                        <a className="hover:text-blue-600 transition-colors">
+                          <h3
+                            className="text-[16px] md:text-[18px] font-semibold mb-2"
+                            style={{ color: '#1a3a6e' }}
+                          >
+                            {campaign.name}
+                          </h3>
+                        </a>
+                      </Link>
+                      <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+                        {campaign.description}
+                      </p>
+
+                      {/* Network & Supply Info */}
+                      <div className="flex items-center gap-3 text-xs text-gray-500 mb-3">
+                        <span className="px-2 py-1 bg-gray-100 rounded">
+                          {campaign.network.charAt(0).toUpperCase() + campaign.network.slice(1)}
+                        </span>
+                        <span>
+                          {campaign.currentSupply} / {campaign.maxSupply} 已鑄造
+                        </span>
+                      </div>
+
+                      {/* Status / Action */}
+                      {campaign.alreadyMinted && campaign.mintRecord ? (
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2 px-3 py-2 bg-green-50 rounded-lg">
+                            <svg
+                              className="w-5 h-5 text-green-600 flex-shrink-0"
+                              fill="currentColor"
+                              viewBox="0 0 20 20"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                clipRule="evenodd"
+                              />
+                            </svg>
+                            <div className="flex-1">
+                              <p className="text-sm font-semibold text-green-800">已鑄造</p>
+                              {campaign.mintRecord.tokenId && (
+                                <p className="text-xs text-green-600">
+                                  Token #{campaign.mintRecord.tokenId}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                          {campaign.mintRecord.transactionHash && (
+                            <a
+                              href={`https://${
+                                campaign.network === 'mainnet' ? '' : campaign.network + '.'
+                              }etherscan.io/tx/${campaign.mintRecord.transactionHash}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="block text-center text-xs text-blue-600 hover:underline"
+                            >
+                              查看交易記錄 →
+                            </a>
+                          )}
+                        </div>
+                      ) : campaign.eligible ? (
+                        <Link href={`/nft/mint?campaign=${campaign.campaignId}`}>
+                          <a
+                            className="block w-full py-2 px-4 rounded-lg font-medium transition-colors text-center"
+                            style={{
+                              backgroundColor: '#8B4049',
+                              color: '#ffffff',
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.backgroundColor = '#a05059';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.backgroundColor = '#8B4049';
+                            }}
+                          >
+                            鑄造 NFT
+                          </a>
+                        </Link>
+                      ) : (
+                        <div className="px-3 py-2 bg-gray-100 rounded-lg text-center">
+                          <p className="text-sm text-gray-600">{campaign.reason || '暫不可鑄造'}</p>
+                          {campaign.endDate && (
+                            <p className="text-xs text-gray-500 mt-1">
+                              截止日期：{new Date(campaign.endDate).toLocaleDateString('zh-TW')}
+                            </p>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </section>
 

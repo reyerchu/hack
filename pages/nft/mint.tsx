@@ -178,8 +178,8 @@ export default function NFTMintPage() {
           userEmail: user?.preferredEmail,
           userId: user?.id,
           walletAddress,
+          tokenId: result.tokenId || 0,
           transactionHash: result.txHash,
-          emailHash,
         }),
       });
 

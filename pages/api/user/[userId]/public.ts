@@ -512,14 +512,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     publicInfo.teams = teams;
 
-    // Check NFT mint eligibility
-    let nftMintStatus = null;
+    // Get all NFT campaigns user is eligible for or has minted
+    let nftCampaigns = [];
     if (userEmail) {
       try {
-        const { checkNFTEligibility } = await import('../../../../lib/nft/check-eligibility');
-        nftMintStatus = await checkNFTEligibility(userEmail);
+        const { getAllUserNFTCampaigns } = await import('../../../../lib/nft/check-eligibility');
+        nftCampaigns = await getAllUserNFTCampaigns(userEmail);
       } catch (error) {
-        console.log('[UserPublic] Could not check NFT eligibility:', error);
+        console.log('[UserPublic] Could not get NFT campaigns:', error);
         // Don't fail the request if NFT check fails
       }
     }
@@ -528,7 +528,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       success: true,
       user: {
         ...publicInfo,
-        nftMintStatus,
+        nftCampaigns, // Return list of all campaigns
       },
     });
   } catch (error: any) {

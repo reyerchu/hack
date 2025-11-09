@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuthContext } from '../../../lib/user/AuthContext';
 import { useRouter } from 'next/router';
+import Link from 'next/link';
 import Head from 'next/head';
 import AdminHeader from '../../../components/adminComponents/AdminHeader';
 import NFTAutoSetup from '../../../components/admin/NFTAutoSetup';
@@ -30,6 +31,7 @@ export default function NFTCampaignsAdmin() {
   const [uploadingImage, setUploadingImage] = useState(false);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
+  const [campaignImageFiles, setCampaignImageFiles] = useState<Record<string, File>>({});
 
   // Form state
   const [formData, setFormData] = useState({
@@ -43,14 +45,27 @@ export default function NFTCampaignsAdmin() {
     maxSupply: '100',
   });
 
+  // Check authentication and admin permissions
   useEffect(() => {
-    if (!authLoading && !user) {
-      router.push('/login');
+    if (!authLoading) {
+      if (!user) {
+        router.push('/login');
+        return;
+      }
+      
+      // Check if user has admin permissions
+      const isAdmin = user?.permissions?.includes('super_admin');
+      if (!isAdmin) {
+        console.log('[NFT Admin] Access denied - user is not admin:', user?.preferredEmail);
+        alert('此頁面僅限管理員訪問');
+        router.push('/');
+        return;
+      }
     }
   }, [user, authLoading, router]);
 
   useEffect(() => {
-    if (user) {
+    if (user?.permissions?.includes('super_admin')) {
       fetchCampaigns();
     }
   }, [user]);
@@ -184,9 +199,20 @@ export default function NFTCampaignsAdmin() {
 
       if (!response.ok) throw new Error('建立活動失敗');
 
-      alert('活動建立成功！');
+      const result = await response.json();
+      const campaignId = result.campaignId;
+
+      // Store image file for this campaign
+      if (selectedImage && campaignId) {
+        setCampaignImageFiles(prev => ({
+          ...prev,
+          [campaignId]: selectedImage
+        }));
+      }
+
+      alert('活動建立成功！請點擊「一鍵自動設置」部署合約。');
       setShowCreateForm(false);
-      fetchCampaigns();
+      await fetchCampaigns();
       
       // Reset form
       setFormData({
@@ -370,17 +396,25 @@ export default function NFTCampaignsAdmin() {
             </div>
           ) : (
             campaigns.map((campaign) => (
-              <div key={campaign.id} className="bg-white rounded-lg shadow-md p-6">
+              <div key={campaign.id} className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
                 <div className="flex gap-6">
-                  <img
-                    src={campaign.imageUrl}
-                    alt={campaign.name}
-                    className="w-32 h-32 object-cover rounded-lg"
-                  />
+                  <Link href={`/nft/${campaign.id}`}>
+                    <a>
+                      <img
+                        src={campaign.imageUrl}
+                        alt={campaign.name}
+                        className="w-32 h-32 object-cover rounded-lg hover:opacity-80 transition-opacity cursor-pointer"
+                      />
+                    </a>
+                  </Link>
                   <div className="flex-1">
                     <div className="flex justify-between items-start">
                       <div>
-                        <h3 className="text-xl font-bold">{campaign.name}</h3>
+                        <Link href={`/nft/${campaign.id}`}>
+                          <a className="hover:text-blue-600 transition-colors">
+                            <h3 className="text-xl font-bold">{campaign.name}</h3>
+                          </a>
+                        </Link>
                         <p className="text-gray-600 mt-1">{campaign.description}</p>
                       </div>
                       <span
@@ -431,7 +465,10 @@ export default function NFTCampaignsAdmin() {
                           campaignId={campaign.id}
                           campaignName={campaign.name}
                           network={campaign.network}
-                          campaign={campaign}
+                          campaign={{
+                            ...campaign,
+                            imageFile: campaignImageFiles[campaign.id]
+                          }}
                           onSuccess={() => fetchCampaigns()}
                         />
                       </div>

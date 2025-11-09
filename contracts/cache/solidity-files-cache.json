@@ -765,8 +765,8 @@
       "artifacts": []
     },
     "/home/reyerchu/hack/hack-dev/contracts/contracts/RWAHackathonNFT.sol": {
-      "lastModificationDate": 1762685305422,
-      "contentHash": "95bfae7b3d0ff45a30ceb53d35fd9f29",
+      "lastModificationDate": 1762689657093,
+      "contentHash": "77bfa5ad8e7bbc6d0772ed5aa583f6fb",
       "sourceName": "contracts/RWAHackathonNFT.sol",
       "solcConfig": {
         "version": "0.8.20",
@@ -796,7 +796,8 @@
         "@openzeppelin/contracts/token/ERC721/ERC721.sol",
         "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol",
         "@openzeppelin/contracts/access/Ownable.sol",
-        "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol"
+        "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol",
+        "@openzeppelin/contracts/utils/Strings.sol"
       ],
       "versionPragmas": [
         "^0.8.20"

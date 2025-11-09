@@ -10,14 +10,90 @@ interface NFTAutoSetupProps {
 }
 
 export default function NFTAutoSetup({ campaignId, campaignName, network, onSuccess, campaign: campaignProp }: NFTAutoSetupProps) {
-  const [step, setStep] = useState<'idle' | 'connecting' | 'deploying' | 'setting-up' | 'complete'>('idle');
+  const [step, setStep] = useState<'idle' | 'connecting' | 'uploading-ipfs' | 'deploying' | 'setting-up' | 'complete'>('idle');
   const [error, setError] = useState('');
   const [deployedAddress, setDeployedAddress] = useState('');
   const [setupSummary, setSetupSummary] = useState<any>(null);
+  const [ipfsInfo, setIpfsInfo] = useState<{ imageCID?: string; metadataCID?: string; baseURI?: string }>({});
 
   const handleAutoSetup = async () => {
     try {
       setError('');
+      
+      // Get campaign details first
+      let campaign = campaignProp;
+      
+      if (!campaign) {
+        console.log('[AutoSetup] Fetching campaign details from API...');
+        const campaignDoc = await fetch(`/api/admin/nft/campaigns/${campaignId}`);
+        
+        if (!campaignDoc.ok) {
+          throw new Error('無法獲取活動資料，請重新整理頁面');
+        }
+        
+        campaign = await campaignDoc.json();
+      }
+      
+      if (!campaign) {
+        throw new Error('找不到活動資料');
+      }
+
+      // Step 0: Upload to IPFS if image file exists
+      let baseURI = campaign.imageUrl || '';
+      
+      if (campaign.imageFile) {
+        setStep('uploading-ipfs');
+        console.log('[AutoSetup] Uploading image to IPFS...');
+        
+        alert(
+          `☁️ 準備上傳到 IPFS！\n\n` +
+          `這將：\n` +
+          `1. 上傳 NFT 圖片到 IPFS\n` +
+          `2. 生成所有 Token 的 Metadata\n` +
+          `3. 上傳 Metadata 到 IPFS\n\n` +
+          `請稍候...`
+        );
+
+        const formData = new FormData();
+        formData.append('image', campaign.imageFile);
+        formData.append('name', campaign.name);
+        formData.append('description', campaign.description || `${campaign.name} NFT Collection`);
+        formData.append('maxSupply', campaign.maxSupply.toString());
+
+        const ipfsResponse = await fetch('/api/admin/nft/upload-to-ipfs', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!ipfsResponse.ok) {
+          const errorData = await ipfsResponse.json();
+          throw new Error(errorData.error || 'IPFS 上傳失敗');
+        }
+
+        const ipfsData = await ipfsResponse.json();
+        
+        if (!ipfsData.success) {
+          throw new Error(ipfsData.error || 'IPFS 上傳失敗');
+        }
+
+        console.log('[AutoSetup] IPFS upload successful:', ipfsData);
+        
+        baseURI = ipfsData.baseURI!;
+        setIpfsInfo({
+          imageCID: ipfsData.imageCID,
+          metadataCID: ipfsData.metadataCID,
+          baseURI: ipfsData.baseURI,
+        });
+
+        alert(
+          `✅ IPFS 上傳成功！\n\n` +
+          `圖片 CID: ${ipfsData.imageCID?.substring(0, 10)}...\n` +
+          `Metadata CID: ${ipfsData.metadataCID?.substring(0, 10)}...\n` +
+          `Base URI: ${ipfsData.baseURI}\n\n` +
+          `現在開始部署合約...`
+        );
+      }
+      
       setStep('connecting');
 
       // Check if MetaMask is installed
@@ -85,30 +161,13 @@ export default function NFTAutoSetup({ campaignId, campaignName, network, onSucc
       setStep('deploying');
       
       console.log('[AutoSetup] Deploying contract via MetaMask...');
-
-      // Get campaign details - use prop if available, otherwise fetch
-      let campaign = campaignProp;
-      
-      if (!campaign) {
-        console.log('[AutoSetup] Fetching campaign details from API...');
-        const campaignDoc = await fetch(`/api/admin/nft/campaigns/${campaignId}`);
-        
-        if (!campaignDoc.ok) {
-          throw new Error('無法獲取活動資料，請重新整理頁面');
-        }
-        
-        campaign = await campaignDoc.json();
-      }
-
-      if (!campaign) {
-        throw new Error('找不到活動資料');
-      }
       
       console.log('[AutoSetup] Using campaign:', {
         id: campaign.id,
         name: campaign.name,
         symbol: campaign.symbol,
         maxSupply: campaign.maxSupply,
+        baseURI: baseURI,
       });
 
       // Import contract ABI and bytecode
@@ -132,15 +191,16 @@ export default function NFTAutoSetup({ campaignId, campaignName, network, onSucc
         name: campaign.name,
         symbol: campaign.symbol || 'RWAHACK',
         maxSupply: campaign.maxSupply,
-        baseURI: campaign.imageUrl || '',
+        baseURI: baseURI,
       });
 
       alert(
         `📝 準備部署合約！\n\n` +
         `活動名稱: ${campaign.name}\n` +
         `符號: ${campaign.symbol || 'RWAHACK'}\n` +
-        `最大供應量: ${campaign.maxSupply}\n\n` +
-        `MetaMask 即將彈出，請確認部署交易。\n` +
+        `最大供應量: ${campaign.maxSupply}\n` +
+        (ipfsInfo.baseURI ? `Base URI: ${ipfsInfo.baseURI}\n` : '') +
+        `\nMetaMask 即將彈出，請確認部署交易。\n` +
         `⚠️ 這將花費一些 gas 費用。`
       );
 
@@ -149,7 +209,7 @@ export default function NFTAutoSetup({ campaignId, campaignName, network, onSucc
         campaign.name,
         campaign.symbol || 'RWAHACK',
         campaign.maxSupply,
-        campaign.imageUrl || ''
+        baseURI
       );
 
       console.log('[AutoSetup] Contract deployment transaction sent:', deployedContract.deployTransaction.hash);
@@ -277,6 +337,7 @@ export default function NFTAutoSetup({ campaignId, campaignName, network, onSucc
       setSetupSummary({
         totalEmails: merkleData.totalEmails,
         method: 'merkle-tree',
+        ...ipfsInfo,
       });
       setStep('complete');
 
@@ -284,8 +345,11 @@ export default function NFTAutoSetup({ campaignId, campaignName, network, onSucc
         `✅ 設置完成！\n\n` +
         `合約地址: ${contractAddress}\n` +
         `Merkle Root: ${merkleData.root.substring(0, 10)}...\n` +
-        `白名單郵箱數: ${merkleData.totalEmails}\n\n` +
-        `鑄造已啟用，用戶現在可以用 email 鑄造 NFT 了！`
+        `白名單郵箱數: ${merkleData.totalEmails}\n` +
+        (ipfsInfo.imageCID ? `\n📦 IPFS 圖片 CID: ${ipfsInfo.imageCID}\n` : '') +
+        (ipfsInfo.metadataCID ? `📦 IPFS Metadata CID: ${ipfsInfo.metadataCID}\n` : '') +
+        (ipfsInfo.baseURI ? `🔗 Base URI: ${ipfsInfo.baseURI}\n` : '') +
+        `\n鑄造已啟用，用戶現在可以用 email 鑄造 NFT 了！`
       );
 
       onSuccess();
@@ -301,6 +365,8 @@ export default function NFTAutoSetup({ campaignId, campaignName, network, onSucc
     switch (step) {
       case 'connecting':
         return '正在連接錢包...';
+      case 'uploading-ipfs':
+        return '正在上傳到 IPFS...';
       case 'deploying':
         return '正在部署合約...';
       case 'setting-up':
@@ -319,11 +385,16 @@ export default function NFTAutoSetup({ campaignId, campaignName, network, onSucc
         <div className="text-sm text-green-700 space-y-1">
           <p><strong>合約地址:</strong> {deployedAddress}</p>
           <p><strong>網路:</strong> {network}</p>
-          <p><strong>已添加錢包:</strong> {setupSummary.walletsAddedToContract} / {setupSummary.walletsFound}</p>
-          {setupSummary.emailsWithoutWallet > 0 && (
-            <p className="text-orange-600">
-              ⚠️ {setupSummary.emailsWithoutWallet} 個用戶尚未設置錢包地址
-            </p>
+          <p><strong>白名單郵箱:</strong> {setupSummary.totalEmails}</p>
+          <p><strong>方法:</strong> Merkle Tree</p>
+          {setupSummary.imageCID && (
+            <p><strong>📦 IPFS 圖片 CID:</strong> {setupSummary.imageCID}</p>
+          )}
+          {setupSummary.metadataCID && (
+            <p><strong>📦 IPFS Metadata CID:</strong> {setupSummary.metadataCID}</p>
+          )}
+          {setupSummary.baseURI && (
+            <p className="break-all"><strong>🔗 Base URI:</strong> {setupSummary.baseURI}</p>
           )}
         </div>
         <button

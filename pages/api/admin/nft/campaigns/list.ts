@@ -37,21 +37,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       isSuperAdmin: userData?.permissions?.includes('super_admin'),
     });
 
-    // TODO: Fix permission system - temporarily allow any authenticated user
-    // The issue is frontend connects to one Firebase project, backend connects to another
-    console.log('[NFT List API] ⚠️ WARNING: Permission check temporarily disabled for development');
-    
-    /* ORIGINAL PERMISSION CHECK - RE-ENABLE AFTER FIXING:
+    // Check if user is admin
     if (!userData || !userData.permissions?.includes('super_admin')) {
+      console.log('[NFT List API] ❌ Access denied:', {
+        userId,
+        email: userData?.preferredEmail || userData?.email,
+        permissions: userData?.permissions,
+      });
       return res.status(403).json({ 
-        error: 'Forbidden: Admin access required',
-        debug: {
-          userId,
-          permissions: userData?.permissions,
-        }
+        error: 'Forbidden: Admin access required'
       });
     }
-    */
+
+    console.log('[NFT List API] ✅ Admin access granted:', userData?.preferredEmail || userData?.email);
 
     // Get all campaigns
     const campaignsSnapshot = await db

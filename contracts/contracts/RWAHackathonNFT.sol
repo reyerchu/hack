@@ -5,6 +5,7 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 
 /**
  * @title RWA Hackathon NFT with Merkle Tree Whitelist
@@ -144,6 +145,22 @@ contract RWAHackathonNFT is ERC721URIStorage, Ownable {
      */
     function _baseURI() internal view override returns (string memory) {
         return baseTokenURI;
+    }
+
+    /**
+     * @notice Override tokenURI to return correct IPFS path
+     * @param tokenId Token ID
+     * @return Token URI string
+     * @dev Returns baseTokenURI + tokenId + ".json" for IPFS metadata structure
+     * @dev Example: ipfs://QmHash/1.json, ipfs://QmHash/2.json, etc.
+     */
+    function tokenURI(uint256 tokenId) public view override returns (string memory) {
+        require(ownerOf(tokenId) != address(0), "Token does not exist");
+        
+        // Use OpenZeppelin's Strings library for uint256 to string conversion
+        // Returns: baseTokenURI + tokenId + ".json"
+        string memory baseURI = _baseURI();
+        return string(abi.encodePacked(baseURI, Strings.toString(tokenId), ".json"));
     }
 
     /**
