@@ -502,6 +502,7 @@ export default function NFTCampaignsAdmin() {
             ))
           )}
         </div>
+        </div>
       </div>
     </>
   );
