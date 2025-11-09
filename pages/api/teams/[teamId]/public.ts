@@ -62,7 +62,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             const regDoc = await db.collection('registrations').doc(authUser.uid).get();
             if (regDoc.exists) {
               const regData = regDoc.data();
-              nickname = regData?.nickname || regData?.displayName;
+              nickname = regData?.nickname;
             }
           }
         } catch (err) {
@@ -100,7 +100,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
               const regDoc = await db.collection('registrations').doc(authUser.uid).get();
               if (regDoc.exists) {
                 const regData = regDoc.data();
-                nickname = regData?.nickname || regData?.displayName;
+                nickname = regData?.nickname;
               }
             }
           } catch (err) {

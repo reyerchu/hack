@@ -154,7 +154,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
 
         userData = userSnapshot.docs[0].data();
-        userName = userName || userData?.nickname || userData?.displayName || email;
+        userName = userName || userData?.nickname || email;
       }
 
       validatedMembers.push({

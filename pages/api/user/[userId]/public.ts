@@ -179,7 +179,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             foundEmail = leaderEmail;
 
             // 如果 team 中的 nickname 为空，从 registrations 集合获取
-            let displayName = leader.nickname || leader.name || '匿名用戶';
+            let nickname = leader.nickname || leader.name || '匿名用戶';
             if (!leader.nickname) {
               try {
                 // 遍历所有 registrations 查找匹配的 email（不区分大小写）
@@ -195,7 +195,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     .trim();
 
                   if (regEmail === targetEmail) {
-                    displayName = regData?.nickname || displayName;
+                    nickname = regData?.nickname || nickname;
                     found = true;
                     break;
                   }
@@ -213,7 +213,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                       nameParts.includes(regFirstName) && nameParts.includes(regLastName);
 
                     if (nameMatch) {
-                      displayName = regData?.nickname || displayName;
+                      nickname = regData?.nickname || nickname;
                       found = true;
                       break;
                     }
@@ -225,7 +225,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             }
 
             basicInfo = {
-              displayName,
+              displayName: nickname,
               teams: [{ teamId: teamDoc.id, teamName: teamData.teamName, role: leader.role || '' }],
             };
             foundInTeam = true;
@@ -245,7 +245,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
               foundEmail = memberEmail;
 
               // 如果 team 中的 nickname 为空，从 registrations 集合获取
-              let displayName = member.nickname || member.name || '匿名用戶';
+              let nickname = member.nickname || member.name || '匿名用戶';
               if (!member.nickname) {
                 try {
                   // 遍历所有 registrations 查找匹配的 email（不区分大小写）
@@ -261,7 +261,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                       .trim();
 
                     if (regEmail === targetEmail) {
-                      displayName = regData?.nickname || displayName;
+                      nickname = regData?.nickname || nickname;
                       found = true;
                       break;
                     }
@@ -279,7 +279,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                         nameParts.includes(regFirstName) && nameParts.includes(regLastName);
 
                       if (nameMatch) {
-                        displayName = regData?.nickname || displayName;
+                        nickname = regData?.nickname || nickname;
                         found = true;
                         break;
                       }
@@ -291,7 +291,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
               }
 
               basicInfo = {
-                displayName,
+                displayName: nickname,
                 teams: [
                   { teamId: teamDoc.id, teamName: teamData.teamName, role: member.role || '隊員' },
                 ],
@@ -365,14 +365,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     console.log(`[UserPublic] Found user: ${userDoc.id}, email: ${userData?.email || 'N/A'}`);
 
     // 如果 userData 沒有 email，從 Auth 獲取
-    let authDisplayName = null;
     if (!userData?.email) {
       try {
         const authUser = await admin.auth().getUser(userDoc.id);
         // 將 email 添加到 userData
         userData = userData || {};
         userData.email = authUser.email;
-        authDisplayName = authUser.displayName;
       } catch (err) {
         console.log('[UserPublic] Could not get email from Auth');
       }
@@ -393,8 +391,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // 构建公开信息对象（暱称始終公開）
     const publicInfo: any = {
       userId: userDoc.id,
-      // 暱稱始終公開（優先使用 nickname，其次 displayName，再其次 Auth displayName，絕不顯示 email）
-      displayName: userData?.nickname || userData?.displayName || authDisplayName || '匿名用戶',
+      // 暱稱始終公開（優先使用 nickname，其次 firstName lastName，絕不顯示 email）
+      displayName: userData?.nickname || 
+                   (userData?.firstName || userData?.lastName 
+                     ? [userData?.firstName, userData?.lastName].filter(Boolean).join(' ')
+                     : '匿名用戶'),
     };
 
     // 根据隐私设置添加其他信息
