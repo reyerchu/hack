@@ -345,15 +345,15 @@ export default function NFTAutoSetup({ campaignId, campaignName, network, onSucc
       case 'complete':
         return '設置完成！';
       default:
-        return '一鍵自動設置';
+        return '一鍵自動部署';
     }
   };
 
   if (step === 'complete' && setupSummary) {
     return (
-      <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-        <h3 className="text-lg font-bold text-green-800 mb-2">✅ 設置完成！</h3>
-        <div className="text-sm text-green-700 space-y-1">
+      <div className="bg-green-900 bg-opacity-10 border border-green-900 border-opacity-20 rounded-lg p-4">
+        <h3 className="text-lg font-bold text-green-900 mb-2">✅ 設置完成！</h3>
+        <div className="text-sm text-green-900 space-y-1">
           <p><strong>合約地址:</strong> {deployedAddress}</p>
           <p><strong>網路:</strong> {network}</p>
           <p><strong>白名單郵箱:</strong> {setupSummary.totalEmails}</p>
@@ -373,7 +373,7 @@ export default function NFTAutoSetup({ campaignId, campaignName, network, onSucc
             setStep('idle');
             setSetupSummary(null);
           }}
-          className="mt-3 text-sm text-green-600 hover:text-green-700 underline"
+          className="mt-3 text-sm text-green-900 hover:opacity-80 underline"
         >
           關閉
         </button>
@@ -383,16 +383,6 @@ export default function NFTAutoSetup({ campaignId, campaignName, network, onSucc
 
   return (
     <div className="bg-white border border-gray-200 rounded-lg p-5 shadow-md">
-      <div className="flex items-center gap-3 mb-4">
-        <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#8B4049' }}>
-          <span className="text-xl text-white">🚀</span>
-        </div>
-        <div>
-          <h3 className="text-lg font-bold text-gray-900">自動部署和設置</h3>
-          <p className="text-sm text-gray-600">一鍵完成智能合約部署流程</p>
-        </div>
-      </div>
-
       {error && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-4">
           <p className="text-sm text-red-700">❌ {error}</p>
@@ -432,21 +422,6 @@ export default function NFTAutoSetup({ campaignId, campaignName, network, onSucc
           <div className="flex items-start gap-3 text-gray-700 p-2 rounded hover:bg-gray-100 transition-colors">
             <span className="text-base flex-shrink-0">✅</span>
             <span>更新活動狀態為「進行中」</span>
-          </div>
-        </div>
-        
-        <div className="mt-4 pt-3 border-t border-gray-200 space-y-1.5 text-xs">
-          <div className="flex items-start gap-2 text-gray-600">
-            <span className="flex-shrink-0" style={{ color: '#8B4049' }}>✨</span>
-            <span>終極優化：所有設置僅需 1 次確認！</span>
-          </div>
-          <div className="flex items-start gap-2 text-gray-600">
-            <span className="flex-shrink-0" style={{ color: '#8B4049' }}>🔒</span>
-            <span>所有操作需要錢包授權，完全安全</span>
-          </div>
-          <div className="flex items-start gap-2 text-gray-600">
-            <span className="flex-shrink-0 text-orange-600">⚠</span>
-            <span>預估 gas 費用：0.01-0.05 ETH</span>
           </div>
         </div>
       </div>

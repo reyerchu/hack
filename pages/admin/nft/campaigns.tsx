@@ -262,7 +262,7 @@ export default function NFTCampaignsAdmin() {
             </h1>
             <button
               onClick={() => setShowCreateForm(!showCreateForm)}
-              className="px-6 py-3 text-white rounded-lg font-medium transition-all hover:opacity-90"
+              className="px-8 py-3 text-white rounded-lg font-bold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
               style={{ backgroundColor: '#8B4049' }}
             >
               {showCreateForm ? '取消' : '建立新活動'}
@@ -420,15 +420,11 @@ export default function NFTCampaignsAdmin() {
             campaigns.map((campaign) => (
               <div key={campaign.id} className="bg-white border border-gray-300 rounded-lg p-6 hover:shadow-lg transition-all">
                 <div className="flex gap-6">
-                  <Link href={`/nft/${campaign.id}`}>
-                    <a>
-                      <img
-                        src={campaign.imageUrl}
-                        alt={campaign.name}
-                        className="w-32 h-32 object-cover rounded-lg border border-gray-200 hover:opacity-80 transition-opacity cursor-pointer"
-                      />
-                    </a>
-                  </Link>
+                  <img
+                    src={campaign.imageUrl}
+                    alt={campaign.name}
+                    className="w-32 h-32 object-cover rounded-lg border border-gray-200"
+                  />
                   <div className="flex-1">
                     <div className="flex justify-between items-start">
                       <div>
