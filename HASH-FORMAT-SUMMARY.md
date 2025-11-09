@@ -149,10 +149,20 @@ const isUserHash = /^[a-f0-9]{32}$/i.test(id);
 const isFirestoreId = id.length === 20 && /[A-Z]/.test(id);
 ```
 
+### NFT Merkle Tree Hash (Keccak256)
+```typescript
+// Keccak256 特徵：
+// - 66 字符 (0x + 64 hex)
+// - 用於智能合約驗證
+const isKeccak256 = /^0x[a-f0-9]{64}$/i.test(hash);
+```
+
 ## 📝 計算示例
 
-### Email to Hash
+### Email to MD5 Hash (用於 URL)
 ```javascript
+const crypto = require('crypto');
+
 const email = 'reyerchu@gmail.com';
 const hash = crypto.createHash('md5')
   .update(email.toLowerCase().trim())
@@ -160,6 +170,18 @@ const hash = crypto.createHash('md5')
 
 console.log(hash);
 // 輸出: e83e725fe46b289712c3e25763dda0dd (32 位)
+```
+
+### Email to Keccak256 Hash (用於 NFT Merkle Tree)
+```javascript
+const { ethers } = require('ethers');
+
+const email = 'reyerchu@gmail.com';
+const normalized = email.toLowerCase().trim();
+const hash = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(normalized));
+
+console.log(hash);
+// 輸出: 0x1234567890abcdef... (66 字符: 0x + 64 hex)
 ```
 
 ## ✅ 修復驗證清單
@@ -172,16 +194,70 @@ console.log(hash);
 - [x] 團隊頁面中的用戶連結使用 32 位 hash
 - [x] URL 驗證正確攔截舊格式
 
+## 🔐 NFT Merkle Tree Hash (重要說明)
+
+NFT 白名單驗證使用 **Keccak256**，不是 MD5！
+
+### 為什麼不同？
+
+1. **用戶頁面 URL (MD5)**:
+   - 目的：隱私保護，不在 URL 中顯示 email
+   - 特點：短（32 字符），適合 URL
+   - 安全性：不需要加密安全
+
+2. **NFT Merkle Tree (Keccak256)**:
+   - 目的：智能合約白名單驗證
+   - 特點：與 Solidity `keccak256` 函數兼容
+   - 安全性：加密安全，用於鏈上驗證
+   - 長度：66 字符（`0x` + 64 hex）
+
+### 實現位置
+
+```typescript
+// lib/merkleTree.ts - NFT 白名單 hash
+export function hashEmail(email: string): string {
+  const normalized = email.toLowerCase().trim();
+  return ethers.utils.keccak256(ethers.utils.toUtf8Bytes(normalized));
+}
+
+// lib/utils/email-hash.ts - 用戶頁面 URL hash  
+export function emailToHash(email: string): string {
+  const hash = crypto.createHash('md5')
+    .update(email.toLowerCase().trim())
+    .digest('hex');
+  return hash;  // 32 位 MD5
+}
+```
+
+### Hash 流程
+
+1. **創建 NFT 活動**:
+   ```
+   Email → Keccak256 → Merkle Tree → Merkle Root → Smart Contract
+   ```
+
+2. **用戶鑄造 NFT**:
+   ```
+   Email → Keccak256 → Merkle Proof → Smart Contract 驗證
+   ```
+
+3. **訪問用戶頁面**:
+   ```
+   Email → MD5 (32 位) → URL: /user/{hash}
+   ```
+
 ## 🎉 結論
 
-- ✅ **用戶頁面**: 統一使用 32 位 MD5 hash
-- ✅ **團隊頁面**: 使用 Firestore ID（20 字符）
+- ✅ **用戶頁面 URL**: 統一使用 32 位 MD5 hash
+- ✅ **NFT Merkle Tree**: 使用 Keccak256 (66 字符)
+- ✅ **團隊頁面**: 使用 Firestore ID（~20 字符）
 - ✅ **NFT 頁面**: 使用 Firestore ID
 - ✅ **所有格式驗證**: 正確且一致
+- ✅ **兩種 hash 獨立運作**: 互不影響
 
 ---
 
 **文檔日期**: 2025-11-10  
-**最後更新**: 修復 emailToHash 返回 32 位 hash  
-**狀態**: ✅ 所有 hash 格式已統一
+**最後更新**: 修復 emailToHash 返回 32 位 hash + 說明 NFT Merkle Tree 使用 Keccak256  
+**狀態**: ✅ 所有 hash 格式已統一並正確實現
 
