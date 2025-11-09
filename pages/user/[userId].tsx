@@ -637,7 +637,7 @@ export default function UserPublicPage() {
                         </span>
                       </div>
 
-                      {/* Status / Action */}
+                      {/* Status / Action - 只有頁面所有者才能看到 mint 按鈕 */}
                       {campaign.alreadyMinted && campaign.mintRecord ? (
                         <div className="space-y-2">
                           <div className="flex items-center gap-2 px-3 py-2 bg-green-50 rounded-lg">
@@ -674,7 +674,8 @@ export default function UserPublicPage() {
                             </a>
                           )}
                         </div>
-                      ) : campaign.eligible ? (
+                      ) : canEdit && campaign.eligible ? (
+                        // 只有頁面所有者（canEdit=true）才顯示 mint 按鈕
                         <Link href={`/nft/mint?campaign=${campaign.campaignId}`}>
                           <a
                             className="block w-full py-2 px-4 rounded-lg font-medium transition-colors text-center"
@@ -692,7 +693,18 @@ export default function UserPublicPage() {
                             鑄造 NFT
                           </a>
                         </Link>
+                      ) : !campaign.alreadyMinted ? (
+                        // 不是所有者且未鑄造 - 顯示 "尚未鑄造"
+                        <div className="px-3 py-2 bg-gray-100 rounded-lg text-center">
+                          <p className="text-sm text-gray-600">尚未鑄造</p>
+                          {campaign.endDate && (
+                            <p className="text-xs text-gray-500 mt-1">
+                              截止日期：{new Date(campaign.endDate).toLocaleDateString('zh-TW')}
+                            </p>
+                          )}
+                        </div>
                       ) : (
+                        // 其他原因不可鑄造
                         <div className="px-3 py-2 bg-gray-100 rounded-lg text-center">
                           <p className="text-sm text-gray-600">{campaign.reason || '暫不可鑄造'}</p>
                           {campaign.endDate && (
