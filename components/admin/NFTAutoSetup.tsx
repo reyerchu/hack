@@ -28,7 +28,12 @@ export default function NFTAutoSetup({ campaignId, campaignName, network, onSucc
       await window.ethereum.request({ method: 'eth_requestAccounts' });
 
       // Get provider and signer (ethers v5)
-      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      // IMPORTANT: Create a new provider instance to get fresh network info
+      const provider = new ethers.providers.Web3Provider(window.ethereum, 'any');
+      
+      // Force network refresh
+      await provider.send('eth_chainId', []);
+      
       const signer = provider.getSigner();
       const address = await signer.getAddress();
 
@@ -47,7 +52,32 @@ export default function NFTAutoSetup({ campaignId, campaignName, network, onSucc
 
       const expectedChainId = expectedChainIds[network]; // 'network' is from props (sepolia/ethereum/arbitrum)
       if (currentNetwork.chainId !== expectedChainId) {
-        throw new Error(`請切換到 ${network.toUpperCase()} 網路。當前鏈 ID: ${currentNetwork.chainId}, 需要: ${expectedChainId}`);
+        // Offer to switch network automatically
+        try {
+          const chainIdHex = '0x' + expectedChainId.toString(16);
+          await window.ethereum.request({
+            method: 'wallet_switchEthereumChain',
+            params: [{ chainId: chainIdHex }],
+          });
+          
+          // Wait a bit for network switch
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          
+          // Verify switch was successful
+          const newProvider = new ethers.providers.Web3Provider(window.ethereum);
+          const newNetwork = await newProvider.getNetwork();
+          
+          if (newNetwork.chainId !== expectedChainId) {
+            throw new Error('網路切換失敗');
+          }
+          
+          console.log('[AutoSetup] Successfully switched to', network);
+        } catch (switchError: any) {
+          if (switchError.code === 4902) {
+            throw new Error(`請在 MetaMask 中手動添加 ${network.toUpperCase()} 網路`);
+          }
+          throw new Error(`請切換到 ${network.toUpperCase()} 網路。當前鏈 ID: ${currentNetwork.chainId}, 需要: ${expectedChainId}`);
+        }
       }
 
       // Get private key (NOTE: This is for demo purposes only!)
