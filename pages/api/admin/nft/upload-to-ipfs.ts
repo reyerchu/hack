@@ -133,26 +133,27 @@ export default async function handler(
       console.log('[IPFS Upload] Uploading metadata folder to Pinata...');
 
       // Step 4: Upload the entire folder to IPFS using multipart/form-data
-      // We need to construct a FormData with all files
+      // Strategy: Create a FormData where each file has the SAME 'file' field name
+      // but with different filenames to create a directory structure
       const metadataFormData = new FormData();
 
-      // Add each JSON file to the form
+      // Add each JSON file to the form with a relative path
       const files = fs.readdirSync(tempDir);
       for (const file of files) {
         const filePath = path.join(tempDir, file);
+        // Use 'file' as the field name for ALL files
+        // Pinata will group them into a directory when wrapWithDirectory is true
         metadataFormData.append('file', fs.createReadStream(filePath), {
-          filepath: file, // This preserves the filename in IPFS
+          filename: file, // Use 'filename' instead of 'filepath'
         });
       }
 
-      // Add metadata for the folder
+      // Add metadata for the entire pin
       metadataFormData.append('pinataMetadata', JSON.stringify({
         name: `${name}-metadata-collection`,
       }));
 
-      // Add options to wrap in a directory
-      // IMPORTANT: Must set wrapWithDirectory: true when uploading multiple files
-      // This creates an IPFS directory structure: ipfs://CID/1.json, ipfs://CID/2.json, etc.
+      // Add options - wrapWithDirectory groups multiple files under one CID
       metadataFormData.append('pinataOptions', JSON.stringify({
         wrapWithDirectory: true,
       }));
