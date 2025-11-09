@@ -37,6 +37,8 @@ async function userIsAuthorized(token: string, queryId: string) {
  * @param res The HTTP response
  */
 async function handleUserInfo(req: NextApiRequest, res: NextApiResponse) {
+  console.log('[/api/userinfo] 🔍 Start handling request for:', req.query.id);
+  
   // TODO: Handle user authorization
   const {
     query: { token, id },
@@ -47,11 +49,16 @@ async function handleUserInfo(req: NextApiRequest, res: NextApiResponse) {
   // Check if request header contains token
   // TODO: Figure out how to handle the string | string[] mess.
   const userToken = (token as string) || (headers['authorization'] as string);
+  
+  console.log('[/api/userinfo] 🔑 Checking authorization for:', id);
 
   // TODO: Extract from bearer token
   // Probably not safe
   const isAuthorized = await userIsAuthorized(userToken, id as string);
+  console.log('[/api/userinfo] 🔐 Authorization result:', isAuthorized);
+  
   if (!isAuthorized) {
+    console.log('[/api/userinfo] ❌ Unauthorized access attempt');
     return res.status(401).send({
       type: 'request-unauthorized',
       message: 'Request is not authorized to perform admin functionality.',
@@ -59,14 +66,17 @@ async function handleUserInfo(req: NextApiRequest, res: NextApiResponse) {
   }
 
   const userID = id as string;
+  console.log('[/api/userinfo] ✅ Authorized, fetching user data for:', userID);
 
   try {
     // 首先通过 UID 查找用户
+    console.log('[/api/userinfo] 🔎 Searching registrations collection by UID:', userID);
     let snapshot = await db.collection(REGISTRATION_COLLECTION).doc(userID).get();
+    console.log('[/api/userinfo] 📊 Registration doc exists:', snapshot.exists);
 
     if (!snapshot.exists) {
       // 如果通过 UID 找不到，尝试获取用户的 email 并通过 email 查找
-      console.log('[/api/userinfo] User not found by UID, trying to find by email...');
+      console.log('[/api/userinfo] ⚠️  User not found by UID, trying to find by email...');
 
       try {
         // 从 Firebase Auth token 中获取 email
@@ -186,13 +196,15 @@ async function handleUserInfo(req: NextApiRequest, res: NextApiResponse) {
     }
 
     if (!snapshot.exists) {
+      console.log('[/api/userinfo] ❌ User not found after all attempts');
       return res.status(404).json({ code: 'not found', message: "User doesn't exist..." });
     }
 
-    res.status(200).json(snapshot.data());
+    console.log('[/api/userinfo] ✅ Returning user data');
+    return res.status(200).json(snapshot.data());
   } catch (error) {
-    console.error('Error when fetching applications', error);
-    res.status(500).json({
+    console.error('[/api/userinfo] ❌❌ Error when fetching applications:', error);
+    return res.status(500).json({
       code: 'internal-error',
       message: 'Something went wrong when processing this request. Try again later.',
     });
@@ -213,7 +225,7 @@ export default async function handleScanTypes(
   const { method } = req;
 
   if (method === 'GET') {
-    handleUserInfo(req, res);
+    return await handleUserInfo(req, res);
   } else {
     res.setHeader('Allow', ['GET', 'POST']);
     res.status(405).end(`Method ${method} Not Allowed`);
