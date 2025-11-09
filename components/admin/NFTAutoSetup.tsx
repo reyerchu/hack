@@ -120,25 +120,25 @@ export default function NFTAutoSetup({ campaignId, campaignName, network, onSucc
       );
 
       // Deploy contract - MetaMask will pop up for confirmation!
-      const contract = await factory.deploy(
+      const deployedContract = await factory.deploy(
         campaign.name,
         campaign.symbol || 'RWAHACK',
         campaign.maxSupply,
         campaign.imageUrl || ''
       );
 
-      console.log('[AutoSetup] Contract deployment transaction sent:', contract.deployTransaction.hash);
+      console.log('[AutoSetup] Contract deployment transaction sent:', deployedContract.deployTransaction.hash);
       
       alert(
         `⏳ 部署交易已發送！\n` +
-        `交易哈希: ${contract.deployTransaction.hash}\n\n` +
+        `交易哈希: ${deployedContract.deployTransaction.hash}\n\n` +
         `等待確認中...`
       );
 
       // Wait for deployment to be mined
-      await contract.deployed();
+      await deployedContract.deployed();
 
-      const contractAddress = contract.address;
+      const contractAddress = deployedContract.address;
       
       console.log('[AutoSetup] Contract deployed to:', contractAddress);
       setDeployedAddress(contractAddress);
@@ -185,7 +185,7 @@ export default function NFTAutoSetup({ campaignId, campaignName, network, onSucc
         },
         body: JSON.stringify({
           campaignId,
-          contractAddress: manualContractAddress,
+          contractAddress: contractAddress,
           signerAddress: await setupSigner.getAddress(),
           network,
         }),
@@ -206,7 +206,7 @@ export default function NFTAutoSetup({ campaignId, campaignName, network, onSucc
       ];
 
       const contract = new ethers.Contract(
-        manualContractAddress,
+        contractAddress,
         CONTRACT_ABI,
         setupSigner
       );
@@ -280,7 +280,7 @@ export default function NFTAutoSetup({ campaignId, campaignName, network, onSucc
 
       alert(
         `✅ 設置完成！\n\n` +
-        `合約地址: ${manualContractAddress}\n` +
+        `合約地址: ${contractAddress}\n` +
         `已添加 ${addedCount} 個錢包到白名單\n` +
         `鑄造已啟用，用戶現在可以鑄造 NFT 了！`
       );
