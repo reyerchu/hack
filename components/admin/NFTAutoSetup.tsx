@@ -80,27 +80,17 @@ export default function NFTAutoSetup({ campaignId, campaignName, network, onSucc
         }
       }
 
-      // Get private key (NOTE: This is for demo purposes only!)
-      // In production, you should NEVER ask for private keys in the frontend
-      const privateKey = prompt(
-        `⚠️  警告：此操作需要您的私鑰來自動化部署流程。\n\n` +
-        `在生產環境中，您應該使用更安全的方式（如 Hardhat 腳本）。\n\n` +
-        `請輸入您的私鑰（不含 0x 前綴）：`
-      );
-
-      if (!privateKey) {
-        throw new Error('需要私鑰才能繼續');
-      }
-
-      // For now, guide user to manual deployment
+      // Guide user to deploy contract via terminal (secure way)
       setStep('deploying');
       
-      alert(
-        `🚀 請在終端機執行以下命令部署合約：\n\n` +
+      const deploymentInstructions = 
+        `🚀 步驟 1: 在終端機部署合約\n\n` +
+        `開啟終端機並執行：\n\n` +
         `cd /home/reyerchu/hack/hack-dev/contracts\n` +
         `npm run deploy:${network}\n\n` +
-        `部署完成後，請複製合約地址並繼續下一步。`
-      );
+        `部署完成後，請複製合約地址並點擊「確定」繼續。`;
+      
+      alert(deploymentInstructions);
 
       const manualContractAddress = prompt('請輸入已部署的合約地址：');
 
@@ -110,19 +100,31 @@ export default function NFTAutoSetup({ campaignId, campaignName, network, onSucc
 
       setDeployedAddress(manualContractAddress);
 
-      // Step 2: Auto setup (whitelist + enable minting)
+      // Step 2: Auto setup (whitelist + enable minting) using wallet signature
       setStep('setting-up');
 
-      const response = await fetch('/api/admin/nft/campaigns/auto-setup', {
+      alert(
+        `✅ 合約地址已確認！\n\n` +
+        `接下來系統會請求您的錢包簽名來執行：\n` +
+        `1. 添加白名單地址\n` +
+        `2. 啟用鑄造功能\n\n` +
+        `請在 MetaMask 中確認每筆交易。`
+      );
+
+      // Get a fresh provider with the signer
+      const setupProvider = new ethers.providers.Web3Provider(window.ethereum);
+      const setupSigner = setupProvider.getSigner();
+
+      // Call API with wallet signature (no private key needed!)
+      const response = await fetch('/api/admin/nft/campaigns/auto-setup-with-wallet', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${(window as any).userToken}`,
         },
         body: JSON.stringify({
           campaignId,
           contractAddress: manualContractAddress,
-          deployerPrivateKey: privateKey.startsWith('0x') ? privateKey.slice(2) : privateKey,
+          signerAddress: await setupSigner.getAddress(),
           network,
         }),
       });
@@ -133,13 +135,91 @@ export default function NFTAutoSetup({ campaignId, campaignName, network, onSucc
       }
 
       const result = await response.json();
-      setSetupSummary(result.summary);
+      console.log('[AutoSetup] Wallet addresses to whitelist:', result.walletAddresses);
+
+      // Now execute transactions using MetaMask
+      const CONTRACT_ABI = [
+        "function addToWhitelist(address[] calldata addresses) external",
+        "function setMintingEnabled(bool enabled) external",
+      ];
+
+      const contract = new ethers.Contract(
+        manualContractAddress,
+        CONTRACT_ABI,
+        setupSigner
+      );
+
+      let addedCount = 0;
+      const BATCH_SIZE = 50;
+
+      // Add to whitelist in batches
+      if (result.walletAddresses.length > 0) {
+        for (let i = 0; i < result.walletAddresses.length; i += BATCH_SIZE) {
+          const batch = result.walletAddresses.slice(i, Math.min(i + BATCH_SIZE, result.walletAddresses.length));
+          
+          try {
+            console.log(`[AutoSetup] Adding batch ${Math.floor(i / BATCH_SIZE) + 1} (${batch.length} addresses)...`);
+            
+            // MetaMask will pop up for confirmation
+            const tx = await contract.addToWhitelist(batch);
+            console.log(`[AutoSetup] Transaction sent: ${tx.hash}`);
+            
+            alert(`⏳ 交易已發送！\n交易哈希: ${tx.hash}\n\n等待確認中...`);
+            
+            const receipt = await tx.wait();
+            console.log(`[AutoSetup] Transaction confirmed (Gas: ${receipt.gasUsed.toString()})`);
+            
+            addedCount += batch.length;
+          } catch (error: any) {
+            console.error(`[AutoSetup] Failed to add batch:`, error);
+            if (error.code === 4001) {
+              throw new Error('用戶取消了交易');
+            }
+            throw new Error(`添加白名單失敗: ${error.message}`);
+          }
+        }
+      }
+
+      // Enable minting
+      console.log(`[AutoSetup] Enabling minting...`);
+      const enableTx = await contract.setMintingEnabled(true);
+      
+      alert(`⏳ 啟用鑄造交易已發送！\n交易哈希: ${enableTx.hash}\n\n等待確認中...`);
+      
+      await enableTx.wait();
+      console.log(`[AutoSetup] Minting enabled`);
+
+      // Update Firestore
+      const updateResponse = await fetch('/api/admin/nft/campaigns/update-status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          campaignId,
+          contractAddress: manualContractAddress,
+          status: 'active',
+          whitelistSummary: {
+            totalEmails: result.summary.totalEligibleEmails,
+            walletsFound: result.summary.walletsFound,
+            walletsAdded: addedCount,
+            emailsWithoutWallet: result.summary.emailsWithoutWallet,
+          },
+        }),
+      });
+
+      if (updateResponse.ok) {
+        console.log('[AutoSetup] Firestore updated');
+      }
+
+      setSetupSummary({
+        ...result.summary,
+        walletsAddedToContract: addedCount,
+      });
       setStep('complete');
 
       alert(
         `✅ 設置完成！\n\n` +
         `合約地址: ${manualContractAddress}\n` +
-        `已添加 ${result.summary.walletsAddedToContract} 個錢包到白名單\n` +
+        `已添加 ${addedCount} 個錢包到白名單\n` +
         `鑄造已啟用，用戶現在可以鑄造 NFT 了！`
       );
 
@@ -222,12 +302,15 @@ export default function NFTAutoSetup({ campaignId, campaignName, network, onSucc
       <div className="mt-3 text-xs text-gray-600">
         <p className="font-semibold mb-1">此操作將會：</p>
         <ul className="list-disc list-inside space-y-1">
-          <li>連接您的 MetaMask 錢包</li>
-          <li>引導您部署智能合約</li>
-          <li>自動添加白名單地址到合約</li>
-          <li>啟用鑄造功能</li>
-          <li>更新活動狀態為「進行中」</li>
+          <li>✅ 連接您的 MetaMask 錢包（安全）</li>
+          <li>📝 引導您部署智能合約（終端執行）</li>
+          <li>🔐 使用錢包簽名添加白名單（MetaMask 確認）</li>
+          <li>🔐 使用錢包簽名啟用鑄造（MetaMask 確認）</li>
+          <li>📊 更新活動狀態為「進行中」</li>
         </ul>
+        <p className="mt-2 text-green-600 font-semibold">
+          🔒 無需提供私鑰！所有操作都通過 MetaMask 簽名
+        </p>
       </div>
     </div>
   );
