@@ -37,20 +37,35 @@ export default async function handler(
     const userIds = [...new Set(mintsSnapshot.docs.map(doc => doc.data().userId).filter(Boolean))];
     const userEmails = [...new Set(mintsSnapshot.docs.map(doc => doc.data().userEmail).filter(Boolean))];
     
-    // Fetch user information by userId
+    // Fetch user information by userId (check both users and registrations collections)
     const userInfoMap: { [key: string]: any } = {};
+    console.log(`[NFT Mints] Fetching user info for ${userIds.length} userIds:`, userIds);
     await Promise.all(
       userIds.map(async (userId) => {
         try {
-          const userDoc = await db.collection('users').doc(userId).get();
+          // First try users collection
+          let userDoc = await db.collection('users').doc(userId).get();
+          
+          // If not found or empty, try registrations collection
+          if (!userDoc.exists || !userDoc.data()?.nickname) {
+            userDoc = await db.collection('registrations').doc(userId).get();
+          }
+          
           if (userDoc.exists) {
             const userData = { ...userDoc.data(), userId: userDoc.id };
+            console.log(`[NFT Mints] Found user ${userId}:`, {
+              nickname: userData.nickname,
+              firstName: userData.firstName,
+              lastName: userData.lastName,
+            });
             userInfoMap[`id:${userId}`] = userData;
             // Also map by email for fallback
             if (userData.email || userData.preferredEmail) {
               const email = (userData.email || userData.preferredEmail).toLowerCase().trim();
               userInfoMap[`email:${email}`] = userData;
             }
+          } else {
+            console.log(`[NFT Mints] ❌ User doc not found in users or registrations: ${userId}`);
           }
         } catch (error) {
           console.error(`Error fetching user ${userId}:`, error);
@@ -107,11 +122,11 @@ export default async function handler(
         userInfo = userInfoMap[`email:${userEmail}`];
       }
       
-      // Determine display name: preferredName > firstName lastName > email
+      // Determine display name: nickname > firstName lastName > email
       let displayName = data.userEmail || '';
       if (userInfo) {
-        if (userInfo.preferredName) {
-          displayName = userInfo.preferredName;
+        if (userInfo.nickname) {
+          displayName = userInfo.nickname;
         } else if (userInfo.firstName || userInfo.lastName) {
           displayName = [userInfo.firstName, userInfo.lastName].filter(Boolean).join(' ');
         }
