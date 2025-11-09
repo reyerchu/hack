@@ -280,7 +280,15 @@ export default function NFTMintPage() {
                 {mintStatus?.reason || '請確認您的電子郵件是否在白名單中，或活動是否已開始/結束。'}
               </p>
               <button
-                onClick={() => router.push(`/user/${user?.id}`)}
+                onClick={() => {
+                  const email = user?.preferredEmail;
+                  if (email) {
+                    const hash = emailToHash(email);
+                    router.push(`/user/${hash}`);
+                  } else {
+                    router.push('/profile');
+                  }
+                }}
                 className="px-6 py-2 rounded-lg font-medium transition-colors"
                 style={{
                   backgroundColor: '#1a3a6e',
@@ -341,7 +349,15 @@ export default function NFTMintPage() {
                 </div>
               )}
               <button
-                onClick={() => router.push(`/user/${user?.id}`)}
+                onClick={() => {
+                  const email = user?.preferredEmail;
+                  if (email) {
+                    const hash = emailToHash(email);
+                    router.push(`/user/${hash}`);
+                  } else {
+                    router.push('/profile');
+                  }
+                }}
                 className="px-6 py-2 rounded-lg font-medium transition-colors"
                 style={{
                   backgroundColor: '#1a3a6e',

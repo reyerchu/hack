@@ -44,19 +44,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const data = doc.data();
         let emailToCheck = data.email;
 
+        console.log(`[UserPublic] Checking doc ${doc.id}, email: ${emailToCheck}`);
+
         // 如果 registrations 中沒有 email，嘗試從 Firebase Auth 獲取
         if (!emailToCheck) {
           try {
             const authUser = await admin.auth().getUser(doc.id);
             emailToCheck = authUser.email;
+            console.log(`[UserPublic] Got email from Auth: ${emailToCheck}`);
           } catch (err) {
             // 無法獲取 Auth 信息，跳過
+            console.log(`[UserPublic] Failed to get Auth for ${doc.id}`);
             continue;
           }
         }
 
         if (emailToCheck) {
           const hash = emailToHash(emailToCheck);
+          console.log(`[UserPublic] Computed hash: ${hash}, looking for: ${userId}, match: ${hash === userId}`);
           if (hash === userId) {
             userDoc = doc;
             userData = data;
