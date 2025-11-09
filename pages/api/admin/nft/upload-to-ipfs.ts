@@ -79,14 +79,10 @@ export default async function handler(
     });
 
     // Step 1: Upload image to IPFS using Pinata SDK
-    // Read the image file and create a File object
-    const imageBuffer = fs.readFileSync(imageFile.filepath);
-    const imageBlob = new Blob([imageBuffer], { type: imageFile.mimetype || 'image/png' });
-    const imageFileObj = new File([imageBlob], imageFile.originalFilename || 'nft-image.png', {
-      type: imageFile.mimetype || 'image/png',
-    });
-
-    const imageResult = await pinata.upload.file(imageFileObj);
+    // Use the file path directly - Pinata SDK can handle file paths
+    const imageStream = fs.createReadStream(imageFile.filepath);
+    
+    const imageResult = await pinata.upload.stream(imageStream);
     const imageCID = imageResult.IpfsHash;
     const imageURL = `ipfs://${imageCID}`;
 
