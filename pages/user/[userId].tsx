@@ -386,7 +386,7 @@ export default function UserPublicPage() {
                       </p>
                       <div className="flex-shrink-0">
                         {copiedAddress === user.evmAddress ? (
-                          <div className="flex items-center gap-1 text-green-600">
+                          <div className="flex items-center gap-1" style={{ color: '#1a3a6e' }}>
                             <svg
                               className="w-4 h-4"
                               fill="none"
@@ -445,7 +445,7 @@ export default function UserPublicPage() {
                           </span>
                           <div className="flex-shrink-0">
                             {copiedAddress === wallet.address ? (
-                              <div className="flex items-center gap-1 text-green-600">
+                              <div className="flex items-center gap-1" style={{ color: '#1a3a6e' }}>
                                 <svg
                                   className="w-4 h-4"
                                   fill="none"
@@ -639,9 +639,10 @@ export default function UserPublicPage() {
 
                       {/* Status / Action - 只有頁面所有者才能看到 mint 按鈕 */}
                       {campaign.alreadyMinted && campaign.mintRecord ? (
-                        <div className="flex items-center gap-2 px-3 py-2 bg-green-50 rounded-lg">
+                        <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-lg border border-gray-200">
                           <svg
-                            className="w-5 h-5 text-green-600 flex-shrink-0"
+                            className="w-5 h-5 flex-shrink-0"
+                            style={{ color: '#1a3a6e' }}
                             fill="currentColor"
                             viewBox="0 0 20 20"
                           >
@@ -652,7 +653,7 @@ export default function UserPublicPage() {
                             />
                           </svg>
                           <div className="flex-1">
-                            <p className="text-sm font-semibold text-green-800">已鑄造</p>
+                            <p className="text-sm font-semibold" style={{ color: '#1a3a6e' }}>已鑄造</p>
                           </div>
                         </div>
                       ) : canEdit && campaign.eligible ? (
