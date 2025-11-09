@@ -5,6 +5,7 @@ import AppHeader from '../../components/AppHeader';
 import HomeFooter from '../../components/homeComponents/HomeFooter';
 import { useAuthContext } from '../../lib/user/AuthContext';
 import { useNFTContractMerkle } from '../../lib/hooks/useNFTContractMerkle';
+import { emailToHash } from '../../lib/utils/email-hash';
 
 interface NFTCampaign {
   id: string;
@@ -186,15 +187,35 @@ export default function NFTMintPage() {
       if (!response.ok) {
         console.error('Failed to record mint in database');
         // Don't fail the whole process if recording fails
+      } else {
+        console.log('[NFT Mint] ✅ Mint recorded in database successfully');
       }
 
-      // Success!
+      // Success! Update status to show minted
       setTransactionHash(result.txHash || '');
-      alert(`NFT 鑄造成功！\n交易哈希：${result.txHash}`);
+      setMintStatus({
+        ...mintStatus,
+        alreadyMinted: true,
+        mintRecord: {
+          mintedAt: new Date(),
+          transactionHash: result.txHash || '',
+        },
+      });
       
-      // Redirect to user page after a short delay
+      alert(`🎉 NFT 鑄造成功！\n\nToken ID: ${result.tokenId || 'N/A'}\n交易哈希：${result.txHash}\n\n即將跳轉到您的個人頁面...`);
+      
+      // Redirect to user page using email hash with a refresh parameter
       setTimeout(() => {
-        router.push(`/user/${user?.id}`);
+        const email = user?.preferredEmail;
+        if (email) {
+          const hash = emailToHash(email);
+          console.log('[NFT Mint] Redirecting to user page:', `/user/${hash}`);
+          // Add timestamp to force re-fetch
+          router.push(`/user/${hash}?refresh=${Date.now()}`);
+        } else {
+          console.log('[NFT Mint] No email, redirecting to profile');
+          router.push('/profile');
+        }
       }, 2000);
     } catch (err: any) {
       console.error('Error minting NFT:', err);

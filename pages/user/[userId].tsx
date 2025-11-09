@@ -73,7 +73,7 @@ export default function UserPublicPage() {
     if (!userId) return;
 
     fetchUserInfo();
-  }, [userId]);
+  }, [userId, router.query.refresh]); // Re-fetch when refresh parameter changes
 
   // Check if current user can edit this profile
   useEffect(() => {
