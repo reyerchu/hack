@@ -90,96 +90,45 @@ export default async function handler(
 
     console.log('[IPFS Upload] Image uploaded:', imageCID);
 
-    // Step 2: Create a temporary directory for metadata files
-    const tempDir = path.join(os.tmpdir(), `nft-metadata-${Date.now()}`);
-    fs.mkdirSync(tempDir, { recursive: true });
-    console.log('[IPFS Upload] Created temp directory:', tempDir);
+    // Step 2: Create a single metadata JSON file
+    // Since all NFTs share the same image, we only need one metadata file
+    console.log('[IPFS Upload] Creating single metadata file...');
+
+    const metadata = {
+      name: name,
+      description: description || `${name} NFT Collection`,
+      image: imageURL,
+      attributes: [
+        {
+          trait_type: 'Collection',
+          value: name,
+        },
+      ],
+    };
+
+    // Create a temporary file for the metadata
+    const tempFilePath = path.join(os.tmpdir(), `metadata-${Date.now()}.json`);
+    fs.writeFileSync(tempFilePath, JSON.stringify(metadata, null, 2));
 
     try {
-      // Step 3: Generate metadata JSON files for each token
-      const totalSupply = parseInt(maxSupply || '100', 10);
-
-      for (let i = 1; i <= totalSupply; i++) {
-        const metadata = {
-          name: `${name} #${i}`,
-          description: description || `${name} NFT Collection`,
-          image: imageURL,
-          attributes: [
-            {
-              trait_type: 'Edition',
-              value: `${i} of ${totalSupply}`,
-            },
-            {
-              trait_type: 'Collection',
-              value: name,
-            },
-          ],
-        };
-
-        // Write each token's metadata to a separate file
-        const filePath = path.join(tempDir, `${i}.json`);
-        fs.writeFileSync(filePath, JSON.stringify(metadata, null, 2));
-      }
-
-      console.log('[IPFS Upload] Created', totalSupply, 'metadata files');
-      console.log('[IPFS Upload] Uploading metadata folder to Pinata...');
-
-      // Step 4: Upload directory using HTTP API with proper structure
-      // Create FormData with all files
-      const metadataFormData = new FormData();
+      // Step 3: Upload single metadata file using Pinata SDK
+      console.log('[IPFS Upload] Uploading metadata to Pinata...');
       
-      const files = fs.readdirSync(tempDir).sort((a, b) => {
-        return parseInt(a) - parseInt(b);
-      });
-
-      // Add all JSON files to FormData
-      // The key is to append each file with the SAME field name 'file'
-      for (const file of files) {
-        const filePath = path.join(tempDir, file);
-        metadataFormData.append('file', fs.createReadStream(filePath), {
-          filename: file,  // Just the filename, not a path
-        });
-      }
-
-      // Add pinata options AFTER all files
-      metadataFormData.append('pinataOptions', JSON.stringify({
-        wrapWithDirectory: true,
-      }));
-
-      metadataFormData.append('pinataMetadata', JSON.stringify({
-        name: `${name}-metadata-${Date.now()}`,
-      }));
-
-      // Upload using HTTP API
-      const metadataUploadResponse = await fetch('https://api.pinata.cloud/pinning/pinFileToIPFS', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${pinataJWT}`,
-          ...metadataFormData.getHeaders(),
-        },
-        body: metadataFormData,
-      });
-
-      if (!metadataUploadResponse.ok) {
-        const errorText = await metadataUploadResponse.text();
-        console.error('[IPFS Upload] Metadata upload error:', errorText);
-        throw new Error(`Metadata folder upload failed: ${errorText}`);
-      }
-
-      const metadataResult = await metadataUploadResponse.json();
+      const metadataStream = fs.createReadStream(tempFilePath);
+      const metadataResult = await pinata.upload.stream(metadataStream);
       const metadataCID = metadataResult.IpfsHash;
       
-      // BaseURI format: ipfs://CID/
-      // Contract will append: tokenId + ".json"
-      // Full URI example: ipfs://CID/1.json
-      // This now correctly resolves to an individual 1.json file in the IPFS folder
-      const baseURI = `ipfs://${metadataCID}/`;
+      // BaseURI format: ipfs://CID
+      // All tokens will use the same metadata URI
+      // The contract will use this as the base URI for ALL tokens
+      const baseURI = `ipfs://${metadataCID}`;
 
-      console.log('[IPFS Upload] Metadata folder uploaded:', metadataCID);
+      console.log('[IPFS Upload] Metadata uploaded:', metadataCID);
+      console.log('[IPFS Upload] All NFTs will share this metadata');
 
-      // Cleanup temp directory
-      fs.rmSync(tempDir, { recursive: true, force: true });
-      console.log('[IPFS Upload] Cleaned up temp directory');
+      // Cleanup temp file
+      fs.unlinkSync(tempFilePath);
+      console.log('[IPFS Upload] Cleaned up temp file');
 
       // Cleanup image temp file
       fs.unlinkSync(imageFile.filepath);
@@ -194,7 +143,7 @@ export default async function handler(
     } catch (metadataError: any) {
       // Cleanup on error
       try {
-        fs.rmSync(tempDir, { recursive: true, force: true });
+        fs.unlinkSync(tempFilePath);
       } catch {}
       throw metadataError;
     }

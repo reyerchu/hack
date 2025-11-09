@@ -167,19 +167,19 @@ contract RWAHackathonNFT is ERC721URIStorage, Ownable {
     }
 
     /**
-     * @notice Override tokenURI to return correct IPFS path
+     * @notice Override tokenURI to return metadata URI
      * @param tokenId Token ID
      * @return Token URI string
-     * @dev Returns baseTokenURI + tokenId + ".json" for IPFS metadata structure
-     * @dev Example: ipfs://QmHash/1.json, ipfs://QmHash/2.json, etc.
+     * @dev All tokens share the same metadata (same image for all NFTs)
+     * @dev Returns baseTokenURI which points to a single IPFS metadata file
+     * @dev Example: ipfs://QmHash (same for all tokens)
      */
     function tokenURI(uint256 tokenId) public view override returns (string memory) {
         require(ownerOf(tokenId) != address(0), "Token does not exist");
         
-        // Use OpenZeppelin's Strings library for uint256 to string conversion
-        // Returns: baseTokenURI + tokenId + ".json"
-        string memory baseURI = _baseURI();
-        return string(abi.encodePacked(baseURI, Strings.toString(tokenId), ".json"));
+        // All tokens share the same metadata
+        // Simply return the base URI (which is a single IPFS CID)
+        return _baseURI();
     }
 
     /**
