@@ -87,7 +87,12 @@ export default function NFTAutoSetup({ campaignId, campaignName, network, onSucc
 
       // Get campaign details for contract constructor
       const campaignResponse = await fetch(`/api/admin/nft/campaigns/list`);
-      const campaigns = await campaignResponse.json();
+      if (!campaignResponse.ok) {
+        throw new Error('無法獲取活動列表');
+      }
+      
+      const campaignsData = await campaignResponse.json();
+      const campaigns = Array.isArray(campaignsData) ? campaignsData : (campaignsData.campaigns || []);
       const campaign = campaigns.find((c: any) => c.id === campaignId);
 
       if (!campaign) {
