@@ -415,69 +415,71 @@ export default function NFTAutoSetup({ campaignId, campaignName, network, onSucc
   }
 
   return (
-    <div className="bg-gray-900 border border-gray-700 rounded-lg p-5 shadow-xl">
-      <h3 className="text-lg font-bold text-white mb-2">🚀 自動部署和設置</h3>
-      <p className="text-sm text-gray-300 mb-4">
-        一鍵完成合約部署、白名單設置和啟用鑄造
-      </p>
+    <div className="bg-white border border-gray-200 rounded-lg p-5 shadow-md">
+      <div className="flex items-center gap-3 mb-4">
+        <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#8B4049' }}>
+          <span className="text-xl text-white">🚀</span>
+        </div>
+        <div>
+          <h3 className="text-lg font-bold text-gray-900">自動部署和設置</h3>
+          <p className="text-sm text-gray-600">一鍵完成智能合約部署流程</p>
+        </div>
+      </div>
 
       {error && (
-        <div className="bg-red-900/30 border border-red-700 rounded p-3 mb-4">
-          <p className="text-sm text-red-300">❌ {error}</p>
+        <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-4">
+          <p className="text-sm text-red-700">❌ {error}</p>
         </div>
       )}
 
       <button
         onClick={handleAutoSetup}
         disabled={step !== 'idle'}
-        className={`w-full px-5 py-3 rounded-lg font-semibold transition-all ${
+        className={`w-full px-5 py-3 rounded-lg font-medium transition-all ${
           step === 'idle'
-            ? 'text-white hover:opacity-90 shadow-lg'
-            : 'bg-gray-700 text-gray-500 cursor-not-allowed'
+            ? 'text-white hover:opacity-90 shadow-md'
+            : 'bg-gray-200 text-gray-500 cursor-not-allowed'
         }`}
         style={step === 'idle' ? { backgroundColor: '#8B4049' } : {}}
       >
         {getStepText()}
       </button>
 
-      <div className="mt-4 bg-gray-800 border border-gray-700 rounded-lg p-4">
-        <p className="font-semibold mb-3 text-white text-sm">此操作將會：</p>
-        <ul className="space-y-2 text-sm">
-          <li className="flex items-start gap-3 text-gray-200">
-            <span className="text-blue-400 text-lg">🔗</span>
+      <div className="mt-4 bg-gray-50 border border-gray-200 rounded-lg p-4">
+        <p className="font-semibold mb-3 text-gray-800 text-sm">部署流程：</p>
+        <div className="space-y-2.5 text-sm">
+          <div className="flex items-start gap-3 text-gray-700 p-2 rounded hover:bg-gray-100 transition-colors">
+            <span className="text-base flex-shrink-0">🔗</span>
             <span>連接您的 MetaMask 錢包</span>
-          </li>
-          <li className="flex items-start gap-3 text-gray-200">
-            <span className="text-purple-400 text-lg">🔐</span>
-            <div>
-              <div className="font-semibold">部署智能合約並設置白名單 (僅需確認 2 次)</div>
-              <div className="ml-4 mt-1 space-y-1 text-xs text-gray-400">
-                <div>→ 部署合約 (第 1 次確認)</div>
-                <div>→ 設置白名單並啟用鑄造 (第 2 次確認)</div>
+          </div>
+          <div className="flex items-start gap-3 text-gray-700 p-2 rounded hover:bg-gray-100 transition-colors">
+            <span className="text-base flex-shrink-0">🔐</span>
+            <div className="flex-1">
+              <div className="font-medium">部署並設置 (僅需 2 次確認)</div>
+              <div className="mt-1.5 space-y-1 text-xs text-gray-500 ml-3">
+                <div>• 部署智能合約</div>
+                <div>• 設置白名單並啟用鑄造</div>
               </div>
             </div>
-          </li>
-          <li className="flex items-start gap-3 text-gray-200">
-            <span className="text-green-400 text-lg">✅</span>
-            <span>更新活動狀態為「進行中」</span>
-          </li>
-        </ul>
+          </div>
+          <div className="flex items-start gap-3 text-gray-700 p-2 rounded hover:bg-gray-100 transition-colors">
+            <span className="text-base flex-shrink-0">✅</span>
+            <span>更新活動狀態</span>
+          </div>
+        </div>
         
-        <div className="mt-4 space-y-2">
-          <div className="bg-green-900/20 border border-green-800 rounded p-2">
-            <p className="text-green-400 font-semibold text-xs">
-              💡 已優化：整個過程僅需 2 次 MetaMask 確認
-            </p>
+        <div className="mt-4 pt-3 border-t border-gray-200 space-y-1.5 text-xs">
+          <div className="flex items-start gap-2 text-gray-600">
+            <span className="flex-shrink-0" style={{ color: '#8B4049' }}>✓</span>
+            <span>已優化至 2 次確認，節省時間與 gas</span>
           </div>
-          <div className="bg-blue-900/20 border border-blue-800 rounded p-2">
-            <p className="text-blue-400 text-xs">
-              🔒 100% 安全！所有操作都需要您的錢包確認
-            </p>
+          <div className="flex items-start gap-2 text-gray-600">
+            <span className="flex-shrink-0" style={{ color: '#8B4049' }}>🔒</span>
+            <span>所有操作需要錢包授權，完全安全</span>
           </div>
-          <div className="bg-orange-900/20 border border-orange-800 rounded p-2">
-            <p className="text-orange-400 text-xs">
-              ⚠️ 需要支付 gas 費用（約 0.01-0.05 ETH）
-            </p>
+          <div className="flex items-start gap-2 text-gray-600">
+            <span className="flex-shrink-0 text-orange-600">⚠</span>
+            <span>預估 gas 費用：0.01-0.05 ETH</span>
           </div>
         </div>
       </div>
