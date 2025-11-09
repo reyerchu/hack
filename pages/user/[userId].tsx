@@ -697,21 +697,11 @@ export default function UserPublicPage() {
                         // 不是所有者且未鑄造 - 顯示 "尚未鑄造"
                         <div className="px-3 py-2 bg-gray-100 rounded-lg text-center">
                           <p className="text-sm text-gray-600">尚未鑄造</p>
-                          {campaign.endDate && (
-                            <p className="text-xs text-gray-500 mt-1">
-                              截止日期：{new Date(campaign.endDate).toLocaleDateString('zh-TW')}
-                            </p>
-                          )}
                         </div>
                       ) : (
                         // 其他原因不可鑄造
                         <div className="px-3 py-2 bg-gray-100 rounded-lg text-center">
                           <p className="text-sm text-gray-600">{campaign.reason || '暫不可鑄造'}</p>
-                          {campaign.endDate && (
-                            <p className="text-xs text-gray-500 mt-1">
-                              截止日期：{new Date(campaign.endDate).toLocaleDateString('zh-TW')}
-                            </p>
-                          )}
                         </div>
                       )}
                     </div>
