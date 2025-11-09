@@ -4,6 +4,8 @@ import fs from 'fs';
 import path from 'path';
 import os from 'os';
 import { PinataSDK } from 'pinata-web3';
+import FormData from 'form-data';
+import fetch from 'node-fetch';
 
 // Disable Next.js body parsing (we'll use formidable)
 export const config = {
@@ -122,12 +124,49 @@ export default async function handler(
       console.log('[IPFS Upload] Created', totalSupply, 'metadata files');
       console.log('[IPFS Upload] Uploading metadata folder to Pinata...');
 
-      // Step 4: Upload the directory using Pinata SDK
-      // Upload the entire directory
-      const metadataResult = await pinata.upload.directory(tempDir, {
-        name: `${name}-metadata-${Date.now()}`,
-      });
+      // Step 4: Upload directory using HTTP API with proper structure
+      // Create FormData with all files
+      const metadataFormData = new FormData();
       
+      const files = fs.readdirSync(tempDir).sort((a, b) => {
+        return parseInt(a) - parseInt(b);
+      });
+
+      // Add all JSON files to FormData
+      // The key is to append each file with the SAME field name 'file'
+      for (const file of files) {
+        const filePath = path.join(tempDir, file);
+        metadataFormData.append('file', fs.createReadStream(filePath), {
+          filename: file,  // Just the filename, not a path
+        });
+      }
+
+      // Add pinata options AFTER all files
+      metadataFormData.append('pinataOptions', JSON.stringify({
+        wrapWithDirectory: true,
+      }));
+
+      metadataFormData.append('pinataMetadata', JSON.stringify({
+        name: `${name}-metadata-${Date.now()}`,
+      }));
+
+      // Upload using HTTP API
+      const metadataUploadResponse = await fetch('https://api.pinata.cloud/pinning/pinFileToIPFS', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${pinataJWT}`,
+          ...metadataFormData.getHeaders(),
+        },
+        body: metadataFormData,
+      });
+
+      if (!metadataUploadResponse.ok) {
+        const errorText = await metadataUploadResponse.text();
+        console.error('[IPFS Upload] Metadata upload error:', errorText);
+        throw new Error(`Metadata folder upload failed: ${errorText}`);
+      }
+
+      const metadataResult = await metadataUploadResponse.json();
       const metadataCID = metadataResult.IpfsHash;
       
       // BaseURI format: ipfs://CID/
