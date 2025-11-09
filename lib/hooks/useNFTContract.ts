@@ -2,12 +2,13 @@ import { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 
 // ABI for RWAHackathonNFT contract (only the functions we need)
+// Updated for OpenZeppelin v5 (maxSupply is lowercase, immutable public var)
 const CONTRACT_ABI = [
   "function mint() external",
   "function canMint(address account) external view returns (bool)",
   "function hasMinted(address account) external view returns (bool)",
   "function totalSupply() external view returns (uint256)",
-  "function MAX_SUPPLY() external view returns (uint256)",
+  "function maxSupply() external view returns (uint256)",
   "function mintingEnabled() external view returns (bool)",
   "event NFTMinted(address indexed to, uint256 indexed tokenId)"
 ];

@@ -95,7 +95,7 @@ export default function NFTAutoSetup({ campaignId, campaignName, network, onSucc
       }
 
       // Import contract ABI and bytecode
-      const CONTRACT_ARTIFACT = await import('../../contracts/artifacts/contracts/RWAHackathonNFT.sol/RWAHackathonNFT.json');
+      const CONTRACT_ARTIFACT = await import('../../lib/contracts/RWAHackathonNFT.json');
       
       const factory = new ethers.ContractFactory(
         CONTRACT_ARTIFACT.abi,
