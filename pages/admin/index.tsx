@@ -83,17 +83,33 @@ export default function Admin() {
               快速連結
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {/* 用戶管理 */}
               <Link href="/admin/users">
                 <a
                   className="block bg-white rounded-lg p-6 shadow-sm hover:shadow-lg transition-all duration-300 border-2"
                   style={{ borderColor: '#e5e7eb' }}
                 >
                   <h3 className="text-lg font-bold mb-2" style={{ color: '#1a3a6e' }}>
-                    👥 使用者管理
+                    👥 用戶管理
                   </h3>
                   <p className="text-sm text-gray-600">管理所有註冊用戶</p>
                 </a>
               </Link>
+
+              {/* 團隊管理 */}
+              <Link href="/admin/teams">
+                <a
+                  className="block bg-white rounded-lg p-6 shadow-sm hover:shadow-lg transition-all duration-300 border-2"
+                  style={{ borderColor: '#e5e7eb' }}
+                >
+                  <h3 className="text-lg font-bold mb-2" style={{ color: '#1a3a6e' }}>
+                    👨‍👩‍👧‍👦 團隊管理
+                  </h3>
+                  <p className="text-sm text-gray-600">管理所有參賽團隊</p>
+                </a>
+              </Link>
+
+              {/* 贊助商管理 */}
               <Link href="/admin/sponsors">
                 <a
                   className="block bg-white rounded-lg p-6 shadow-sm hover:shadow-lg transition-all duration-300 border-2"
@@ -105,6 +121,23 @@ export default function Admin() {
                   <p className="text-sm text-gray-600">管理贊助商與新增贊助商</p>
                 </a>
               </Link>
+
+              {/* NFT 管理 - super_admin only */}
+              {user.permissions[0] === 'super_admin' && (
+                <Link href="/admin/nft/campaigns">
+                  <a
+                    className="block bg-white rounded-lg p-6 shadow-sm hover:shadow-lg transition-all duration-300 border-2"
+                    style={{ borderColor: '#e5e7eb' }}
+                  >
+                    <h3 className="text-lg font-bold mb-2" style={{ color: '#1a3a6e' }}>
+                      🎨 NFT 管理
+                    </h3>
+                    <p className="text-sm text-gray-600">管理 NFT 活動與發行</p>
+                  </a>
+                </Link>
+              )}
+
+              {/* 公告與問題 */}
               <Link href="/admin/announcements">
                 <a
                   className="block bg-white rounded-lg p-6 shadow-sm hover:shadow-lg transition-all duration-300 border-2"
@@ -116,32 +149,23 @@ export default function Admin() {
                   <p className="text-sm text-gray-600">發布公告與回覆問題</p>
                 </a>
               </Link>
+
+              {/* 統計報表 - super_admin only */}
               {user.permissions[0] === 'super_admin' && (
-                <>
-                  <Link href="/admin/stats">
-                    <a
-                      className="block bg-white rounded-lg p-6 shadow-sm hover:shadow-lg transition-all duration-300 border-2"
-                      style={{ borderColor: '#e5e7eb' }}
-                    >
-                      <h3 className="text-lg font-bold mb-2" style={{ color: '#1a3a6e' }}>
-                        📊 統計報表
-                      </h3>
-                      <p className="text-sm text-gray-600">查看統計數據</p>
-                    </a>
-                  </Link>
-                  <Link href="/admin/nft/campaigns">
-                    <a
-                      className="block bg-white rounded-lg p-6 shadow-sm hover:shadow-lg transition-all duration-300 border-2"
-                      style={{ borderColor: '#e5e7eb' }}
-                    >
-                      <h3 className="text-lg font-bold mb-2" style={{ color: '#1a3a6e' }}>
-                        🎨 NFT 管理
-                      </h3>
-                      <p className="text-sm text-gray-600">管理 NFT 活動與發行</p>
-                    </a>
-                  </Link>
-                </>
+                <Link href="/admin/stats">
+                  <a
+                    className="block bg-white rounded-lg p-6 shadow-sm hover:shadow-lg transition-all duration-300 border-2"
+                    style={{ borderColor: '#e5e7eb' }}
+                  >
+                    <h3 className="text-lg font-bold mb-2" style={{ color: '#1a3a6e' }}>
+                      📊 統計報表
+                    </h3>
+                    <p className="text-sm text-gray-600">查看統計數據</p>
+                  </a>
+                </Link>
               )}
+
+              {/* 掃描功能 */}
               <Link href="/admin/scan">
                 <a
                   className="block bg-white rounded-lg p-6 shadow-sm hover:shadow-lg transition-all duration-300 border-2"
