@@ -259,7 +259,8 @@ export default function NFTCampaignsAdmin() {
           <h1 className="text-3xl font-bold">NFT 活動管理</h1>
           <button
             onClick={() => setShowCreateForm(!showCreateForm)}
-            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            className="px-6 py-3 text-white rounded-lg font-medium transition-all hover:opacity-90"
+            style={{ backgroundColor: '#8B4049' }}
           >
             {showCreateForm ? '取消' : '建立新活動'}
           </button>
@@ -395,7 +396,8 @@ export default function NFTCampaignsAdmin() {
 
               <button
                 type="submit"
-                className="w-full px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium"
+                className="w-full px-6 py-3 text-white rounded-lg font-medium transition-all hover:opacity-90"
+                style={{ backgroundColor: '#8B4049' }}
               >
                 建立活動
               </button>
@@ -426,7 +428,7 @@ export default function NFTCampaignsAdmin() {
                     <div className="flex justify-between items-start">
                       <div>
                         <Link href={`/nft/${campaign.id}`}>
-                          <a className="hover:text-blue-600 transition-colors">
+                          <a className="transition-colors" style={{ color: 'inherit' }} onMouseEnter={(e) => e.currentTarget.style.color = '#8B4049'} onMouseLeave={(e) => e.currentTarget.style.color = 'inherit'}>
                             <h3 className="text-xl font-bold">{campaign.name}</h3>
                           </a>
                         </Link>
