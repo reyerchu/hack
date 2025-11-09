@@ -570,8 +570,8 @@ export default function UserPublicPage() {
             )}
           </div>
 
-          {/* NFT Campaigns Section */}
-          {canEdit && user.nftCampaigns && user.nftCampaigns.length > 0 && (
+          {/* NFT Campaigns Section - 公開顯示 */}
+          {user.nftCampaigns && user.nftCampaigns.length > 0 && (
             <div className="mb-8">
               <h2 className="text-[22px] md:text-[28px] font-bold mb-4" style={{ color: '#1a3a6e' }}>
                 NFT 紀念品
