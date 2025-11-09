@@ -117,17 +117,30 @@ export default function Admin() {
                 </a>
               </Link>
               {user.permissions[0] === 'super_admin' && (
-                <Link href="/admin/stats">
-                  <a
-                    className="block bg-white rounded-lg p-6 shadow-sm hover:shadow-lg transition-all duration-300 border-2"
-                    style={{ borderColor: '#e5e7eb' }}
-                  >
-                    <h3 className="text-lg font-bold mb-2" style={{ color: '#1a3a6e' }}>
-                      📊 統計報表
-                    </h3>
-                    <p className="text-sm text-gray-600">查看統計數據</p>
-                  </a>
-                </Link>
+                <>
+                  <Link href="/admin/stats">
+                    <a
+                      className="block bg-white rounded-lg p-6 shadow-sm hover:shadow-lg transition-all duration-300 border-2"
+                      style={{ borderColor: '#e5e7eb' }}
+                    >
+                      <h3 className="text-lg font-bold mb-2" style={{ color: '#1a3a6e' }}>
+                        📊 統計報表
+                      </h3>
+                      <p className="text-sm text-gray-600">查看統計數據</p>
+                    </a>
+                  </Link>
+                  <Link href="/admin/nft/campaigns">
+                    <a
+                      className="block bg-white rounded-lg p-6 shadow-sm hover:shadow-lg transition-all duration-300 border-2"
+                      style={{ borderColor: '#e5e7eb' }}
+                    >
+                      <h3 className="text-lg font-bold mb-2" style={{ color: '#1a3a6e' }}>
+                        🎨 NFT 管理
+                      </h3>
+                      <p className="text-sm text-gray-600">管理 NFT 活動與發行</p>
+                    </a>
+                  </Link>
+                </>
               )}
               <Link href="/admin/scan">
                 <a
