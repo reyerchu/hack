@@ -74,9 +74,16 @@ export default function NFTMintPage() {
   const checkEligibility = async () => {
     try {
       setLoading(true);
-      const response = await fetch(
-        `/api/nft/check-eligibility?email=${encodeURIComponent(user?.preferredEmail || '')}`
-      );
+      
+      // Build API URL with campaignId from query parameter if available
+      const { campaign: campaignId } = router.query;
+      let apiUrl = `/api/nft/check-eligibility?email=${encodeURIComponent(user?.preferredEmail || '')}`;
+      
+      if (campaignId && typeof campaignId === 'string') {
+        apiUrl += `&campaignId=${encodeURIComponent(campaignId)}`;
+      }
+      
+      const response = await fetch(apiUrl);
 
       if (!response.ok) {
         throw new Error('檢查資格失敗');
