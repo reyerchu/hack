@@ -574,9 +574,15 @@ export default function ProfilePage() {
                   <button
                     onClick={() => {
                       const email = user?.preferredEmail || profile?.email;
+                      console.log('[Profile] 查看公開頁面 - email:', email);
                       if (email) {
                         const hash = emailToHash(email);
+                        console.log('[Profile] 計算的 hash:', hash);
+                        console.log('[Profile] 跳轉到:', `/user/${hash}`);
                         router.push(`/user/${hash}`);
+                      } else {
+                        console.error('[Profile] ❌ 找不到 email');
+                        alert('無法獲取用戶 email，請重新登入');
                       }
                     }}
                     disabled={!profile || !profile.user}

@@ -7,21 +7,21 @@
 import crypto from 'crypto';
 
 /**
- * 將 email 轉換為短 hash
- * 使用 MD5 的前 12 位
+ * 將 email 轉換為 MD5 hash
+ * 使用完整的 32 位 MD5
  */
 export function emailToHash(email: string): string {
   if (!email) return '';
 
   const hash = crypto.createHash('md5').update(email.toLowerCase().trim()).digest('hex');
 
-  // 取前 12 位作為短 hash
-  return hash.substring(0, 12);
+  // 返回完整的 32 位 MD5 hash
+  return hash;
 }
 
 /**
- * 驗證 hash 格式
+ * 驗證 hash 格式（32 位 MD5）
  */
 export function isValidHash(hash: string): boolean {
-  return /^[a-f0-9]{12}$/.test(hash);
+  return /^[a-f0-9]{32}$/i.test(hash);
 }
