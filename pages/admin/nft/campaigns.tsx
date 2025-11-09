@@ -272,141 +272,141 @@ export default function NFTCampaignsAdmin() {
           {showCreateForm && (
             <div className="bg-white border border-gray-300 rounded-lg p-8 mb-12">
               <h2 className="text-[24px] font-bold mb-6" style={{ color: '#1a3a6e' }}>建立 NFT 活動</h2>
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div>
-                <label className="block text-sm font-medium mb-2 text-gray-700">活動名稱</label>
-                <input
-                  type="text"
-                  required
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="例如：RWA 黑客松台灣 2025 NFT"
-                />
-              </div>
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div>
+                  <label className="block text-sm font-medium mb-2 text-gray-700">活動名稱</label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="例如：RWA 黑客松台灣 2025 NFT"
+                  />
+                </div>
 
-              <div>
-                <label className="block text-sm font-medium mb-2 text-gray-700">NFT 符號</label>
-                <input
-                  type="text"
-                  required
-                  value={formData.symbol}
-                  onChange={(e) => setFormData({ ...formData, symbol: e.target.value.toUpperCase() })}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="例如：RWANFT"
-                  maxLength={10}
-                />
-                <p className="mt-2 text-sm text-gray-500">NFT 的代碼符號，將顯示在區塊鏈瀏覽器（最多 10 個字元，自動轉為大寫）</p>
-              </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2 text-gray-700">NFT 符號</label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.symbol}
+                    onChange={(e) => setFormData({ ...formData, symbol: e.target.value.toUpperCase() })}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="例如：RWANFT"
+                    maxLength={10}
+                  />
+                  <p className="mt-2 text-sm text-gray-500">NFT 的代碼符號，將顯示在區塊鏈瀏覽器（最多 10 個字元，自動轉為大寫）</p>
+                </div>
 
-              <div>
-                <label className="block text-sm font-medium mb-2 text-gray-700">活動描述</label>
-                <textarea
-                  required
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  rows={3}
-                  placeholder="描述此 NFT 活動..."
-                />
-              </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2 text-gray-700">活動描述</label>
+                  <textarea
+                    required
+                    value={formData.description}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    rows={3}
+                    placeholder="描述此 NFT 活動..."
+                  />
+                </div>
 
-              <div>
-                <label className="block text-sm font-medium mb-2 text-gray-700">NFT 圖片</label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required={!formData.imageUrl}
-                />
-                {imagePreview && (
-                  <div className="mt-3">
-                    <img
-                      src={imagePreview}
-                      alt="Preview"
-                      className="w-32 h-32 object-cover rounded-lg border border-gray-300"
+                <div>
+                  <label className="block text-sm font-medium mb-2 text-gray-700">NFT 圖片</label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required={!formData.imageUrl}
+                  />
+                  {imagePreview && (
+                    <div className="mt-3">
+                      <img
+                        src={imagePreview}
+                        alt="Preview"
+                        className="w-32 h-32 object-cover rounded-lg border border-gray-300"
+                      />
+                    </div>
+                  )}
+                  {uploadingImage && (
+                    <p className="mt-2 text-sm" style={{ color: '#1a3a6e' }}>上傳中...</p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2 text-gray-700">區塊鏈網路</label>
+                  <select
+                    value={formData.network}
+                    onChange={(e) => setFormData({ ...formData, network: e.target.value })}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="sepolia">Sepolia（測試網）</option>
+                    <option value="ethereum">Ethereum 主網</option>
+                    <option value="arbitrum">Arbitrum</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2 text-gray-700">
+                    符合資格的電子郵件（每行一個或用逗號分隔）
+                  </label>
+                  <textarea
+                    required
+                    value={formData.eligibleEmails}
+                    onChange={(e) => setFormData({ ...formData, eligibleEmails: e.target.value })}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg font-mono text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    rows={6}
+                    placeholder="user1@example.com&#10;user2@example.com&#10;user3@example.com"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium mb-2 text-gray-700">開始日期</label>
+                    <input
+                      type="datetime-local"
+                      required
+                      value={formData.startDate}
+                      onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
-                )}
-                {uploadingImage && (
-                  <p className="mt-2 text-sm" style={{ color: '#1a3a6e' }}>上傳中...</p>
-                )}
-              </div>
 
-              <div>
-                <label className="block text-sm font-medium mb-2 text-gray-700">區塊鏈網路</label>
-                <select
-                  value={formData.network}
-                  onChange={(e) => setFormData({ ...formData, network: e.target.value })}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  <div>
+                    <label className="block text-sm font-medium mb-2 text-gray-700">結束日期</label>
+                    <input
+                      type="datetime-local"
+                      required
+                      value={formData.endDate}
+                      onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2 text-gray-700">最大供應量</label>
+                  <input
+                    type="number"
+                    required
+                    min="1"
+                    value={formData.maxSupply}
+                    onChange={(e) => setFormData({ ...formData, maxSupply: e.target.value })}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  className="w-full px-6 py-3 text-white rounded-lg font-medium transition-all hover:opacity-90"
+                  style={{ backgroundColor: '#8B4049' }}
                 >
-                  <option value="sepolia">Sepolia（測試網）</option>
-                  <option value="ethereum">Ethereum 主網</option>
-                  <option value="arbitrum">Arbitrum</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-2 text-gray-700">
-                  符合資格的電子郵件（每行一個或用逗號分隔）
-                </label>
-                <textarea
-                  required
-                  value={formData.eligibleEmails}
-                  onChange={(e) => setFormData({ ...formData, eligibleEmails: e.target.value })}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg font-mono text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  rows={6}
-                  placeholder="user1@example.com&#10;user2@example.com&#10;user3@example.com"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium mb-2 text-gray-700">開始日期</label>
-                  <input
-                    type="datetime-local"
-                    required
-                    value={formData.startDate}
-                    onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-2 text-gray-700">結束日期</label>
-                  <input
-                    type="datetime-local"
-                    required
-                    value={formData.endDate}
-                    onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-2 text-gray-700">最大供應量</label>
-                <input
-                  type="number"
-                  required
-                  min="1"
-                  value={formData.maxSupply}
-                  onChange={(e) => setFormData({ ...formData, maxSupply: e.target.value })}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-
-              <button
-                type="submit"
-                className="w-full px-6 py-3 text-white rounded-lg font-medium transition-all hover:opacity-90"
-                style={{ backgroundColor: '#8B4049' }}
-              >
-                建立活動
-              </button>
-            </form>
-          </div>
-        )}
+                  建立活動
+                </button>
+              </form>
+            </div>
+          )}
 
         <div className="space-y-6">
           <h2 className="text-[24px] font-bold mb-6 border-b border-gray-300 pb-3" style={{ color: '#1a3a6e' }}>
