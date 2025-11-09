@@ -80,32 +80,80 @@ export default function NFTAutoSetup({ campaignId, campaignName, network, onSucc
         }
       }
 
-      // Automatically deploy contract via API
+      // Deploy contract using MetaMask (secure!)
       setStep('deploying');
       
-      console.log('[AutoSetup] Starting automatic contract deployment...');
-      
-      const deployResponse = await fetch('/api/admin/nft/campaigns/deploy-contract', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          campaignId,
-          network,
-        }),
-      });
+      console.log('[AutoSetup] Deploying contract via MetaMask...');
 
-      if (!deployResponse.ok) {
-        const deployError = await deployResponse.json();
-        throw new Error(deployError.error || '合約部署失敗');
+      // Get campaign details for contract constructor
+      const campaignResponse = await fetch(`/api/admin/nft/campaigns/list`);
+      const campaigns = await campaignResponse.json();
+      const campaign = campaigns.find((c: any) => c.id === campaignId);
+
+      if (!campaign) {
+        throw new Error('找不到活動資料');
       }
 
-      const deployResult = await deployResponse.json();
-      const contractAddress = deployResult.contractAddress;
+      // Import contract ABI and bytecode
+      const CONTRACT_ARTIFACT = await import('../../contracts/artifacts/contracts/RWAHackathonNFT.sol/RWAHackathonNFT.json');
+      
+      const factory = new ethers.ContractFactory(
+        CONTRACT_ARTIFACT.abi,
+        CONTRACT_ARTIFACT.bytecode,
+        setupSigner
+      );
+
+      console.log('[AutoSetup] Contract parameters:', {
+        name: campaign.name,
+        symbol: campaign.symbol || 'RWAHACK',
+        maxSupply: campaign.maxSupply,
+        baseURI: campaign.imageUrl || '',
+      });
+
+      alert(
+        `📝 準備部署合約！\n\n` +
+        `活動名稱: ${campaign.name}\n` +
+        `符號: ${campaign.symbol || 'RWAHACK'}\n` +
+        `最大供應量: ${campaign.maxSupply}\n\n` +
+        `MetaMask 即將彈出，請確認部署交易。\n` +
+        `⚠️ 這將花費一些 gas 費用。`
+      );
+
+      // Deploy contract - MetaMask will pop up for confirmation!
+      const contract = await factory.deploy(
+        campaign.name,
+        campaign.symbol || 'RWAHACK',
+        campaign.maxSupply,
+        campaign.imageUrl || ''
+      );
+
+      console.log('[AutoSetup] Contract deployment transaction sent:', contract.deployTransaction.hash);
+      
+      alert(
+        `⏳ 部署交易已發送！\n` +
+        `交易哈希: ${contract.deployTransaction.hash}\n\n` +
+        `等待確認中...`
+      );
+
+      // Wait for deployment to be mined
+      await contract.deployed();
+
+      const contractAddress = contract.address;
       
       console.log('[AutoSetup] Contract deployed to:', contractAddress);
       setDeployedAddress(contractAddress);
+      
+      // Update Firestore with contract address
+      await fetch('/api/admin/nft/campaigns/update-status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          campaignId,
+          contractAddress,
+          network,
+          status: 'draft', // Will be set to 'active' after whitelist setup
+        }),
+      });
       
       alert(
         `✅ 合約部署成功！\n\n` +
@@ -316,14 +364,17 @@ export default function NFTAutoSetup({ campaignId, campaignName, network, onSucc
       <div className="mt-3 text-xs text-gray-600">
         <p className="font-semibold mb-1">此操作將會：</p>
         <ul className="list-disc list-inside space-y-1">
-          <li>✅ 連接您的 MetaMask 錢包（安全）</li>
-          <li>📝 引導您部署智能合約（終端執行）</li>
-          <li>🔐 使用錢包簽名添加白名單（MetaMask 確認）</li>
-          <li>🔐 使用錢包簽名啟用鑄造（MetaMask 確認）</li>
-          <li>📊 更新活動狀態為「進行中」</li>
+          <li>🔗 連接您的 MetaMask 錢包</li>
+          <li>🔐 部署智能合約（MetaMask 確認）</li>
+          <li>🔐 添加白名單（MetaMask 確認）</li>
+          <li>🔐 啟用鑄造（MetaMask 確認）</li>
+          <li>✅ 更新活動狀態為「進行中」</li>
         </ul>
         <p className="mt-2 text-green-600 font-semibold">
-          🔒 無需提供私鑰！所有操作都通過 MetaMask 簽名
+          🔒 100% 安全！所有操作都需要 MetaMask 確認
+        </p>
+        <p className="mt-1 text-orange-600 text-xs">
+          ⚠️ 部署合約需要支付 gas 費用（約 0.01-0.05 ETH）
         </p>
       </div>
     </div>
