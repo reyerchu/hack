@@ -38,61 +38,63 @@ export default function NFTAutoSetup({ campaignId, campaignName, network, onSucc
         throw new Error('找不到活動資料');
       }
 
-      // Step 0: Upload to IPFS if image file exists
-      let baseURI = campaign.imageUrl || '';
-      
-      if (campaign.imageFile) {
-        setStep('uploading-ipfs');
-        console.log('[AutoSetup] Uploading image to IPFS...');
-        
-        alert(
-          `☁️ 準備上傳到 IPFS！\n\n` +
-          `這將：\n` +
-          `1. 上傳 NFT 圖片到 IPFS\n` +
-          `2. 生成所有 Token 的 Metadata\n` +
-          `3. 上傳 Metadata 到 IPFS\n\n` +
-          `請稍候...`
-        );
-
-        const formData = new FormData();
-        formData.append('image', campaign.imageFile);
-        formData.append('name', campaign.name);
-        formData.append('description', campaign.description || `${campaign.name} NFT Collection`);
-        formData.append('maxSupply', campaign.maxSupply.toString());
-
-        const ipfsResponse = await fetch('/api/admin/nft/upload-to-ipfs', {
-          method: 'POST',
-          body: formData,
-        });
-
-        if (!ipfsResponse.ok) {
-          const errorData = await ipfsResponse.json();
-          throw new Error(errorData.error || 'IPFS 上傳失敗');
-        }
-
-        const ipfsData = await ipfsResponse.json();
-        
-        if (!ipfsData.success) {
-          throw new Error(ipfsData.error || 'IPFS 上傳失敗');
-        }
-
-        console.log('[AutoSetup] IPFS upload successful:', ipfsData);
-        
-        baseURI = ipfsData.baseURI!;
-        setIpfsInfo({
-          imageCID: ipfsData.imageCID,
-          metadataCID: ipfsData.metadataCID,
-          baseURI: ipfsData.baseURI,
-        });
-
-        alert(
-          `✅ IPFS 上傳成功！\n\n` +
-          `圖片 CID: ${ipfsData.imageCID?.substring(0, 10)}...\n` +
-          `Metadata CID: ${ipfsData.metadataCID?.substring(0, 10)}...\n` +
-          `Base URI: ${ipfsData.baseURI}\n\n` +
-          `現在開始部署合約...`
-        );
+      // Step 0: Upload to IPFS (required!)
+      if (!campaign.imageFile) {
+        throw new Error('請先上傳 NFT 圖片文件！');
       }
+      
+      let baseURI = '';
+      
+      setStep('uploading-ipfs');
+      console.log('[AutoSetup] Uploading image to IPFS...');
+      
+      alert(
+        `☁️ 準備上傳到 IPFS！\n\n` +
+        `這將：\n` +
+        `1. 上傳 NFT 圖片到 IPFS\n` +
+        `2. 生成所有 Token 的 Metadata\n` +
+        `3. 上傳 Metadata 到 IPFS\n\n` +
+        `請稍候...`
+      );
+
+      const formData = new FormData();
+      formData.append('image', campaign.imageFile);
+      formData.append('name', campaign.name);
+      formData.append('description', campaign.description || `${campaign.name} NFT Collection`);
+      formData.append('maxSupply', campaign.maxSupply.toString());
+
+      const ipfsResponse = await fetch('/api/admin/nft/upload-to-ipfs', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!ipfsResponse.ok) {
+        const errorData = await ipfsResponse.json();
+        throw new Error(errorData.error || 'IPFS 上傳失敗');
+      }
+
+      const ipfsData = await ipfsResponse.json();
+      
+      if (!ipfsData.success) {
+        throw new Error(ipfsData.error || 'IPFS 上傳失敗');
+      }
+
+      console.log('[AutoSetup] IPFS upload successful:', ipfsData);
+      
+      baseURI = ipfsData.baseURI!;
+      setIpfsInfo({
+        imageCID: ipfsData.imageCID,
+        metadataCID: ipfsData.metadataCID,
+        baseURI: ipfsData.baseURI,
+      });
+
+      alert(
+        `✅ IPFS 上傳成功！\n\n` +
+        `圖片 CID: ${ipfsData.imageCID?.substring(0, 10)}...\n` +
+        `Metadata CID: ${ipfsData.metadataCID?.substring(0, 10)}...\n` +
+        `Base URI: ${ipfsData.baseURI}\n\n` +
+        `現在開始部署合約...`
+      );
       
       setStep('connecting');
 

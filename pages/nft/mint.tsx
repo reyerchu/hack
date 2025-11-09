@@ -307,7 +307,7 @@ export default function NFTMintPage() {
                 }}
                 className="px-6 py-2 rounded-lg font-medium transition-colors"
                 style={{
-                  backgroundColor: '#1a3a6e',
+                  backgroundColor: '#8B4049',
                   color: '#ffffff',
                 }}
               >
@@ -342,7 +342,7 @@ export default function NFTMintPage() {
                   clipRule="evenodd"
                 />
               </svg>
-              <h1 className="text-2xl font-bold mb-4" style={{ color: '#1a3a6e' }}>
+              <h1 className="text-2xl font-bold mb-4" style={{ color: '#8B4049' }}>
                 您已經鑄造過此 NFT
               </h1>
               {mintStatus.mintRecord && (
@@ -376,7 +376,7 @@ export default function NFTMintPage() {
                 }}
                 className="px-6 py-2 rounded-lg font-medium transition-colors"
                 style={{
-                  backgroundColor: '#1a3a6e',
+                  backgroundColor: '#8B4049',
                   color: '#ffffff',
                 }}
               >
@@ -451,7 +451,7 @@ export default function NFTMintPage() {
 
                 {/* Minting Steps */}
                 <div className="space-y-4 mb-8">
-                  <h2 className="text-xl font-bold mb-4" style={{ color: '#1a3a6e' }}>
+                  <h2 className="text-xl font-bold mb-4" style={{ color: '#8B4049' }}>
                     鑄造步驟
                   </h2>
 
@@ -463,7 +463,8 @@ export default function NFTMintPage() {
                       {!walletConnected ? (
                         <button
                           onClick={connectWallet}
-                          className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                          className="px-6 py-3 text-white rounded-lg font-medium transition-all hover:opacity-90"
+                          style={{ backgroundColor: '#8B4049' }}
                         >
                           連接 MetaMask
                         </button>
@@ -491,11 +492,16 @@ export default function NFTMintPage() {
                       <button
                         onClick={handleMint}
                         disabled={!walletConnected || minting || !nftContract.canMint || !merkleProof}
-                        className={`px-6 py-2 rounded-lg font-medium transition-colors ${
+                        className={`px-6 py-3 rounded-lg font-medium transition-all ${
                           !walletConnected || minting || !nftContract.canMint || !merkleProof
                             ? 'bg-gray-400 text-gray-700 cursor-not-allowed'
-                            : 'bg-blue-600 text-white hover:bg-blue-700'
+                            : 'text-white hover:opacity-90'
                         }`}
+                        style={
+                          !walletConnected || minting || !nftContract.canMint || !merkleProof
+                            ? {}
+                            : { backgroundColor: '#8B4049' }
+                        }
                       >
                         {minting ? '鑄造中...' : '立即鑄造'}
                       </button>
