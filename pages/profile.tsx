@@ -8,6 +8,7 @@ import type { TeamNeed } from '../lib/teamUp/types';
 import MyNeedsList from '../components/teamUp/dashboard/MyNeedsList';
 import MyApplicationsList from '../components/teamUp/dashboard/MyApplicationsList';
 import TeamManagement from '../components/TeamManagement';
+import { emailToHash } from '../lib/utils/email-hash';
 
 /**
  * A page that allows a user to modify app or profile settings and see their data.
@@ -569,30 +570,62 @@ export default function ProfilePage() {
           {activeTab === 'profile' && (
             <>
               {!isEditing ? (
-                <button
-                  onClick={handleEditClick}
-                  disabled={!profile || !profile.user}
-                  className="border-2 px-6 py-2 text-[14px] font-medium uppercase tracking-wider transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-                  style={{
-                    borderColor: '#1a3a6e',
-                    color: '#1a3a6e',
-                    backgroundColor: 'transparent',
-                  }}
-                  onMouseEnter={(e) => {
-                    if (profile && profile.user) {
-                      e.currentTarget.style.backgroundColor = '#1a3a6e';
-                      e.currentTarget.style.color = 'white';
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (profile && profile.user) {
-                      e.currentTarget.style.backgroundColor = 'transparent';
-                      e.currentTarget.style.color = '#1a3a6e';
-                    }
-                  }}
-                >
-                  編輯個人資料
-                </button>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => {
+                      const email = user?.preferredEmail || profile?.email;
+                      if (email) {
+                        const hash = emailToHash(email);
+                        router.push(`/user/${hash}`);
+                      }
+                    }}
+                    disabled={!profile || !profile.user}
+                    className="border-2 px-6 py-2 text-[14px] font-medium uppercase tracking-wider transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                    style={{
+                      borderColor: '#8B4049',
+                      color: '#8B4049',
+                      backgroundColor: 'transparent',
+                    }}
+                    onMouseEnter={(e) => {
+                      if (profile && profile.user) {
+                        e.currentTarget.style.backgroundColor = '#8B4049';
+                        e.currentTarget.style.color = 'white';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (profile && profile.user) {
+                        e.currentTarget.style.backgroundColor = 'transparent';
+                        e.currentTarget.style.color = '#8B4049';
+                      }
+                    }}
+                  >
+                    查看公開頁面
+                  </button>
+                  <button
+                    onClick={handleEditClick}
+                    disabled={!profile || !profile.user}
+                    className="border-2 px-6 py-2 text-[14px] font-medium uppercase tracking-wider transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                    style={{
+                      borderColor: '#1a3a6e',
+                      color: '#1a3a6e',
+                      backgroundColor: 'transparent',
+                    }}
+                    onMouseEnter={(e) => {
+                      if (profile && profile.user) {
+                        e.currentTarget.style.backgroundColor = '#1a3a6e';
+                        e.currentTarget.style.color = 'white';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (profile && profile.user) {
+                        e.currentTarget.style.backgroundColor = 'transparent';
+                        e.currentTarget.style.color = '#1a3a6e';
+                      }
+                    }}
+                  >
+                    編輯個人資料
+                  </button>
+                </div>
               ) : (
                 <div className="flex gap-3">
                   <button
