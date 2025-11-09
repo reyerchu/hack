@@ -45,6 +45,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const {
       name,
+      symbol,
       description,
       imageUrl,
       network,
@@ -55,7 +56,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     } = req.body;
 
     // Validation
-    if (!name || !description || !imageUrl || !network || !eligibleEmails || !startDate || !endDate || !maxSupply) {
+    if (!name || !symbol || !description || !imageUrl || !network || !eligibleEmails || !startDate || !endDate || !maxSupply) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
@@ -64,6 +65,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const campaignData = {
       id: campaignRef.id,
       name,
+      symbol: symbol.toUpperCase(), // Store symbol in uppercase
       description,
       imageUrl,
       network,

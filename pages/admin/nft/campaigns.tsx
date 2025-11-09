@@ -36,6 +36,7 @@ export default function NFTCampaignsAdmin() {
   // Form state
   const [formData, setFormData] = useState({
     name: '',
+    symbol: '',
     description: '',
     imageUrl: '',
     network: 'sepolia',
@@ -278,6 +279,20 @@ export default function NFTCampaignsAdmin() {
                   className="w-full px-4 py-2 border rounded-lg"
                   placeholder="例如：RWA 黑客松台灣 2025 NFT"
                 />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">NFT 符號</label>
+                <input
+                  type="text"
+                  required
+                  value={formData.symbol}
+                  onChange={(e) => setFormData({ ...formData, symbol: e.target.value.toUpperCase() })}
+                  className="w-full px-4 py-2 border rounded-lg"
+                  placeholder="例如：RWANFT"
+                  maxLength={10}
+                />
+                <p className="mt-1 text-sm text-gray-500">NFT 的代碼符號，將顯示在區塊鏈瀏覽器（最多 10 個字元，自動轉為大寫）</p>
               </div>
 
               <div>
