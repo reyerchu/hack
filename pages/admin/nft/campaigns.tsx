@@ -3,6 +3,7 @@ import { useAuthContext } from '../../../lib/user/AuthContext';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import AdminHeader from '../../../components/adminComponents/AdminHeader';
+import NFTAutoSetup from '../../../components/admin/NFTAutoSetup';
 
 interface NFTCampaign {
   id: string;
@@ -397,7 +398,7 @@ export default function NFTCampaignsAdmin() {
                     <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                       <div>
                         <div className="text-gray-500">區塊鏈網路</div>
-                        <div className="font-medium">{campaign.network}</div>
+                        <div className="font-medium capitalize">{campaign.network}</div>
                       </div>
                       <div>
                         <div className="text-gray-500">供應量</div>
@@ -416,6 +417,24 @@ export default function NFTCampaignsAdmin() {
                         </div>
                       </div>
                     </div>
+
+                    {campaign.contractAddress ? (
+                      <div className="mt-4 bg-green-50 border border-green-200 rounded p-3">
+                        <div className="text-sm text-green-800">
+                          <div className="font-semibold mb-1">✅ 合約已部署</div>
+                          <div className="font-mono text-xs break-all">{campaign.contractAddress}</div>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="mt-4">
+                        <NFTAutoSetup
+                          campaignId={campaign.id}
+                          campaignName={campaign.name}
+                          network={campaign.network}
+                          onSuccess={() => fetchCampaigns()}
+                        />
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
