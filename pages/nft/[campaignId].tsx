@@ -187,54 +187,59 @@ export default function NFTCampaignPage() {
       </Head>
 
       <AppHeader />
-      <div className="max-w-6xl mx-auto px-4 py-8">
-        {/* Main Content */}
-        <div className="bg-white rounded-lg shadow-lg overflow-hidden mb-8">
-          <div className="md:flex">
-            {/* Image Section */}
-            <div className="md:w-1/2 bg-gray-100 flex items-center justify-center p-8">
-              <img
-                src={campaign.imageUrl}
-                alt={campaign.name}
-                className="max-w-full max-h-96 object-contain rounded-lg"
-              />
-            </div>
-
-            {/* Info Section */}
-            <div className="md:w-1/2 p-8">
-              <div className="flex items-start justify-between mb-4">
-                <h1 className="text-3xl font-bold text-gray-900">{campaign.name}</h1>
-                <span
-                  className={`px-3 py-1 rounded-full text-sm font-medium ${
-                    campaign.status === 'active'
-                      ? 'bg-green-100 text-green-800'
-                      : campaign.status === 'ended'
-                      ? 'bg-gray-100 text-gray-800'
-                      : 'bg-yellow-100 text-yellow-800'
-                  }`}
-                >
-                  {campaign.status === 'active' ? '進行中' : campaign.status === 'ended' ? '已結束' : campaign.status}
-                </span>
+      <div className="bg-white">
+        <div className="max-w-[1200px] mx-auto px-8 md:px-12 py-16 md:py-24">
+          {/* Main Content */}
+          <div className="bg-white border border-gray-300 rounded-lg overflow-hidden mb-12">
+            <div className="md:flex">
+              {/* Image Section */}
+              <div className="md:w-1/2 bg-gray-50 flex items-center justify-center p-8">
+                <img
+                  src={campaign.imageUrl}
+                  alt={campaign.name}
+                  className="max-w-full max-h-96 object-contain rounded-lg"
+                />
               </div>
+
+              {/* Info Section */}
+              <div className="md:w-1/2 p-8">
+                <div className="flex items-start justify-between mb-4">
+                  <h1 className="text-[32px] md:text-[40px] font-bold" style={{ color: '#1a3a6e' }}>
+                    {campaign.name}
+                  </h1>
+                  <span
+                    className={`px-3 py-1 rounded-full text-sm font-medium ${
+                      campaign.status === 'active'
+                        ? 'bg-green-900 bg-opacity-10 text-green-900'
+                        : campaign.status === 'ended'
+                        ? 'bg-gray-100 text-gray-800'
+                        : 'bg-yellow-100 text-yellow-800'
+                    }`}
+                  >
+                    {campaign.status === 'active' ? '進行中' : campaign.status === 'ended' ? '已結束' : campaign.status}
+                  </span>
+                </div>
 
               <p className="text-gray-700 mb-6 leading-relaxed">{campaign.description}</p>
 
               {/* Stats Grid */}
               <div className="grid grid-cols-2 gap-4 mb-6">
-                <div className="bg-gray-50 p-4 rounded-lg">
+                <div className="bg-gray-50 border border-gray-200 p-4 rounded-lg">
                   <div className="text-sm text-gray-600 mb-1">區塊鏈網路</div>
-                  <div className="text-lg font-semibold capitalize">{campaign.network}</div>
+                  <div className="text-lg font-semibold capitalize" style={{ color: '#1a3a6e' }}>
+                    {campaign.network}
+                  </div>
                 </div>
-                <div className="bg-gray-50 p-4 rounded-lg">
+                <div className="bg-gray-50 border border-gray-200 p-4 rounded-lg">
                   <div className="text-sm text-gray-600 mb-1">已鑄造 / 總供應量</div>
-                  <div className="text-lg font-semibold">
+                  <div className="text-lg font-semibold" style={{ color: '#1a3a6e' }}>
                     {campaign.currentSupply} / {campaign.maxSupply}
                   </div>
                 </div>
                 {campaign.endDate && (
-                  <div className="bg-gray-50 p-4 rounded-lg col-span-2">
+                  <div className="bg-gray-50 border border-gray-200 p-4 rounded-lg col-span-2">
                     <div className="text-sm text-gray-600 mb-1">截止日期</div>
-                    <div className="text-lg font-semibold">
+                    <div className="text-lg font-semibold" style={{ color: '#1a3a6e' }}>
                       {new Date(campaign.endDate).toLocaleString('zh-TW', {
                         year: 'numeric',
                         month: 'long',
@@ -250,16 +255,21 @@ export default function NFTCampaignPage() {
 
               {/* Contract Address */}
               {campaign.contractAddress && (
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-                  <div className="text-sm text-blue-800 font-semibold mb-2">智能合約地址</div>
-                  <div className="font-mono text-xs break-all text-blue-900 mb-3">
+                <div className="bg-gray-50 border border-gray-300 rounded-lg p-4 mb-6">
+                  <div className="text-sm font-semibold mb-2" style={{ color: '#1a3a6e' }}>
+                    智能合約地址
+                  </div>
+                  <div className="font-mono text-xs break-all text-gray-700 mb-3">
                     {campaign.contractAddress}
                   </div>
                   <a
                     href={getNetworkExplorerUrl(campaign.network, campaign.contractAddress)}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center text-sm text-blue-600 hover:text-blue-800 font-medium"
+                    className="inline-flex items-center text-sm font-medium transition-colors"
+                    style={{ color: '#1a3a6e' }}
+                    onMouseEnter={(e) => e.currentTarget.style.opacity = '0.7'}
+                    onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
                   >
                     在區塊鏈瀏覽器查看
                     <svg
@@ -289,8 +299,9 @@ export default function NFTCampaignPage() {
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-3">
                   <div
-                    className="bg-blue-600 h-3 rounded-full transition-all"
+                    className="h-3 rounded-full transition-all"
                     style={{
+                      backgroundColor: '#1a3a6e',
                       width: `${(campaign.currentSupply / campaign.maxSupply) * 100}%`,
                     }}
                   ></div>
@@ -302,8 +313,8 @@ export default function NFTCampaignPage() {
 
         {/* Mint Records / Whitelist Status */}
         {(mintRecords.length > 0 || (isAdmin && whitelistStatus.length > 0)) && (
-          <div className="bg-white rounded-lg shadow-lg p-6">
-            <h2 className="text-2xl font-bold mb-6 text-gray-900">
+          <div className="bg-white border border-gray-300 rounded-lg p-8">
+            <h2 className="text-[24px] md:text-[32px] font-bold mb-8" style={{ color: '#1a3a6e' }}>
               鑄造記錄 ({isAdmin && whitelistStatus.length > 0 ? whitelistStatus.length : mintRecords.length})
             </h2>
 
@@ -341,14 +352,19 @@ export default function NFTCampaignPage() {
                           </td>
                           <td className="px-4 py-3">
                             <Link href={`/user/${emailToHash(item.email)}`}>
-                              <a className="text-sm text-blue-600 hover:text-blue-800 font-mono hover:underline">
+                              <a 
+                                className="text-sm font-mono hover:underline transition-colors"
+                                style={{ color: '#1a3a6e' }}
+                                onMouseEnter={(e) => e.currentTarget.style.opacity = '0.7'}
+                                onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
+                              >
                                 {item.email}
                               </a>
                             </Link>
                           </td>
                           <td className="px-4 py-3 whitespace-nowrap">
                             {item.status === 'minted' ? (
-                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-900 bg-opacity-10 text-green-900">
                                 ✓ 已鑄造
                               </span>
                             ) : (
@@ -372,7 +388,10 @@ export default function NFTCampaignPage() {
                                 href={getTxExplorerUrl(campaign.network, item.transactionHash)}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-sm text-blue-600 hover:text-blue-800"
+                                className="text-sm transition-colors"
+                                style={{ color: '#1a3a6e' }}
+                                onMouseEnter={(e) => e.currentTarget.style.opacity = '0.7'}
+                                onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
                               >
                                 <div className="flex items-center gap-1">
                                   <span className="font-mono">
@@ -407,7 +426,7 @@ export default function NFTCampaignPage() {
                 {/* Summary */}
                 <div className="mt-4 flex gap-4 text-sm">
                   <div className="flex items-center gap-2">
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-900 bg-opacity-10 text-green-900">
                       ✓ 已鑄造
                     </span>
                     <span className="text-gray-600">
@@ -430,12 +449,26 @@ export default function NFTCampaignPage() {
                 {mintRecords.map((record) => (
                   record.userEmail ? (
                     <Link key={record.id} href={`/user/${emailToHash(record.userEmail)}`}>
-                      <a className="inline-flex items-center px-4 py-2 rounded-full bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors">
+                      <a 
+                        className="inline-flex items-center px-4 py-2 rounded-full border-2 transition-colors"
+                        style={{
+                          borderColor: '#1a3a6e',
+                          color: '#1a3a6e',
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.backgroundColor = '#1a3a6e';
+                          e.currentTarget.style.color = 'white';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = 'transparent';
+                          e.currentTarget.style.color = '#1a3a6e';
+                        }}
+                      >
                         <span className="text-sm font-medium">{record.displayName}</span>
                       </a>
                     </Link>
                   ) : (
-                    <div key={record.id} className="inline-flex items-center px-4 py-2 rounded-full bg-gray-50 text-gray-700">
+                    <div className="inline-flex items-center px-4 py-2 rounded-full bg-gray-50 text-gray-700 border border-gray-200">
                       <span className="text-sm font-medium">{record.displayName}</span>
                     </div>
                   )
@@ -445,6 +478,7 @@ export default function NFTCampaignPage() {
           </div>
         )}
 
+        </div>
       </div>
       <HomeFooter />
     </>

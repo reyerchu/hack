@@ -117,6 +117,58 @@ export default function AdminTeamsPage() {
     }
   }, [user?.token, authLoading]);
 
+  // Export to CSV
+  const exportToCSV = () => {
+    const headers = [
+      'ID',
+      '團隊名稱',
+      '隊長姓名',
+      '隊長 Email',
+      '成員數量',
+      '賽道',
+      '建立日期',
+    ];
+    
+    const rows = filteredTeams.map((team) => {
+      const leaderName = `${team.teamLeader.firstName || ''} ${team.teamLeader.lastName || ''}`.trim();
+      const leaderEmail = team.teamLeader.preferredEmail || team.teamLeader.email || '';
+      const memberCount = team.teamMembers?.length || 0;
+      const tracks = team.tracks?.join('; ') || '';
+      const createdDate = team.createdAt
+        ? new Date(team.createdAt.seconds * 1000).toLocaleDateString('zh-TW', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+          })
+        : '';
+
+      return [
+        team.id || '',
+        team.teamName || '',
+        leaderName,
+        leaderEmail,
+        memberCount.toString(),
+        tracks,
+        createdDate,
+      ];
+    });
+
+    const csvContent = [
+      headers.join(','),
+      ...rows.map((row) => row.map((cell) => `"${cell}"`).join(',')),
+    ].join('\n');
+
+    const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `teams_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   // Search and filter
   useEffect(() => {
     if (!searchQuery.trim()) {
@@ -216,45 +268,61 @@ export default function AdminTeamsPage() {
         <title>團隊管理 | Admin</title>
       </Head>
 
-      <div className="min-h-screen" style={{ backgroundColor: '#f9fafb', paddingTop: '80px' }}>
-        <div className="container mx-auto px-4 py-8">
-          {/* Page Title */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-left" style={{ color: '#1a3a6e' }}>
+      <div className="flex flex-col flex-grow min-h-screen bg-gray-50">
+        <div className="max-w-5xl mx-auto px-4 py-20">
+          <div className="mb-12">
+            <h1 className="text-4xl font-bold mb-2 text-left" style={{ color: '#1a3a6e' }}>
               管理儀表板
             </h1>
           </div>
-
-          {/* Admin Header (Tabs) */}
           <AdminHeader />
+
+          {/* Header with stats */}
+          <div className="mb-6">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">團隊報名管理</h1>
+            <p className="text-gray-600">
+              總共 {teams.length} 個團隊
+              {searchQuery && ` / 搜尋結果: ${filteredTeams.length} 個團隊`}
+            </p>
+          </div>
 
           {/* Team Management Content */}
           <div className="bg-white rounded-lg shadow-sm p-6">
-            {/* Header with stats and search */}
+            {/* Search and refresh */}
             <div className="mb-6">
-              <div className="flex justify-between items-center mb-4">
-                <div>
-                  <h2 className="text-2xl font-bold" style={{ color: '#1a3a6e' }}>
-                    團隊報名管理
-                  </h2>
-                  <p className="text-sm text-gray-600 mt-1">
-                    總共 {teams.length} 個團隊
-                    {searchQuery && ` / 搜尋結果: ${filteredTeams.length} 個團隊`}
-                  </p>
-                </div>
-
+              <div className="flex justify-end items-center mb-4 gap-2">
                 <button
-                  onClick={fetchTeams}
-                  className="px-4 py-2 rounded-lg font-medium transition-colors"
+                  onClick={exportToCSV}
+                  className="inline-block border-2 px-8 py-3 text-[14px] font-medium uppercase tracking-wider transition-colors duration-300"
                   style={{
-                    backgroundColor: '#1a3a6e',
-                    color: 'white',
+                    borderColor: '#1a3a6e',
+                    color: '#1a3a6e',
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = '#2d5a8e';
+                    e.currentTarget.style.backgroundColor = '#1a3a6e';
+                    e.currentTarget.style.color = 'white';
                   }}
                   onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                    e.currentTarget.style.color = '#1a3a6e';
+                  }}
+                >
+                  匯出 CSV
+                </button>
+                <button
+                  onClick={fetchTeams}
+                  className="inline-block border-2 px-8 py-3 text-[14px] font-medium uppercase tracking-wider transition-colors duration-300"
+                  style={{
+                    borderColor: '#1a3a6e',
+                    color: '#1a3a6e',
+                  }}
+                  onMouseEnter={(e) => {
                     e.currentTarget.style.backgroundColor = '#1a3a6e';
+                    e.currentTarget.style.color = 'white';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                    e.currentTarget.style.color = '#1a3a6e';
                   }}
                 >
                   🔄 重新整理

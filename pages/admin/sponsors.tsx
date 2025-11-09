@@ -604,45 +604,39 @@ export default function SponsorsPage() {
         <meta name="description" content="管理贊助商" />
       </Head>
 
-      <div className="min-h-screen bg-gray-50">
+      <div className="flex flex-col flex-grow min-h-screen bg-gray-50">
         <div className="max-w-5xl mx-auto px-4 py-20">
-          {/* 標題 */}
-          <div className="mb-12 text-left">
-            <h1 className="text-4xl font-bold mb-2" style={{ color: '#1a3a6e' }}>
+          <div className="mb-12">
+            <h1 className="text-4xl font-bold mb-2 text-left" style={{ color: '#1a3a6e' }}>
               管理儀表板
             </h1>
           </div>
-
-          {/* Admin Header */}
           <AdminHeader />
 
-          {/* 頁面標題和操作按鈕 */}
-          <div className="flex items-center justify-between mb-8">
-            <h2 className="text-2xl font-bold" style={{ color: '#1a3a6e' }}>
-              贊助商管理
-            </h2>
+          {/* Header */}
+          <div className="mb-6">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">贊助商管理</h1>
+            <p className="text-gray-600">總共 {sponsors.length} 個贊助商</p>
+          </div>
+
+          {/* Action Button */}
+          <div className="flex justify-end items-center mb-6">
             <button
               onClick={() => setShowAddForm(!showAddForm)}
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-colors"
+              className="inline-block border-2 px-8 py-3 text-[14px] font-medium uppercase tracking-wider transition-colors duration-300"
               style={{
-                backgroundColor: showAddForm ? '#6b7280' : '#1a3a6e',
-                color: '#ffffff',
+                borderColor: '#1a3a6e',
+                color: '#1a3a6e',
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = showAddForm ? '#4b5563' : '#2a4a7e';
+                e.currentTarget.style.backgroundColor = '#1a3a6e';
+                e.currentTarget.style.color = 'white';
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = showAddForm ? '#6b7280' : '#1a3a6e';
+                e.currentTarget.style.backgroundColor = 'transparent';
+                e.currentTarget.style.color = '#1a3a6e';
               }}
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d={showAddForm ? 'M6 18L18 6M6 6l12 12' : 'M12 4v16m8-8H4'}
-                />
-              </svg>
               {showAddForm ? '取消' : '新增贊助商'}
             </button>
           </div>

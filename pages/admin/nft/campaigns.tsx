@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Head from 'next/head';
 import AdminHeader from '../../../components/adminComponents/AdminHeader';
 import NFTAutoSetup from '../../../components/admin/NFTAutoSetup';
+import { useCustomAlert } from '../../../components/CustomAlert';
 
 interface NFTCampaign {
   id: string;
@@ -25,6 +26,7 @@ interface NFTCampaign {
 export default function NFTCampaignsAdmin() {
   const { user, isSignedIn, loading: authLoading } = useAuthContext();
   const router = useRouter();
+  const { showAlert, AlertComponent } = useCustomAlert();
   const [campaigns, setCampaigns] = useState<NFTCampaign[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreateForm, setShowCreateForm] = useState(false);
@@ -32,38 +34,62 @@ export default function NFTCampaignsAdmin() {
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
   const [campaignImageFiles, setCampaignImageFiles] = useState<Record<string, File>>({});
+  const [copiedAddress, setCopiedAddress] = useState<string>('');
 
   // Form state
+  const getDefaultDates = () => {
+    const now = new Date();
+    const oneWeekLater = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+    
+    // Format to datetime-local format (YYYY-MM-DDTHH:mm)
+    const formatDateTime = (date: Date) => {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      return `${year}-${month}-${day}T${hours}:${minutes}`;
+    };
+    
+    return {
+      startDate: formatDateTime(now),
+      endDate: formatDateTime(oneWeekLater),
+    };
+  };
+
   const [formData, setFormData] = useState({
     name: '',
-    symbol: '',
+    symbol: 'RWAHACKTW',
     description: '',
     imageUrl: '',
     network: 'sepolia',
     eligibleEmails: '',
-    startDate: '',
-    endDate: '',
+    startDate: getDefaultDates().startDate,
+    endDate: getDefaultDates().endDate,
     maxSupply: '100',
   });
 
   // Check authentication and admin permissions
   useEffect(() => {
-    if (!authLoading) {
-      if (!user) {
-        router.push('/login');
-        return;
+    const checkAuth = async () => {
+      if (!authLoading) {
+        if (!user) {
+          router.push('/login');
+          return;
+        }
+        
+        // Check if user has admin permissions
+        const isAdmin = user?.permissions?.includes('super_admin');
+        if (!isAdmin) {
+          console.log('[NFT Admin] Access denied - user is not admin:', user?.preferredEmail);
+          await showAlert('此頁面僅限管理員訪問');
+          router.push('/');
+          return;
+        }
       }
-      
-      // Check if user has admin permissions
-      const isAdmin = user?.permissions?.includes('super_admin');
-      if (!isAdmin) {
-        console.log('[NFT Admin] Access denied - user is not admin:', user?.preferredEmail);
-        alert('此頁面僅限管理員訪問');
-        router.push('/');
-        return;
-      }
-    }
-  }, [user, authLoading, router]);
+    };
+    checkAuth();
+  }, [user, authLoading, router, showAlert]);
 
   useEffect(() => {
     if (user?.permissions?.includes('super_admin')) {
@@ -79,7 +105,7 @@ export default function NFTCampaignsAdmin() {
       
       if (!currentUser) {
         console.error('No authenticated user');
-        alert('請重新登入。');
+        await showAlert('請重新登入。');
         router.push('/login');
         return;
       }
@@ -109,7 +135,7 @@ export default function NFTCampaignsAdmin() {
       setCampaigns(data.campaigns || []);
     } catch (error: any) {
       console.error('Error fetching campaigns:', error);
-      alert(`載入活動失敗：${error.message}`);
+      await showAlert(`載入活動失敗：${error.message}`);
     } finally {
       setLoading(false);
     }
@@ -152,7 +178,7 @@ export default function NFTCampaignsAdmin() {
       const currentUser = auth.currentUser;
       
       if (!currentUser) {
-        alert('請重新登入。');
+        await showAlert('請重新登入。');
         router.push('/login');
         return;
       }
@@ -164,7 +190,7 @@ export default function NFTCampaignsAdmin() {
         try {
           imageUrl = await uploadImage(selectedImage);
         } catch (error) {
-          alert('圖片上傳失敗，請重試');
+          await showAlert('圖片上傳失敗，請重試');
           setUploadingImage(false);
           return;
         }
@@ -172,7 +198,7 @@ export default function NFTCampaignsAdmin() {
       }
 
       if (!imageUrl) {
-        alert('請上傳 NFT 圖片');
+        await showAlert('請上傳 NFT 圖片');
         return;
       }
 
@@ -211,26 +237,28 @@ export default function NFTCampaignsAdmin() {
         }));
       }
 
-      alert('活動建立成功！請點擊「一鍵自動設置」部署合約。');
+      await showAlert('活動建立成功！請點擊「一鍵部署」部署合約。');
       setShowCreateForm(false);
       await fetchCampaigns();
       
       // Reset form
+      const defaultDates = getDefaultDates();
       setFormData({
         name: '',
+        symbol: 'RWAHACKTW',
         description: '',
         imageUrl: '',
         network: 'sepolia',
         eligibleEmails: '',
-        startDate: '',
-        endDate: '',
+        startDate: defaultDates.startDate,
+        endDate: defaultDates.endDate,
         maxSupply: '100',
       });
       setSelectedImage(null);
       setImagePreview('');
     } catch (error) {
       console.error('Error creating campaign:', error);
-      alert('建立活動失敗');
+      await showAlert('建立活動失敗');
     }
   };
 
@@ -250,22 +278,42 @@ export default function NFTCampaignsAdmin() {
 
   return (
     <>
+      {AlertComponent}
       <Head>
         <title>NFT 活動管理 - 管理員</title>
       </Head>
-      <AdminHeader />
-      <div className="bg-white min-h-screen">
-        <div className="max-w-[1200px] mx-auto px-8 md:px-12 py-16 md:py-24">
-          <div className="flex justify-between items-center mb-12">
-            <h1 className="text-[32px] md:text-[40px] font-bold" style={{ color: '#1a3a6e' }}>
-              NFT 活動管理
+      <div className="flex flex-col flex-grow min-h-screen bg-gray-50">
+        <div className="max-w-5xl mx-auto px-4 py-20">
+          <div className="mb-12">
+            <h1 className="text-4xl font-bold mb-2 text-left" style={{ color: '#1a3a6e' }}>
+              管理儀表板
             </h1>
+          </div>
+          <AdminHeader />
+
+          <div className="mb-6">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">NFT 管理</h1>
+            <p className="text-gray-600">總共 {campaigns.length} 個 NFT</p>
+          </div>
+
+          <div className="flex justify-end items-center mb-6">
             <button
               onClick={() => setShowCreateForm(!showCreateForm)}
-              className="px-8 py-3 text-white rounded-lg font-bold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
-              style={{ backgroundColor: '#8B4049' }}
+              className="inline-block border-2 px-8 py-3 text-[14px] font-medium uppercase tracking-wider transition-colors duration-300"
+              style={{
+                borderColor: '#1a3a6e',
+                color: '#1a3a6e',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = '#1a3a6e';
+                e.currentTarget.style.color = 'white';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent';
+                e.currentTarget.style.color = '#1a3a6e';
+              }}
             >
-              {showCreateForm ? '取消' : '建立新活動'}
+              {showCreateForm ? '取消' : '新增 NFT'}
             </button>
           </div>
 
@@ -399,8 +447,19 @@ export default function NFTCampaignsAdmin() {
 
                 <button
                   type="submit"
-                  className="w-full px-8 py-3 text-white rounded-lg font-bold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
-                  style={{ backgroundColor: '#8B4049' }}
+                  className="w-full border-2 px-8 py-3 text-[14px] font-medium uppercase tracking-wider transition-colors duration-300"
+                  style={{
+                    borderColor: '#1a3a6e',
+                    color: '#1a3a6e',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#1a3a6e';
+                    e.currentTarget.style.color = 'white';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                    e.currentTarget.style.color = '#1a3a6e';
+                  }}
                 >
                   建立活動
                 </button>
@@ -408,101 +467,166 @@ export default function NFTCampaignsAdmin() {
             </div>
           )}
 
-        <div className="space-y-6">
-          <h2 className="text-[24px] font-bold mb-6 border-b border-gray-300 pb-3" style={{ color: '#1a3a6e' }}>
-            現有活動
-          </h2>
+        <div>
           {campaigns.length === 0 ? (
             <div className="bg-white border border-gray-300 rounded-lg p-12 text-center text-gray-500">
               目前尚無活動。建立您的第一個 NFT 活動！
             </div>
           ) : (
-            campaigns.map((campaign) => (
-              <div key={campaign.id} className="bg-white border border-gray-300 rounded-lg p-6 hover:shadow-lg transition-all">
-                <div className="flex gap-6">
-                  <img
-                    src={campaign.imageUrl}
-                    alt={campaign.name}
-                    className="w-32 h-32 object-cover rounded-lg border border-gray-200"
-                  />
-                  <div className="flex-1">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <Link href={`/nft/${campaign.id}`}>
-                          <a className="transition-colors" style={{ color: '#1a3a6e' }} onMouseEnter={(e) => e.currentTarget.style.color = '#8B4049'} onMouseLeave={(e) => e.currentTarget.style.color = '#1a3a6e'}>
-                            <h3 className="text-[20px] font-bold">{campaign.name}</h3>
-                          </a>
-                        </Link>
-                        <p className="text-gray-600 mt-2 leading-relaxed">{campaign.description}</p>
-                      </div>
-                      <span
-                        className={`px-3 py-1 rounded-full text-sm font-medium ${
-                          campaign.status === 'active'
-                            ? 'text-white'
-                            : campaign.status === 'ended'
-                            ? 'bg-gray-100 text-gray-800'
-                            : 'bg-yellow-100 text-yellow-900'
-                        }`}
-                        style={campaign.status === 'active' ? { backgroundColor: '#8B4049' } : {}}
-                      >
-                        {campaign.status}
-                      </span>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {campaigns.map((campaign) => (
+              <div
+                key={campaign.id}
+                className="bg-white rounded-lg shadow-sm border-l-4 overflow-hidden hover:shadow-md transition-shadow"
+                style={{ borderLeftColor: '#1a3a6e' }}
+              >
+                {/* Image */}
+                <Link href={`/nft/${campaign.id}`}>
+                  <a>
+                    <div className="w-full h-48 bg-gray-100 flex items-center justify-center overflow-hidden cursor-pointer hover:opacity-90 transition-opacity">
+                      <img
+                        src={campaign.imageUrl}
+                        alt={campaign.name}
+                        className="w-full h-full object-contain"
+                      />
                     </div>
-                    <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                      <div>
-                        <div className="text-gray-500">區塊鏈網路</div>
-                        <div className="font-medium capitalize">{campaign.network}</div>
-                      </div>
-                      <div>
-                        <div className="text-gray-500">供應量</div>
-                        <div className="font-medium">
-                          {campaign.currentSupply} / {campaign.maxSupply}
-                        </div>
-                      </div>
-                      <div>
-                        <div className="text-gray-500">符合資格用戶數</div>
-                        <div className="font-medium">{campaign.eligibleEmails.length}</div>
-                      </div>
-                      <div>
-                        <div className="text-gray-500">結束日期</div>
-                        <div className="font-medium">
-                          {new Date(campaign.endDate).toLocaleString('zh-TW', {
-                            year: 'numeric',
-                            month: '2-digit',
-                            day: '2-digit',
-                            hour: '2-digit',
-                            minute: '2-digit',
-                            hour12: false
-                          })}
-                        </div>
-                      </div>
-                    </div>
+                  </a>
+                </Link>
 
-                    {campaign.contractAddress ? (
-                      <div className="mt-6 bg-gray-50 border border-gray-300 rounded-lg p-4">
-                        <div className="text-sm">
-                          <div className="font-semibold mb-2" style={{ color: '#1a3a6e' }}>✅ 合約已部署</div>
-                          <div className="font-mono text-xs break-all text-gray-700">{campaign.contractAddress}</div>
+                {/* Content */}
+                <div className="p-5">
+                  <div className="flex justify-between items-start mb-2">
+                    <Link href={`/nft/${campaign.id}`}>
+                      <a className="hover:opacity-70 transition-colors flex-1">
+                        <h3 className="text-[16px] md:text-[18px] font-semibold" style={{ color: '#1a3a6e' }}>
+                          {campaign.name}
+                        </h3>
+                      </a>
+                    </Link>
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs font-medium ml-2 flex-shrink-0 ${
+                        campaign.status === 'active'
+                          ? 'bg-green-900 bg-opacity-10 text-green-900'
+                          : campaign.status === 'ended'
+                          ? 'bg-gray-100 text-gray-800'
+                          : 'bg-yellow-100 text-yellow-900'
+                      }`}
+                    >
+                      {campaign.status}
+                    </span>
+                  </div>
+
+                  <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+                    {campaign.description}
+                  </p>
+
+                  {/* Network & Supply Info */}
+                  <div className="flex items-center gap-3 text-xs text-gray-500 mb-3">
+                    <span className="px-2 py-1 bg-gray-100 rounded capitalize">
+                      {campaign.network}
+                    </span>
+                    <span>
+                      {campaign.currentSupply} / {campaign.maxSupply} 已鑄造
+                    </span>
+                  </div>
+
+                  {/* Eligible Users */}
+                  <div className="text-xs text-gray-500 mb-3">
+                    符合資格用戶：{campaign.eligibleEmails.length} 人
+                  </div>
+
+                  {/* End Date */}
+                  <div className="text-xs text-gray-500 mb-4">
+                    截止：{new Date(campaign.endDate).toLocaleString('zh-TW', {
+                      year: 'numeric',
+                      month: '2-digit',
+                      day: '2-digit',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      hour12: false
+                    })}
+                  </div>
+
+                  {/* Contract Status or Setup */}
+                  {campaign.contractAddress ? (
+                    <div>
+                      <div className="px-3 py-2 bg-green-900 bg-opacity-10 rounded-lg border border-green-900 border-opacity-20 mb-2">
+                        <div className="flex items-center justify-center gap-2">
+                          <svg
+                            className="w-5 h-5 flex-shrink-0 text-green-900"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                          <p className="text-sm font-semibold text-green-900">合約已部署</p>
                         </div>
                       </div>
-                    ) : (
-                      <div className="mt-4">
-                        <NFTAutoSetup
-                          campaignId={campaign.id}
-                          campaignName={campaign.name}
-                          network={campaign.network}
-                          campaign={{
-                            ...campaign,
-                            imageFile: campaignImageFiles[campaign.id]
-                          }}
-                          onSuccess={() => fetchCampaigns()}
-                        />
-                      </div>
-                    )}
-                  </div>
+                      <button
+                        onClick={() => {
+                          navigator.clipboard.writeText(campaign.contractAddress);
+                          setCopiedAddress(campaign.contractAddress);
+                          setTimeout(() => setCopiedAddress(''), 2000);
+                        }}
+                        className="w-full flex items-center justify-center gap-2 px-2 py-2 hover:bg-gray-100 rounded transition-colors cursor-pointer group"
+                        title="點擊複製合約地址"
+                      >
+                        <p className="text-xs text-gray-600 group-hover:text-gray-900 font-mono break-all text-center flex-1">
+                          {campaign.contractAddress}
+                        </p>
+                        <div className="flex-shrink-0">
+                          {copiedAddress === campaign.contractAddress ? (
+                            <div className="flex items-center gap-1 text-green-900">
+                              <svg
+                                className="w-4 h-4"
+                                fill="currentColor"
+                                viewBox="0 0 20 20"
+                              >
+                                <path
+                                  fillRule="evenodd"
+                                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                  clipRule="evenodd"
+                                />
+                              </svg>
+                            </div>
+                          ) : (
+                            <svg
+                              className="w-4 h-4 text-gray-500 group-hover:text-gray-700"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                              />
+                            </svg>
+                          )}
+                        </div>
+                      </button>
+                    </div>
+                  ) : (
+                    <NFTAutoSetup
+                      campaignId={campaign.id}
+                      campaignName={campaign.name}
+                      network={campaign.network}
+                      campaign={{
+                        ...campaign,
+                        imageFile: campaignImageFiles[campaign.id]
+                      }}
+                      onSuccess={() => fetchCampaigns()}
+                    />
+                  )}
                 </div>
               </div>
-            ))
+            ))}
+            </div>
           )}
         </div>
         </div>

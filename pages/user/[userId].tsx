@@ -574,7 +574,7 @@ export default function UserPublicPage() {
           {user.nftCampaigns && user.nftCampaigns.length > 0 && (
             <div className="mb-8">
               <h2 className="text-[22px] md:text-[28px] font-bold mb-4" style={{ color: '#1a3a6e' }}>
-                NFT 紀念品
+                NFT 證書
               </h2>
               <div className="w-14 h-1 mb-6" style={{ backgroundColor: '#8B4049' }}></div>
 
@@ -583,7 +583,13 @@ export default function UserPublicPage() {
                   <div
                     key={index}
                     className="bg-white rounded-lg shadow-sm border-l-4 overflow-hidden hover:shadow-md transition-shadow"
-                    style={{ borderLeftColor: campaign.alreadyMinted ? '#10b981' : '#8B4049' }}
+                    style={{ 
+                      borderLeftColor: campaign.alreadyMinted 
+                        ? '#14532d' // 深綠色 - 已鑄造
+                        : campaign.eligible 
+                          ? '#1a3a6e' // 深藍色 - 可鑄造
+                          : '#991b1b' // 深紅色 - 未鑄造但已額滿
+                    }}
                   >
                     {/* Image */}
                     {campaign.imageUrl && (
@@ -639,50 +645,111 @@ export default function UserPublicPage() {
 
                       {/* Status / Action - 只有頁面所有者才能看到 mint 按鈕 */}
                       {campaign.alreadyMinted && campaign.mintRecord ? (
-                        <div className="flex items-center gap-2 px-3 py-2 bg-green-900 bg-opacity-10 rounded-lg border border-green-900 border-opacity-20">
-                          <svg
-                            className="w-5 h-5 flex-shrink-0 text-green-900"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
-                          <div className="flex-1">
+                        <div>
+                          <div className="flex items-center justify-center gap-2 px-3 py-2 bg-green-900 bg-opacity-10 rounded-lg border border-green-900 border-opacity-20">
+                            <svg
+                              className="w-5 h-5 flex-shrink-0 text-green-900"
+                              fill="currentColor"
+                              viewBox="0 0 20 20"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                clipRule="evenodd"
+                              />
+                            </svg>
                             <p className="text-sm font-semibold text-green-900">已鑄造</p>
                           </div>
+                          {campaign.mintRecord.mintedAt && (
+                            <p className="text-xs text-gray-500 text-center mt-2">
+                              鑄造於：{new Date(campaign.mintRecord.mintedAt).toLocaleString('zh-TW', {
+                                year: 'numeric',
+                                month: '2-digit',
+                                day: '2-digit',
+                                hour: '2-digit',
+                                minute: '2-digit',
+                                hour12: false
+                              })}
+                            </p>
+                          )}
                         </div>
                       ) : canEdit && campaign.eligible ? (
                         // 只有頁面所有者（canEdit=true）才顯示 mint 按鈕
-                        <Link href={`/nft/mint?campaign=${campaign.campaignId}`}>
-                          <a
-                            className="block w-full py-2 px-4 rounded-lg font-medium transition-colors text-center"
-                            style={{
-                              backgroundColor: '#8B4049',
-                              color: '#ffffff',
-                            }}
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.backgroundColor = '#a05059';
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.backgroundColor = '#8B4049';
-                            }}
-                          >
-                            鑄造 NFT
-                          </a>
-                        </Link>
+                        <div>
+                          <Link href={`/nft/mint?campaign=${campaign.campaignId}`}>
+                            <a
+                              className="block w-full border-2 py-2 px-4 text-[14px] font-medium uppercase tracking-wider transition-colors duration-300 text-center"
+                              style={{
+                                borderColor: '#1a3a6e',
+                                color: '#1a3a6e',
+                              }}
+                              onMouseEnter={(e) => {
+                                e.currentTarget.style.backgroundColor = '#1a3a6e';
+                                e.currentTarget.style.color = 'white';
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.backgroundColor = 'transparent';
+                                e.currentTarget.style.color = '#1a3a6e';
+                              }}
+                            >
+                              鑄造 NFT
+                            </a>
+                          </Link>
+                          {campaign.endDate && (
+                            <p className="text-xs text-gray-500 text-center mt-2">
+                              截止：{new Date(campaign.endDate).toLocaleString('zh-TW', {
+                                year: 'numeric',
+                                month: '2-digit',
+                                day: '2-digit',
+                                hour: '2-digit',
+                                minute: '2-digit',
+                                hour12: false
+                              })}
+                            </p>
+                          )}
+                        </div>
+                      ) : !canEdit && campaign.eligible ? (
+                        // 不是所有者但符合資格 - 顯示灰色 "未鑄造"
+                        <div>
+                          <div className="px-3 py-2 bg-gray-50 rounded-lg text-center border border-gray-300">
+                            <p className="text-sm font-semibold" style={{ color: '#1a3a6e' }}>未鑄造</p>
+                          </div>
+                          {campaign.endDate && (
+                            <p className="text-xs text-gray-500 text-center mt-2">
+                              截止：{new Date(campaign.endDate).toLocaleString('zh-TW', {
+                                year: 'numeric',
+                                month: '2-digit',
+                                day: '2-digit',
+                                hour: '2-digit',
+                                minute: '2-digit',
+                                hour12: false
+                              })}
+                            </p>
+                          )}
+                        </div>
                       ) : !campaign.alreadyMinted ? (
-                        // 不是所有者且未鑄造 - 顯示 "尚未鑄造"
-                        <div className="px-3 py-2 bg-gray-100 rounded-lg text-center">
-                          <p className="text-sm text-gray-600">尚未鑄造</p>
+                        // 不是所有者且未鑄造 - 顯示 "未鑄造"
+                        <div>
+                          <div className="px-3 py-2 bg-red-50 rounded-lg text-center border border-red-900 border-opacity-20">
+                            <p className="text-sm text-red-900 font-semibold">未鑄造</p>
+                          </div>
+                          {campaign.endDate && (
+                            <p className="text-xs text-gray-500 text-center mt-2">
+                              截止：{new Date(campaign.endDate).toLocaleString('zh-TW', {
+                                year: 'numeric',
+                                month: '2-digit',
+                                day: '2-digit',
+                                hour: '2-digit',
+                                minute: '2-digit',
+                                hour12: false
+                              })}
+                            </p>
+                          )}
                         </div>
                       ) : (
                         // 其他原因不可鑄造
-                        <div className="px-3 py-2 bg-gray-100 rounded-lg text-center">
-                          <p className="text-sm text-gray-600">{campaign.reason || '暫不可鑄造'}</p>
+                        <div className="px-3 py-2 bg-red-50 rounded-lg text-center border border-red-900 border-opacity-20">
+                          <p className="text-sm text-red-900 font-semibold">{campaign.reason || '暫不可鑄造'}</p>
                         </div>
                       )}
                     </div>

@@ -13,6 +13,7 @@ export default function NFTAutoSetup({ campaignId, campaignName, network, onSucc
   const [step, setStep] = useState<'idle' | 'connecting' | 'uploading-ipfs' | 'deploying' | 'setting-up' | 'complete'>('idle');
   const [error, setError] = useState('');
   const [deployedAddress, setDeployedAddress] = useState('');
+  const [showDeploymentProcess, setShowDeploymentProcess] = useState(false);
   const [setupSummary, setSetupSummary] = useState<any>(null);
   const [ipfsInfo, setIpfsInfo] = useState<{ imageCID?: string; metadataCID?: string; baseURI?: string }>({});
 
@@ -345,7 +346,7 @@ export default function NFTAutoSetup({ campaignId, campaignName, network, onSucc
       case 'complete':
         return '設置完成！';
       default:
-        return '一鍵自動部署';
+        return '一鍵部署';
     }
   };
 
@@ -373,7 +374,8 @@ export default function NFTAutoSetup({ campaignId, campaignName, network, onSucc
             setStep('idle');
             setSetupSummary(null);
           }}
-          className="mt-3 text-sm text-green-900 hover:opacity-80 underline"
+          className="mt-3 text-sm hover:opacity-80 underline"
+          style={{ color: '#1a3a6e' }}
         >
           關閉
         </button>
@@ -389,42 +391,72 @@ export default function NFTAutoSetup({ campaignId, campaignName, network, onSucc
         </div>
       )}
 
-      <button
-        onClick={handleAutoSetup}
-        disabled={step !== 'idle'}
-        className={`w-full px-8 py-3 rounded-lg font-bold transition-all duration-300 ${
-          step === 'idle'
-            ? 'text-white transform hover:scale-105 shadow-lg hover:shadow-xl'
-            : 'bg-gray-200 text-gray-500 cursor-not-allowed'
-        }`}
-        style={step === 'idle' ? { backgroundColor: '#8B4049' } : {}}
-      >
-        {getStepText()}
-      </button>
+      <div className="flex items-center gap-2">
+        <button
+          onClick={handleAutoSetup}
+          disabled={step !== 'idle'}
+          className={`flex-1 px-8 py-3 text-[14px] font-medium uppercase tracking-wider transition-colors duration-300 ${
+            step === 'idle'
+              ? 'border-2'
+              : 'bg-gray-200 text-gray-500 cursor-not-allowed border-0'
+          }`}
+          style={step === 'idle' ? {
+            borderColor: '#1a3a6e',
+            color: '#1a3a6e',
+          } : {}}
+          onMouseEnter={(e) => {
+            if (step === 'idle') {
+              e.currentTarget.style.backgroundColor = '#1a3a6e';
+              e.currentTarget.style.color = 'white';
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (step === 'idle') {
+              e.currentTarget.style.backgroundColor = 'transparent';
+              e.currentTarget.style.color = '#1a3a6e';
+            }
+          }}
+        >
+          {getStepText()}
+        </button>
 
-      <div className="mt-4 bg-gray-50 border border-gray-200 rounded-lg p-4">
-        <p className="font-semibold mb-3 text-gray-800 text-sm">部署流程：</p>
-        <div className="space-y-2.5 text-sm">
-          <div className="flex items-start gap-3 text-gray-700 p-2 rounded hover:bg-gray-100 transition-colors">
-            <span className="text-base flex-shrink-0">📋</span>
-            <span>生成白名單 Merkle Tree</span>
-          </div>
-          <div className="flex items-start gap-3 text-gray-700 p-2 rounded hover:bg-gray-100 transition-colors">
-            <span className="text-base flex-shrink-0">🔗</span>
-            <span>連接您的 MetaMask 錢包</span>
-          </div>
-          <div className="flex items-start gap-3 text-gray-700 p-2 rounded hover:bg-gray-100 transition-colors">
-            <span className="text-base flex-shrink-0">🔐</span>
-            <div className="flex-1">
-              <div className="font-medium">部署合約並完成所有設置 (僅需 1 次確認！)</div>
+        <button
+          onClick={() => setShowDeploymentProcess(!showDeploymentProcess)}
+          className="px-3 py-3 bg-gray-50 border border-gray-200 rounded hover:bg-gray-100 transition-colors flex items-center gap-1"
+          title="查看流程"
+        >
+          <span className="text-sm text-gray-700">流程</span>
+          <svg
+            className={`w-4 h-4 text-gray-600 transition-transform duration-200 ${showDeploymentProcess ? 'transform rotate-90' : ''}`}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+      </div>
+
+      {showDeploymentProcess && (
+        <div className="mt-4 bg-gray-50 border border-gray-200 rounded-lg p-4">
+          <div className="space-y-2.5 text-sm">
+            <div className="flex items-start gap-3 text-gray-700 p-2 rounded hover:bg-gray-100 transition-colors">
+              <span className="text-base flex-shrink-0">📋</span>
+              <span>生成白名單 Merkle Tree</span>
+            </div>
+            <div className="flex items-start gap-3 text-gray-700 p-2 rounded hover:bg-gray-100 transition-colors">
+              <span className="text-base flex-shrink-0">🔗</span>
+              <span>連接您的 MetaMask 錢包</span>
+            </div>
+            <div className="flex items-start gap-3 text-gray-700 p-2 rounded hover:bg-gray-100 transition-colors">
+              <span className="text-base flex-shrink-0">🔐</span>
+              <div className="flex-1">
+                <div className="font-medium">部署合約並完成所有設置 (僅需 1 次確認！)</div>
+              </div>
             </div>
           </div>
-          <div className="flex items-start gap-3 text-gray-700 p-2 rounded hover:bg-gray-100 transition-colors">
-            <span className="text-base flex-shrink-0">✅</span>
-            <span>更新活動狀態為「進行中」</span>
-          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

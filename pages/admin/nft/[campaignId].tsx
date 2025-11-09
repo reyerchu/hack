@@ -191,7 +191,7 @@ export default function NFTCampaignDetail() {
                   <span
                     className={`px-3 py-1 rounded-full text-sm font-medium ${
                       campaign.status === 'active'
-                        ? 'bg-green-100 text-green-800'
+                        ? 'bg-green-900 bg-opacity-10 text-green-900'
                         : campaign.status === 'completed'
                         ? 'bg-gray-100 text-gray-800'
                         : 'bg-yellow-100 text-yellow-800'
@@ -255,18 +255,18 @@ export default function NFTCampaignDetail() {
                 </div>
 
                 <div className="grid grid-cols-3 gap-4 mt-4">
-                  <div className="text-center p-3 bg-blue-50 rounded-lg">
-                    <div className="text-2xl font-bold text-blue-600">{campaign.currentSupply}</div>
+                  <div className="text-center p-3 bg-gray-50 border border-gray-200 rounded-lg">
+                    <div className="text-2xl font-bold" style={{ color: '#1a3a6e' }}>{campaign.currentSupply}</div>
                     <div className="text-xs text-gray-600">已鑄造</div>
                   </div>
-                  <div className="text-center p-3 bg-green-50 rounded-lg">
-                    <div className="text-2xl font-bold text-green-600">
+                  <div className="text-center p-3 bg-green-900 bg-opacity-10 border border-green-900 border-opacity-20 rounded-lg">
+                    <div className="text-2xl font-bold text-green-900">
                       {campaign.maxSupply - campaign.currentSupply}
                     </div>
                     <div className="text-xs text-gray-600">剩餘</div>
                   </div>
-                  <div className="text-center p-3 bg-purple-50 rounded-lg">
-                    <div className="text-2xl font-bold text-purple-600">{campaign.maxSupply}</div>
+                  <div className="text-center p-3 bg-gray-50 border border-gray-200 rounded-lg">
+                    <div className="text-2xl font-bold" style={{ color: '#1a3a6e' }}>{campaign.maxSupply}</div>
                     <div className="text-xs text-gray-600">總供應量</div>
                   </div>
                 </div>

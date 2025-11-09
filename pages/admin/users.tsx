@@ -316,6 +316,45 @@ export default function UserPage() {
 
             {/* Search and Filter Section */}
             <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+              {/* Action Buttons */}
+              <div className="flex justify-end mb-4 gap-2">
+                <button
+                  onClick={exportToCSV}
+                  className="inline-block border-2 px-8 py-3 text-[14px] font-medium uppercase tracking-wider transition-colors duration-300"
+                  style={{
+                    borderColor: '#1a3a6e',
+                    color: '#1a3a6e',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#1a3a6e';
+                    e.currentTarget.style.color = 'white';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                    e.currentTarget.style.color = '#1a3a6e';
+                  }}
+                >
+                  匯出 CSV
+                </button>
+                <button
+                  onClick={fetchAllUsers}
+                  className="inline-block border-2 px-8 py-3 text-[14px] font-medium uppercase tracking-wider transition-colors duration-300"
+                  style={{
+                    borderColor: '#1a3a6e',
+                    color: '#1a3a6e',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#1a3a6e';
+                    e.currentTarget.style.color = 'white';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                    e.currentTarget.style.color = '#1a3a6e';
+                  }}
+                >
+                  🔄 重新整理
+                </button>
+              </div>
               {/* Search Bar */}
               <div className="flex flex-col md:flex-row gap-4 mb-6">
                 <div className="flex-1">
@@ -402,24 +441,6 @@ export default function UserPage() {
                   />
                   <span className="text-sm">Super-Admin</span>
                 </label>
-
-                <div className="ml-auto">
-                  <button
-                    onClick={exportToCSV}
-                    className="px-4 py-2 text-white rounded-lg transition-colors text-sm"
-                    style={{
-                      backgroundColor: '#1a3a6e',
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = '#2a4a7e';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = '#1a3a6e';
-                    }}
-                  >
-                    匯出 CSV
-                  </button>
-                </div>
               </div>
             </div>
 

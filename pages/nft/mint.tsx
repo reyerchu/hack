@@ -275,9 +275,9 @@ export default function NFTMintPage() {
           <title>不符合資格 - RWA Hackathon Taiwan</title>
         </Head>
         <AppHeader />
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center" style={{ paddingTop: '80px' }}>
+        <div className="min-h-screen bg-white flex items-center justify-center" style={{ paddingTop: '80px' }}>
           <div className="max-w-md mx-auto px-4">
-            <div className="bg-white rounded-lg shadow-md p-8 text-center">
+            <div className="bg-white border border-gray-300 rounded-lg p-8 text-center">
               <svg
                 className="w-16 h-16 mx-auto mb-4 text-red-500"
                 fill="currentColor"
@@ -305,10 +305,18 @@ export default function NFTMintPage() {
                     router.push('/profile');
                   }
                 }}
-                className="px-6 py-2 rounded-lg font-medium transition-colors"
+                className="border-2 px-8 py-3 text-[14px] font-medium uppercase tracking-wider transition-colors duration-300"
                 style={{
-                  backgroundColor: '#8B4049',
-                  color: '#ffffff',
+                  borderColor: '#1a3a6e',
+                  color: '#1a3a6e',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#1a3a6e';
+                  e.currentTarget.style.color = 'white';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                  e.currentTarget.style.color = '#1a3a6e';
                 }}
               >
                 返回個人頁面
@@ -328,11 +336,11 @@ export default function NFTMintPage() {
           <title>已鑄造 NFT - RWA Hackathon Taiwan</title>
         </Head>
         <AppHeader />
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center" style={{ paddingTop: '80px' }}>
+        <div className="min-h-screen bg-white flex items-center justify-center" style={{ paddingTop: '80px' }}>
           <div className="max-w-md mx-auto px-4">
-            <div className="bg-white rounded-lg shadow-md p-8 text-center">
+            <div className="bg-white border border-gray-300 rounded-lg p-8 text-center">
               <svg
-                className="w-16 h-16 mx-auto mb-4 text-green-500"
+                className="w-16 h-16 mx-auto mb-4 text-green-900"
                 fill="currentColor"
                 viewBox="0 0 20 20"
               >
@@ -342,11 +350,11 @@ export default function NFTMintPage() {
                   clipRule="evenodd"
                 />
               </svg>
-              <h1 className="text-2xl font-bold mb-4" style={{ color: '#8B4049' }}>
+              <h1 className="text-2xl font-bold mb-4" style={{ color: '#1a3a6e' }}>
                 您已經鑄造過此 NFT
               </h1>
               {mintStatus.mintRecord && (
-                <div className="text-left bg-gray-50 rounded-lg p-4 mb-6">
+                <div className="text-left bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6">
                   <p className="text-sm text-gray-600 mb-2">
                     <span className="font-semibold">鑄造時間：</span>
                     {new Date(mintStatus.mintRecord.mintedAt).toLocaleString('zh-TW')}
@@ -357,7 +365,10 @@ export default function NFTMintPage() {
                       href={getTxExplorerUrl(mintStatus.campaign?.network || 'sepolia', mintStatus.mintRecord.transactionHash)}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-blue-600 hover:underline break-all"
+                      className="hover:underline break-all transition-colors"
+                      style={{ color: '#1a3a6e' }}
+                      onMouseEnter={(e) => e.currentTarget.style.opacity = '0.7'}
+                      onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
                     >
                       {mintStatus.mintRecord.transactionHash}
                     </a>
@@ -374,10 +385,18 @@ export default function NFTMintPage() {
                     router.push('/profile');
                   }
                 }}
-                className="px-6 py-2 rounded-lg font-medium transition-colors"
+                className="border-2 px-8 py-3 text-[14px] font-medium uppercase tracking-wider transition-colors duration-300"
                 style={{
-                  backgroundColor: '#8B4049',
-                  color: '#ffffff',
+                  borderColor: '#1a3a6e',
+                  color: '#1a3a6e',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#1a3a6e';
+                  e.currentTarget.style.color = 'white';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                  e.currentTarget.style.color = '#1a3a6e';
                 }}
               >
                 返回個人頁面
@@ -397,79 +416,91 @@ export default function NFTMintPage() {
       </Head>
       <AppHeader />
 
-      <section className="bg-gray-50 py-16 md:py-24" style={{ paddingTop: '100px' }}>
-        <div className="max-w-2xl mx-auto px-4">
-          <div className="bg-white rounded-lg shadow-lg p-8">
-            {/* NFT Preview */}
-            {mintStatus.campaign && (
-              <>
-                <div className="text-center mb-8">
-                  <h1 className="text-3xl font-bold mb-4" style={{ color: '#1a3a6e' }}>
-                    {mintStatus.campaign.name}
-                  </h1>
-                  <p className="text-gray-600 mb-6">{mintStatus.campaign.description}</p>
-                  
-                  <img
-                    src={mintStatus.campaign.imageUrl}
-                    alt={mintStatus.campaign.name}
-                    className="w-full max-w-md mx-auto rounded-lg shadow-md mb-6"
-                  />
+      <section className="bg-white py-16 md:py-24" style={{ paddingTop: '100px' }}>
+        <div className="max-w-[1200px] mx-auto px-8 md:px-12">
+          <div className="max-w-2xl mx-auto">
+            <div className="bg-white border border-gray-300 rounded-lg p-8">
+              {/* NFT Preview */}
+              {mintStatus.campaign && (
+                <>
+                  <div className="text-center mb-8">
+                    <h1 className="text-[32px] md:text-[40px] font-bold mb-4" style={{ color: '#1a3a6e' }}>
+                      {mintStatus.campaign.name}
+                    </h1>
+                    <p className="text-gray-600 mb-6">{mintStatus.campaign.description}</p>
+                    
+                    <img
+                      src={mintStatus.campaign.imageUrl}
+                      alt={mintStatus.campaign.name}
+                      className="w-full max-w-md mx-auto rounded-lg border border-gray-200 mb-6"
+                    />
 
-                  <div className="flex justify-center gap-8 text-sm text-gray-600 mb-4">
-                    <div>
-                      <span className="font-semibold">網路：</span>
-                      <span className="ml-1 capitalize">{mintStatus.campaign.network}</span>
-                    </div>
-                    <div>
-                      <span className="font-semibold">供應量：</span>
-                      <span className="ml-1">
-                        {nftContract.loading ? '載入中...' : `${nftContract.totalSupply} / ${nftContract.maxSupply}`}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Contract Status */}
-                  {mintStatus.campaign.contractAddress && walletConnected && (
-                    <div className="mb-8 p-4 bg-blue-50 rounded-lg text-sm">
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <span className="text-gray-600">合約狀態：</span>
-                          <span className={`ml-2 font-semibold ${nftContract.mintingEnabled ? 'text-green-600' : 'text-orange-600'}`}>
-                            {nftContract.loading ? '檢查中...' : nftContract.mintingEnabled ? '✓ 開放鑄造' : '✗ 未開放'}
-                          </span>
-                        </div>
-                        <div>
-                          <span className="text-gray-600">您的狀態：</span>
-                          <span className={`ml-2 font-semibold ${nftContract.canMint ? 'text-green-600' : nftContract.hasMinted ? 'text-gray-600' : 'text-orange-600'}`}>
-                            {nftContract.loading ? '檢查中...' : nftContract.hasMinted ? '已鑄造' : nftContract.canMint ? '✓ 可鑄造' : '不可鑄造'}
-                          </span>
-                        </div>
+                    <div className="flex justify-center gap-8 text-sm text-gray-600 mb-4">
+                      <div>
+                        <span className="font-semibold">網路：</span>
+                        <span className="ml-1 capitalize">{mintStatus.campaign.network}</span>
+                      </div>
+                      <div>
+                        <span className="font-semibold">供應量：</span>
+                        <span className="ml-1">
+                          {nftContract.loading ? '載入中...' : `${nftContract.totalSupply} / ${nftContract.maxSupply}`}
+                        </span>
                       </div>
                     </div>
-                  )}
-                </div>
 
-                {/* Minting Steps */}
-                <div className="space-y-4 mb-8">
-                  <h2 className="text-xl font-bold mb-4" style={{ color: '#8B4049' }}>
-                    鑄造步驟
-                  </h2>
+                    {/* Contract Status */}
+                    {mintStatus.campaign.contractAddress && walletConnected && (
+                      <div className="mb-8 p-4 bg-gray-50 border border-gray-200 rounded-lg text-sm">
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <span className="text-gray-600">合約狀態：</span>
+                            <span className={`ml-2 font-semibold ${nftContract.mintingEnabled ? 'text-green-900' : 'text-orange-600'}`}>
+                              {nftContract.loading ? '檢查中...' : nftContract.mintingEnabled ? '✓ 開放鑄造' : '✗ 未開放'}
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-gray-600">您的狀態：</span>
+                            <span className={`ml-2 font-semibold ${nftContract.canMint ? 'text-green-900' : nftContract.hasMinted ? 'text-gray-600' : 'text-orange-600'}`}>
+                              {nftContract.loading ? '檢查中...' : nftContract.hasMinted ? '已鑄造' : nftContract.canMint ? '✓ 可鑄造' : '不可鑄造'}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Minting Steps */}
+                  <div className="space-y-4 mb-8">
+                    <h2 className="text-[24px] font-bold mb-4" style={{ color: '#1a3a6e' }}>
+                      鑄造步驟
+                    </h2>
 
                   {/* Step 1: Connect Wallet */}
-                  <div className="flex items-center p-4 border rounded-lg bg-gray-50">
+                  <div className="flex items-center p-4 border border-gray-300 rounded-lg bg-gray-50">
                     <span className="text-2xl font-bold mr-4 text-gray-600">1.</span>
                     <div className="flex-1">
                       <h4 className="font-semibold text-lg mb-1">連接錢包</h4>
                       {!walletConnected ? (
                         <button
                           onClick={connectWallet}
-                          className="px-6 py-3 text-white rounded-lg font-medium transition-all hover:opacity-90"
-                          style={{ backgroundColor: '#8B4049' }}
+                          className="border-2 px-6 py-2 text-[14px] font-medium uppercase tracking-wider transition-colors duration-300"
+                          style={{
+                            borderColor: '#1a3a6e',
+                            color: '#1a3a6e',
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor = '#1a3a6e';
+                            e.currentTarget.style.color = 'white';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor = 'transparent';
+                            e.currentTarget.style.color = '#1a3a6e';
+                          }}
                         >
                           連接 MetaMask
                         </button>
                       ) : (
-                        <p className="text-green-600 font-medium">
+                        <p className="text-green-900 font-medium">
                           錢包已連接！
                           <span className="ml-2 text-gray-600 text-sm font-mono break-all">
                             {walletAddress}
@@ -480,28 +511,40 @@ export default function NFTMintPage() {
                   </div>
 
                   {/* Step 2: Mint NFT */}
-                  <div className={`flex items-center p-4 border rounded-lg ${!walletConnected || !nftContract.canMint || !merkleProof ? 'bg-gray-100 text-gray-400' : 'bg-gray-50'}`}>
+                  <div className={`flex items-center p-4 border border-gray-300 rounded-lg ${!walletConnected || !nftContract.canMint || !merkleProof ? 'bg-gray-100 text-gray-400' : 'bg-gray-50'}`}>
                     <span className="text-2xl font-bold mr-4 text-gray-600">2.</span>
                     <div className="flex-1">
                       <h4 className="font-semibold text-lg mb-1">鑄造 NFT</h4>
                       {merkleProof && (
-                        <p className="text-xs text-green-600 mb-2">
+                        <p className="text-xs text-green-900 mb-2">
                           ✓ 已驗證白名單資格（使用 email: {user?.preferredEmail}）
                         </p>
                       )}
                       <button
                         onClick={handleMint}
                         disabled={!walletConnected || minting || !nftContract.canMint || !merkleProof}
-                        className={`px-6 py-3 rounded-lg font-medium transition-all ${
+                        className={`px-6 py-2 text-[14px] font-medium uppercase tracking-wider transition-colors duration-300 ${
                           !walletConnected || minting || !nftContract.canMint || !merkleProof
-                            ? 'bg-gray-400 text-gray-700 cursor-not-allowed'
-                            : 'text-white hover:opacity-90'
+                            ? 'bg-gray-400 text-gray-700 cursor-not-allowed border-0'
+                            : 'border-2'
                         }`}
                         style={
                           !walletConnected || minting || !nftContract.canMint || !merkleProof
                             ? {}
-                            : { backgroundColor: '#8B4049' }
+                            : { borderColor: '#1a3a6e', color: '#1a3a6e' }
                         }
+                        onMouseEnter={(e) => {
+                          if (walletConnected && !minting && nftContract.canMint && merkleProof) {
+                            e.currentTarget.style.backgroundColor = '#1a3a6e';
+                            e.currentTarget.style.color = 'white';
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (walletConnected && !minting && nftContract.canMint && merkleProof) {
+                            e.currentTarget.style.backgroundColor = 'transparent';
+                            e.currentTarget.style.color = '#1a3a6e';
+                          }
+                        }}
                       >
                         {minting ? '鑄造中...' : '立即鑄造'}
                       </button>
@@ -511,6 +554,7 @@ export default function NFTMintPage() {
                 </div>
               </>
             )}
+            </div>
           </div>
         </div>
       </section>
