@@ -4,30 +4,32 @@ pragma solidity ^0.8.20;
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 
 /**
- * @title RWA Hackathon NFT
+ * @title RWA Hackathon NFT with Merkle Tree Whitelist
  * @notice NFT for RWA Hackathon Taiwan participants
- * @dev Implements whitelist-based minting with one NFT per address
- * @dev Uses OpenZeppelin Contracts v5.x (latest version)
+ * @dev Uses Merkle Tree for gas-efficient whitelist management
+ * @dev Whitelist is based on email hashes for privacy
  */
 contract RWAHackathonNFT is ERC721URIStorage, Ownable {
-    // Token ID counter (OpenZeppelin v5 removed Counters library)
+    // Token ID counter
     uint256 private _nextTokenId;
 
     // Configuration
     uint256 public immutable maxSupply;
     string public baseTokenURI;
     
+    // Merkle Tree root for whitelist (email hashes)
+    bytes32 public merkleRoot;
+    
     // Minting control
-    mapping(address => bool) public hasMinted;
-    mapping(address => bool) public whitelist;
+    mapping(bytes32 => bool) public hasMinted; // emailHash => minted
     bool public mintingEnabled;
 
     // Events
-    event NFTMinted(address indexed to, uint256 indexed tokenId);
-    event WhitelistAdded(address[] addresses);
-    event WhitelistRemoved(address[] addresses);
+    event NFTMinted(address indexed to, uint256 indexed tokenId, bytes32 emailHash);
+    event MerkleRootUpdated(bytes32 newRoot);
     event MintingStatusChanged(bool enabled);
     event BaseURIUpdated(string newBaseURI);
 
@@ -51,25 +53,12 @@ contract RWAHackathonNFT is ERC721URIStorage, Ownable {
     }
 
     /**
-     * @notice Add addresses to whitelist (batch operation)
-     * @param addresses Array of addresses to whitelist
+     * @notice Set Merkle Root for whitelist
+     * @param _merkleRoot New Merkle root
      */
-    function addToWhitelist(address[] calldata addresses) external onlyOwner {
-        for (uint i = 0; i < addresses.length; i++) {
-            whitelist[addresses[i]] = true;
-        }
-        emit WhitelistAdded(addresses);
-    }
-
-    /**
-     * @notice Remove addresses from whitelist
-     * @param addresses Array of addresses to remove
-     */
-    function removeFromWhitelist(address[] calldata addresses) external onlyOwner {
-        for (uint i = 0; i < addresses.length; i++) {
-            whitelist[addresses[i]] = false;
-        }
-        emit WhitelistRemoved(addresses);
+    function setMerkleRoot(bytes32 _merkleRoot) external onlyOwner {
+        merkleRoot = _merkleRoot;
+        emit MerkleRootUpdated(_merkleRoot);
     }
 
     /**
@@ -91,22 +80,31 @@ contract RWAHackathonNFT is ERC721URIStorage, Ownable {
     }
 
     /**
-     * @notice Mint NFT (public function for whitelisted addresses)
-     * @dev Each address can only mint once
+     * @notice Mint NFT with Merkle proof
+     * @param emailHash Hash of the user's email (keccak256)
+     * @param merkleProof Merkle proof for the email
+     * @dev Each email can only mint once
      */
-    function mint() external {
+    function mint(bytes32 emailHash, bytes32[] calldata merkleProof) external {
         require(mintingEnabled, "Minting is not enabled");
-        require(whitelist[msg.sender], "Not whitelisted");
-        require(!hasMinted[msg.sender], "Already minted");
+        require(merkleRoot != bytes32(0), "Merkle root not set");
+        require(!hasMinted[emailHash], "Email already minted");
         require(_nextTokenId <= maxSupply, "Max supply reached");
+
+        // Verify Merkle proof
+        bytes32 leaf = emailHash;
+        require(
+            MerkleProof.verify(merkleProof, merkleRoot, leaf),
+            "Invalid Merkle proof"
+        );
 
         uint256 tokenId = _nextTokenId;
         _nextTokenId++;
         
         _safeMint(msg.sender, tokenId);
-        hasMinted[msg.sender] = true;
+        hasMinted[emailHash] = true;
 
-        emit NFTMinted(msg.sender, tokenId);
+        emit NFTMinted(msg.sender, tokenId, emailHash);
     }
 
     /**
@@ -118,15 +116,26 @@ contract RWAHackathonNFT is ERC721URIStorage, Ownable {
     }
 
     /**
-     * @notice Check if address is whitelisted and hasn't minted
-     * @param account Address to check
-     * @return Whether the address can mint
+     * @notice Check if an email hash has already minted
+     * @param emailHash Hash of the email to check
+     * @return Whether the email has minted
      */
-    function canMint(address account) public view returns (bool) {
-        return mintingEnabled 
-            && whitelist[account] 
-            && !hasMinted[account]
-            && _nextTokenId <= maxSupply;
+    function hasEmailMinted(bytes32 emailHash) public view returns (bool) {
+        return hasMinted[emailHash];
+    }
+
+    /**
+     * @notice Verify if an email is in the whitelist (without minting)
+     * @param emailHash Hash of the email
+     * @param merkleProof Merkle proof for the email
+     * @return Whether the email is whitelisted
+     */
+    function verifyWhitelist(
+        bytes32 emailHash,
+        bytes32[] calldata merkleProof
+    ) public view returns (bool) {
+        if (merkleRoot == bytes32(0)) return false;
+        return MerkleProof.verify(merkleProof, merkleRoot, emailHash);
     }
 
     /**

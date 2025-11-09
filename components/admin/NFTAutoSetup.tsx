@@ -187,60 +187,46 @@ export default function NFTAutoSetup({ campaignId, campaignName, network, onSucc
         `接下來將自動設置白名單和啟用鑄造。`
       );
 
-      // Step 2: Auto setup (whitelist + enable minting) using wallet signature
+      // Step 2: Setup Merkle Tree
       setStep('setting-up');
 
       alert(
-        `✅ 合約地址已確認！\n\n` +
-        `接下來系統會請求您的錢包簽名來執行：\n` +
-        `1. 添加白名單地址\n` +
-        `2. 啟用鑄造功能\n\n` +
-        `請在 MetaMask 中確認每筆交易。`
+        `✅ 合約部署成功！\n\n` +
+        `接下來系統會：\n` +
+        `1. 生成 Merkle Tree (email 白名單)\n` +
+        `2. 設置 Merkle Root 到合約\n` +
+        `3. 啟用鑄造功能\n\n` +
+        `請在 MetaMask 中確認交易。`
       );
 
       // Get a fresh provider with the signer
       const setupProvider = new ethers.providers.Web3Provider(window.ethereum);
       const setupSigner = setupProvider.getSigner();
 
-      // Call API with wallet signature (no private key needed!)
-      const response = await fetch('/api/admin/nft/campaigns/auto-setup-with-wallet', {
+      // Generate Merkle Tree from eligible emails
+      console.log('[AutoSetup] Generating Merkle Tree...');
+      const merkleResponse = await fetch('/api/admin/nft/campaigns/generate-merkle-tree', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           campaignId,
-          contractAddress: contractAddress,
-          signerAddress: await setupSigner.getAddress(),
-          network,
         }),
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || '設置失敗');
+      if (!merkleResponse.ok) {
+        const errorData = await merkleResponse.json();
+        throw new Error(errorData.error || '生成 Merkle Tree 失敗');
       }
 
-      const result = await response.json();
-      console.log('[AutoSetup] API Response:', result);
-      console.log('[AutoSetup] Wallet addresses to whitelist:', result.walletAddresses);
-      console.log('[AutoSetup] Summary:', result.summary);
+      const merkleData = await merkleResponse.json();
+      console.log('[AutoSetup] Merkle Root:', merkleData.root);
+      console.log('[AutoSetup] Total emails:', merkleData.totalEmails);
 
-      // Check if we got any addresses
-      if (!result.walletAddresses || result.walletAddresses.length === 0) {
-        alert(
-          `⚠️ 沒有找到任何錢包地址！\n\n` +
-          `白名單郵箱數: ${result.summary?.totalEligibleEmails || 0}\n` +
-          `找到錢包數: ${result.summary?.walletsFound || 0}\n` +
-          `未找到錢包的郵箱: ${result.summary?.notFoundEmails?.join(', ') || '無'}\n\n` +
-          `請確認用戶已經連接錢包並註冊。`
-        );
-        throw new Error('沒有錢包地址可添加到白名單');
-      }
-
-      // Now execute transactions using MetaMask
+      // Set Merkle Root and enable minting
       const CONTRACT_ABI = [
-        "function addToWhitelist(address[] calldata addresses) external",
+        "function setMerkleRoot(bytes32 _merkleRoot) external",
         "function setMintingEnabled(bool enabled) external",
       ];
 
@@ -250,36 +236,14 @@ export default function NFTAutoSetup({ campaignId, campaignName, network, onSucc
         setupSigner
       );
 
-      let addedCount = 0;
-      const BATCH_SIZE = 50;
-
-      // Add to whitelist in batches
-      if (result.walletAddresses.length > 0) {
-        for (let i = 0; i < result.walletAddresses.length; i += BATCH_SIZE) {
-          const batch = result.walletAddresses.slice(i, Math.min(i + BATCH_SIZE, result.walletAddresses.length));
-          
-          try {
-            console.log(`[AutoSetup] Adding batch ${Math.floor(i / BATCH_SIZE) + 1} (${batch.length} addresses)...`);
-            
-            // MetaMask will pop up for confirmation
-            const tx = await contract.addToWhitelist(batch);
-            console.log(`[AutoSetup] Transaction sent: ${tx.hash}`);
-            
-            alert(`⏳ 交易已發送！\n交易哈希: ${tx.hash}\n\n等待確認中...`);
-            
-            const receipt = await tx.wait();
-            console.log(`[AutoSetup] Transaction confirmed (Gas: ${receipt.gasUsed.toString()})`);
-            
-            addedCount += batch.length;
-          } catch (error: any) {
-            console.error(`[AutoSetup] Failed to add batch:`, error);
-            if (error.code === 4001) {
-              throw new Error('用戶取消了交易');
-            }
-            throw new Error(`添加白名單失敗: ${error.message}`);
-          }
-        }
-      }
+      // Set Merkle Root
+      console.log('[AutoSetup] Setting Merkle Root...');
+      const setRootTx = await contract.setMerkleRoot(merkleData.root);
+      
+      alert(`⏳ 設置 Merkle Root 交易已發送！\n交易哈希: ${setRootTx.hash}\n\n等待確認中...`);
+      
+      await setRootTx.wait();
+      console.log('[AutoSetup] Merkle Root set');
 
       // Enable minting
       console.log(`[AutoSetup] Enabling minting...`);
@@ -298,11 +262,10 @@ export default function NFTAutoSetup({ campaignId, campaignName, network, onSucc
           campaignId,
           contractAddress: contractAddress,
           status: 'active',
+          merkleRoot: merkleData.root,
           whitelistSummary: {
-            totalEmails: result.summary.totalEligibleEmails,
-            walletsFound: result.summary.walletsFound,
-            walletsAdded: addedCount,
-            emailsWithoutWallet: result.summary.emailsWithoutWallet,
+            totalEmails: merkleData.totalEmails,
+            method: 'merkle-tree',
           },
         }),
       });
@@ -312,16 +275,17 @@ export default function NFTAutoSetup({ campaignId, campaignName, network, onSucc
       }
 
       setSetupSummary({
-        ...result.summary,
-        walletsAddedToContract: addedCount,
+        totalEmails: merkleData.totalEmails,
+        method: 'merkle-tree',
       });
       setStep('complete');
 
       alert(
         `✅ 設置完成！\n\n` +
         `合約地址: ${contractAddress}\n` +
-        `已添加 ${addedCount} 個錢包到白名單\n` +
-        `鑄造已啟用，用戶現在可以鑄造 NFT 了！`
+        `Merkle Root: ${merkleData.root.substring(0, 10)}...\n` +
+        `白名單郵箱數: ${merkleData.totalEmails}\n\n` +
+        `鑄造已啟用，用戶現在可以用 email 鑄造 NFT 了！`
       );
 
       onSuccess();

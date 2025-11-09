@@ -10,29 +10,33 @@ export async function checkNFTEligibility(email: string): Promise<MintStatus> {
     const db = firestore();
     const normalizedEmail = email.toLowerCase().trim();
 
-    // Find active campaigns where user is eligible
+    // Find active campaigns
     const campaignsSnapshot = await db
       .collection('nft-campaigns')
       .where('status', '==', 'active')
-      .where('eligibleEmails', 'array-contains', normalizedEmail)
       .get();
 
     if (campaignsSnapshot.empty) {
       return {
         eligible: false,
         alreadyMinted: false,
-        reason: 'No active campaigns found for this email',
+        reason: 'No active campaigns',
       };
     }
 
     const now = new Date();
     let eligibleCampaign: any = null;
 
-    // Find a campaign that's currently active (within date range)
+    // Find a campaign that's currently active (within date range) and user is eligible
     for (const doc of campaignsSnapshot.docs) {
       const campaign = doc.data();
       const startDate = campaign.startDate?.toDate();
       const endDate = campaign.endDate?.toDate();
+
+      // Check if campaign has Merkle Tree and user has a proof
+      if (!campaign.merkleProofs || !campaign.merkleProofs[normalizedEmail]) {
+        continue; // User not eligible for this campaign
+      }
 
       if (startDate && endDate && now >= startDate && now <= endDate) {
         if (campaign.currentSupply < campaign.maxSupply) {
