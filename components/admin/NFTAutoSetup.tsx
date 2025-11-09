@@ -93,7 +93,33 @@ export default function NFTAutoSetup({ campaignId, campaignName, network, onSucc
         `圖片 CID: ${ipfsData.imageCID?.substring(0, 10)}...\n` +
         `Metadata CID: ${ipfsData.metadataCID?.substring(0, 10)}...\n` +
         `Base URI: ${ipfsData.baseURI}\n\n` +
-        `現在開始部署合約...`
+        `接下來生成白名單 Merkle Tree...`
+      );
+      
+      // Generate Merkle Tree BEFORE deployment
+      setStep('setting-up');
+      console.log('[AutoSetup] Generating Merkle Tree...');
+      
+      const merkleResponse = await fetch('/api/admin/nft/campaigns/generate-merkle-tree', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ campaignId }),
+      });
+
+      if (!merkleResponse.ok) {
+        const errorData = await merkleResponse.json();
+        throw new Error(errorData.error || '生成 Merkle Tree 失敗');
+      }
+
+      const merkleData = await merkleResponse.json();
+      const merkleRoot = merkleData.root;
+      console.log('[AutoSetup] Merkle Root:', merkleRoot);
+      console.log('[AutoSetup] Total emails:', merkleData.totalEmails);
+
+      alert(
+        `✅ 白名單已生成！\n\n` +
+        `白名單郵箱數: ${merkleData.totalEmails}\n\n` +
+        `現在開始部署合約（一次確認完成所有設置）...`
       );
       
       setStep('connecting');
@@ -194,24 +220,29 @@ export default function NFTAutoSetup({ campaignId, campaignName, network, onSucc
         symbol: campaign.symbol || 'RWAHACK',
         maxSupply: campaign.maxSupply,
         baseURI: baseURI,
+        merkleRoot: merkleRoot,
       });
 
       alert(
-        `📝 準備部署合約！\n\n` +
+        `🔐 準備部署合約（所有設置一次完成）！\n\n` +
         `活動名稱: ${campaign.name}\n` +
         `符號: ${campaign.symbol || 'RWAHACK'}\n` +
         `最大供應量: ${campaign.maxSupply}\n` +
         (ipfsInfo.baseURI ? `Base URI: ${ipfsInfo.baseURI}\n` : '') +
-        `\nMetaMask 即將彈出，請確認部署交易。\n` +
-        `⚠️ 這將花費一些 gas 費用。`
+        `白名單郵箱數: ${merkleData.totalEmails}\n\n` +
+        `✨ 部署時將自動設置白名單並啟用鑄造\n` +
+        `⚡ 僅需一次 MetaMask 確認！\n\n` +
+        `MetaMask 即將彈出，請確認部署交易。`
       );
 
-      // Deploy contract - MetaMask will pop up for confirmation!
+      // Deploy contract with Merkle Root - MetaMask will pop up for confirmation!
+      // This single transaction deploys the contract AND sets up the whitelist!
       const deployedContract = await factory.deploy(
         campaign.name,
         campaign.symbol || 'RWAHACK',
         campaign.maxSupply,
-        baseURI
+        baseURI,
+        merkleRoot  // ✨ Pass merkleRoot to constructor!
       );
 
       console.log('[AutoSetup] Contract deployment transaction sent:', deployedContract.deployTransaction.hash);
@@ -242,81 +273,17 @@ export default function NFTAutoSetup({ campaignId, campaignName, network, onSucc
         }),
       });
       
+      // ✨ All done! Contract is deployed with whitelist and minting enabled!
+      console.log('[AutoSetup] Contract deployed with whitelist and minting enabled!');
+      
       alert(
-        `✅ 合約部署成功！\n\n` +
+        `✅ 部署完成！所有設置已就緒！\n\n` +
         `合約地址: ${contractAddress}\n` +
-        `網路: ${network}\n\n` +
-        `接下來將自動設置白名單和啟用鑄造。`
+        `網路: ${network}\n` +
+        `白名單郵箱數: ${merkleData.totalEmails}\n` +
+        `鑄造狀態: 已啟用\n\n` +
+        `✨ 用戶現在可以開始鑄造 NFT 了！`
       );
-
-      // Step 2: Setup Merkle Tree
-      setStep('setting-up');
-
-      alert(
-        `✅ 合約部署成功！\n\n` +
-        `接下來系統會：\n` +
-        `1. 生成 Merkle Tree (email 白名單)\n` +
-        `2. 設置 Merkle Root 到合約\n` +
-        `3. 啟用鑄造功能\n\n` +
-        `請在 MetaMask 中確認交易。`
-      );
-
-      // Get a fresh provider with the signer
-      const setupProvider = new ethers.providers.Web3Provider(window.ethereum);
-      const setupSigner = setupProvider.getSigner();
-
-      // Generate Merkle Tree from eligible emails
-      console.log('[AutoSetup] Generating Merkle Tree...');
-      const merkleResponse = await fetch('/api/admin/nft/campaigns/generate-merkle-tree', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          campaignId,
-        }),
-      });
-
-      if (!merkleResponse.ok) {
-        const errorData = await merkleResponse.json();
-        throw new Error(errorData.error || '生成 Merkle Tree 失敗');
-      }
-
-      const merkleData = await merkleResponse.json();
-      console.log('[AutoSetup] Merkle Root:', merkleData.root);
-      console.log('[AutoSetup] Total emails:', merkleData.totalEmails);
-
-      // Set Merkle Root and enable minting in ONE transaction
-      const CONTRACT_ABI = [
-        "function setupAndEnableMinting(bytes32 _merkleRoot) external",
-      ];
-
-      const contract = new ethers.Contract(
-        contractAddress,
-        CONTRACT_ABI,
-        setupSigner
-      );
-
-      alert(
-        `🔐 準備設置白名單並啟用鑄造！\n\n` +
-        `這是最後一步，只需要確認一次！\n` +
-        `MetaMask 即將彈出，請確認交易。`
-      );
-
-      // Setup and enable minting in ONE transaction
-      console.log('[AutoSetup] Setting Merkle Root and enabling minting...');
-      const setupTx = await contract.setupAndEnableMinting(merkleData.root);
-      
-      alert(
-        `⏳ 設置交易已發送！\n\n` +
-        `交易哈希: ${setupTx.hash}\n\n` +
-        `等待確認中...這將同時：\n` +
-        `✅ 設置白名單 Merkle Root\n` +
-        `✅ 啟用 NFT 鑄造功能`
-      );
-      
-      await setupTx.wait();
-      console.log('[AutoSetup] Setup complete and minting enabled');
 
       // Update Firestore
       const updateResponse = await fetch('/api/admin/nft/campaigns/update-status', {
@@ -367,14 +334,14 @@ export default function NFTAutoSetup({ campaignId, campaignName, network, onSucc
 
   const getStepText = () => {
     switch (step) {
-      case 'connecting':
-        return '正在連接錢包...';
       case 'uploading-ipfs':
         return '正在上傳到 IPFS...';
-      case 'deploying':
-        return '正在部署合約...';
       case 'setting-up':
-        return '正在設置白名單和啟用鑄造...';
+        return '正在生成白名單...';
+      case 'connecting':
+        return '正在連接錢包...';
+      case 'deploying':
+        return '正在部署合約（一次完成所有設置）...';
       case 'complete':
         return '設置完成！';
       default:
@@ -449,29 +416,29 @@ export default function NFTAutoSetup({ campaignId, campaignName, network, onSucc
         <p className="font-semibold mb-3 text-gray-800 text-sm">部署流程：</p>
         <div className="space-y-2.5 text-sm">
           <div className="flex items-start gap-3 text-gray-700 p-2 rounded hover:bg-gray-100 transition-colors">
+            <span className="text-base flex-shrink-0">📋</span>
+            <span>生成白名單 Merkle Tree</span>
+          </div>
+          <div className="flex items-start gap-3 text-gray-700 p-2 rounded hover:bg-gray-100 transition-colors">
             <span className="text-base flex-shrink-0">🔗</span>
             <span>連接您的 MetaMask 錢包</span>
           </div>
           <div className="flex items-start gap-3 text-gray-700 p-2 rounded hover:bg-gray-100 transition-colors">
             <span className="text-base flex-shrink-0">🔐</span>
             <div className="flex-1">
-              <div className="font-medium">部署並設置 (僅需 2 次確認)</div>
-              <div className="mt-1.5 space-y-1 text-xs text-gray-500 ml-3">
-                <div>• 部署智能合約</div>
-                <div>• 設置白名單並啟用鑄造</div>
-              </div>
+              <div className="font-medium">部署合約並完成所有設置 (僅需 1 次確認！)</div>
             </div>
           </div>
           <div className="flex items-start gap-3 text-gray-700 p-2 rounded hover:bg-gray-100 transition-colors">
             <span className="text-base flex-shrink-0">✅</span>
-            <span>更新活動狀態</span>
+            <span>更新活動狀態為「進行中」</span>
           </div>
         </div>
         
         <div className="mt-4 pt-3 border-t border-gray-200 space-y-1.5 text-xs">
           <div className="flex items-start gap-2 text-gray-600">
-            <span className="flex-shrink-0" style={{ color: '#8B4049' }}>✓</span>
-            <span>已優化至 2 次確認，節省時間與 gas</span>
+            <span className="flex-shrink-0" style={{ color: '#8B4049' }}>✨</span>
+            <span>終極優化：所有設置僅需 1 次確認！</span>
           </div>
           <div className="flex items-start gap-2 text-gray-600">
             <span className="flex-shrink-0" style={{ color: '#8B4049' }}>🔒</span>

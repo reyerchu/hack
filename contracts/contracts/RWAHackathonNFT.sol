@@ -40,17 +40,24 @@ contract RWAHackathonNFT is ERC721URIStorage, Ownable {
      * @param symbol NFT collection symbol
      * @param _maxSupply Maximum number of NFTs that can be minted
      * @param _baseTokenURI Base URI for token metadata
+     * @param _merkleRoot Merkle root for whitelist (set during deployment)
      */
     constructor(
         string memory name,
         string memory symbol,
         uint256 _maxSupply,
-        string memory _baseTokenURI
+        string memory _baseTokenURI,
+        bytes32 _merkleRoot
     ) ERC721(name, symbol) Ownable(msg.sender) {
         require(_maxSupply > 0, "Max supply must be greater than 0");
         maxSupply = _maxSupply;
         baseTokenURI = _baseTokenURI;
+        merkleRoot = _merkleRoot;
+        mintingEnabled = true; // Enable minting immediately upon deployment
         _nextTokenId = 1; // Start from token ID 1
+        
+        emit MerkleRootUpdated(_merkleRoot);
+        emit MintingStatusChanged(true);
     }
 
     /**
