@@ -72,6 +72,18 @@ contract RWAHackathonNFT is ERC721URIStorage, Ownable {
     }
 
     /**
+     * @notice Set Merkle Root and enable minting in one transaction
+     * @param _merkleRoot New Merkle root
+     * @dev Combines setMerkleRoot and setMintingEnabled(true) to save gas and reduce steps
+     */
+    function setupAndEnableMinting(bytes32 _merkleRoot) external onlyOwner {
+        merkleRoot = _merkleRoot;
+        mintingEnabled = true;
+        emit MerkleRootUpdated(_merkleRoot);
+        emit MintingStatusChanged(true);
+    }
+
+    /**
      * @notice Update base URI for metadata
      * @param newBaseURI New base URI
      */

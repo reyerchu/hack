@@ -286,10 +286,9 @@ export default function NFTAutoSetup({ campaignId, campaignName, network, onSucc
       console.log('[AutoSetup] Merkle Root:', merkleData.root);
       console.log('[AutoSetup] Total emails:', merkleData.totalEmails);
 
-      // Set Merkle Root and enable minting
+      // Set Merkle Root and enable minting in ONE transaction
       const CONTRACT_ABI = [
-        "function setMerkleRoot(bytes32 _merkleRoot) external",
-        "function setMintingEnabled(bool enabled) external",
+        "function setupAndEnableMinting(bytes32 _merkleRoot) external",
       ];
 
       const contract = new ethers.Contract(
@@ -298,23 +297,26 @@ export default function NFTAutoSetup({ campaignId, campaignName, network, onSucc
         setupSigner
       );
 
-      // Set Merkle Root
-      console.log('[AutoSetup] Setting Merkle Root...');
-      const setRootTx = await contract.setMerkleRoot(merkleData.root);
-      
-      alert(`⏳ 設置 Merkle Root 交易已發送！\n交易哈希: ${setRootTx.hash}\n\n等待確認中...`);
-      
-      await setRootTx.wait();
-      console.log('[AutoSetup] Merkle Root set');
+      alert(
+        `🔐 準備設置白名單並啟用鑄造！\n\n` +
+        `這是最後一步，只需要確認一次！\n` +
+        `MetaMask 即將彈出，請確認交易。`
+      );
 
-      // Enable minting
-      console.log(`[AutoSetup] Enabling minting...`);
-      const enableTx = await contract.setMintingEnabled(true);
+      // Setup and enable minting in ONE transaction
+      console.log('[AutoSetup] Setting Merkle Root and enabling minting...');
+      const setupTx = await contract.setupAndEnableMinting(merkleData.root);
       
-      alert(`⏳ 啟用鑄造交易已發送！\n交易哈希: ${enableTx.hash}\n\n等待確認中...`);
+      alert(
+        `⏳ 設置交易已發送！\n\n` +
+        `交易哈希: ${setupTx.hash}\n\n` +
+        `等待確認中...這將同時：\n` +
+        `✅ 設置白名單 Merkle Root\n` +
+        `✅ 啟用 NFT 鑄造功能`
+      );
       
-      await enableTx.wait();
-      console.log(`[AutoSetup] Minting enabled`);
+      await setupTx.wait();
+      console.log('[AutoSetup] Setup complete and minting enabled');
 
       // Update Firestore
       const updateResponse = await fetch('/api/admin/nft/campaigns/update-status', {
@@ -413,45 +415,71 @@ export default function NFTAutoSetup({ campaignId, campaignName, network, onSucc
   }
 
   return (
-    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-      <h3 className="text-lg font-bold text-blue-800 mb-2">🚀 自動部署和設置</h3>
-      <p className="text-sm text-blue-700 mb-3">
+    <div className="bg-gray-900 border border-gray-700 rounded-lg p-5 shadow-xl">
+      <h3 className="text-lg font-bold text-white mb-2">🚀 自動部署和設置</h3>
+      <p className="text-sm text-gray-300 mb-4">
         一鍵完成合約部署、白名單設置和啟用鑄造
       </p>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded p-3 mb-3">
-          <p className="text-sm text-red-700">❌ {error}</p>
+        <div className="bg-red-900/30 border border-red-700 rounded p-3 mb-4">
+          <p className="text-sm text-red-300">❌ {error}</p>
         </div>
       )}
 
       <button
         onClick={handleAutoSetup}
         disabled={step !== 'idle'}
-        className={`w-full px-4 py-2 rounded-lg font-medium transition-colors ${
+        className={`w-full px-5 py-3 rounded-lg font-semibold transition-all ${
           step === 'idle'
-            ? 'bg-blue-600 text-white hover:bg-blue-700'
-            : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+            ? 'text-white hover:opacity-90 shadow-lg'
+            : 'bg-gray-700 text-gray-500 cursor-not-allowed'
         }`}
+        style={step === 'idle' ? { backgroundColor: '#8B4049' } : {}}
       >
         {getStepText()}
       </button>
 
-      <div className="mt-3 text-xs text-gray-600">
-        <p className="font-semibold mb-1">此操作將會：</p>
-        <ul className="list-disc list-inside space-y-1">
-          <li>🔗 連接您的 MetaMask 錢包</li>
-          <li>🔐 部署智能合約（MetaMask 確認）</li>
-          <li>🔐 添加白名單（MetaMask 確認）</li>
-          <li>🔐 啟用鑄造（MetaMask 確認）</li>
-          <li>✅ 更新活動狀態為「進行中」</li>
+      <div className="mt-4 bg-gray-800 border border-gray-700 rounded-lg p-4">
+        <p className="font-semibold mb-3 text-white text-sm">此操作將會：</p>
+        <ul className="space-y-2 text-sm">
+          <li className="flex items-start gap-3 text-gray-200">
+            <span className="text-blue-400 text-lg">🔗</span>
+            <span>連接您的 MetaMask 錢包</span>
+          </li>
+          <li className="flex items-start gap-3 text-gray-200">
+            <span className="text-purple-400 text-lg">🔐</span>
+            <div>
+              <div className="font-semibold">部署智能合約並設置白名單 (僅需確認 2 次)</div>
+              <div className="ml-4 mt-1 space-y-1 text-xs text-gray-400">
+                <div>→ 部署合約 (第 1 次確認)</div>
+                <div>→ 設置白名單並啟用鑄造 (第 2 次確認)</div>
+              </div>
+            </div>
+          </li>
+          <li className="flex items-start gap-3 text-gray-200">
+            <span className="text-green-400 text-lg">✅</span>
+            <span>更新活動狀態為「進行中」</span>
+          </li>
         </ul>
-        <p className="mt-2 text-green-600 font-semibold">
-          🔒 100% 安全！所有操作都需要 MetaMask 確認
-        </p>
-        <p className="mt-1 text-orange-600 text-xs">
-          ⚠️ 部署合約需要支付 gas 費用（約 0.01-0.05 ETH）
-        </p>
+        
+        <div className="mt-4 space-y-2">
+          <div className="bg-green-900/20 border border-green-800 rounded p-2">
+            <p className="text-green-400 font-semibold text-xs">
+              💡 已優化：整個過程僅需 2 次 MetaMask 確認
+            </p>
+          </div>
+          <div className="bg-blue-900/20 border border-blue-800 rounded p-2">
+            <p className="text-blue-400 text-xs">
+              🔒 100% 安全！所有操作都需要您的錢包確認
+            </p>
+          </div>
+          <div className="bg-orange-900/20 border border-orange-800 rounded p-2">
+            <p className="text-orange-400 text-xs">
+              ⚠️ 需要支付 gas 費用（約 0.01-0.05 ETH）
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );
