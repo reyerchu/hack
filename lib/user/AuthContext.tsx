@@ -75,16 +75,20 @@ function AuthProvider({ children }: React.PropsWithChildren<Record<string, any>>
   };
 
   const updateUser = async (firebaseUser: firebase.User | null) => {
+    console.log('[AuthContext] 🔄 updateUser called, firebaseUser:', firebaseUser ? firebaseUser.uid : 'null');
     setLoading(true);
     if (firebaseUser === null) {
       // User is signed out
       // TODO(auth): Determine if we want to remove user data from device on sign out
+      console.log('[AuthContext] ❌ User signed out, clearing profile');
       setUser(null);
+      setProfile(null);
       setLoading(false);
       return;
     }
 
     const { displayName, email, photoURL, uid } = firebaseUser;
+    console.log('[AuthContext] 👤 Firebase user:', { uid, email, displayName });
 
     const token = await firebaseUser.getIdToken();
     setUser({
@@ -97,15 +101,20 @@ function AuthProvider({ children }: React.PropsWithChildren<Record<string, any>>
       permissions: ['hacker'],
       university: '',
     });
+    
+    console.log('[AuthContext] 📡 Fetching user profile from /api/userinfo...');
     // Use relative URL to work on any port
     const data = await fetch(`/api/userinfo?id=${encodeURIComponent(uid)}`, {
       mode: 'cors',
       headers: { Authorization: token },
       method: 'GET',
     });
+    
+    console.log('[AuthContext] 📥 API response status:', data.status);
+    
     if (data.status === 404) {
       // 用户已登入但未注册，明确设置 profile 为 null
-      console.log('[AuthContext] User is authenticated but not registered yet');
+      console.log('[AuthContext] ⚠️  User is authenticated but not registered yet (404)');
       setProfile(null);
       setLoading(false);
       return;
@@ -113,7 +122,7 @@ function AuthProvider({ children }: React.PropsWithChildren<Record<string, any>>
     if (data.status !== 200) {
       // API 调用失败，保留之前的状态，不要清空 profile
       console.error(
-        '[AuthContext] API call failed, status:',
+        '[AuthContext] ❌ API call failed, status:',
         data.status,
         '- keeping previous profile state',
       );
@@ -121,7 +130,12 @@ function AuthProvider({ children }: React.PropsWithChildren<Record<string, any>>
       return;
     }
     const userData = await data.json();
-    console.log('[AuthContext] User data fetched successfully:', userData);
+    console.log('[AuthContext] ✅ User data fetched successfully');
+    console.log('[AuthContext] 📊 userData keys:', Object.keys(userData));
+    console.log('[AuthContext] 📊 userData.user:', userData.user ? 'exists' : 'missing');
+    console.log('[AuthContext] 📊 userData.id:', userData.id);
+    console.log('[AuthContext] 📊 userData.email:', userData.email);
+    
     let permissions: UserPermission[] = userData.user?.permissions || ['hacker'];
     setUser((prev) => ({
       ...prev,
@@ -131,7 +145,10 @@ function AuthProvider({ children }: React.PropsWithChildren<Record<string, any>>
       permissions,
       university: userData.university || prev?.university || '',
     }));
+    
+    console.log('[AuthContext] 💾 Setting profile with userData');
     setProfile(userData);
+    console.log('[AuthContext] ✅ Profile set, hasProfile should be true');
     setLoading(false);
   };
 

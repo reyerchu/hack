@@ -46,6 +46,10 @@ export default function ProfilePage() {
   const [isLoadingApplications, setIsLoadingApplications] = useState(false);
   const [toggleLoading, setToggleLoading] = useState<{ [key: string]: boolean }>({});
   const [stats, setStats] = useState<any>(null);
+  
+  // 直接檢查數據庫中的註冊狀態，而不依賴 hasProfile
+  const [isRegistered, setIsRegistered] = useState<boolean | null>(null);
+  const [checkingRegistration, setCheckingRegistration] = useState(true);
 
   // 隱私設置狀態
   const [privacySettings, setPrivacySettings] = useState({
@@ -466,22 +470,88 @@ export default function ProfilePage() {
   }, [user?.token]);
 
   // 組件掛載時獲取需求列表、申請記錄和履歷列表
+  // 檢查用戶是否已註冊（直接查詢數據庫）
   useEffect(() => {
-    if (isSignedIn && hasProfile && user?.token) {
+    const checkRegistrationStatus = async () => {
+      if (!user?.id || !user?.token) {
+        console.log('[Profile] No user ID or token, skipping registration check');
+        setCheckingRegistration(false);
+        return;
+      }
+
+      console.log('[Profile] 🔍 Checking registration status for user:', user.id);
+      
+      try {
+        const response = await fetch(`/api/userinfo?id=${encodeURIComponent(user.id)}`, {
+          headers: { Authorization: user.token },
+        });
+
+        console.log('[Profile] 📥 Registration check response:', response.status);
+
+        if (response.status === 200) {
+          const data = await response.json();
+          console.log('[Profile] ✅ User is registered in database');
+          setIsRegistered(true);
+          // 同時更新 profile 以保持一致性
+          if (!profile) {
+            updateProfile(data);
+          }
+        } else if (response.status === 404) {
+          console.log('[Profile] ❌ User not registered (404)');
+          setIsRegistered(false);
+        } else {
+          console.log('[Profile] ⚠️  Registration check failed with status:', response.status);
+          setIsRegistered(false);
+        }
+      } catch (error) {
+        console.error('[Profile] ❌ Error checking registration:', error);
+        setIsRegistered(false);
+      } finally {
+        setCheckingRegistration(false);
+      }
+    };
+
+    checkRegistrationStatus();
+  }, [user?.id, user?.token]);
+
+  useEffect(() => {
+    if (isSignedIn && user?.token && isRegistered) {
       fetchMyNeeds();
       fetchMyApplications();
       fetchResumeList();
     }
-  }, [isSignedIn, hasProfile, user?.token, fetchMyNeeds, fetchMyApplications, fetchResumeList]);
+  }, [isSignedIn, user?.token, isRegistered, fetchMyNeeds, fetchMyApplications, fetchResumeList]);
 
+  // Debug logging
+  console.log('[Profile Page] 🔍 Render check:', {
+    isSignedIn,
+    hasProfile,
+    isRegistered,
+    checkingRegistration,
+    user: user ? { id: user.id, email: user.preferredEmail } : null,
+    profile: profile ? { id: profile.id, email: profile.email } : null,
+  });
+
+  // 正在檢查註冊狀態
+  if (checkingRegistration) {
+    console.log('[Profile Page] ⏳ Checking registration status...');
+    return <div className="p-4 flex-grow text-center">載入中...</div>;
+  }
+
+  // 未登入
   if (!isSignedIn) {
+    console.log('[Profile Page] ❌ User not signed in, showing message');
     return <div className="p-4 flex-grow text-center">請登入以查看您的個人中心！</div>;
   }
 
-  if (!hasProfile) {
+  // 已登入但未註冊
+  if (isRegistered === false) {
+    console.log('[Profile Page] ❌ User not registered in database, redirecting to /register');
     router.push('/register');
-    return <div></div>;
+    return <div className="p-4 flex-grow text-center">重定向到註冊頁面...</div>;
   }
+  
+  console.log('[Profile Page] ✅ User is registered, rendering page');
 
   return (
     <div className="min-h-screen bg-gray-50">

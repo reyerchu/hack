@@ -39,10 +39,34 @@ export default function Register() {
   const [loading, setLoading] = useState(true);
   const [formValid, setFormValid] = useState(true);
   const [resumeFile, setResumeFile] = useState<File | null>(null);
+  const [isRegistered, setIsRegistered] = useState<boolean | null>(null);
+  
   const checkRedirect = async () => {
     if (typeof window === 'undefined') return; // Skip on server
-    if (hasProfile) router.push('/profile');
-    else setLoading(false);
+    
+    // 檢查數據庫中的註冊狀態
+    if (user?.id && user?.token) {
+      console.log('[Register] 🔍 Checking if user is already registered:', user.id);
+      try {
+        const response = await fetch(`/api/userinfo?id=${encodeURIComponent(user.id)}`, {
+          headers: { Authorization: user.token },
+        });
+        
+        if (response.status === 200) {
+          console.log('[Register] ✅ User already registered, redirecting to /profile');
+          router.push('/profile');
+          return;
+        } else {
+          console.log('[Register] ❌ User not registered yet (status:', response.status, ')');
+          setIsRegistered(false);
+        }
+      } catch (error) {
+        console.error('[Register] Error checking registration:', error);
+        setIsRegistered(false);
+      }
+    }
+    
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -194,10 +218,20 @@ export default function Register() {
       console.log('[Register] ✅ STEP 6: 註冊成功！');
       console.log('[Register] 用戶 ID:', response.data?.userId);
       console.log('[Register] Profile:', response.data?.profile);
+      console.log('[Register] Current user state:', {
+        id: user?.id,
+        email: user?.preferredEmail,
+        token: user?.token ? 'exists' : 'missing',
+      });
       console.log('========================================');
 
+      // 更新 profile，這樣 AuthContext 就知道用戶已註冊
+      updateProfile(response.data?.profile || registrationData);
+      
+      console.log('[Register] ✅ Profile updated in AuthContext');
+      console.log('[Register] User should now be signed in and registered');
+
       alert('註冊成功！');
-      updateProfile(registrationData);
 
       console.log('[Register] 🕐 等待 500ms 讓後端處理完成...');
       // Wait a moment for the backend to fully process the data
