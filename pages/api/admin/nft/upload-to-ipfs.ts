@@ -151,8 +151,10 @@ export default async function handler(
       }));
 
       // Add options to wrap in a directory
+      // IMPORTANT: Must set wrapWithDirectory: true when uploading multiple files
+      // This creates an IPFS directory structure: ipfs://CID/1.json, ipfs://CID/2.json, etc.
       metadataFormData.append('pinataOptions', JSON.stringify({
-        wrapWithDirectory: false, // We already have individual files, no need to wrap
+        wrapWithDirectory: true,
       }));
 
       const metadataUploadResponse = await fetch('https://api.pinata.cloud/pinning/pinFileToIPFS', {
