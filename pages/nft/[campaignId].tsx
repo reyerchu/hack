@@ -5,6 +5,7 @@ import Head from 'next/head';
 import AppHeader from '../../components/AppHeader';
 import HomeFooter from '../../components/homeComponents/HomeFooter';
 import { emailToHash } from '../../lib/utils/email-hash';
+import { useAuthContext } from '../../lib/user/AuthContext';
 
 interface NFTCampaign {
   id: string;
@@ -34,10 +35,14 @@ interface MintRecord {
 export default function NFTCampaignPage() {
   const router = useRouter();
   const { campaignId } = router.query;
+  const { user } = useAuthContext();
   const [campaign, setCampaign] = useState<NFTCampaign | null>(null);
   const [mintRecords, setMintRecords] = useState<MintRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+
+  // Check if user is admin
+  const isAdmin = user?.permissions?.includes('super_admin') || false;
 
   useEffect(() => {
     if (campaignId) {
@@ -250,21 +255,119 @@ export default function NFTCampaignPage() {
             <h2 className="text-2xl font-bold mb-6 text-gray-900">
               鑄造記錄 ({mintRecords.length})
             </h2>
-            <div className="flex flex-wrap gap-3">
-              {mintRecords.map((record) => (
-                record.userEmail ? (
-                  <Link key={record.id} href={`/user/${emailToHash(record.userEmail)}`}>
-                    <a className="inline-flex items-center px-4 py-2 rounded-full bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors">
+
+            {isAdmin ? (
+              /* Admin View - Detailed Table */
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Token ID
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        用戶
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Email
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        鑄造時間
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        交易
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {mintRecords.map((record) => (
+                      <tr key={record.id} className="hover:bg-gray-50">
+                        <td className="px-4 py-3 whitespace-nowrap">
+                          <span className="text-sm font-medium text-gray-900">
+                            #{record.tokenId}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 whitespace-nowrap">
+                          {record.userEmail ? (
+                            <Link href={`/user/${emailToHash(record.userEmail)}`}>
+                              <a className="text-sm text-blue-600 hover:text-blue-800 hover:underline">
+                                {record.displayName}
+                              </a>
+                            </Link>
+                          ) : (
+                            <span className="text-sm text-gray-900">{record.displayName}</span>
+                          )}
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className="text-xs text-gray-500 font-mono">
+                            {record.userEmail}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 whitespace-nowrap">
+                          <span className="text-sm text-gray-500">
+                            {new Date(record.mintedAt).toLocaleString('zh-TW', {
+                              year: 'numeric',
+                              month: '2-digit',
+                              day: '2-digit',
+                              hour: '2-digit',
+                              minute: '2-digit',
+                              hour12: false,
+                            })}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 whitespace-nowrap">
+                          {record.transactionHash && (
+                            <a
+                              href={getTxExplorerUrl(campaign.network, record.transactionHash)}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-sm text-blue-600 hover:text-blue-800"
+                            >
+                              <div className="flex items-center gap-1">
+                                <span className="font-mono">
+                                  {record.transactionHash.substring(0, 6)}...
+                                  {record.transactionHash.substring(record.transactionHash.length - 4)}
+                                </span>
+                                <svg
+                                  className="w-3 h-3"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                                  />
+                                </svg>
+                              </div>
+                            </a>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              /* Public View - User Tags */
+              <div className="flex flex-wrap gap-3">
+                {mintRecords.map((record) => (
+                  record.userEmail ? (
+                    <Link key={record.id} href={`/user/${emailToHash(record.userEmail)}`}>
+                      <a className="inline-flex items-center px-4 py-2 rounded-full bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors">
+                        <span className="text-sm font-medium">{record.displayName}</span>
+                      </a>
+                    </Link>
+                  ) : (
+                    <div key={record.id} className="inline-flex items-center px-4 py-2 rounded-full bg-gray-50 text-gray-700">
                       <span className="text-sm font-medium">{record.displayName}</span>
-                    </a>
-                  </Link>
-                ) : (
-                  <div key={record.id} className="inline-flex items-center px-4 py-2 rounded-full bg-gray-50 text-gray-700">
-                    <span className="text-sm font-medium">{record.displayName}</span>
-                  </div>
-                )
-              ))}
-            </div>
+                    </div>
+                  )
+                ))}
+              </div>
+            )}
           </div>
         )}
       </div>
