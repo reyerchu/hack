@@ -35,8 +35,8 @@ export default function NFTAutoSetup({ campaignId, campaignName, network, onSucc
       console.log('[AutoSetup] Connected wallet:', address);
 
       // Check network (ethers v5)
-      const network = await provider.getNetwork();
-      console.log('[AutoSetup] Current network:', network.name, network.chainId);
+      const currentNetwork = await provider.getNetwork();
+      console.log('[AutoSetup] Current network:', currentNetwork.name, currentNetwork.chainId);
 
       // Verify correct network
       const expectedChainIds: Record<string, number> = {
@@ -45,9 +45,9 @@ export default function NFTAutoSetup({ campaignId, campaignName, network, onSucc
         arbitrum: 42161,
       };
 
-      const expectedChainId = expectedChainIds[network];
-      if (network.chainId !== expectedChainId) {
-        throw new Error(`請切換到對應的網路。當前: ${network.chainId}, 需要: ${expectedChainId}`);
+      const expectedChainId = expectedChainIds[network]; // 'network' is from props (sepolia/ethereum/arbitrum)
+      if (currentNetwork.chainId !== expectedChainId) {
+        throw new Error(`請切換到 ${network.toUpperCase()} 網路。當前鏈 ID: ${currentNetwork.chainId}, 需要: ${expectedChainId}`);
       }
 
       // Get private key (NOTE: This is for demo purposes only!)
