@@ -222,7 +222,21 @@ export default function NFTAutoSetup({ campaignId, campaignName, network, onSucc
       }
 
       const result = await response.json();
+      console.log('[AutoSetup] API Response:', result);
       console.log('[AutoSetup] Wallet addresses to whitelist:', result.walletAddresses);
+      console.log('[AutoSetup] Summary:', result.summary);
+
+      // Check if we got any addresses
+      if (!result.walletAddresses || result.walletAddresses.length === 0) {
+        alert(
+          `⚠️ 沒有找到任何錢包地址！\n\n` +
+          `白名單郵箱數: ${result.summary?.totalEligibleEmails || 0}\n` +
+          `找到錢包數: ${result.summary?.walletsFound || 0}\n` +
+          `未找到錢包的郵箱: ${result.summary?.notFoundEmails?.join(', ') || '無'}\n\n` +
+          `請確認用戶已經連接錢包並註冊。`
+        );
+        throw new Error('沒有錢包地址可添加到白名單');
+      }
 
       // Now execute transactions using MetaMask
       const CONTRACT_ABI = [
