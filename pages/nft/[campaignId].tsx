@@ -179,10 +179,13 @@ export default function NFTCampaignPage() {
                   <div className="bg-gray-50 p-4 rounded-lg col-span-2">
                     <div className="text-sm text-gray-600 mb-1">截止日期</div>
                     <div className="text-lg font-semibold">
-                      {new Date(campaign.endDate).toLocaleDateString('zh-TW', {
+                      {new Date(campaign.endDate).toLocaleString('zh-TW', {
                         year: 'numeric',
                         month: 'long',
                         day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: false,
                       })}
                     </div>
                   </div>
