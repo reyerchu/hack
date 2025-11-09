@@ -254,89 +254,92 @@ export default function NFTCampaignsAdmin() {
         <title>NFT 活動管理 - 管理員</title>
       </Head>
       <AdminHeader />
-      <div className="max-w-7xl mx-auto px-4 py-8 mt-16">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold">NFT 活動管理</h1>
-          <button
-            onClick={() => setShowCreateForm(!showCreateForm)}
-            className="px-6 py-3 text-white rounded-lg font-medium transition-all hover:opacity-90"
-            style={{ backgroundColor: '#8B4049' }}
-          >
-            {showCreateForm ? '取消' : '建立新活動'}
-          </button>
-        </div>
+      <div className="bg-white min-h-screen">
+        <div className="max-w-[1200px] mx-auto px-8 md:px-12 py-16 md:py-24">
+          <div className="flex justify-between items-center mb-12">
+            <h1 className="text-[32px] md:text-[40px] font-bold" style={{ color: '#1a3a6e' }}>
+              NFT 活動管理
+            </h1>
+            <button
+              onClick={() => setShowCreateForm(!showCreateForm)}
+              className="px-6 py-3 text-white rounded-lg font-medium transition-all hover:opacity-90"
+              style={{ backgroundColor: '#8B4049' }}
+            >
+              {showCreateForm ? '取消' : '建立新活動'}
+            </button>
+          </div>
 
-        {showCreateForm && (
-          <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-            <h2 className="text-2xl font-bold mb-4">建立 NFT 活動</h2>
-            <form onSubmit={handleSubmit} className="space-y-4">
+          {showCreateForm && (
+            <div className="bg-white border border-gray-300 rounded-lg p-8 mb-12">
+              <h2 className="text-[24px] font-bold mb-6" style={{ color: '#1a3a6e' }}>建立 NFT 活動</h2>
+            <form onSubmit={handleSubmit} className="space-y-6">
               <div>
-                <label className="block text-sm font-medium mb-1">活動名稱</label>
+                <label className="block text-sm font-medium mb-2 text-gray-700">活動名稱</label>
                 <input
                   type="text"
                   required
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full px-4 py-2 border rounded-lg"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="例如：RWA 黑客松台灣 2025 NFT"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">NFT 符號</label>
+                <label className="block text-sm font-medium mb-2 text-gray-700">NFT 符號</label>
                 <input
                   type="text"
                   required
                   value={formData.symbol}
                   onChange={(e) => setFormData({ ...formData, symbol: e.target.value.toUpperCase() })}
-                  className="w-full px-4 py-2 border rounded-lg"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="例如：RWANFT"
                   maxLength={10}
                 />
-                <p className="mt-1 text-sm text-gray-500">NFT 的代碼符號，將顯示在區塊鏈瀏覽器（最多 10 個字元，自動轉為大寫）</p>
+                <p className="mt-2 text-sm text-gray-500">NFT 的代碼符號，將顯示在區塊鏈瀏覽器（最多 10 個字元，自動轉為大寫）</p>
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">活動描述</label>
+                <label className="block text-sm font-medium mb-2 text-gray-700">活動描述</label>
                 <textarea
                   required
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  className="w-full px-4 py-2 border rounded-lg"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   rows={3}
                   placeholder="描述此 NFT 活動..."
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">NFT 圖片</label>
+                <label className="block text-sm font-medium mb-2 text-gray-700">NFT 圖片</label>
                 <input
                   type="file"
                   accept="image/*"
                   onChange={handleImageChange}
-                  className="w-full px-4 py-2 border rounded-lg"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required={!formData.imageUrl}
                 />
                 {imagePreview && (
-                  <div className="mt-2">
+                  <div className="mt-3">
                     <img
                       src={imagePreview}
                       alt="Preview"
-                      className="w-32 h-32 object-cover rounded-lg border"
+                      className="w-32 h-32 object-cover rounded-lg border border-gray-300"
                     />
                   </div>
                 )}
                 {uploadingImage && (
-                  <p className="mt-2 text-sm text-blue-900">上傳中...</p>
+                  <p className="mt-2 text-sm" style={{ color: '#1a3a6e' }}>上傳中...</p>
                 )}
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">區塊鏈網路</label>
+                <label className="block text-sm font-medium mb-2 text-gray-700">區塊鏈網路</label>
                 <select
                   value={formData.network}
                   onChange={(e) => setFormData({ ...formData, network: e.target.value })}
-                  className="w-full px-4 py-2 border rounded-lg"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="sepolia">Sepolia（測試網）</option>
                   <option value="ethereum">Ethereum 主網</option>
@@ -345,52 +348,52 @@ export default function NFTCampaignsAdmin() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">
+                <label className="block text-sm font-medium mb-2 text-gray-700">
                   符合資格的電子郵件（每行一個或用逗號分隔）
                 </label>
                 <textarea
                   required
                   value={formData.eligibleEmails}
                   onChange={(e) => setFormData({ ...formData, eligibleEmails: e.target.value })}
-                  className="w-full px-4 py-2 border rounded-lg font-mono text-sm"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg font-mono text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   rows={6}
                   placeholder="user1@example.com&#10;user2@example.com&#10;user3@example.com"
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium mb-1">開始日期</label>
+                  <label className="block text-sm font-medium mb-2 text-gray-700">開始日期</label>
                   <input
                     type="datetime-local"
                     required
                     value={formData.startDate}
                     onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
-                    className="w-full px-4 py-2 border rounded-lg"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-1">結束日期</label>
+                  <label className="block text-sm font-medium mb-2 text-gray-700">結束日期</label>
                   <input
                     type="datetime-local"
                     required
                     value={formData.endDate}
                     onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
-                    className="w-full px-4 py-2 border rounded-lg"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">最大供應量</label>
+                <label className="block text-sm font-medium mb-2 text-gray-700">最大供應量</label>
                 <input
                   type="number"
                   required
                   min="1"
                   value={formData.maxSupply}
                   onChange={(e) => setFormData({ ...formData, maxSupply: e.target.value })}
-                  className="w-full px-4 py-2 border rounded-lg"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
@@ -405,22 +408,24 @@ export default function NFTCampaignsAdmin() {
           </div>
         )}
 
-        <div className="space-y-4">
-          <h2 className="text-2xl font-bold mb-4">現有活動</h2>
+        <div className="space-y-6">
+          <h2 className="text-[24px] font-bold mb-6 border-b border-gray-300 pb-3" style={{ color: '#1a3a6e' }}>
+            現有活動
+          </h2>
           {campaigns.length === 0 ? (
-            <div className="bg-white rounded-lg shadow-md p-8 text-center text-gray-500">
+            <div className="bg-white border border-gray-300 rounded-lg p-12 text-center text-gray-500">
               目前尚無活動。建立您的第一個 NFT 活動！
             </div>
           ) : (
             campaigns.map((campaign) => (
-              <div key={campaign.id} className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+              <div key={campaign.id} className="bg-white border border-gray-300 rounded-lg p-6 hover:shadow-lg transition-all">
                 <div className="flex gap-6">
                   <Link href={`/nft/${campaign.id}`}>
                     <a>
                       <img
                         src={campaign.imageUrl}
                         alt={campaign.name}
-                        className="w-32 h-32 object-cover rounded-lg hover:opacity-80 transition-opacity cursor-pointer"
+                        className="w-32 h-32 object-cover rounded-lg border border-gray-200 hover:opacity-80 transition-opacity cursor-pointer"
                       />
                     </a>
                   </Link>
@@ -428,11 +433,11 @@ export default function NFTCampaignsAdmin() {
                     <div className="flex justify-between items-start">
                       <div>
                         <Link href={`/nft/${campaign.id}`}>
-                          <a className="transition-colors" style={{ color: 'inherit' }} onMouseEnter={(e) => e.currentTarget.style.color = '#8B4049'} onMouseLeave={(e) => e.currentTarget.style.color = 'inherit'}>
-                            <h3 className="text-xl font-bold">{campaign.name}</h3>
+                          <a className="transition-colors" style={{ color: '#1a3a6e' }} onMouseEnter={(e) => e.currentTarget.style.color = '#8B4049'} onMouseLeave={(e) => e.currentTarget.style.color = '#1a3a6e'}>
+                            <h3 className="text-[20px] font-bold">{campaign.name}</h3>
                           </a>
                         </Link>
-                        <p className="text-gray-600 mt-1">{campaign.description}</p>
+                        <p className="text-gray-600 mt-2 leading-relaxed">{campaign.description}</p>
                       </div>
                       <span
                         className={`px-3 py-1 rounded-full text-sm font-medium ${
@@ -471,10 +476,10 @@ export default function NFTCampaignsAdmin() {
                     </div>
 
                     {campaign.contractAddress ? (
-                      <div className="mt-4 bg-gray-50 border border-gray-300 rounded p-3">
-                        <div className="text-sm text-gray-900">
-                          <div className="font-semibold mb-1">✅ 合約已部署</div>
-                          <div className="font-mono text-xs break-all">{campaign.contractAddress}</div>
+                      <div className="mt-6 bg-gray-50 border border-gray-300 rounded-lg p-4">
+                        <div className="text-sm">
+                          <div className="font-semibold mb-2" style={{ color: '#1a3a6e' }}>✅ 合約已部署</div>
+                          <div className="font-mono text-xs break-all text-gray-700">{campaign.contractAddress}</div>
                         </div>
                       </div>
                     ) : (
