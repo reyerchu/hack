@@ -44,3 +44,10 @@ public/workbox-*.*
 hackportal.config.js
 # Backup env files
 .env.local.backup*
+
+# Scripts with confidential information (removed from remote)
+/scripts/
+
+# Data exports with sensitive information
+*.csv
+submitted-teams-members.csv
