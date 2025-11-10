@@ -51,3 +51,8 @@ hackportal.config.js
 # Data exports with sensitive information
 *.csv
 submitted-teams-members.csv
+
+# IMPORTANT: Team media files and NFT images - DO NOT DELETE!
+# These files are synced from Firebase Storage and should never be tracked or cleaned
+/public/team-media/
+/public/nft-images/

@@ -1,6 +1,6 @@
 /**
  * 团队挑战提交页面
- * 
+ *
  * 允许团队成员为特定挑战提交资料
  */
 
@@ -96,7 +96,7 @@ export default function SubmitChallengePage() {
           `/api/team-challenge-submissions/get?teamId=${teamId}&challengeId=${challengeId}`,
           {
             headers: { Authorization: user.token },
-          }
+          },
         );
 
         let existingData: any = null;
@@ -107,20 +107,26 @@ export default function SubmitChallengePage() {
         }
 
         // Initialize submission form
-        if (challengeInfo.submissionRequirements && Array.isArray(challengeInfo.submissionRequirements)) {
-          const initialSubmissions = challengeInfo.submissionRequirements.map((req: SubmissionRequirement, index: number) => {
-            // Try to find existing submission for this requirement
-            const existing = existingData?.submissions?.[index];
-            
-            return {
-              type: req.type,
-              description: req.description,
-              value: existing?.value || existing?.checked || (req.type === 'checkbox' ? false : ''),
-              file: null, // Can't prefill file input
-              existingFileUrl: existing?.fileUrl || null,
-              existingFileName: existing?.fileName || null,
-            };
-          });
+        if (
+          challengeInfo.submissionRequirements &&
+          Array.isArray(challengeInfo.submissionRequirements)
+        ) {
+          const initialSubmissions = challengeInfo.submissionRequirements.map(
+            (req: SubmissionRequirement, index: number) => {
+              // Try to find existing submission for this requirement
+              const existing = existingData?.submissions?.[index];
+
+              return {
+                type: req.type,
+                description: req.description,
+                value:
+                  existing?.value || existing?.checked || (req.type === 'checkbox' ? false : ''),
+                file: null, // Can't prefill file input
+                existingFileUrl: existing?.fileUrl || null,
+                existingFileName: existing?.fileName || null,
+              };
+            },
+          );
           setSubmissions(initialSubmissions);
         }
 
@@ -213,7 +219,7 @@ export default function SubmitChallengePage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!user?.token || !teamId || !challengeId) return;
 
     try {
@@ -261,7 +267,7 @@ export default function SubmitChallengePage() {
           }
 
           const uploadData = await uploadResponse.json();
-          
+
           processedSubmissions.push({
             type: sub.type,
             description: sub.description,
@@ -309,7 +315,7 @@ export default function SubmitChallengePage() {
             }
 
             const uploadData = await uploadResponse.json();
-            
+
             processedExtraItems.push({
               type: extra.type,
               description: extra.description,
@@ -359,12 +365,11 @@ export default function SubmitChallengePage() {
       }
 
       setMessage('✅ 提交成功！');
-      
+
       // Redirect back after 2 seconds
       setTimeout(() => {
         router.push('/profile?tab=my-teams');
       }, 2000);
-
     } catch (err: any) {
       console.error('[SubmitChallenge] Submit error:', err);
       setMessage('❌ ' + (err.message || '提交失敗'));
@@ -444,7 +449,12 @@ export default function SubmitChallengePage() {
               style={{ color: '#6b7280' }}
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15 19l-7-7 7-7"
+                />
               </svg>
               返回
             </button>
@@ -471,10 +481,24 @@ export default function SubmitChallengePage() {
 
           {/* Existing Submission Info */}
           {existingSubmission && (
-            <div className="mb-6 p-4 rounded-xl" style={{ backgroundColor: '#ecfdf5', border: '1px solid #86efac' }}>
+            <div
+              className="mb-6 p-4 rounded-xl"
+              style={{ backgroundColor: '#ecfdf5', border: '1px solid #86efac' }}
+            >
               <div className="flex items-start gap-3">
-                <svg className="w-5 h-5 mt-0.5" style={{ color: '#10b981' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <svg
+                  className="w-5 h-5 mt-0.5"
+                  style={{ color: '#10b981' }}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
                 </svg>
                 <div className="flex-1">
                   <p className="text-sm font-medium" style={{ color: '#065f46' }}>
@@ -485,7 +509,8 @@ export default function SubmitChallengePage() {
                   </p>
                   {existingSubmission.submittedBy && (
                     <p className="text-xs" style={{ color: '#6b7280' }}>
-                      提交人：{existingSubmission.submittedBy.name || existingSubmission.submittedBy.email}
+                      提交人：
+                      {existingSubmission.submittedBy.name || existingSubmission.submittedBy.email}
                     </p>
                   )}
                   <p className="text-xs mt-2" style={{ color: '#059669' }}>
@@ -535,11 +560,25 @@ export default function SubmitChallengePage() {
                     <div>
                       {/* Show existing file if any */}
                       {item.existingFileUrl && !item.file && (
-                        <div className="mb-3 p-3 rounded-lg" style={{ backgroundColor: '#f0f9ff', border: '1px solid #bfdbfe' }}>
+                        <div
+                          className="mb-3 p-3 rounded-lg"
+                          style={{ backgroundColor: '#f0f9ff', border: '1px solid #bfdbfe' }}
+                        >
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
-                              <svg className="w-4 h-4" style={{ color: '#3b82f6' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                              <svg
+                                className="w-4 h-4"
+                                style={{ color: '#3b82f6' }}
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                                />
                               </svg>
                               <div>
                                 <p className="text-sm font-medium" style={{ color: '#1e40af' }}>
@@ -547,7 +586,12 @@ export default function SubmitChallengePage() {
                                 </p>
                                 <p className="text-xs" style={{ color: '#6b7280' }}>
                                   {existingSubmission?.submittedAt && (
-                                    <>提交時間：{new Date(existingSubmission.submittedAt).toLocaleString('zh-TW')}</>
+                                    <>
+                                      提交時間：
+                                      {new Date(existingSubmission.submittedAt).toLocaleString(
+                                        'zh-TW',
+                                      )}
+                                    </>
                                   )}
                                 </p>
                               </div>
@@ -564,7 +608,7 @@ export default function SubmitChallengePage() {
                           </div>
                         </div>
                       )}
-                      
+
                       <input
                         type="file"
                         onChange={(e) => handleFileChange(index, e.target.files?.[0] || null)}
@@ -600,7 +644,13 @@ export default function SubmitChallengePage() {
                       />
                       {item.value && (
                         <p className="text-xs mt-2" style={{ color: '#6b7280' }}>
-                          <a href={item.value} target="_blank" rel="noopener noreferrer" className="hover:underline" style={{ color: '#3b82f6' }}>
+                          <a
+                            href={item.value}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="hover:underline"
+                            style={{ color: '#3b82f6' }}
+                          >
                             預覽連結 →
                           </a>
                         </p>
@@ -664,7 +714,12 @@ export default function SubmitChallengePage() {
                     }}
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 4v16m8-8H4"
+                      />
                     </svg>
                     新增項目
                   </button>
@@ -673,15 +728,23 @@ export default function SubmitChallengePage() {
 
               {/* Add Extra Item Form */}
               {showAddExtra && (
-                <div className="bg-white rounded-lg p-4 mb-4 border" style={{ borderColor: '#d1d5db' }}>
+                <div
+                  className="bg-white rounded-lg p-4 mb-4 border"
+                  style={{ borderColor: '#d1d5db' }}
+                >
                   <div className="space-y-3">
                     <div>
-                      <label className="block text-sm font-medium mb-2" style={{ color: '#1a3a6e' }}>
+                      <label
+                        className="block text-sm font-medium mb-2"
+                        style={{ color: '#1a3a6e' }}
+                      >
                         類型
                       </label>
                       <select
                         value={newExtraItem.type}
-                        onChange={(e) => setNewExtraItem({ ...newExtraItem, type: e.target.value as any })}
+                        onChange={(e) =>
+                          setNewExtraItem({ ...newExtraItem, type: e.target.value as any })
+                        }
                         className="w-full px-3 py-2 rounded-lg border"
                         style={{ borderColor: '#d1d5db' }}
                       >
@@ -691,13 +754,18 @@ export default function SubmitChallengePage() {
                       </select>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-2" style={{ color: '#1a3a6e' }}>
+                      <label
+                        className="block text-sm font-medium mb-2"
+                        style={{ color: '#1a3a6e' }}
+                      >
                         說明
                       </label>
                       <input
                         type="text"
                         value={newExtraItem.description}
-                        onChange={(e) => setNewExtraItem({ ...newExtraItem, description: e.target.value })}
+                        onChange={(e) =>
+                          setNewExtraItem({ ...newExtraItem, description: e.target.value })
+                        }
                         placeholder="例如：團隊照片、補充資料..."
                         className="w-full px-4 py-2 rounded-lg border"
                         style={{ borderColor: '#d1d5db' }}
@@ -774,7 +842,10 @@ export default function SubmitChallengePage() {
                       {extra.type === 'file' && (
                         <div>
                           {extra.existingFileUrl && !extra.file && (
-                            <div className="mb-2 p-2 rounded" style={{ backgroundColor: '#f0f9ff', border: '1px solid #bfdbfe' }}>
+                            <div
+                              className="mb-2 p-2 rounded"
+                              style={{ backgroundColor: '#f0f9ff', border: '1px solid #bfdbfe' }}
+                            >
                               <p className="text-xs" style={{ color: '#1e40af' }}>
                                 已上傳：{extra.existingFileName}
                               </p>
@@ -782,7 +853,9 @@ export default function SubmitChallengePage() {
                           )}
                           <input
                             type="file"
-                            onChange={(e) => handleExtraFileChange(index, e.target.files?.[0] || null)}
+                            onChange={(e) =>
+                              handleExtraFileChange(index, e.target.files?.[0] || null)
+                            }
                             className="block w-full text-sm"
                             style={{
                               padding: '8px',
@@ -885,4 +958,3 @@ export default function SubmitChallengePage() {
     </div>
   );
 }
-

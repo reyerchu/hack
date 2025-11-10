@@ -40,10 +40,10 @@ export default function Register() {
   const [formValid, setFormValid] = useState(true);
   const [resumeFile, setResumeFile] = useState<File | null>(null);
   const [isRegistered, setIsRegistered] = useState<boolean | null>(null);
-  
+
   const checkRedirect = async () => {
     if (typeof window === 'undefined') return; // Skip on server
-    
+
     // 檢查數據庫中的註冊狀態
     if (user?.id && user?.token) {
       console.log('[Register] 🔍 Checking if user is already registered:', user.id);
@@ -51,7 +51,7 @@ export default function Register() {
         const response = await fetch(`/api/userinfo?id=${encodeURIComponent(user.id)}`, {
           headers: { Authorization: user.token },
         });
-        
+
         if (response.status === 200) {
           console.log('[Register] ✅ User already registered, redirecting to /profile');
           router.push('/profile');
@@ -65,7 +65,7 @@ export default function Register() {
         setIsRegistered(false);
       }
     }
-    
+
     setLoading(false);
   };
 
@@ -227,7 +227,7 @@ export default function Register() {
 
       // 更新 profile，這樣 AuthContext 就知道用戶已註冊
       updateProfile(response.data?.profile || registrationData);
-      
+
       console.log('[Register] ✅ Profile updated in AuthContext');
       console.log('[Register] User should now be signed in and registered');
 

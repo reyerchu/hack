@@ -1,4 +1,4 @@
-const hre = require("hardhat");
+const hre = require('hardhat');
 
 /**
  * Script to enable/disable minting
@@ -9,14 +9,14 @@ async function main() {
   const enabled = process.argv[3];
 
   if (!contractAddress) {
-    console.error("錯誤：請提供合約地址");
-    console.log("用法: node scripts/enableMinting.js <contract_address> <true|false>");
+    console.error('錯誤：請提供合約地址');
+    console.log('用法: node scripts/enableMinting.js <contract_address> <true|false>');
     process.exit(1);
   }
 
   if (enabled !== 'true' && enabled !== 'false') {
-    console.error("錯誤：第二個參數必須是 true 或 false");
-    console.log("用法: node scripts/enableMinting.js <contract_address> <true|false>");
+    console.error('錯誤：第二個參數必須是 true 或 false');
+    console.log('用法: node scripts/enableMinting.js <contract_address> <true|false>');
     process.exit(1);
   }
 
@@ -27,7 +27,7 @@ async function main() {
   console.log(`操作: ${shouldEnable ? '啟用' : '停用'}鑄造\n`);
 
   // Connect to contract
-  const RWAHackathonNFT = await hre.ethers.getContractFactory("RWAHackathonNFT");
+  const RWAHackathonNFT = await hre.ethers.getContractFactory('RWAHackathonNFT');
   const nft = RWAHackathonNFT.attach(contractAddress);
 
   // Check current status
@@ -50,7 +50,7 @@ async function main() {
   // Verify change
   const newStatus = await nft.mintingEnabled();
   console.log(`\n新狀態: ${newStatus ? '已啟用' : '已停用'}`);
-  
+
   console.log(`\n🎉 ${shouldEnable ? '鑄造已啟用！' : '鑄造已停用！'}`);
 }
 
@@ -60,4 +60,3 @@ main()
     console.error(error);
     process.exit(1);
   });
-

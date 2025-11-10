@@ -153,7 +153,9 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
 
     console.log('[/api/applications] ✅ 注册数据已保存到 registrations');
 
-    console.log('[/api/applications] 📝 BACKEND STEP 7: 保存到 users collection（用於 /api/userinfo）');
+    console.log(
+      '[/api/applications] 📝 BACKEND STEP 7: 保存到 users collection（用於 /api/userinfo）',
+    );
     // 同时保存到 users collection，确保 /api/userinfo 能找到用户
     await db.collection('users').doc(userId).set(dataToSave, { merge: true });
 

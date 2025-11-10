@@ -24,7 +24,7 @@ export const SPONSOR_COLLECTIONS = {
 /**
  * Collection 名称類型
  */
-export type SponsorCollectionName = typeof SPONSOR_COLLECTIONS[keyof typeof SPONSOR_COLLECTIONS];
+export type SponsorCollectionName = (typeof SPONSOR_COLLECTIONS)[keyof typeof SPONSOR_COLLECTIONS];
 
 // 常用的單獨導出，方便使用
 export const SPONSOR_NOTIFICATIONS = SPONSOR_COLLECTIONS.SPONSOR_NOTIFICATIONS;

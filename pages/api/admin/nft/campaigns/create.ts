@@ -35,8 +35,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
 
     // TODO: Fix permission system - temporarily allow any authenticated user
-    console.log('[NFT Create API] ⚠️ WARNING: Permission check temporarily disabled for development');
-    
+    console.log(
+      '[NFT Create API] ⚠️ WARNING: Permission check temporarily disabled for development',
+    );
+
     /* ORIGINAL PERMISSION CHECK - RE-ENABLE AFTER FIXING:
     if (!userData || !userData.permissions?.includes('super_admin')) {
       return res.status(403).json({ error: 'Forbidden: Admin access required' });
@@ -56,7 +58,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     } = req.body;
 
     // Validation
-    if (!name || !symbol || !description || !imageUrl || !network || !eligibleEmails || !startDate || !endDate || !maxSupply) {
+    if (
+      !name ||
+      !symbol ||
+      !description ||
+      !imageUrl ||
+      !network ||
+      !eligibleEmails ||
+      !startDate ||
+      !endDate ||
+      !maxSupply
+    ) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
@@ -92,4 +104,3 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     res.status(500).json({ error: error.message || 'Internal server error' });
   }
 }
-

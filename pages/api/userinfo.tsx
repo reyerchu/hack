@@ -38,7 +38,7 @@ async function userIsAuthorized(token: string, queryId: string) {
  */
 async function handleUserInfo(req: NextApiRequest, res: NextApiResponse) {
   console.log('[/api/userinfo] 🔍 Start handling request for:', req.query.id);
-  
+
   // TODO: Handle user authorization
   const {
     query: { token, id },
@@ -49,14 +49,14 @@ async function handleUserInfo(req: NextApiRequest, res: NextApiResponse) {
   // Check if request header contains token
   // TODO: Figure out how to handle the string | string[] mess.
   const userToken = (token as string) || (headers['authorization'] as string);
-  
+
   console.log('[/api/userinfo] 🔑 Checking authorization for:', id);
 
   // TODO: Extract from bearer token
   // Probably not safe
   const isAuthorized = await userIsAuthorized(userToken, id as string);
   console.log('[/api/userinfo] 🔐 Authorization result:', isAuthorized);
-  
+
   if (!isAuthorized) {
     console.log('[/api/userinfo] ❌ Unauthorized access attempt');
     return res.status(401).send({

@@ -2,17 +2,14 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { firestore } from 'firebase-admin';
 import initializeApi from '../../../../../lib/admin/init';
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
     initializeApi();
-    
+
     const { campaignId } = req.query;
 
     if (!campaignId || typeof campaignId !== 'string') {
@@ -34,9 +31,13 @@ export default async function handler(
       .get();
 
     // Get unique user IDs and emails
-    const userIds = [...new Set(mintsSnapshot.docs.map(doc => doc.data().userId).filter(Boolean))];
-    const userEmails = [...new Set(mintsSnapshot.docs.map(doc => doc.data().userEmail).filter(Boolean))];
-    
+    const userIds = [
+      ...Array.from(new Set(mintsSnapshot.docs.map((doc) => doc.data().userId).filter(Boolean))),
+    ];
+    const userEmails = [
+      ...Array.from(new Set(mintsSnapshot.docs.map((doc) => doc.data().userEmail).filter(Boolean))),
+    ];
+
     // Fetch user information by userId (check both users and registrations collections)
     const userInfoMap: { [key: string]: any } = {};
     await Promise.all(
@@ -44,14 +45,14 @@ export default async function handler(
         try {
           // First try users collection
           let userDoc = await db.collection('users').doc(userId).get();
-          
+
           // If not found or empty, try registrations collection
           if (!userDoc.exists || !userDoc.data()?.nickname) {
             userDoc = await db.collection('registrations').doc(userId).get();
           }
-          
+
           if (userDoc.exists) {
-            const userData = { ...userDoc.data(), userId: userDoc.id };
+            const userData: any = { ...userDoc.data(), userId: userDoc.id };
             console.log(`[NFT Mints] Found user ${userId}:`, {
               nickname: userData.nickname,
               firstName: userData.firstName,
@@ -69,16 +70,16 @@ export default async function handler(
         } catch (error) {
           console.error(`Error fetching user ${userId}:`, error);
         }
-      })
+      }),
     );
-    
+
     // Fetch user information by email for records without userId
     await Promise.all(
       userEmails.map(async (email) => {
         const normalizedEmail = email.toLowerCase().trim();
         // Skip if already found by userId
         if (userInfoMap[`email:${normalizedEmail}`]) return;
-        
+
         try {
           // Try email field
           let usersSnapshot = await db
@@ -86,20 +87,20 @@ export default async function handler(
             .where('email', '==', normalizedEmail)
             .limit(1)
             .get();
-          
+
           if (!usersSnapshot.empty) {
             const userDoc = usersSnapshot.docs[0];
             userInfoMap[`email:${normalizedEmail}`] = { ...userDoc.data(), userId: userDoc.id };
             return;
           }
-          
+
           // Try preferredEmail field
           usersSnapshot = await db
             .collection('users')
             .where('preferredEmail', '==', normalizedEmail)
             .limit(1)
             .get();
-          
+
           if (!usersSnapshot.empty) {
             const userDoc = usersSnapshot.docs[0];
             userInfoMap[`email:${normalizedEmail}`] = { ...userDoc.data(), userId: userDoc.id };
@@ -107,20 +108,20 @@ export default async function handler(
         } catch (error) {
           console.error(`Error fetching user by email ${email}:`, error);
         }
-      })
+      }),
     );
 
-    const mints = mintsSnapshot.docs.map(doc => {
+    const mints = mintsSnapshot.docs.map((doc) => {
       const data = doc.data();
       const userId = data.userId || '';
       const userEmail = (data.userEmail || '').toLowerCase().trim();
-      
+
       // Try to get user info by userId first, then by email
       let userInfo = userId ? userInfoMap[`id:${userId}`] : null;
       if (!userInfo && userEmail) {
         userInfo = userInfoMap[`email:${userEmail}`];
       }
-      
+
       // Determine display name: nickname > firstName lastName > email
       let displayName = data.userEmail || '';
       if (userInfo) {
@@ -130,7 +131,7 @@ export default async function handler(
           displayName = [userInfo.firstName, userInfo.lastName].filter(Boolean).join(' ');
         }
       }
-      
+
       return {
         id: doc.id,
         userEmail: data.userEmail || '',
@@ -159,4 +160,3 @@ export default async function handler(
     return res.status(500).json({ error: 'Internal server error' });
   }
 }
-

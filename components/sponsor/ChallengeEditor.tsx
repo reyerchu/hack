@@ -66,7 +66,10 @@ export default function ChallengeEditor({
   const getSubmissionRequirements = (challenge: any) => {
     if (!challenge) return [];
     // Check if submissionRequirements is already an array of requirement items
-    if (Array.isArray(challenge.submissionRequirements) && challenge.submissionRequirements.length > 0) {
+    if (
+      Array.isArray(challenge.submissionRequirements) &&
+      challenge.submissionRequirements.length > 0
+    ) {
       const firstItem = challenge.submissionRequirements[0];
       if (firstItem && typeof firstItem === 'object' && 'type' in firstItem) {
         return challenge.submissionRequirements;
@@ -314,7 +317,9 @@ export default function ChallengeEditor({
               <input
                 type="text"
                 value={newRequirement.description}
-                onChange={(e) => setNewRequirement({ ...newRequirement, description: e.target.value })}
+                onChange={(e) =>
+                  setNewRequirement({ ...newRequirement, description: e.target.value })
+                }
                 onKeyPress={(e) => {
                   if (e.key === 'Enter') {
                     e.preventDefault();

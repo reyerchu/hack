@@ -38,12 +38,10 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
 
     const teamData = teamDoc.data()!;
     const userEmail = decodedToken.email?.toLowerCase();
-    const userHasPermission = 
+    const userHasPermission =
       teamData.teamLeader?.userId === userId ||
       teamData.teamLeader?.email?.toLowerCase() === userEmail ||
-      teamData.teamMembers?.some((member: any) => 
-        member.email?.toLowerCase() === userEmail
-      );
+      teamData.teamMembers?.some((member: any) => member.email?.toLowerCase() === userEmail);
 
     if (!userHasPermission) {
       return res.status(403).json({ error: 'No permission to view this team submission' });
@@ -85,7 +83,6 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
       success: true,
       data: response,
     });
-
   } catch (error: any) {
     console.error('[GetSubmission] Error:', error);
     return res.status(500).json({
@@ -101,4 +98,3 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   return res.status(405).json({ error: 'Method not allowed' });
 }
-

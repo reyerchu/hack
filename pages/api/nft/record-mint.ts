@@ -15,14 +15,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     initializeApi();
     const db = firestore();
 
-    const {
-      campaignId,
-      userEmail,
-      userId,
-      walletAddress,
-      tokenId,
-      transactionHash,
-    } = req.body;
+    const { campaignId, userEmail, userId, walletAddress, tokenId, transactionHash } = req.body;
 
     // Validation
     if (!campaignId || !userEmail || !walletAddress || !tokenId || !transactionHash) {
@@ -71,10 +64,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     await mintRef.set(mintData);
 
     // Update campaign current supply
-    await db.collection('nft-campaigns').doc(campaignId).update({
-      currentSupply: (campaign?.currentSupply || 0) + 1,
-      updatedAt: new Date(),
-    });
+    await db
+      .collection('nft-campaigns')
+      .doc(campaignId)
+      .update({
+        currentSupply: (campaign?.currentSupply || 0) + 1,
+        updatedAt: new Date(),
+      });
 
     res.status(200).json({
       success: true,
@@ -85,4 +81,3 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     res.status(500).json({ error: error.message || 'Internal server error' });
   }
 }
-

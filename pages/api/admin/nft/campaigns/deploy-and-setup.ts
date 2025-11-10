@@ -6,13 +6,13 @@ import { ethers } from 'ethers';
 /**
  * Automatic deployment and setup for NFT campaign
  * POST /api/admin/nft/campaigns/deploy-and-setup
- * 
+ *
  * This endpoint will:
  * 1. Deploy the smart contract
  * 2. Update Firestore with contract address
  * 3. Add whitelist addresses to contract
  * 4. Enable minting
- * 
+ *
  * Body: {
  *   campaignId: string,
  *   deployerPrivateKey: string (from admin's connected wallet)
@@ -21,9 +21,9 @@ import { ethers } from 'ethers';
 
 // Contract ABI (only the functions we need)
 const CONTRACT_ABI = [
-  "function addToWhitelist(address[] calldata addresses) external",
-  "function setMintingEnabled(bool enabled) external",
-  "function owner() external view returns (address)"
+  'function addToWhitelist(address[] calldata addresses) external',
+  'function setMintingEnabled(bool enabled) external',
+  'function owner() external view returns (address)',
 ];
 
 // Contract bytecode and constructor parameters
@@ -31,11 +31,11 @@ const CONTRACT_ABI = [
 const getContractFactory = () => {
   // In a real implementation, you would import the compiled contract artifacts
   // For now, we'll use a placeholder
-  const contractInterface = new ethers.Interface([
-    "constructor(string memory name, string memory symbol, uint256 maxSupply, string memory _baseTokenURI)",
-    ...CONTRACT_ABI
+  const contractInterface = new ethers.utils.Interface([
+    'constructor(string memory name, string memory symbol, uint256 maxSupply, string memory _baseTokenURI)',
+    ...CONTRACT_ABI,
   ]);
-  
+
   return contractInterface;
 };
 
@@ -51,8 +51,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const { campaignId, deployerPrivateKey, network = 'sepolia' } = req.body;
 
     if (!campaignId || !deployerPrivateKey) {
-      return res.status(400).json({ 
-        error: 'Missing required fields: campaignId, deployerPrivateKey' 
+      return res.status(400).json({
+        error: 'Missing required fields: campaignId, deployerPrivateKey',
       });
     }
 
@@ -72,9 +72,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // Check if contract already deployed
     if (campaign.contractAddress) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         error: 'Contract already deployed for this campaign',
-        contractAddress: campaign.contractAddress
+        contractAddress: campaign.contractAddress,
       });
     }
 
@@ -100,9 +100,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     console.log(`[Deploy] Deployer balance: ${ethers.utils.formatEther(balance)} ETH`);
 
     if (balance.isZero()) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         error: 'Deployer wallet has no balance',
-        deployerAddress: deployer.address
+        deployerAddress: deployer.address,
       });
     }
 
@@ -121,7 +121,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         symbol: campaign.symbol || 'RWAHACK',
         maxSupply: campaign.maxSupply,
         network: network,
-      }
+      },
     });
 
     // TODO: Implement actual deployment when contract artifacts are available
@@ -134,13 +134,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // );
     // await contract.waitForDeployment();
     // const contractAddress = await contract.getAddress();
-
   } catch (error: any) {
     console.error('[Deploy] Error:', error);
-    return res.status(500).json({ 
-      error: 'Deployment failed', 
-      details: error.message 
+    return res.status(500).json({
+      error: 'Deployment failed',
+      details: error.message,
     });
   }
 }
-

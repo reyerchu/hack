@@ -49,7 +49,7 @@ export default function NFTCampaignDetail() {
         router.push('/login');
         return;
       }
-      
+
       const isAdmin = user?.permissions?.includes('super_admin');
       if (!isAdmin) {
         alert('此頁面僅限管理員訪問');
@@ -158,7 +158,8 @@ export default function NFTCampaignDetail() {
   }
 
   const explorerUrl = getNetworkExplorer(campaign.network);
-  const mintProgress = campaign.maxSupply > 0 ? (campaign.currentSupply / campaign.maxSupply) * 100 : 0;
+  const mintProgress =
+    campaign.maxSupply > 0 ? (campaign.currentSupply / campaign.maxSupply) * 100 : 0;
 
   return (
     <>
@@ -173,7 +174,12 @@ export default function NFTCampaignDetail() {
           <Link href="/admin/nft/campaigns">
             <a className="inline-flex items-center text-blue-600 hover:text-blue-800 mb-6">
               <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15 19l-7-7 7-7"
+                />
               </svg>
               返回活動列表
             </a>
@@ -185,7 +191,7 @@ export default function NFTCampaignDetail() {
               <div className="flex-1">
                 <h1 className="text-3xl font-bold text-gray-900 mb-2">{campaign.name}</h1>
                 <p className="text-gray-600 mb-4">{campaign.description}</p>
-                
+
                 <div className="flex items-center gap-4 flex-wrap">
                   {/* Status Badge */}
                   <span
@@ -197,13 +203,19 @@ export default function NFTCampaignDetail() {
                         : 'bg-yellow-100 text-yellow-800'
                     }`}
                   >
-                    {campaign.status === 'active' ? '✅ Active' : campaign.status === 'completed' ? '✓ Completed' : '📝 Draft'}
+                    {campaign.status === 'active'
+                      ? '✅ Active'
+                      : campaign.status === 'completed'
+                      ? '✓ Completed'
+                      : '📝 Draft'}
                   </span>
 
                   {/* Minting Status */}
                   <span
                     className={`px-3 py-1 rounded-full text-sm font-medium ${
-                      campaign.mintingEnabled ? 'bg-blue-100 text-blue-800' : 'bg-red-100 text-red-800'
+                      campaign.mintingEnabled
+                        ? 'bg-blue-100 text-blue-800'
+                        : 'bg-red-100 text-red-800'
                     }`}
                   >
                     {campaign.mintingEnabled ? '🔓 Minting Enabled' : '🔒 Minting Disabled'}
@@ -238,7 +250,7 @@ export default function NFTCampaignDetail() {
               {/* Supply Progress */}
               <div className="bg-white rounded-lg shadow-md p-6">
                 <h2 className="text-xl font-bold text-gray-900 mb-4">鑄造進度</h2>
-                
+
                 <div className="mb-4">
                   <div className="flex justify-between text-sm text-gray-600 mb-2">
                     <span>已鑄造</span>
@@ -256,7 +268,9 @@ export default function NFTCampaignDetail() {
 
                 <div className="grid grid-cols-3 gap-4 mt-4">
                   <div className="text-center p-3 bg-gray-50 border border-gray-200 rounded-lg">
-                    <div className="text-2xl font-bold" style={{ color: '#1a3a6e' }}>{campaign.currentSupply}</div>
+                    <div className="text-2xl font-bold" style={{ color: '#1a3a6e' }}>
+                      {campaign.currentSupply}
+                    </div>
                     <div className="text-xs text-gray-600">已鑄造</div>
                   </div>
                   <div className="text-center p-3 bg-green-900 bg-opacity-10 border border-green-900 border-opacity-20 rounded-lg">
@@ -266,7 +280,9 @@ export default function NFTCampaignDetail() {
                     <div className="text-xs text-gray-600">剩餘</div>
                   </div>
                   <div className="text-center p-3 bg-gray-50 border border-gray-200 rounded-lg">
-                    <div className="text-2xl font-bold" style={{ color: '#1a3a6e' }}>{campaign.maxSupply}</div>
+                    <div className="text-2xl font-bold" style={{ color: '#1a3a6e' }}>
+                      {campaign.maxSupply}
+                    </div>
                     <div className="text-xs text-gray-600">總供應量</div>
                   </div>
                 </div>
@@ -276,7 +292,7 @@ export default function NFTCampaignDetail() {
               {campaign.contractAddress && (
                 <div className="bg-white rounded-lg shadow-md p-6">
                   <h2 className="text-xl font-bold text-gray-900 mb-4">合約資訊</h2>
-                  
+
                   <div className="space-y-3">
                     <div>
                       <label className="text-sm font-medium text-gray-700">合約地址</label>
@@ -318,9 +334,7 @@ export default function NFTCampaignDetail() {
 
               {/* Mint Records */}
               <div className="bg-white rounded-lg shadow-md p-6">
-                <h2 className="text-xl font-bold text-gray-900 mb-4">
-                  鑄造記錄 ({mints.length})
-                </h2>
+                <h2 className="text-xl font-bold text-gray-900 mb-4">鑄造記錄 ({mints.length})</h2>
 
                 {mintLoading ? (
                   <div className="text-center py-8">
@@ -328,8 +342,18 @@ export default function NFTCampaignDetail() {
                   </div>
                 ) : mints.length === 0 ? (
                   <div className="text-center py-8 text-gray-500">
-                    <svg className="w-12 h-12 mx-auto mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                    <svg
+                      className="w-12 h-12 mx-auto mb-2 text-gray-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
+                      />
                     </svg>
                     <p>尚無鑄造記錄</p>
                   </div>
@@ -356,7 +380,9 @@ export default function NFTCampaignDetail() {
                         {mints.map((mint) => (
                           <tr key={mint.id} className="hover:bg-gray-50">
                             <td className="px-4 py-3 whitespace-nowrap">
-                              <span className="text-sm font-medium text-gray-900">#{mint.tokenId}</span>
+                              <span className="text-sm font-medium text-gray-900">
+                                #{mint.tokenId}
+                              </span>
                             </td>
                             <td className="px-4 py-3">
                               <span className="text-sm text-gray-600">{mint.userEmail}</span>
@@ -368,7 +394,8 @@ export default function NFTCampaignDetail() {
                                 rel="noopener noreferrer"
                                 className="text-sm text-blue-600 hover:underline font-mono"
                               >
-                                {mint.transactionHash.substring(0, 10)}...{mint.transactionHash.substring(56)}
+                                {mint.transactionHash.substring(0, 10)}...
+                                {mint.transactionHash.substring(56)}
                               </a>
                             </td>
                             <td className="px-4 py-3 whitespace-nowrap">
@@ -390,7 +417,7 @@ export default function NFTCampaignDetail() {
               {/* Time Information */}
               <div className="bg-white rounded-lg shadow-md p-6">
                 <h2 className="text-xl font-bold text-gray-900 mb-4">時間資訊</h2>
-                
+
                 <div className="space-y-3">
                   <div>
                     <label className="text-sm font-medium text-gray-700">開始日期</label>
@@ -476,4 +503,3 @@ export default function NFTCampaignDetail() {
     </>
   );
 }
-

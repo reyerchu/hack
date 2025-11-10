@@ -42,7 +42,7 @@ export async function getAllUserNFTCampaigns(email: string): Promise<NFTCampaign
 
     for (const doc of campaignsSnapshot.docs) {
       const campaign = doc.data();
-      
+
       // Check if user is in the whitelist (has a Merkle proof)
       if (!campaign.merkleProofs || !campaign.merkleProofs[normalizedEmail]) {
         continue; // User not eligible for this campaign
@@ -119,12 +119,15 @@ export async function getAllUserNFTCampaigns(email: string): Promise<NFTCampaign
 /**
  * Check if user is eligible to mint NFT
  * This is a shared function that can be called from API routes or SSR
- * 
+ *
  * @param email User's email address
  * @param specificCampaignId Optional campaign ID to check. If provided, only check this campaign.
  * @returns MintStatus for the specified campaign, or the first eligible campaign if not specified
  */
-export async function checkNFTEligibility(email: string, specificCampaignId?: string): Promise<MintStatus> {
+export async function checkNFTEligibility(
+  email: string,
+  specificCampaignId?: string,
+): Promise<MintStatus> {
   try {
     const db = firestore();
     const normalizedEmail = email.toLowerCase().trim();
@@ -133,7 +136,7 @@ export async function checkNFTEligibility(email: string, specificCampaignId?: st
     // If specific campaign is requested, check only that campaign
     if (specificCampaignId) {
       const campaignDoc = await db.collection('nft-campaigns').doc(specificCampaignId).get();
-      
+
       if (!campaignDoc.exists) {
         return {
           eligible: false,
@@ -328,4 +331,3 @@ export async function checkNFTEligibility(email: string, specificCampaignId?: st
     };
   }
 }
-

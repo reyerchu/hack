@@ -33,9 +33,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
 
     const [fields, files] = await form.parse(req);
-    
+
     const file = Array.isArray(files.file) ? files.file[0] : files.file;
-    
+
     if (!file) {
       return res.status(400).json({ error: 'No file uploaded' });
     }
@@ -50,4 +50,3 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(500).json({ error: 'Upload failed' });
   }
 }
-

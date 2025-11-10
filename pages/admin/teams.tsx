@@ -119,18 +119,12 @@ export default function AdminTeamsPage() {
 
   // Export to CSV
   const exportToCSV = () => {
-    const headers = [
-      'ID',
-      '團隊名稱',
-      '隊長姓名',
-      '隊長 Email',
-      '成員數量',
-      '賽道',
-      '建立日期',
-    ];
-    
+    const headers = ['ID', '團隊名稱', '隊長姓名', '隊長 Email', '成員數量', '賽道', '建立日期'];
+
     const rows = filteredTeams.map((team) => {
-      const leaderName = `${team.teamLeader.firstName || ''} ${team.teamLeader.lastName || ''}`.trim();
+      const leaderName = `${team.teamLeader.firstName || ''} ${
+        team.teamLeader.lastName || ''
+      }`.trim();
       const leaderEmail = team.teamLeader.preferredEmail || team.teamLeader.email || '';
       const memberCount = team.teamMembers?.length || 0;
       const tracks = team.tracks?.join('; ') || '';

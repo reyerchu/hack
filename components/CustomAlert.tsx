@@ -36,7 +36,7 @@ export const useCustomAlert = () => {
   const showAlert = (message: string) => {
     return new Promise<void>((resolve) => {
       setAlertState({ show: true, message });
-      
+
       // Store resolve function
       (window as any).__customAlertResolve = resolve;
     });
@@ -44,7 +44,7 @@ export const useCustomAlert = () => {
 
   const closeAlert = () => {
     setAlertState({ show: false, message: '' });
-    
+
     // Call resolve if exists
     if ((window as any).__customAlertResolve) {
       (window as any).__customAlertResolve();
@@ -58,4 +58,3 @@ export const useCustomAlert = () => {
 
   return { showAlert, AlertComponent };
 };
-

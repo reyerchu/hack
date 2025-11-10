@@ -71,7 +71,10 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
     if (Array.isArray(challengeData.submissionRequirements)) {
       // New format: array of requirement objects
       submissionReqs = challengeData.submissionRequirements;
-    } else if (typeof challengeData.submissionRequirements === 'string' && challengeData.submissionRequirements.trim()) {
+    } else if (
+      typeof challengeData.submissionRequirements === 'string' &&
+      challengeData.submissionRequirements.trim()
+    ) {
       // Old format: string
       submissionReqs = challengeData.submissionRequirements;
     } else if (challengeData.requirements) {

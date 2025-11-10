@@ -6,14 +6,14 @@ import { ethers } from 'ethers';
 /**
  * Automatic setup for NFT campaign after contract deployment
  * POST /api/admin/nft/campaigns/auto-setup
- * 
+ *
  * This endpoint will:
  * 1. Verify contract ownership
  * 2. Fetch wallet addresses for eligible emails
  * 3. Add all addresses to contract whitelist
  * 4. Enable minting
  * 5. Update campaign status
- * 
+ *
  * Body: {
  *   campaignId: string,
  *   contractAddress: string,
@@ -22,10 +22,10 @@ import { ethers } from 'ethers';
  */
 
 const CONTRACT_ABI = [
-  "function addToWhitelist(address[] calldata addresses) external",
-  "function setMintingEnabled(bool enabled) external",
-  "function owner() external view returns (address)",
-  "function mintingEnabled() external view returns (bool)"
+  'function addToWhitelist(address[] calldata addresses) external',
+  'function setMintingEnabled(bool enabled) external',
+  'function owner() external view returns (address)',
+  'function mintingEnabled() external view returns (bool)',
 ];
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -40,8 +40,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const { campaignId, contractAddress, deployerPrivateKey, network = 'sepolia' } = req.body;
 
     if (!campaignId || !contractAddress || !deployerPrivateKey) {
-      return res.status(400).json({ 
-        error: 'Missing required fields: campaignId, contractAddress, deployerPrivateKey' 
+      return res.status(400).json({
+        error: 'Missing required fields: campaignId, contractAddress, deployerPrivateKey',
       });
     }
 
@@ -80,10 +80,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Verify ownership
     const owner = await contract.owner();
     if (owner.toLowerCase() !== deployer.address.toLowerCase()) {
-      return res.status(403).json({ 
+      return res.status(403).json({
         error: 'Deployer is not the contract owner',
         owner: owner,
-        deployer: deployer.address
+        deployer: deployer.address,
       });
     }
 
@@ -98,7 +98,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     for (const email of eligibleEmails) {
       const normalizedEmail = email.toLowerCase().trim();
-      
+
       // Query users collection for wallet address
       const usersSnapshot = await db
         .collection('users')
@@ -108,7 +108,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       if (!usersSnapshot.empty) {
         const userData = usersSnapshot.docs[0].data();
-        if (userData.walletAddress && ethers.isAddress(userData.walletAddress)) {
+        if (userData.walletAddress && ethers.utils.isAddress(userData.walletAddress)) {
           walletAddresses.push(userData.walletAddress);
           console.log(`[AutoSetup] ✓ ${email} -> ${userData.walletAddress}`);
         } else {
@@ -131,16 +131,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (walletAddresses.length > 0) {
       for (let i = 0; i < walletAddresses.length; i += BATCH_SIZE) {
         const batch = walletAddresses.slice(i, Math.min(i + BATCH_SIZE, walletAddresses.length));
-        
-        console.log(`[AutoSetup] Adding batch ${Math.floor(i / BATCH_SIZE) + 1} (${batch.length} addresses)...`);
+
+        console.log(
+          `[AutoSetup] Adding batch ${Math.floor(i / BATCH_SIZE) + 1} (${
+            batch.length
+          } addresses)...`,
+        );
 
         try {
           const tx = await contract.addToWhitelist(batch);
           console.log(`[AutoSetup] Transaction sent: ${tx.hash}`);
-          
+
           const receipt = await tx.wait();
           console.log(`[AutoSetup] Transaction confirmed (Gas: ${receipt.gasUsed.toString()})`);
-          
+
           addedAddresses.push(...batch);
         } catch (error: any) {
           console.error(`[AutoSetup] Failed to add batch:`, error.message);
@@ -188,18 +192,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       },
       mintingEnabled: true,
       campaignStatus: 'active',
-      nextSteps: notFoundEmails.length > 0 
-        ? `${notFoundEmails.length} users need to add their wallet addresses to the system`
-        : 'All set! Users can now mint NFTs.',
+      nextSteps:
+        notFoundEmails.length > 0
+          ? `${notFoundEmails.length} users need to add their wallet addresses to the system`
+          : 'All set! Users can now mint NFTs.',
     });
-
   } catch (error: any) {
     console.error('[AutoSetup] Error:', error);
-    return res.status(500).json({ 
-      error: 'Setup failed', 
+    return res.status(500).json({
+      error: 'Setup failed',
       details: error.message,
-      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined,
     });
   }
 }
-

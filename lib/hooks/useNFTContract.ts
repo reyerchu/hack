@@ -4,13 +4,13 @@ import { ethers } from 'ethers';
 // ABI for RWAHackathonNFT contract (only the functions we need)
 // Updated for OpenZeppelin v5 (maxSupply is lowercase, immutable public var)
 const CONTRACT_ABI = [
-  "function mint() external",
-  "function canMint(address account) external view returns (bool)",
-  "function hasMinted(address account) external view returns (bool)",
-  "function totalSupply() external view returns (uint256)",
-  "function maxSupply() external view returns (uint256)",
-  "function mintingEnabled() external view returns (bool)",
-  "event NFTMinted(address indexed to, uint256 indexed tokenId)"
+  'function mint() external',
+  'function canMint(address account) external view returns (bool)',
+  'function hasMinted(address account) external view returns (bool)',
+  'function totalSupply() external view returns (uint256)',
+  'function maxSupply() external view returns (uint256)',
+  'function mintingEnabled() external view returns (bool)',
+  'event NFTMinted(address indexed to, uint256 indexed tokenId)',
 ];
 
 interface NFTContractHook {
@@ -27,7 +27,7 @@ interface NFTContractHook {
 
 export function useNFTContract(
   contractAddress: string | undefined,
-  walletAddress: string | undefined
+  walletAddress: string | undefined,
 ): NFTContractHook {
   const [contract, setContract] = useState<ethers.Contract | null>(null);
   const [canMint, setCanMint] = useState(false);
@@ -45,15 +45,15 @@ export function useNFTContract(
 
     const initContract = async () => {
       try {
-        if (typeof window.ethereum === 'undefined') {
+        if (typeof (window as any).ethereum === 'undefined') {
           console.warn('MetaMask not installed');
           return;
         }
 
-        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        const provider = new ethers.providers.Web3Provider((window as any).ethereum);
         const signer = provider.getSigner();
         const nftContract = new ethers.Contract(contractAddress, CONTRACT_ABI, signer);
-        
+
         setContract(nftContract);
         await checkContractStatus(nftContract, walletAddress);
       } catch (error) {
@@ -64,21 +64,23 @@ export function useNFTContract(
     initContract();
   }, [contractAddress, walletAddress]);
 
-  const checkContractStatus = async (
-    contractInstance: ethers.Contract,
-    address: string
-  ) => {
+  const checkContractStatus = async (contractInstance: ethers.Contract, address: string) => {
     try {
       setLoading(true);
 
-      const [canMintResult, hasMintedResult, totalSupplyResult, maxSupplyResult, mintingEnabledResult] =
-        await Promise.all([
-          contractInstance.canMint(address),
-          contractInstance.hasMinted(address),
-          contractInstance.totalSupply(),
-          contractInstance.MAX_SUPPLY(),
-          contractInstance.mintingEnabled(),
-        ]);
+      const [
+        canMintResult,
+        hasMintedResult,
+        totalSupplyResult,
+        maxSupplyResult,
+        mintingEnabledResult,
+      ] = await Promise.all([
+        contractInstance.canMint(address),
+        contractInstance.hasMinted(address),
+        contractInstance.totalSupply(),
+        contractInstance.MAX_SUPPLY(),
+        contractInstance.mintingEnabled(),
+      ]);
 
       setCanMint(canMintResult);
       setHasMinted(hasMintedResult);
@@ -129,7 +131,7 @@ export function useNFTContract(
       console.error('Mint error:', error);
 
       let errorMessage = '鑄造失敗';
-      
+
       if (error.code === 'ACTION_REJECTED') {
         errorMessage = '用戶拒絕交易';
       } else if (error.message) {
@@ -168,4 +170,3 @@ export function useNFTContract(
     checkStatus,
   };
 }
-

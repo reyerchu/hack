@@ -30,8 +30,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 
     // If campaignId is provided, check eligibility for that specific campaign
     const result = await checkNFTEligibility(
-      email, 
-      typeof campaignId === 'string' ? campaignId : undefined
+      email,
+      typeof campaignId === 'string' ? campaignId : undefined,
     );
     return res.status(200).json(result);
   } catch (error: any) {

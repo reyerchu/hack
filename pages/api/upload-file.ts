@@ -1,7 +1,7 @@
 /**
  * API endpoint for uploading files to Firebase Storage
  * POST /api/upload-file
- * 
+ *
  * Uses Admin SDK to bypass client-side storage rules
  */
 
@@ -37,15 +37,19 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
     // Parse form data
     const form = formidable({ maxFileSize: 10 * 1024 * 1024 * 1024 }); // 10GB max
 
-    const [fields, files] = await new Promise<[formidable.Fields, formidable.Files]>((resolve, reject) => {
-      form.parse(req, (err, fields, files) => {
-        if (err) reject(err);
-        else resolve([fields, files]);
-      });
-    });
+    const [fields, files] = await new Promise<[formidable.Fields, formidable.Files]>(
+      (resolve, reject) => {
+        form.parse(req, (err, fields, files) => {
+          if (err) reject(err);
+          else resolve([fields, files]);
+        });
+      },
+    );
 
     const teamId = Array.isArray(fields.teamId) ? fields.teamId[0] : fields.teamId;
-    const challengeId = Array.isArray(fields.challengeId) ? fields.challengeId[0] : fields.challengeId;
+    const challengeId = Array.isArray(fields.challengeId)
+      ? fields.challengeId[0]
+      : fields.challengeId;
     const file = Array.isArray(files.file) ? files.file[0] : files.file;
 
     if (!teamId || !challengeId || !file) {
@@ -60,12 +64,14 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
     }
 
     const teamData = teamDoc.data();
-    
+
     // Verify user has permission for this team
     const userEmail = decodedToken.email?.toLowerCase();
-    const isLeader = teamData?.teamLeader?.userId === userId || teamData?.teamLeader?.email?.toLowerCase() === userEmail;
-    const isMember = teamData?.teamMembers?.some((m: any) => 
-      m.email?.toLowerCase() === userEmail && m.hasEditRight === true
+    const isLeader =
+      teamData?.teamLeader?.userId === userId ||
+      teamData?.teamLeader?.email?.toLowerCase() === userEmail;
+    const isMember = teamData?.teamMembers?.some(
+      (m: any) => m.email?.toLowerCase() === userEmail && m.hasEditRight === true,
     );
 
     if (!isLeader && !isMember) {
@@ -80,10 +86,10 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
     const timestamp = Date.now();
     const fileName = `${timestamp}_${file.originalFilename || 'file'}`;
     const destination = `team-submissions/${teamId}/${challengeId}/${fileName}`;
-    
+
     // Read file buffer
     const fileBuffer = fs.readFileSync(file.filepath);
-    
+
     // Upload to Storage
     const fileRef = bucket.file(destination);
     await fileRef.save(fileBuffer, {
@@ -113,7 +119,6 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
       fileName: file.originalFilename,
       fileSize: file.size,
     });
-
   } catch (error: any) {
     console.error('[UploadFile] Error:', error);
     return res.status(500).json({
@@ -129,4 +134,3 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   return res.status(405).json({ error: 'Method not allowed' });
 }
-

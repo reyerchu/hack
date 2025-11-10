@@ -1,8 +1,8 @@
-const hre = require("hardhat");
-const admin = require("firebase-admin");
-const path = require("path");
+const hre = require('hardhat');
+const admin = require('firebase-admin');
+const path = require('path');
 
-require("dotenv").config({ path: path.join(__dirname, "../../.env.local") });
+require('dotenv').config({ path: path.join(__dirname, '../../.env.local') });
 
 /**
  * Script to sync whitelist from Firestore campaign to smart contract
@@ -11,9 +11,7 @@ require("dotenv").config({ path: path.join(__dirname, "../../.env.local") });
 
 // Initialize Firebase Admin
 if (!admin.apps.length) {
-  const serviceAccount = JSON.parse(
-    process.env.FIREBASE_SERVICE_ACCOUNT || "{}"
-  );
+  const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT || '{}');
 
   admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
@@ -26,15 +24,15 @@ async function main() {
   const campaignId = process.argv[2];
 
   if (!campaignId) {
-    console.error("錯誤：請提供 campaign ID");
-    console.log("用法: node scripts/syncWhitelistFromFirestore.js <campaign_id>");
+    console.error('錯誤：請提供 campaign ID');
+    console.log('用法: node scripts/syncWhitelistFromFirestore.js <campaign_id>');
     process.exit(1);
   }
 
   console.log(`正在從 Firestore 讀取活動: ${campaignId}\n`);
 
   // Get campaign from Firestore
-  const campaignDoc = await db.collection("nft-campaigns").doc(campaignId).get();
+  const campaignDoc = await db.collection('nft-campaigns').doc(campaignId).get();
 
   if (!campaignDoc.exists) {
     console.error(`錯誤：找不到活動 ${campaignId}`);
@@ -44,12 +42,12 @@ async function main() {
   const campaign = campaignDoc.data();
 
   if (!campaign.contractAddress) {
-    console.error("錯誤：活動沒有設置 contractAddress");
+    console.error('錯誤：活動沒有設置 contractAddress');
     process.exit(1);
   }
 
   if (!campaign.eligibleEmails || campaign.eligibleEmails.length === 0) {
-    console.error("錯誤：活動沒有 eligibleEmails");
+    console.error('錯誤：活動沒有 eligibleEmails');
     process.exit(1);
   }
 
@@ -58,7 +56,7 @@ async function main() {
   console.log(`符合資格的 Email 數量: ${campaign.eligibleEmails.length}\n`);
 
   // Get wallet addresses for these emails
-  console.log("正在查找用戶錢包地址...");
+  console.log('正在查找用戶錢包地址...');
 
   const walletAddresses = [];
   const notFoundEmails = [];
@@ -66,8 +64,8 @@ async function main() {
   for (const email of campaign.eligibleEmails) {
     // Try to find user by email
     const usersSnapshot = await db
-      .collection("users")
-      .where("preferredEmail", "==", email.toLowerCase().trim())
+      .collection('users')
+      .where('preferredEmail', '==', email.toLowerCase().trim())
       .limit(1)
       .get();
 
@@ -90,17 +88,17 @@ async function main() {
 
   if (notFoundEmails.length > 0) {
     console.log(`\n⚠️  以下 ${notFoundEmails.length} 個 email 沒有錢包地址：`);
-    notFoundEmails.forEach(email => console.log(`  - ${email}`));
-    console.log("\n繼續添加已找到的地址...\n");
+    notFoundEmails.forEach((email) => console.log(`  - ${email}`));
+    console.log('\n繼續添加已找到的地址...\n');
   }
 
   if (walletAddresses.length === 0) {
-    console.log("❌ 沒有找到任何錢包地址，退出");
+    console.log('❌ 沒有找到任何錢包地址，退出');
     process.exit(0);
   }
 
   // Connect to contract
-  const RWAHackathonNFT = await hre.ethers.getContractFactory("RWAHackathonNFT");
+  const RWAHackathonNFT = await hre.ethers.getContractFactory('RWAHackathonNFT');
   const nft = RWAHackathonNFT.attach(campaign.contractAddress);
 
   console.log(`連接到合約: ${campaign.contractAddress}`);
@@ -132,7 +130,7 @@ async function main() {
 
   if (notFoundEmails.length > 0) {
     console.log(`\n⚠️  注意：${notFoundEmails.length} 個 email 未能添加（無錢包地址）`);
-    console.log("請提醒這些用戶在系統中綁定錢包地址");
+    console.log('請提醒這些用戶在系統中綁定錢包地址');
   }
 }
 
@@ -142,4 +140,3 @@ main()
     console.error(error);
     process.exit(1);
   });
-

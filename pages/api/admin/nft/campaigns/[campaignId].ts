@@ -34,8 +34,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const userData = userDoc.data();
 
     if (!userData || !userData.permissions?.includes('super_admin')) {
-      return res.status(403).json({ 
-        error: 'Forbidden: Admin access required'
+      return res.status(403).json({
+        error: 'Forbidden: Admin access required',
       });
     }
 
@@ -65,4 +65,3 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     res.status(500).json({ error: error.message || 'Internal server error' });
   }
 }
-

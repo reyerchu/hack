@@ -6,7 +6,11 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { firestore } from 'firebase-admin';
 import initializeApi from '../../../../../lib/admin/init';
-import { requireAuth, ApiResponse, AuthenticatedRequest } from '../../../../../lib/sponsor/middleware';
+import {
+  requireAuth,
+  ApiResponse,
+  AuthenticatedRequest,
+} from '../../../../../lib/sponsor/middleware';
 
 initializeApi();
 const db = firestore();
@@ -28,7 +32,11 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
     }
 
     // Verify user is a sponsor
-    if (!permissions.includes('sponsor') && !permissions.includes('admin') && !permissions.includes('super_admin')) {
+    if (
+      !permissions.includes('sponsor') &&
+      !permissions.includes('admin') &&
+      !permissions.includes('super_admin')
+    ) {
       return res.status(403).json({ error: 'Not authorized as sponsor' });
     }
 
@@ -46,7 +54,9 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
       if (trackDoc.exists) {
         const trackData = trackDoc.data()!;
         if (trackData.sponsorEmail !== userEmail && trackData.sponsorId !== userId) {
-          return res.status(403).json({ error: 'Not authorized to view this challenge submissions' });
+          return res
+            .status(403)
+            .json({ error: 'Not authorized to view this challenge submissions' });
         }
       }
     }
@@ -82,7 +92,9 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
       return dateB - dateA; // Descending order
     });
 
-    console.log(`[SponsorSubmissions] Found ${submissions.length} submissions for challenge ${challengeId}`);
+    console.log(
+      `[SponsorSubmissions] Found ${submissions.length} submissions for challenge ${challengeId}`,
+    );
 
     return res.status(200).json({
       success: true,
@@ -96,7 +108,6 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
         total: submissions.length,
       },
     });
-
   } catch (error: any) {
     console.error('[SponsorSubmissions] Error:', error);
     return res.status(500).json({
@@ -112,4 +123,3 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   return res.status(405).json({ error: 'Method not allowed' });
 }
-

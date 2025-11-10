@@ -22,13 +22,12 @@ interface IPFSUploadResult {
   error?: string;
 }
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse<IPFSUploadResult>
-) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse<IPFSUploadResult>) {
   if (req.method !== 'POST') {
     return res.status(405).json({ success: false, error: 'Method not allowed' });
   }
+
+  let imageFile: File | undefined;
 
   try {
     // Check for Pinata API credentials
@@ -55,16 +54,18 @@ export default async function handler(
           if (err) reject(err);
           else resolve([fields, files]);
         });
-      }
+      },
     );
 
     // Extract metadata
     const name = Array.isArray(fields.name) ? fields.name[0] : fields.name;
-    const description = Array.isArray(fields.description) ? fields.description[0] : fields.description;
+    const description = Array.isArray(fields.description)
+      ? fields.description[0]
+      : fields.description;
     const maxSupply = Array.isArray(fields.maxSupply) ? fields.maxSupply[0] : fields.maxSupply;
 
     // Get the uploaded image file
-    const imageFile = Array.isArray(files.image) ? files.image[0] : files.image;
+    imageFile = Array.isArray(files.image) ? files.image[0] : files.image;
 
     if (!imageFile) {
       return res.status(400).json({
@@ -83,7 +84,7 @@ export default async function handler(
     // Step 1: Upload image to IPFS using Pinata SDK
     // Use the file path directly - Pinata SDK can handle file paths
     const imageStream = fs.createReadStream(imageFile.filepath);
-    
+
     const imageResult = await pinata.upload.stream(imageStream);
     const imageCID = imageResult.IpfsHash;
     const imageURL = `ipfs://${imageCID}`;
@@ -113,11 +114,11 @@ export default async function handler(
     try {
       // Step 3: Upload single metadata file using Pinata SDK
       console.log('[IPFS Upload] Uploading metadata to Pinata...');
-      
+
       const metadataStream = fs.createReadStream(tempFilePath);
       const metadataResult = await pinata.upload.stream(metadataStream);
       const metadataCID = metadataResult.IpfsHash;
-      
+
       // BaseURI format: ipfs://CID
       // All tokens will use the same metadata URI
       // The contract will use this as the base URI for ALL tokens
@@ -149,14 +150,14 @@ export default async function handler(
     }
   } catch (error: any) {
     console.error('[IPFS Upload] Error:', error);
-    
+
     // Cleanup image file if exists
     try {
       if (imageFile?.filepath) {
         fs.unlinkSync(imageFile.filepath);
       }
     } catch {}
-    
+
     return res.status(500).json({
       success: false,
       error: error.message || '上傳到 IPFS 失敗',

@@ -72,11 +72,7 @@ async function getUserData(
       }
 
       // 6. 嘗試用email查詢users collection
-      const usersByEmail = await db
-        .collection('users')
-        .where('email', '==', email)
-        .limit(1)
-        .get();
+      const usersByEmail = await db.collection('users').where('email', '==', email).limit(1).get();
       if (!usersByEmail.empty) {
         const doc = usersByEmail.docs[0];
         return { exists: true, data: doc.data(), docId: doc.id };

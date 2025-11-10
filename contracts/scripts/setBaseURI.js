@@ -1,11 +1,11 @@
 /**
  * Set Base URI for NFT Contract
- * 
+ *
  * Usage:
  *   CONTRACT_ADDRESS=0x... BASE_URI=ipfs://QmXXX.../ npx hardhat run scripts/setBaseURI.js --network sepolia
  */
 
-const hre = require("hardhat");
+const hre = require('hardhat');
 
 async function main() {
   // Get parameters from environment variables
@@ -22,14 +22,18 @@ async function main() {
   if (!CONTRACT_ADDRESS) {
     console.error('❌ Error: CONTRACT_ADDRESS environment variable is required');
     console.log('\nUsage:');
-    console.log('  CONTRACT_ADDRESS=0x... BASE_URI=ipfs://QmXXX.../ npx hardhat run scripts/setBaseURI.js --network sepolia\n');
+    console.log(
+      '  CONTRACT_ADDRESS=0x... BASE_URI=ipfs://QmXXX.../ npx hardhat run scripts/setBaseURI.js --network sepolia\n',
+    );
     process.exit(1);
   }
 
   if (!BASE_URI) {
     console.error('❌ Error: BASE_URI environment variable is required');
     console.log('\nUsage:');
-    console.log('  CONTRACT_ADDRESS=0x... BASE_URI=ipfs://QmXXX.../ npx hardhat run scripts/setBaseURI.js --network sepolia\n');
+    console.log(
+      '  CONTRACT_ADDRESS=0x... BASE_URI=ipfs://QmXXX.../ npx hardhat run scripts/setBaseURI.js --network sepolia\n',
+    );
     process.exit(1);
   }
 
@@ -55,7 +59,7 @@ async function main() {
   // Get signer
   const [signer] = await hre.ethers.getSigners();
   console.log('📝 Signer Address:', signer.address);
-  
+
   // Check balance
   const balance = await signer.getBalance();
   console.log('💰 Signer Balance:', hre.ethers.utils.formatEther(balance), 'ETH');
@@ -68,7 +72,7 @@ async function main() {
   }
 
   // Get contract instance
-  const RWAHackathonNFT = await hre.ethers.getContractFactory("RWAHackathonNFT");
+  const RWAHackathonNFT = await hre.ethers.getContractFactory('RWAHackathonNFT');
   const nft = RWAHackathonNFT.attach(CONTRACT_ADDRESS);
 
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
@@ -76,17 +80,17 @@ async function main() {
   // Get current contract info
   try {
     console.log('🔍 Current Contract State:');
-    
+
     const name = await nft.name();
     const symbol = await nft.symbol();
     const totalSupply = await nft.totalSupply();
     const currentBaseURI = await nft.baseTokenURI();
-    
+
     console.log('   Name:', name);
     console.log('   Symbol:', symbol);
     console.log('   Total Supply:', totalSupply.toString());
     console.log('   Current Base URI:', currentBaseURI || '(empty)');
-    
+
     // Check if tokenURI is working
     if (totalSupply.gt(0)) {
       try {
@@ -96,7 +100,7 @@ async function main() {
         console.log('   Token #1 URI: (error getting URI)');
       }
     }
-    
+
     console.log('');
   } catch (error) {
     console.log('⚠️  Could not read current state:', error.message);
@@ -117,7 +121,7 @@ async function main() {
     console.log('');
 
     const receipt = await tx.wait();
-    
+
     console.log('✅ Transaction confirmed!');
     console.log('   Block Number:', receipt.blockNumber);
     console.log('   Gas Used:', receipt.gasUsed.toString());
@@ -126,13 +130,13 @@ async function main() {
   } catch (error) {
     console.error('❌ Error setting Base URI:', error.message);
     console.log('');
-    
+
     if (error.message.includes('Ownable: caller is not the owner')) {
       console.log('💡 Tip: Only the contract owner can set the Base URI');
       console.log('   Current signer:', signer.address);
       console.log('   Make sure you are using the owner wallet\n');
     }
-    
+
     process.exit(1);
   }
 
@@ -140,11 +144,11 @@ async function main() {
 
   // Verify the change
   console.log('🔍 Verifying Update:');
-  
+
   try {
     const newBaseURI = await nft.baseTokenURI();
     console.log('   New Base URI:', newBaseURI);
-    
+
     if (newBaseURI === BASE_URI) {
       console.log('   ✅ Base URI updated successfully!');
     } else {
@@ -152,16 +156,16 @@ async function main() {
       console.log('   Expected:', BASE_URI);
       console.log('   Got:', newBaseURI);
     }
-    
+
     console.log('');
-    
+
     // Check tokenURI for token #1
     const totalSupply = await nft.totalSupply();
     if (totalSupply.gt(0)) {
       const tokenURI = await nft.tokenURI(1);
       console.log('   Token #1 URI:', tokenURI);
       console.log('');
-      
+
       // Try to access via IPFS gateway
       const ipfsHash = tokenURI.replace('ipfs://', '');
       console.log('🌐 IPFS Gateway URLs:');
@@ -184,7 +188,7 @@ async function main() {
   console.log('   3. The image should now be visible!');
   console.log('');
   console.log('🔗 View on Etherscan:');
-  
+
   if (hre.network.name === 'sepolia') {
     console.log('   https://sepolia.etherscan.io/address/' + CONTRACT_ADDRESS);
     console.log('   https://sepolia.etherscan.io/nft/' + CONTRACT_ADDRESS + '/1');
@@ -195,7 +199,7 @@ async function main() {
     console.log('   https://arbiscan.io/address/' + CONTRACT_ADDRESS);
     console.log('   https://arbiscan.io/nft/' + CONTRACT_ADDRESS + '/1');
   }
-  
+
   console.log('');
   console.log('╔══════════════════════════════════════════════════════════════════════════════╗');
   console.log('║                                                                              ║');

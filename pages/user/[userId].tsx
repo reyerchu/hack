@@ -74,7 +74,7 @@ export default function UserPublicPage() {
 
     // Check if userId is a valid MD5 hash (32 hex characters)
     const isMd5Hash = typeof userId === 'string' && /^[a-f0-9]{32}$/i.test(userId);
-    
+
     if (!isMd5Hash) {
       console.log('[UserPublic] ❌ Invalid URL format. Only email hash URLs are allowed.');
       setError('此頁面 URL 格式已過時。請使用正確的個人頁面連結。');
@@ -111,11 +111,11 @@ export default function UserPublicPage() {
   const fetchUserInfo = async () => {
     try {
       setLoading(true);
-      
+
       // Check if userId is a Firebase UID (not a MD5 hash)
       // MD5 hash is always 32 characters of hex (0-9a-f)
       const isMd5Hash = typeof userId === 'string' && /^[a-f0-9]{32}$/i.test(userId);
-      
+
       if (!isMd5Hash && typeof userId === 'string') {
         console.log('[UserPublic] Detected Firebase UID, fetching user to get email hash...');
         // This is a Firebase UID, try to get the email and redirect
@@ -135,7 +135,7 @@ export default function UserPublicPage() {
           console.error('[UserPublic] Failed to get user email for redirect:', err);
         }
       }
-      
+
       const response = await fetch(`/api/user/${userId}/public`);
 
       if (!response.ok) {
@@ -573,7 +573,10 @@ export default function UserPublicPage() {
           {/* NFT Campaigns Section - 公開顯示 */}
           {user.nftCampaigns && user.nftCampaigns.length > 0 && (
             <div className="mb-8">
-              <h2 className="text-[22px] md:text-[28px] font-bold mb-4" style={{ color: '#1a3a6e' }}>
+              <h2
+                className="text-[22px] md:text-[28px] font-bold mb-4"
+                style={{ color: '#1a3a6e' }}
+              >
                 NFT 證書
               </h2>
               <div className="w-14 h-1 mb-6" style={{ backgroundColor: '#8B4049' }}></div>
@@ -583,12 +586,12 @@ export default function UserPublicPage() {
                   <div
                     key={index}
                     className="bg-white rounded-lg shadow-sm border-l-4 overflow-hidden hover:shadow-md transition-shadow"
-                    style={{ 
-                      borderLeftColor: campaign.alreadyMinted 
+                    style={{
+                      borderLeftColor: campaign.alreadyMinted
                         ? '#14532d' // 深綠色 - 已鑄造
-                        : campaign.eligible 
-                          ? '#1a3a6e' // 深藍色 - 可鑄造
-                          : '#991b1b' // 深紅色 - 未鑄造但已額滿
+                        : campaign.eligible
+                        ? '#1a3a6e' // 深藍色 - 可鑄造
+                        : '#991b1b', // 深紅色 - 未鑄造但已額滿
                     }}
                   >
                     {/* Image */}
@@ -662,13 +665,14 @@ export default function UserPublicPage() {
                           </div>
                           {campaign.mintRecord.mintedAt && (
                             <p className="text-xs text-gray-500 text-center mt-2">
-                              鑄造於：{new Date(campaign.mintRecord.mintedAt).toLocaleString('zh-TW', {
+                              鑄造於：
+                              {new Date(campaign.mintRecord.mintedAt).toLocaleString('zh-TW', {
                                 year: 'numeric',
                                 month: '2-digit',
                                 day: '2-digit',
                                 hour: '2-digit',
                                 minute: '2-digit',
-                                hour12: false
+                                hour12: false,
                               })}
                             </p>
                           )}
@@ -676,20 +680,20 @@ export default function UserPublicPage() {
                       ) : canEdit && campaign.eligible ? (
                         // 只有頁面所有者（canEdit=true）才顯示 mint 按鈕
                         <div>
-                          <Link href={`/nft/mint?campaign=${campaign.campaignId}`}>
+                          <Link href={`/nft/${campaign.campaignId}`}>
                             <a
                               className="block w-full border-2 py-2 px-4 text-[14px] font-medium uppercase tracking-wider transition-colors duration-300 text-center"
                               style={{
-                                borderColor: '#1a3a6e',
-                                color: '#1a3a6e',
+                                borderColor: '#991b1b',
+                                color: '#991b1b',
                               }}
                               onMouseEnter={(e) => {
-                                e.currentTarget.style.backgroundColor = '#1a3a6e';
+                                e.currentTarget.style.backgroundColor = '#991b1b';
                                 e.currentTarget.style.color = 'white';
                               }}
                               onMouseLeave={(e) => {
                                 e.currentTarget.style.backgroundColor = 'transparent';
-                                e.currentTarget.style.color = '#1a3a6e';
+                                e.currentTarget.style.color = '#991b1b';
                               }}
                             >
                               鑄造 NFT
@@ -697,13 +701,14 @@ export default function UserPublicPage() {
                           </Link>
                           {campaign.endDate && (
                             <p className="text-xs text-gray-500 text-center mt-2">
-                              截止：{new Date(campaign.endDate).toLocaleString('zh-TW', {
+                              截止：
+                              {new Date(campaign.endDate).toLocaleString('zh-TW', {
                                 year: 'numeric',
                                 month: '2-digit',
                                 day: '2-digit',
                                 hour: '2-digit',
                                 minute: '2-digit',
-                                hour12: false
+                                hour12: false,
                               })}
                             </p>
                           )}
@@ -712,17 +717,20 @@ export default function UserPublicPage() {
                         // 不是所有者但符合資格 - 顯示灰色 "未鑄造"
                         <div>
                           <div className="px-3 py-2 bg-gray-50 rounded-lg text-center border border-gray-300">
-                            <p className="text-sm font-semibold" style={{ color: '#1a3a6e' }}>未鑄造</p>
+                            <p className="text-sm font-semibold" style={{ color: '#1a3a6e' }}>
+                              未鑄造
+                            </p>
                           </div>
                           {campaign.endDate && (
                             <p className="text-xs text-gray-500 text-center mt-2">
-                              截止：{new Date(campaign.endDate).toLocaleString('zh-TW', {
+                              截止：
+                              {new Date(campaign.endDate).toLocaleString('zh-TW', {
                                 year: 'numeric',
                                 month: '2-digit',
                                 day: '2-digit',
                                 hour: '2-digit',
                                 minute: '2-digit',
-                                hour12: false
+                                hour12: false,
                               })}
                             </p>
                           )}
@@ -735,13 +743,14 @@ export default function UserPublicPage() {
                           </div>
                           {campaign.endDate && (
                             <p className="text-xs text-gray-500 text-center mt-2">
-                              截止：{new Date(campaign.endDate).toLocaleString('zh-TW', {
+                              截止：
+                              {new Date(campaign.endDate).toLocaleString('zh-TW', {
                                 year: 'numeric',
                                 month: '2-digit',
                                 day: '2-digit',
                                 hour: '2-digit',
                                 minute: '2-digit',
-                                hour12: false
+                                hour12: false,
                               })}
                             </p>
                           )}
@@ -749,7 +758,9 @@ export default function UserPublicPage() {
                       ) : (
                         // 其他原因不可鑄造
                         <div className="px-3 py-2 bg-red-50 rounded-lg text-center border border-red-900 border-opacity-20">
-                          <p className="text-sm text-red-900 font-semibold">{campaign.reason || '暫不可鑄造'}</p>
+                          <p className="text-sm text-red-900 font-semibold">
+                            {campaign.reason || '暫不可鑄造'}
+                          </p>
                         </div>
                       )}
                     </div>

@@ -40,7 +40,7 @@ export default function NFTCampaignsAdmin() {
   const getDefaultDates = () => {
     const now = new Date();
     const oneWeekLater = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
-    
+
     // Format to datetime-local format (YYYY-MM-DDTHH:mm)
     const formatDateTime = (date: Date) => {
       const year = date.getFullYear();
@@ -50,7 +50,7 @@ export default function NFTCampaignsAdmin() {
       const minutes = String(date.getMinutes()).padStart(2, '0');
       return `${year}-${month}-${day}T${hours}:${minutes}`;
     };
-    
+
     return {
       startDate: formatDateTime(now),
       endDate: formatDateTime(oneWeekLater),
@@ -77,7 +77,7 @@ export default function NFTCampaignsAdmin() {
           router.push('/login');
           return;
         }
-        
+
         // Check if user has admin permissions
         const isAdmin = user?.permissions?.includes('super_admin');
         if (!isAdmin) {
@@ -102,7 +102,7 @@ export default function NFTCampaignsAdmin() {
       // Get fresh token from Firebase
       const auth = (await import('firebase/app')).default.auth();
       const currentUser = auth.currentUser;
-      
+
       if (!currentUser) {
         console.error('No authenticated user');
         await showAlert('請重新登入。');
@@ -176,7 +176,7 @@ export default function NFTCampaignsAdmin() {
       // Get fresh token from Firebase
       const auth = (await import('firebase/app')).default.auth();
       const currentUser = auth.currentUser;
-      
+
       if (!currentUser) {
         await showAlert('請重新登入。');
         router.push('/login');
@@ -204,12 +204,12 @@ export default function NFTCampaignsAdmin() {
 
       // Force refresh token to get latest claims
       const token = await currentUser.getIdToken(true);
-      
+
       // Parse emails (comma or newline separated)
       const emailList = formData.eligibleEmails
         .split(/[,\n]/)
-        .map(email => email.trim())
-        .filter(email => email.length > 0);
+        .map((email) => email.trim())
+        .filter((email) => email.length > 0);
 
       const response = await fetch('/api/admin/nft/campaigns/create', {
         method: 'POST',
@@ -231,16 +231,16 @@ export default function NFTCampaignsAdmin() {
 
       // Store image file for this campaign
       if (selectedImage && campaignId) {
-        setCampaignImageFiles(prev => ({
+        setCampaignImageFiles((prev) => ({
           ...prev,
-          [campaignId]: selectedImage
+          [campaignId]: selectedImage,
         }));
       }
 
       await showAlert('活動建立成功！請點擊「一鍵部署」部署合約。');
       setShowCreateForm(false);
       await fetchCampaigns();
-      
+
       // Reset form
       const defaultDates = getDefaultDates();
       setFormData({
@@ -319,7 +319,9 @@ export default function NFTCampaignsAdmin() {
 
           {showCreateForm && (
             <div className="bg-white border border-gray-300 rounded-lg p-8 mb-12">
-              <h2 className="text-[24px] font-bold mb-6" style={{ color: '#1a3a6e' }}>建立 NFT 活動</h2>
+              <h2 className="text-[24px] font-bold mb-6" style={{ color: '#1a3a6e' }}>
+                建立 NFT 活動
+              </h2>
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
                   <label className="block text-sm font-medium mb-2 text-gray-700">活動名稱</label>
@@ -328,7 +330,7 @@ export default function NFTCampaignsAdmin() {
                     required
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     placeholder="例如：RWA 黑客松台灣 2025 NFT"
                   />
                 </div>
@@ -339,12 +341,16 @@ export default function NFTCampaignsAdmin() {
                     type="text"
                     required
                     value={formData.symbol}
-                    onChange={(e) => setFormData({ ...formData, symbol: e.target.value.toUpperCase() })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    onChange={(e) =>
+                      setFormData({ ...formData, symbol: e.target.value.toUpperCase() })
+                    }
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     placeholder="例如：RWANFT"
                     maxLength={10}
                   />
-                  <p className="mt-2 text-sm text-gray-500">NFT 的代碼符號，將顯示在區塊鏈瀏覽器（最多 10 個字元，自動轉為大寫）</p>
+                  <p className="mt-2 text-sm text-gray-500">
+                    NFT 的代碼符號，將顯示在區塊鏈瀏覽器（最多 10 個字元，自動轉為大寫）
+                  </p>
                 </div>
 
                 <div>
@@ -353,7 +359,7 @@ export default function NFTCampaignsAdmin() {
                     required
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     rows={3}
                     placeholder="描述此 NFT 活動..."
                   />
@@ -365,7 +371,7 @@ export default function NFTCampaignsAdmin() {
                     type="file"
                     accept="image/*"
                     onChange={handleImageChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     required={!formData.imageUrl}
                   />
                   {imagePreview && (
@@ -378,7 +384,9 @@ export default function NFTCampaignsAdmin() {
                     </div>
                   )}
                   {uploadingImage && (
-                    <p className="mt-2 text-sm" style={{ color: '#1a3a6e' }}>上傳中...</p>
+                    <p className="mt-2 text-sm" style={{ color: '#1a3a6e' }}>
+                      上傳中...
+                    </p>
                   )}
                 </div>
 
@@ -387,7 +395,7 @@ export default function NFTCampaignsAdmin() {
                   <select
                     value={formData.network}
                     onChange={(e) => setFormData({ ...formData, network: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   >
                     <option value="sepolia">Sepolia（測試網）</option>
                     <option value="ethereum">Ethereum 主網</option>
@@ -403,7 +411,7 @@ export default function NFTCampaignsAdmin() {
                     required
                     value={formData.eligibleEmails}
                     onChange={(e) => setFormData({ ...formData, eligibleEmails: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg font-mono text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg font-mono text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     rows={6}
                     placeholder="user1@example.com&#10;user2@example.com&#10;user3@example.com"
                   />
@@ -417,7 +425,7 @@ export default function NFTCampaignsAdmin() {
                       required
                       value={formData.startDate}
                       onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     />
                   </div>
 
@@ -428,7 +436,7 @@ export default function NFTCampaignsAdmin() {
                       required
                       value={formData.endDate}
                       onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     />
                   </div>
                 </div>
@@ -441,7 +449,7 @@ export default function NFTCampaignsAdmin() {
                     min="1"
                     value={formData.maxSupply}
                     onChange={(e) => setFormData({ ...formData, maxSupply: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   />
                 </div>
 
@@ -467,171 +475,170 @@ export default function NFTCampaignsAdmin() {
             </div>
           )}
 
-        <div>
-          {campaigns.length === 0 ? (
-            <div className="bg-white border border-gray-300 rounded-lg p-12 text-center text-gray-500">
-              目前尚無活動。建立您的第一個 NFT 活動！
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {campaigns.map((campaign) => (
-              <div
-                key={campaign.id}
-                className="bg-white rounded-lg shadow-sm border-l-4 overflow-hidden hover:shadow-md transition-shadow"
-                style={{ borderLeftColor: '#1a3a6e' }}
-              >
-                {/* Image */}
-                <Link href={`/nft/${campaign.id}`}>
-                  <a>
-                    <div className="w-full h-48 bg-gray-100 flex items-center justify-center overflow-hidden cursor-pointer hover:opacity-90 transition-opacity">
-                      <img
-                        src={campaign.imageUrl}
-                        alt={campaign.name}
-                        className="w-full h-full object-contain"
-                      />
-                    </div>
-                  </a>
-                </Link>
-
-                {/* Content */}
-                <div className="p-5">
-                  <div className="flex justify-between items-start mb-2">
+          <div>
+            {campaigns.length === 0 ? (
+              <div className="bg-white border border-gray-300 rounded-lg p-12 text-center text-gray-500">
+                目前尚無活動。建立您的第一個 NFT 活動！
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {campaigns.map((campaign) => (
+                  <div
+                    key={campaign.id}
+                    className="bg-white rounded-lg shadow-sm border-l-4 overflow-hidden hover:shadow-md transition-shadow"
+                    style={{ borderLeftColor: '#1a3a6e' }}
+                  >
+                    {/* Image */}
                     <Link href={`/nft/${campaign.id}`}>
-                      <a className="hover:opacity-70 transition-colors flex-1">
-                        <h3 className="text-[16px] md:text-[18px] font-semibold" style={{ color: '#1a3a6e' }}>
-                          {campaign.name}
-                        </h3>
+                      <a>
+                        <div className="w-full h-48 bg-gray-100 flex items-center justify-center overflow-hidden cursor-pointer hover:opacity-90 transition-opacity">
+                          <img
+                            src={campaign.imageUrl}
+                            alt={campaign.name}
+                            className="w-full h-full object-contain"
+                          />
+                        </div>
                       </a>
                     </Link>
-                    <span
-                      className={`px-2 py-1 rounded-full text-xs font-medium ml-2 flex-shrink-0 ${
-                        campaign.status === 'active'
-                          ? 'bg-green-900 bg-opacity-10 text-green-900'
-                          : campaign.status === 'ended'
-                          ? 'bg-gray-100 text-gray-800'
-                          : 'bg-yellow-100 text-yellow-900'
-                      }`}
-                    >
-                      {campaign.status}
-                    </span>
-                  </div>
 
-                  <p className="text-sm text-gray-600 mb-3 line-clamp-2">
-                    {campaign.description}
-                  </p>
-
-                  {/* Network & Supply Info */}
-                  <div className="flex items-center gap-3 text-xs text-gray-500 mb-3">
-                    <span className="px-2 py-1 bg-gray-100 rounded capitalize">
-                      {campaign.network}
-                    </span>
-                    <span>
-                      {campaign.currentSupply} / {campaign.maxSupply} 已鑄造
-                    </span>
-                  </div>
-
-                  {/* Eligible Users */}
-                  <div className="text-xs text-gray-500 mb-3">
-                    符合資格用戶：{campaign.eligibleEmails.length} 人
-                  </div>
-
-                  {/* End Date */}
-                  <div className="text-xs text-gray-500 mb-4">
-                    截止：{new Date(campaign.endDate).toLocaleString('zh-TW', {
-                      year: 'numeric',
-                      month: '2-digit',
-                      day: '2-digit',
-                      hour: '2-digit',
-                      minute: '2-digit',
-                      hour12: false
-                    })}
-                  </div>
-
-                  {/* Contract Status or Setup */}
-                  {campaign.contractAddress ? (
-                    <div>
-                      <div className="px-3 py-2 bg-green-900 bg-opacity-10 rounded-lg border border-green-900 border-opacity-20 mb-2">
-                        <div className="flex items-center justify-center gap-2">
-                          <svg
-                            className="w-5 h-5 flex-shrink-0 text-green-900"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
-                          <p className="text-sm font-semibold text-green-900">合約已部署</p>
-                        </div>
+                    {/* Content */}
+                    <div className="p-5">
+                      <div className="flex justify-between items-start mb-2">
+                        <Link href={`/nft/${campaign.id}`}>
+                          <a className="hover:opacity-70 transition-colors flex-1">
+                            <h3
+                              className="text-[16px] md:text-[18px] font-semibold"
+                              style={{ color: '#1a3a6e' }}
+                            >
+                              {campaign.name}
+                            </h3>
+                          </a>
+                        </Link>
+                        <span
+                          className={`px-2 py-1 rounded-full text-xs font-medium ml-2 flex-shrink-0 ${
+                            campaign.status === 'active'
+                              ? 'bg-emerald-700 bg-opacity-10 text-emerald-700'
+                              : campaign.status === 'ended'
+                              ? 'bg-gray-100 text-gray-800'
+                              : 'bg-amber-100 text-amber-800'
+                          }`}
+                        >
+                          {campaign.status}
+                        </span>
                       </div>
-                      <button
-                        onClick={() => {
-                          navigator.clipboard.writeText(campaign.contractAddress);
-                          setCopiedAddress(campaign.contractAddress);
-                          setTimeout(() => setCopiedAddress(''), 2000);
-                        }}
-                        className="w-full flex items-center justify-center gap-2 px-2 py-2 hover:bg-gray-100 rounded transition-colors cursor-pointer group"
-                        title="點擊複製合約地址"
-                      >
-                        <p className="text-xs text-gray-600 group-hover:text-gray-900 font-mono break-all text-center flex-1">
-                          {campaign.contractAddress}
-                        </p>
-                        <div className="flex-shrink-0">
-                          {copiedAddress === campaign.contractAddress ? (
-                            <div className="flex items-center gap-1 text-green-900">
+
+                      <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+                        {campaign.description}
+                      </p>
+
+                      {/* Network & Supply Info */}
+                      <div className="flex items-center gap-3 text-xs text-gray-500 mb-3">
+                        <span className="px-2 py-1 bg-gray-100 rounded capitalize">
+                          {campaign.network}
+                        </span>
+                        <span>
+                          {campaign.currentSupply} / {campaign.maxSupply} 已鑄造
+                        </span>
+                      </div>
+
+                      {/* Eligible Users */}
+                      <div className="text-xs text-gray-500 mb-3">
+                        符合資格用戶：{campaign.eligibleEmails.length} 人
+                      </div>
+
+                      {/* End Date */}
+                      <div className="text-xs text-gray-500 mb-4">
+                        截止：
+                        {new Date(campaign.endDate).toLocaleString('zh-TW', {
+                          year: 'numeric',
+                          month: '2-digit',
+                          day: '2-digit',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                          hour12: false,
+                        })}
+                      </div>
+
+                      {/* Contract Status or Setup */}
+                      {campaign.contractAddress ? (
+                        <div>
+                          <div className="px-3 py-2 bg-emerald-700 bg-opacity-10 rounded-lg border border-emerald-700 border-opacity-20 mb-2">
+                            <div className="flex items-center justify-center gap-2">
                               <svg
-                                className="w-4 h-4"
+                                className="w-5 h-5 flex-shrink-0 text-emerald-700"
                                 fill="currentColor"
                                 viewBox="0 0 20 20"
                               >
                                 <path
                                   fillRule="evenodd"
-                                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
                                   clipRule="evenodd"
                                 />
                               </svg>
+                              <p className="text-sm font-semibold text-emerald-700">合約已部署</p>
                             </div>
-                          ) : (
-                            <svg
-                              className="w-4 h-4 text-gray-500 group-hover:text-gray-700"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
-                              />
-                            </svg>
-                          )}
+                          </div>
+                          <button
+                            onClick={() => {
+                              navigator.clipboard.writeText(campaign.contractAddress);
+                              setCopiedAddress(campaign.contractAddress);
+                              setTimeout(() => setCopiedAddress(''), 2000);
+                            }}
+                            className="w-full flex items-center justify-center gap-2 px-2 py-2 hover:bg-gray-100 rounded transition-colors cursor-pointer group"
+                            title="點擊複製合約地址"
+                          >
+                            <p className="text-xs text-gray-600 group-hover:text-gray-900 font-mono break-all text-center flex-1">
+                              {campaign.contractAddress}
+                            </p>
+                            <div className="flex-shrink-0">
+                              {copiedAddress === campaign.contractAddress ? (
+                                <div className="flex items-center gap-1 text-emerald-700">
+                                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path
+                                      fillRule="evenodd"
+                                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                      clipRule="evenodd"
+                                    />
+                                  </svg>
+                                </div>
+                              ) : (
+                                <svg
+                                  className="w-4 h-4 text-gray-500 group-hover:text-gray-700"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                                  />
+                                </svg>
+                              )}
+                            </div>
+                          </button>
                         </div>
-                      </button>
+                      ) : (
+                        <NFTAutoSetup
+                          campaignId={campaign.id}
+                          campaignName={campaign.name}
+                          network={campaign.network}
+                          campaign={{
+                            ...campaign,
+                            imageFile: campaignImageFiles[campaign.id],
+                          }}
+                          onSuccess={() => fetchCampaigns()}
+                        />
+                      )}
                     </div>
-                  ) : (
-                    <NFTAutoSetup
-                      campaignId={campaign.id}
-                      campaignName={campaign.name}
-                      network={campaign.network}
-                      campaign={{
-                        ...campaign,
-                        imageFile: campaignImageFiles[campaign.id]
-                      }}
-                      onSuccess={() => fetchCampaigns()}
-                    />
-                  )}
-                </div>
+                  </div>
+                ))}
               </div>
-            ))}
-            </div>
-          )}
-        </div>
+            )}
+          </div>
         </div>
       </div>
     </>
   );
 }
-

@@ -5,12 +5,12 @@ import initializeApi from '../../../../../lib/admin/init';
 /**
  * Automatic setup for NFT campaign using frontend wallet
  * POST /api/admin/nft/campaigns/auto-setup-with-wallet
- * 
+ *
  * This endpoint will:
  * 1. Fetch wallet addresses for eligible emails from Firestore
  * 2. Return the list to frontend
  * 3. Frontend will use MetaMask to sign transactions
- * 
+ *
  * Body: {
  *   campaignId: string,
  *   contractAddress: string,
@@ -31,8 +31,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const { campaignId, contractAddress, signerAddress, network } = req.body;
 
     if (!campaignId || !contractAddress || !signerAddress) {
-      return res.status(400).json({ 
-        error: 'Missing required fields: campaignId, contractAddress, signerAddress' 
+      return res.status(400).json({
+        error: 'Missing required fields: campaignId, contractAddress, signerAddress',
       });
     }
 
@@ -63,7 +63,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     for (const email of eligibleEmails) {
       const normalizedEmail = email.toLowerCase().trim();
-      
+
       // Query users collection for wallet address
       const usersSnapshot = await db
         .collection('users')
@@ -101,13 +101,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         notFoundEmails,
       },
     });
-
   } catch (error: any) {
     console.error('[AutoSetupWallet] Error:', error);
-    return res.status(500).json({ 
-      error: 'Setup failed', 
+    return res.status(500).json({
+      error: 'Setup failed',
       details: error.message,
     });
   }
 }
-

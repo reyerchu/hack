@@ -29,16 +29,16 @@ export function createMerkleTree(emails: string[]): {
   root: string;
 } {
   // Hash all emails
-  const leaves = emails.map(email => hashEmail(email));
-  
+  const leaves = emails.map((email) => hashEmail(email));
+
   // Create Merkle Tree
-  const tree = new MerkleTree(leaves, keccak256, { 
+  const tree = new MerkleTree(leaves, keccak256, {
     sortPairs: true,
-    hashLeaves: false // We already hashed the leaves
+    hashLeaves: false, // We already hashed the leaves
   });
-  
+
   const root = tree.getHexRoot();
-  
+
   return { tree, root };
 }
 
@@ -48,18 +48,15 @@ export function createMerkleTree(emails: string[]): {
  * @param emails - Full list of whitelisted emails
  * @returns Merkle proof as hex strings, or null if email not in list
  */
-export function generateMerkleProof(
-  email: string,
-  emails: string[]
-): string[] | null {
+export function generateMerkleProof(email: string, emails: string[]): string[] | null {
   const { tree } = createMerkleTree(emails);
   const leaf = hashEmail(email);
-  
+
   // Check if email is in the list
-  if (!emails.map(e => e.toLowerCase().trim()).includes(email.toLowerCase().trim())) {
+  if (!emails.map((e) => e.toLowerCase().trim()).includes(email.toLowerCase().trim())) {
     return null;
   }
-  
+
   const proof = tree.getHexProof(leaf);
   return proof;
 }
@@ -71,11 +68,7 @@ export function generateMerkleProof(
  * @param root - Merkle root
  * @returns true if proof is valid
  */
-export function verifyMerkleProof(
-  email: string,
-  proof: string[],
-  root: string
-): boolean {
+export function verifyMerkleProof(email: string, proof: string[], root: string): boolean {
   const leaf = hashEmail(email);
   return MerkleTree.verify(proof, leaf, root, keccak256, { sortPairs: true });
 }
@@ -91,14 +84,13 @@ export function exportMerkleTreeData(emails: string[]): {
 } {
   const { tree, root } = createMerkleTree(emails);
   const proofs: Record<string, string[]> = {};
-  
+
   // Generate proof for each email
-  emails.forEach(email => {
+  emails.forEach((email) => {
     const normalizedEmail = email.toLowerCase().trim();
     const leaf = hashEmail(normalizedEmail);
     proofs[normalizedEmail] = tree.getHexProof(leaf);
   });
-  
+
   return { root, proofs };
 }
-

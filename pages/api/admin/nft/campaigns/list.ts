@@ -44,12 +44,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         email: userData?.preferredEmail || userData?.email,
         permissions: userData?.permissions,
       });
-      return res.status(403).json({ 
-        error: 'Forbidden: Admin access required'
+      return res.status(403).json({
+        error: 'Forbidden: Admin access required',
       });
     }
 
-    console.log('[NFT List API] ✅ Admin access granted:', userData?.preferredEmail || userData?.email);
+    console.log(
+      '[NFT List API] ✅ Admin access granted:',
+      userData?.preferredEmail || userData?.email,
+    );
 
     // Get all campaigns
     const campaignsSnapshot = await db
@@ -77,4 +80,3 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     res.status(500).json({ error: error.message || 'Internal server error' });
   }
 }
-

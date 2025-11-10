@@ -47,7 +47,7 @@ export default function ProfilePage() {
   const [isLoadingApplications, setIsLoadingApplications] = useState(false);
   const [toggleLoading, setToggleLoading] = useState<{ [key: string]: boolean }>({});
   const [stats, setStats] = useState<any>(null);
-  
+
   // 直接檢查數據庫中的註冊狀態，而不依賴 hasProfile
   const [isRegistered, setIsRegistered] = useState<boolean | null>(null);
   const [checkingRegistration, setCheckingRegistration] = useState(true);
@@ -481,7 +481,7 @@ export default function ProfilePage() {
       }
 
       console.log('[Profile] 🔍 Checking registration status for user:', user.id);
-      
+
       try {
         const response = await fetch(`/api/userinfo?id=${encodeURIComponent(user.id)}`, {
           headers: { Authorization: user.token },
@@ -551,13 +551,13 @@ export default function ProfilePage() {
     router.push('/register');
     return <div className="p-4 flex-grow text-center">重定向到註冊頁面...</div>;
   }
-  
+
   // 已註冊但 profile 數據還未載入
   if (!profile || !profile.user) {
     console.log('[Profile Page] ⏳ Profile data still loading...');
     return <div className="p-4 flex-grow text-center">載入個人資料中...</div>;
   }
-  
+
   console.log('[Profile Page] ✅ User is registered and profile loaded, rendering page');
 
   return (

@@ -2,17 +2,14 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { firestore, auth } from 'firebase-admin';
 import initializeApi from '../../../../lib/admin/init';
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
     initializeApi();
-    
+
     const { campaignId } = req.query;
 
     if (!campaignId || typeof campaignId !== 'string') {
@@ -73,4 +70,3 @@ export default async function handler(
     return res.status(500).json({ error: 'Internal server error' });
   }
 }
-

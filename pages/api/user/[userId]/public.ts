@@ -61,7 +61,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         if (emailToCheck) {
           const hash = emailToHash(emailToCheck);
-          console.log(`[UserPublic] Computed hash: ${hash}, looking for: ${userId}, match: ${hash === userId}`);
+          console.log(
+            `[UserPublic] Computed hash: ${hash}, looking for: ${userId}, match: ${
+              hash === userId
+            }`,
+          );
           if (hash === userId) {
             userDoc = doc;
             userData = data;
@@ -392,10 +396,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const publicInfo: any = {
       userId: userDoc.id,
       // 暱稱始終公開（優先使用 nickname，其次 firstName lastName，絕不顯示 email）
-      displayName: userData?.nickname || 
-                   (userData?.firstName || userData?.lastName 
-                     ? [userData?.firstName, userData?.lastName].filter(Boolean).join(' ')
-                     : '匿名用戶'),
+      displayName:
+        userData?.nickname ||
+        (userData?.firstName || userData?.lastName
+          ? [userData?.firstName, userData?.lastName].filter(Boolean).join(' ')
+          : '匿名用戶'),
     };
 
     // 根据隐私设置添加其他信息

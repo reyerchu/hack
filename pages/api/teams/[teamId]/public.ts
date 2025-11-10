@@ -250,12 +250,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 console.log(`[TeamPublic] Found Demo Day track submission for team ${teamId}`);
                 const demoDayData: any = {};
 
-                // 檢查是否有團隊的一頁簡介 PDF
+                // 使用本地 public 目錄的 PDF 文件
+                // 所有 Demo Day 團隊的 PDF 都同步到 /team-media/2025/DemoDay/{teamName}.pdf
                 const teamName = teamData.teamName;
                 const pdfPath = `/team-media/2025/DemoDay/${teamName}.pdf`;
-                console.log(`[TeamPublic] Checking for one-pager PDF: ${pdfPath}`);
 
-                // 添加一頁簡介 PDF
+                console.log(`[TeamPublic] Using local PDF path: ${pdfPath}`);
+
                 demoDayData.onePager = {
                   title: '一頁簡介',
                   value: pdfPath,

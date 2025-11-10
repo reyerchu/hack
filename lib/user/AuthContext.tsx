@@ -75,7 +75,10 @@ function AuthProvider({ children }: React.PropsWithChildren<Record<string, any>>
   };
 
   const updateUser = async (firebaseUser: firebase.User | null) => {
-    console.log('[AuthContext] 🔄 updateUser called, firebaseUser:', firebaseUser ? firebaseUser.uid : 'null');
+    console.log(
+      '[AuthContext] 🔄 updateUser called, firebaseUser:',
+      firebaseUser ? firebaseUser.uid : 'null',
+    );
     setLoading(true);
     if (firebaseUser === null) {
       // User is signed out
@@ -101,7 +104,7 @@ function AuthProvider({ children }: React.PropsWithChildren<Record<string, any>>
       permissions: ['hacker'],
       university: '',
     });
-    
+
     console.log('[AuthContext] 📡 Fetching user profile from /api/userinfo...');
     // Use relative URL to work on any port
     const data = await fetch(`/api/userinfo?id=${encodeURIComponent(uid)}`, {
@@ -109,9 +112,9 @@ function AuthProvider({ children }: React.PropsWithChildren<Record<string, any>>
       headers: { Authorization: token },
       method: 'GET',
     });
-    
+
     console.log('[AuthContext] 📥 API response status:', data.status);
-    
+
     if (data.status === 404) {
       // 用户已登入但未注册，明确设置 profile 为 null
       console.log('[AuthContext] ⚠️  User is authenticated but not registered yet (404)');
@@ -135,7 +138,7 @@ function AuthProvider({ children }: React.PropsWithChildren<Record<string, any>>
     console.log('[AuthContext] 📊 userData.user:', userData.user ? 'exists' : 'missing');
     console.log('[AuthContext] 📊 userData.id:', userData.id);
     console.log('[AuthContext] 📊 userData.email:', userData.email);
-    
+
     let permissions: UserPermission[] = userData.user?.permissions || ['hacker'];
     setUser((prev) => ({
       ...prev,
@@ -145,7 +148,7 @@ function AuthProvider({ children }: React.PropsWithChildren<Record<string, any>>
       permissions,
       university: userData.university || prev?.university || '',
     }));
-    
+
     console.log('[AuthContext] 💾 Setting profile with userData');
     setProfile(userData);
     console.log('[AuthContext] ✅ Profile set, hasProfile should be true');

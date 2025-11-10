@@ -60,4 +60,3 @@ export interface MintStatus {
     transactionHash: string;
   };
 }
-
