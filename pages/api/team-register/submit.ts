@@ -40,6 +40,8 @@ interface SubmitRequest {
   teamMembers: TeamMember[];
   tracks: string[];
   agreedToCommitment: boolean;
+  evmWalletAddress?: string;
+  otherWallets?: Array<{ chain: string; address: string }>;
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -64,8 +66,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const userId = decodedToken.uid;
 
     // Get request body
-    const { teamName, teamLeader, teamMembers, tracks, agreedToCommitment } =
-      req.body as SubmitRequest;
+    const {
+      teamName,
+      teamLeader,
+      teamMembers,
+      tracks,
+      agreedToCommitment,
+      evmWalletAddress,
+      otherWallets,
+    } = req.body as SubmitRequest;
 
     // Validation
     if (!teamName || !teamName.trim()) {
@@ -232,6 +241,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
       updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
       submittedBy: userId,
+      evmWalletAddress: evmWalletAddress?.trim() || '',
+      otherWallets: otherWallets || [],
     };
 
     const docRef = await db.collection('team-registrations').add(registrationData);
@@ -312,6 +323,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           role: m.role,
         })),
         trackDetails,
+        evmWalletAddress,
+        otherWallets,
       );
       console.log(`[SubmitTeamRegistration] Sent admin notification email to reyer.chu@rwa.nexus`);
     } catch (emailError) {

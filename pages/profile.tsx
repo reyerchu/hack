@@ -137,6 +137,15 @@ export default function ProfilePage() {
     setIsEditing(true);
   };
 
+  // 检测 URL 参数中的 edit 参数，如果存在则自动进入编辑模式
+  useEffect(() => {
+    if (router.query.edit === 'true' && !isEditing && profile && profile.user) {
+      handleEditClick();
+      // 清除 URL 中的 edit 参数
+      router.replace('/profile', undefined, { shallow: true });
+    }
+  }, [router.query.edit, isEditing, profile]);
+
   const handleCancelEdit = () => {
     setIsEditing(false);
     setResumeFile(null);

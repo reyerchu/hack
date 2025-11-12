@@ -34,6 +34,8 @@ interface UpdateRequest {
   teamName?: string;
   teamMembers?: TeamMember[];
   tracks?: string[];
+  evmWalletAddress?: string;
+  otherWallets?: Array<{ chain: string; address: string }>;
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -153,6 +155,8 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse, teamId: stri
         updatedAt: teamData.updatedAt,
         agreedToCommitment: teamData.agreedToCommitment,
         submittedPdf: submittedPdf,
+        evmWalletAddress: teamData.evmWalletAddress || '',
+        otherWallets: teamData.otherWallets || [],
       },
     });
   } catch (error: any) {
@@ -348,6 +352,20 @@ async function handlePut(req: NextApiRequest, res: NextApiResponse, teamId: stri
       updates.tracks = trackDetails;
     }
 
+    // Update wallet addresses if provided
+    if (updateData.evmWalletAddress !== undefined) {
+      updates.evmWalletAddress = updateData.evmWalletAddress?.trim() || '';
+    }
+
+    if (updateData.otherWallets !== undefined) {
+      if (!Array.isArray(updateData.otherWallets)) {
+        return res.status(400).json({ error: 'otherWallets 必須是陣列' });
+      }
+      updates.otherWallets = updateData.otherWallets.filter(
+        (w: any) => w.chain?.trim() && w.address?.trim(),
+      );
+    }
+
     // Update team
     await db.collection('team-registrations').doc(teamId).update(updates);
 
@@ -374,6 +392,8 @@ async function handlePut(req: NextApiRequest, res: NextApiResponse, teamId: stri
       if (updates.teamName) changedFields.push(`團隊名稱: ${updates.teamName}`);
       if (updates.teamMembers) changedFields.push(`團隊成員: ${updates.teamMembers.length} 人`);
       if (updates.tracks) changedFields.push(`賽道: ${updates.tracks.length} 個`);
+      if (updates.evmWalletAddress !== undefined) changedFields.push(`EVM 錢包地址已更新`);
+      if (updates.otherWallets !== undefined) changedFields.push(`其他錢包地址已更新`);
 
       // Get editor name
       let editorName = userEmail;
@@ -386,12 +406,18 @@ async function handlePut(req: NextApiRequest, res: NextApiResponse, teamId: stri
           userEmail;
       }
 
+      // Get the latest team data after update to include wallet addresses
+      const updatedTeamDoc = await db.collection('team-registrations').doc(teamId).get();
+      const updatedTeamData = updatedTeamDoc.data();
+
       await notifyAdminTeamEdit(
         teamId,
         updates.teamName || teamData.teamName,
         userEmail,
         editorName,
         changedFields,
+        updatedTeamData?.evmWalletAddress,
+        updatedTeamData?.otherWallets,
       );
       console.log(`[UpdateTeam] Sent admin notification email to reyer.chu@rwa.nexus`);
     } catch (emailError) {
