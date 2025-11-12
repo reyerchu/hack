@@ -593,13 +593,13 @@ export default function TeamRegisterPage() {
         setSubmitMessage((response as any).error || response.data?.error || '更新失敗，請稍後再試');
         setSubmitSuccess(false);
       } else {
-        setSubmitMessage('更新成功！');
+        setSubmitMessage('更新成功！正在跳轉到團隊頁面...');
         setSubmitSuccess(true);
 
-        // Redirect after 2 seconds
+        // Redirect to team public page after 1.5 seconds
         setTimeout(() => {
-          router.push('/profile');
-        }, 2000);
+          router.push(`/teams/${editTeamId}/public`);
+        }, 1500);
       }
     } catch (error: any) {
       console.error('[TeamRegister] Submission error:', error);
