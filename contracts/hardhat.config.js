@@ -1,6 +1,6 @@
 require('@nomicfoundation/hardhat-toolbox');
 require('@nomicfoundation/hardhat-verify');
-require('dotenv').config(); // Load .env from contracts directory
+require('dotenv').config({ path: require('path').join(__dirname, '../.env.local') }); // Load from root .env.local
 
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
