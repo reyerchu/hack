@@ -98,3 +98,79 @@ For security concerns, contact:
 ---
 
 **Last Updated**: November 12, 2025
+
+---
+
+## 🔧 How to Remove Secrets from Git History (Optional)
+
+**⚠️ WARNING**: Rewriting git history requires force push and affects all collaborators.
+
+### Recommended Approach: Key Rotation (SIMPLEST)
+
+Instead of rewriting history, **simply rotate the exposed key**:
+
+1. ✅ Rotate API key at the provider (Etherscan, etc.)
+2. ✅ Revoke/delete the old key
+3. ✅ Update local `.env` files with new key
+
+**Result**: Old key in history becomes useless and harmless!
+
+### Advanced: Remove from History (if needed)
+
+If you must remove from git history:
+
+#### Option 1: git-filter-repo (Recommended)
+
+```bash
+# Install
+sudo apt update && sudo apt install git-filter-repo -y
+
+# Remove file from history
+git filter-repo --path contracts/.env --invert-paths
+
+# Force push
+git push origin --force --all
+```
+
+#### Option 2: BFG Repo-Cleaner (Easier)
+
+```bash
+# Download BFG
+wget https://repo1.maven.org/maven2/com/madgag/bfg/1.14.0/bfg-1.14.0.jar -O ~/bfg.jar
+
+# Remove file
+java -jar ~/bfg.jar --delete-files contracts/.env
+
+# Cleanup
+git reflog expire --expire=now --all
+git gc --prune=now --aggressive
+
+# Force push
+git push origin --force --all
+```
+
+#### Option 3: git filter-branch (Built-in)
+
+```bash
+git filter-branch --force --index-filter \
+  'git rm --cached --ignore-unmatch contracts/.env' \
+  --prune-empty --tag-name-filter cat -- --all
+
+git reflog expire --expire=now --all
+git gc --prune=now --aggressive
+
+git push origin --force --all
+```
+
+### After Force Push
+
+All collaborators must re-clone or reset:
+
+```bash
+git fetch origin
+git reset --hard origin/main
+```
+
+---
+
+**Recommendation**: For most cases, **key rotation is sufficient and much safer** than rewriting git history.
