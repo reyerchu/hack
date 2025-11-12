@@ -1890,3 +1890,8 @@ export default function TeamRegisterPage() {
     </>
   );
 }
+
+// Force client-side rendering to prevent SSR AuthContext errors
+export async function getServerSideProps() {
+  return { props: {} };
+}
