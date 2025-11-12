@@ -105,18 +105,61 @@ export const winnersData: TrackAwards[] = [
   },
   {
     trackName: 'Self Protocol 賽道',
-    announced: false,
-    awards: [],
+    announced: true,
+    awards: [
+      {
+        title: '最佳 Self Onchain SDK 整合 第一名（$1200）',
+        winners: [{ name: '（從缺）' }],
+      },
+      {
+        title: '最佳 Self Onchain SDK 整合 第二名（$800）',
+        winners: [{ name: '五告Sui', project: 'OnChain Bank' }],
+      },
+    ],
   },
   {
     trackName: 'Sui 賽道',
-    announced: false,
-    awards: [],
+    announced: true,
+    awards: [
+      {
+        title: 'Sui 最佳 RWA 應用 第一名（$500）',
+        winners: [{ name: 'TaxCoin', project: '退稅不只是補貼，而是金融資產+消費能力' }],
+      },
+      {
+        title: 'Sui 最佳 RWA 應用 第二名（$300）',
+        winners: [
+          {
+            name: 'twin3',
+            project: '人類體驗就是你的資產',
+            icon: '/team-media/2025/twin3-icon.jpg',
+            iconLink: 'mailto:wen@twin3.ai',
+          },
+        ],
+      },
+      {
+        title: 'Sui 最佳 RWA 應用 第三名（$200）',
+        winners: [{ name: 'Zzyzx Labs', project: 'SEAWALLET' }],
+      },
+    ],
   },
   {
     trackName: 'Zircuit 賽道',
-    announced: false,
-    awards: [],
+    announced: true,
+    awards: [
+      {
+        title: 'Zircuit Defi Chiampion（$500）',
+        winners: [{ name: '（從缺）' }],
+      },
+      {
+        title: 'Zircuit L2 Prize Pool（$500 共享）',
+        winners: [
+          { name: 'NomadFi 遊牧星球', project: '數位遊牧村 全球建村計劃' },
+          { name: 'ReadFi 知識星球', project: 'ReadFi：讓閱讀成為可增值的數位資產' },
+          { name: 'RWACE', project: 'RWA 綠能資產代幣化平台' },
+          { name: '我先上鏈的!', project: '發票載具綁定公益機構之 web3 pool' },
+        ],
+      },
+    ],
   },
   {
     trackName: 'Oasis 賽道',
@@ -154,8 +197,28 @@ export const winnersData: TrackAwards[] = [
   },
   {
     trackName: '遺珠之憾獎',
-    announced: false,
-    awards: [],
+    announced: true,
+    awards: [
+      {
+        title: '遺珠之憾獎（$150）',
+        winners: [
+          { name: 'RBJJH', project: '基於ERC-3643個人股票代幣化之抵押借貸' },
+          { name: '估值1B的獨角獸', project: '房地產 RWA 借貸平台' },
+          { name: '就愛觀光組', project: 'Real Estate RWA Proof Gateway' },
+          {
+            name: '可以不要用這種讓人誤會的名字嗎',
+            project: '彌合高價值鏈上資產（RWA）與現實世界即時消費之間的鴻溝',
+          },
+          { name: 'Cryptonite', project: '基於 TEE 與 PQC 的 RWA 隱私身份驗證基礎設施' },
+          { name: 'StatelessGuard', project: 'Modular Trust Framework for Humans & Agents' },
+          {
+            name: 'ReCode Health重編醫鏈',
+            project: 'Unlock Your Genome, Own Your Data, Power Global Health Research',
+          },
+          { name: 'ReadFi 知識星球', project: 'ReadFi：讓閱讀成為可增值的數位資產' },
+        ],
+      },
+    ],
   },
   {
     trackName: 'Demo Day 佳作',
