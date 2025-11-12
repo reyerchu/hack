@@ -171,14 +171,16 @@ const TeamManagement: React.FC = () => {
       // Check if this is a delete request (not actual deletion)
       if (response.isRequest) {
         // Team member sent delete request to admin
-        alert(response.message || '刪除請求已發送給管理員，請等待審核');
+        alert(
+          '✅ 刪除請求已發送\n\n您的刪除請求已成功發送給管理員。\n管理員會在審核後處理此請求。\n\n團隊仍會保留在您的列表中，直到管理員批准刪除。',
+        );
 
         // Close modal (no need to refresh since team is not deleted)
         setShowDeleteConfirm(false);
         setTeamToDelete(null);
       } else {
         // Admin actually deleted the team
-        alert(response.message || '團隊已刪除');
+        alert('✅ 團隊已成功刪除');
 
         // Refresh teams list
         await fetchTeams();
