@@ -205,7 +205,7 @@ export async function notifyTeamMemberConfirmation(
       <div class="highlight">
         <strong>團隊名稱：</strong>${teamName}<br>
         <strong>您的角色：</strong>${memberRole}<br>
-        <strong>團隊領導者：</strong>${teamLeaderName}<br>
+        <strong>團隊報名者：</strong>${teamLeaderName}<br>
         <strong>參賽賽道：</strong>${trackCount} 個賽道
       </div>
       
@@ -254,7 +254,7 @@ export async function notifyTeamMemberConfirmation(
 
 團隊名稱：${teamName}
 您的角色：${memberRole}
-團隊領導者：${teamLeaderName}
+團隊報名者：${teamLeaderName}
 參賽賽道：${trackCount} 個賽道
 
 ${hasEditRight ? '✏️ 編輯權限：您擁有編輯團隊報名資料的權限，可以在報名截止前修改團隊資訊。\n' : ''}
@@ -369,14 +369,14 @@ ${
       </div>
       
       <div class="highlight">
-        <strong>團隊領導者：</strong><br>
+        <strong>團隊報名者：</strong><br>
         姓名：${teamLeaderName}<br>
         Email：${teamLeaderEmail}<br>
         角色：${teamLeaderRole}
       </div>
       
       <div class="highlight">
-        <strong>團隊成員：</strong>共 ${memberCount} 人（含領導者）<br>
+        <strong>團隊成員：</strong>共 ${memberCount} 人（含報名者）<br>
         <div class="member-list">
           ${teamMembers.map((m) => `• ${m.name} (${m.email}) - ${m.role}`).join('<br>')}
         </div>
@@ -415,12 +415,12 @@ ${
 團隊 ID：${teamId}
 報名時間：${new Date().toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' })}
 
-團隊領導者：
+團隊報名者：
 姓名：${teamLeaderName}
 Email：${teamLeaderEmail}
 角色：${teamLeaderRole}
 
-團隊成員：共 ${memberCount} 人（含領導者）
+團隊成員：共 ${memberCount} 人（含報名者）
 ${teamMembers.map((m) => `• ${m.name} (${m.email}) - ${m.role}`).join('\n')}
 
 參賽賽道：共 ${tracks.length} 個

@@ -82,7 +82,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     if (!teamLeader || !teamLeader.email || !teamLeader.role) {
-      return res.status(400).json({ error: '團隊領導者資訊不完整' });
+      return res.status(400).json({ error: '團隊報名者資訊不完整' });
     }
 
     if (!Array.isArray(teamMembers)) {
@@ -90,7 +90,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     if (teamMembers.length > 10) {
-      return res.status(400).json({ error: '團隊成員最多 10 人（不含領導者）' });
+      return res.status(400).json({ error: '團隊成員最多 10 人（不含報名者）' });
     }
 
     // Validate all team members have required fields
@@ -122,7 +122,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Check if leader email is in team members
     const leaderEmail = teamLeader.email.trim().toLowerCase();
     if (uniqueEmails.includes(leaderEmail)) {
-      return res.status(400).json({ error: '團隊成員中不應包含領導者的 Email' });
+      return res.status(400).json({ error: '團隊成員中不應包含報名者的 Email' });
     }
 
     // Validate each team member email is registered

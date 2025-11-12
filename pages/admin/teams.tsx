@@ -120,7 +120,15 @@ export default function AdminTeamsPage() {
 
   // Export to CSV
   const exportToCSV = () => {
-    const headers = ['ID', '團隊名稱', '隊長姓名', '隊長 Email', '成員數量', '賽道', '建立日期'];
+    const headers = [
+      'ID',
+      '團隊名稱',
+      '報名者姓名',
+      '報名者 Email',
+      '成員數量',
+      '賽道',
+      '建立日期',
+    ];
 
     const rows = filteredTeams.map((team) => {
       const leaderName = `${team.teamLeader.firstName || ''} ${

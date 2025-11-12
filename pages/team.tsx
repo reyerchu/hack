@@ -506,7 +506,7 @@ export default function TeamRegisterPage() {
     }
 
     if (teamMembers.length === 0) {
-      setSubmitMessage('至少需要一位團隊成員（包括團隊領導者）');
+      setSubmitMessage('至少需要一位團隊成員（包括團隊報名者）');
       setSubmitSuccess(false);
       return;
     }
@@ -726,7 +726,7 @@ export default function TeamRegisterPage() {
                               className="text-xs px-2 py-1 rounded font-bold"
                               style={{ backgroundColor: '#ff9800', color: '#ffffff' }}
                             >
-                              👑 團隊領導者
+                              👑 團隊報名者
                             </span>
                           )}
                           <span className="text-sm font-semibold" style={{ color: '#1a3a6e' }}>
@@ -754,7 +754,7 @@ export default function TeamRegisterPage() {
                         className="text-sm px-3 py-1 rounded hover:bg-red-100 flex-shrink-0"
                         style={{ color: '#dc2626' }}
                         disabled={isSubmitting || index === 0}
-                        title={index === 0 ? '無法刪除團隊領導者' : '刪除此成員'}
+                        title={index === 0 ? '無法刪除團隊報名者' : '刪除此成員'}
                       >
                         {index === 0 ? '🔒' : '刪除'}
                       </button>
