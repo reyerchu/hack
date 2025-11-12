@@ -734,7 +734,7 @@ export default function TeamRegisterPage() {
                               className="text-xs px-2 py-1 rounded font-bold"
                               style={{ backgroundColor: '#1a3a6e', color: '#ffffff' }}
                             >
-                              👑 團隊報名者
+                              團隊報名者
                             </span>
                           )}
                           <span className="text-sm font-semibold" style={{ color: '#ffffff' }}>
