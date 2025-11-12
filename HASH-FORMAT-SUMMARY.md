@@ -106,7 +106,7 @@ return /^[a-f0-9]{12}$/.test(hash);
 
 ### 後端 API
 1. **團隊公開 API** (`pages/api/teams/[teamId]/public.ts`)
-   - 計算隊長和隊員的 hash
+   - 計算團隊報名者和隊員的 hash
    - 返回為 `userId` 字段
 
 2. **用戶公開 API** (`pages/api/user/[userId]/public.ts`)

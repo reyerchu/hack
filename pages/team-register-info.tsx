@@ -121,12 +121,10 @@ export default function TeamRegisterInfo() {
                 </div>
                 <div className="flex-1">
                   <h2 className="text-2xl font-bold mb-4" style={{ color: '#047857' }}>
-                    由領隊進行團隊報名
+                    由團隊報名者進行團隊報名
                   </h2>
                   <div className="text-lg mb-4" style={{ color: '#4b5563' }}>
-                    <p className="mb-3">
-                      當所有成員都完成個人註冊後，由其中一人（通常是領隊）進行團隊報名：
-                    </p>
+                    <p className="mb-3">當所有成員都完成個人註冊後，由其中一人進行團隊報名：</p>
                     <ul className="list-disc list-inside space-y-2 ml-4">
                       <li>登入個人帳號</li>
                       <li>填寫團隊名稱</li>

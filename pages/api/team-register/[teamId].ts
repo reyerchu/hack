@@ -305,7 +305,7 @@ async function handlePut(req: NextApiRequest, res: NextApiResponse, teamId: stri
       const leaderEmail = teamData.teamLeader?.email?.toLowerCase();
       if (leaderEmail && emails.includes(leaderEmail)) {
         return res.status(400).json({
-          error: '團隊成員中不應包含領導者的 Email',
+          error: '團隊成員中不應包含報名者的 Email',
         });
       }
 
