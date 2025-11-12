@@ -243,7 +243,7 @@ export default function TeamPublicPage() {
               <div className="flex gap-2">
                 {canEdit && (
                   <button
-                    onClick={() => router.push(`/team-register?edit=${teamId}`)}
+                    onClick={() => router.push(`/team?edit=${teamId}`)}
                     className="ml-4 px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"
                     style={{
                       backgroundColor: '#1a3a6e',
