@@ -1013,8 +1013,8 @@ export default function NFTCampaignPage() {
                   <div className="bg-gray-50 border border-gray-200 p-4 rounded-lg">
                     <div className="text-sm text-gray-600 mb-1">區塊鏈網路</div>
                     <div className="text-lg font-semibold capitalize" style={{ color: '#1a3a6e' }}>
-                      {campaign.network}
-                      {NETWORK_CONFIG[campaign.network] && (
+                      {campaign.network === 'ethereum' ? 'Ethereum' : campaign.network}
+                      {NETWORK_CONFIG[campaign.network] && campaign.network !== 'ethereum' && (
                         <span className="text-xs text-gray-500 ml-2 font-normal">
                           ({NETWORK_CONFIG[campaign.network].chainName})
                         </span>
