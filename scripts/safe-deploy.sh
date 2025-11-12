@@ -4,7 +4,7 @@
 
 set -e  # Exit on error
 
-APP_NAME="hackportal"
+APP_NAME="hackathon"
 PORT=3008
 
 echo "════════════════════════════════════════"
@@ -20,12 +20,34 @@ ZOMBIE_PIDS=$(lsof -ti :$PORT 2>/dev/null || true)
 if [ ! -z "$ZOMBIE_PIDS" ]; then
   echo "   ⚠️  Port $PORT occupied by processes: $ZOMBIE_PIDS"
   echo "   Killing ALL processes on port $PORT..."
+  
+  # First: Stop PM2 to prevent respawning
+  pm2 stop $APP_NAME 2>/dev/null || true
+  pm2 delete $APP_NAME 2>/dev/null || true
+  sleep 1
+  
+  # Second: Kill all node processes on the port
+  pkill -9 -f "next start -p $PORT" 2>/dev/null || true
   echo "$ZOMBIE_PIDS" | xargs -r kill -9 2>/dev/null || true
   sleep 3
   
-  # Verify port is free
+  # Third: Verify port is free (with retry)
+  ATTEMPTS=0
+  while [ $ATTEMPTS -lt 3 ]; do
+    if lsof -i :$PORT >/dev/null 2>&1; then
+      echo "   ⚠️  Port still occupied (attempt $((ATTEMPTS + 1))/3), killing again..."
+      lsof -ti :$PORT | xargs -r kill -9 2>/dev/null || true
+      pkill -9 -f "next start -p $PORT" 2>/dev/null || true
+      sleep 2
+      ATTEMPTS=$((ATTEMPTS + 1))
+    else
+      break
+    fi
+  done
+  
+  # Final verification
   if lsof -i :$PORT >/dev/null 2>&1; then
-    echo "   ❌ FAILED to free port $PORT!"
+    echo "   ❌ FAILED to free port $PORT after 3 attempts!"
     lsof -i :$PORT
     echo ""
     echo "   ABORTING deployment. Run: ./fix-zombie.sh"
@@ -47,10 +69,11 @@ fi
 echo "   ✓ TypeScript OK"
 echo ""
 
-# Step 1: Stop service
-echo "1️⃣ Stopping service..."
+# Step 1: Ensure service is stopped (may already be stopped in step 0)
+echo "1️⃣ Ensuring service is stopped..."
 pm2 stop $APP_NAME 2>/dev/null || echo "   (not running)"
-echo "   ✓ Stopped"
+pm2 delete $APP_NAME 2>/dev/null || echo "   (no instance)"
+echo "   ✓ Service stopped and removed"
 echo ""
 
 # Step 2: Clean build cache
@@ -72,14 +95,8 @@ fi
 echo "   ✓ Build completed"
 echo ""
 
-# Step 4: Delete old PM2 instance
-echo "4️⃣ Deleting old PM2 instance..."
-pm2 delete $APP_NAME 2>/dev/null || echo "   (no instance)"
-echo "   ✓ Deleted"
-echo ""
-
-# Step 5: Final port check (triple check!)
-echo "5️⃣ Final port check..."
+# Step 4: Final port check before starting (triple check!)
+echo "4️⃣ Final port check..."
 ATTEMPTS=0
 while [ $ATTEMPTS -lt 3 ]; do
   if lsof -i :$PORT >/dev/null 2>&1; then
@@ -102,14 +119,14 @@ if lsof -i :$PORT >/dev/null 2>&1; then
 fi
 echo ""
 
-# Step 6: Start new instance
-echo "6️⃣ Starting new PM2 instance..."
+# Step 5: Start new instance
+echo "5️⃣ Starting new PM2 instance..."
 pm2 start ecosystem.config.js --env production
 echo "   ✓ Started"
 echo ""
 
-# Step 7: Health check (more thorough)
-echo "7️⃣ Health check..."
+# Step 6: Health check (more thorough)
+echo "6️⃣ Health check..."
 sleep 5
 
 MAX_RETRIES=15
@@ -178,8 +195,8 @@ if [ $SUCCESS -eq 0 ]; then
 fi
 echo ""
 
-# Step 8: Save PM2 state
-echo "8️⃣ Saving PM2 state..."
+# Step 7: Save PM2 state
+echo "7️⃣ Saving PM2 state..."
 pm2 save
 echo "   ✓ Saved"
 echo ""
