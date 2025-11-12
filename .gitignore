@@ -56,3 +56,7 @@ submitted-teams-members.csv
 # These files are synced from Firebase Storage and should never be tracked or cleaned
 /public/team-media/
 /public/nft-images/
+
+# Temporary documentation and scripts
+/doc-temp/
+/scripts-temp/
