@@ -59,3 +59,7 @@ submitted-teams-members.csv
 # Temporary documentation and scripts
 /doc-temp/
 /scripts-temp/
+
+# Contracts environment variables (contains API keys)
+contracts/.env
+
