@@ -632,15 +632,17 @@ export default function TeamRegisterPage() {
         <meta name="description" content="編輯黑客松團隊資料" />
       </Head>
 
-      <div className="flex flex-col flex-grow">
-        <div className="min-h-screen bg-gray-50">
+      <div className="flex flex-col flex-grow" style={{ backgroundColor: '#0f1419' }}>
+        <div className="min-h-screen" style={{ backgroundColor: '#0f1419' }}>
           <div className="max-w-5xl mx-auto px-4 py-20">
             {/* Title */}
             <div className="mb-8">
-              <h1 className="text-4xl font-bold text-left mb-4" style={{ color: '#1a3a6e' }}>
+              <h1 className="text-4xl font-bold text-left mb-4" style={{ color: '#ffffff' }}>
                 編輯團隊
               </h1>
-              <p className="text-lg text-gray-600">更新您的團隊資訊、成員和參賽賽道</p>
+              <p className="text-lg" style={{ color: '#9ca3af' }}>
+                更新您的團隊資訊、成員和參賽賽道
+              </p>
               {isEditMode && editTeamId && (
                 <p className="text-xs text-gray-400 mt-2">團隊 ID: {editTeamId}</p>
               )}
@@ -675,13 +677,16 @@ export default function TeamRegisterPage() {
             {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-8">
               {/* Team Name */}
-              <div className="bg-white rounded-lg p-8 shadow-sm">
-                <h2 className="text-2xl font-bold mb-6" style={{ color: '#1a3a6e' }}>
+              <div
+                className="rounded-lg p-8 shadow-lg"
+                style={{ backgroundColor: '#1a2332', border: '1px solid #2d3748' }}
+              >
+                <h2 className="text-2xl font-bold mb-6" style={{ color: '#ffffff' }}>
                   團隊資訊
                 </h2>
 
                 <div>
-                  <label className="block text-sm font-medium mb-2" style={{ color: '#374151' }}>
+                  <label className="block text-sm font-medium mb-2" style={{ color: '#e5e7eb' }}>
                     團隊名稱 <span style={{ color: '#ef4444' }}>*</span>
                     <span className="text-xs text-gray-500 ml-2">({teamName.length}/30)</span>
                   </label>
@@ -691,7 +696,7 @@ export default function TeamRegisterPage() {
                     onChange={(e) => setTeamName(e.target.value)}
                     maxLength={30}
                     className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    style={{ borderColor: '#d1d5db' }}
+                    style={{ borderColor: '#4b5563', backgroundColor: '#0f1419', color: '#ffffff' }}
                     placeholder="例如：創新者聯盟"
                     disabled={isSubmitting}
                     required
@@ -703,8 +708,11 @@ export default function TeamRegisterPage() {
               </div>
 
               {/* Team Members - Including Team Leader */}
-              <div className="bg-white rounded-lg p-8 shadow-sm">
-                <h2 className="text-2xl font-bold mb-6" style={{ color: '#1a3a6e' }}>
+              <div
+                className="rounded-lg p-8 shadow-lg"
+                style={{ backgroundColor: '#1a2332', border: '1px solid #2d3748' }}
+              >
+                <h2 className="text-2xl font-bold mb-6" style={{ color: '#ffffff' }}>
                   團隊成員
                 </h2>
 
@@ -715,8 +723,8 @@ export default function TeamRegisterPage() {
                       key={index}
                       className="flex items-center gap-3 p-4 rounded-lg"
                       style={{
-                        backgroundColor: index === 0 ? '#fff8e1' : '#f9fafb',
-                        border: index === 0 ? '2px solid #ffa726' : '1px solid #e5e7eb',
+                        backgroundColor: index === 0 ? '#1e3a5f' : '#1a2332',
+                        border: index === 0 ? '2px solid #3b82f6' : '1px solid #374151',
                       }}
                     >
                       <div className="flex-1 min-w-0">
@@ -724,24 +732,24 @@ export default function TeamRegisterPage() {
                           {index === 0 && (
                             <span
                               className="text-xs px-2 py-1 rounded font-bold"
-                              style={{ backgroundColor: '#ff9800', color: '#ffffff' }}
+                              style={{ backgroundColor: '#3b82f6', color: '#ffffff' }}
                             >
                               👑 團隊報名者
                             </span>
                           )}
-                          <span className="text-sm font-semibold" style={{ color: '#1a3a6e' }}>
+                          <span className="text-sm font-semibold" style={{ color: '#ffffff' }}>
                             {member.email}
                           </span>
                           <span
                             className="text-sm px-2 py-1 rounded"
-                            style={{ backgroundColor: '#dbeafe', color: '#1e40af' }}
+                            style={{ backgroundColor: '#1e3a8a', color: '#93c5fd' }}
                           >
                             {member.role}
                           </span>
                           {member.hasEditRight && (
                             <span
                               className="text-xs px-2 py-1 rounded"
-                              style={{ backgroundColor: '#d1fae5', color: '#065f46' }}
+                              style={{ backgroundColor: '#065f46', color: '#6ee7b7' }}
                             >
                               ✓ 可編輯
                             </span>
@@ -765,15 +773,15 @@ export default function TeamRegisterPage() {
                 {/* 添加新成員的輸入區域 */}
                 <div
                   className="space-y-4 p-4 rounded-lg"
-                  style={{ backgroundColor: '#f0f4ff', border: '2px dashed #1a3a6e' }}
+                  style={{ backgroundColor: '#1a2332', border: '2px dashed #3b82f6' }}
                 >
-                  <div className="text-sm font-medium mb-3" style={{ color: '#1a3a6e' }}>
+                  <div className="text-sm font-medium mb-3" style={{ color: '#60a5fa' }}>
                     + 新增成員
                   </div>
 
                   {/* Email */}
                   <div>
-                    <label className="block text-sm font-medium mb-2" style={{ color: '#374151' }}>
+                    <label className="block text-sm font-medium mb-2" style={{ color: '#e5e7eb' }}>
                       Email <span style={{ color: '#ef4444' }}>*</span>
                     </label>
                     <input
@@ -812,7 +820,7 @@ export default function TeamRegisterPage() {
 
                   {/* Role */}
                   <div>
-                    <label className="block text-sm font-medium mb-2" style={{ color: '#374151' }}>
+                    <label className="block text-sm font-medium mb-2" style={{ color: '#e5e7eb' }}>
                       角色 <span style={{ color: '#ef4444' }}>*</span>
                     </label>
                     <select
@@ -847,7 +855,7 @@ export default function TeamRegisterPage() {
                     <label
                       htmlFor="newMemberEditRight"
                       className="text-sm"
-                      style={{ color: '#374151' }}
+                      style={{ color: '#e5e7eb' }}
                     >
                       擁有編輯報名資料的權限
                     </label>
@@ -896,7 +904,10 @@ export default function TeamRegisterPage() {
 
               {/* Select Tracks */}
               {!isRegistrationClosed && (
-                <div className="bg-white rounded-lg p-8 shadow-sm">
+                <div
+                  className="rounded-lg p-8 shadow-lg"
+                  style={{ backgroundColor: '#1a2332', border: '1px solid #2d3748' }}
+                >
                   <div className="flex items-center justify-between mb-2">
                     <h2 className="text-2xl font-bold" style={{ color: '#1a3a6e' }}>
                       選擇賽道 <span style={{ color: '#ef4444' }}>*</span>
@@ -1514,8 +1525,11 @@ export default function TeamRegisterPage() {
 
               {/* Commitment Agreement */}
               {!isRegistrationClosed && (
-                <div className="bg-white rounded-lg p-8 shadow-sm">
-                  <h2 className="text-2xl font-bold mb-6" style={{ color: '#1a3a6e' }}>
+                <div
+                  className="rounded-lg p-8 shadow-lg"
+                  style={{ backgroundColor: '#1a2332', border: '1px solid #2d3748' }}
+                >
+                  <h2 className="text-2xl font-bold mb-6" style={{ color: '#ffffff' }}>
                     參賽者承諾書 <span style={{ color: '#ef4444' }}>*</span>
                   </h2>
 
@@ -1617,7 +1631,7 @@ export default function TeamRegisterPage() {
                     <label
                       htmlFor="hasAgreed"
                       className="text-sm font-medium cursor-pointer"
-                      style={{ color: '#374151' }}
+                      style={{ color: '#e5e7eb' }}
                     >
                       我已詳細閱讀並同意遵守參賽者承諾書的所有條款{' '}
                       <span style={{ color: '#ef4444' }}>*</span>
@@ -1627,14 +1641,17 @@ export default function TeamRegisterPage() {
               )}
 
               {/* Wallet Addresses */}
-              <div className="bg-white rounded-lg p-8 shadow-sm">
-                <h2 className="text-2xl font-bold mb-6" style={{ color: '#1a3a6e' }}>
+              <div
+                className="rounded-lg p-8 shadow-lg"
+                style={{ backgroundColor: '#1a2332', border: '1px solid #2d3748' }}
+              >
+                <h2 className="text-2xl font-bold mb-6" style={{ color: '#ffffff' }}>
                   錢包地址
                 </h2>
 
                 {/* EVM Wallet Address */}
                 <div className="mb-6">
-                  <label className="block text-sm font-medium mb-2" style={{ color: '#374151' }}>
+                  <label className="block text-sm font-medium mb-2" style={{ color: '#e5e7eb' }}>
                     EVM 錢包地址
                   </label>
                   <p className="text-xs text-gray-500 mb-2">
@@ -1653,7 +1670,7 @@ export default function TeamRegisterPage() {
 
                 {/* Other Wallet Addresses */}
                 <div>
-                  <label className="block text-sm font-medium mb-2" style={{ color: '#374151' }}>
+                  <label className="block text-sm font-medium mb-2" style={{ color: '#e5e7eb' }}>
                     其他錢包地址
                   </label>
 
@@ -1664,7 +1681,7 @@ export default function TeamRegisterPage() {
                         <div
                           key={index}
                           className="flex items-start gap-3 p-3 rounded-lg"
-                          style={{ backgroundColor: '#f9fafb', border: '1px solid #e5e7eb' }}
+                          style={{ backgroundColor: '#1a2332', border: '1px solid #374151' }}
                         >
                           <div className="flex-grow">
                             <div className="text-sm font-medium" style={{ color: '#1a3a6e' }}>
