@@ -164,25 +164,91 @@ The **RWA Hackathon Taiwan Portal** is a comprehensive platform designed for Tai
 - SMTP credentials (for emails)
 
 ### Environment Variables
-Create `.env.local` with:
+Create `.env.local` with the following configuration:
+
 ```bash
-# Firebase
-NEXT_PUBLIC_FIREBASE_API_KEY=
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=
-FIREBASE_ADMIN_PRIVATE_KEY=
+# ============================================
+# Firebase Web App Configuration (Frontend)
+# ============================================
+NEXT_PUBLIC_FIREBASE_API_KEY=your_api_key
+NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_project.firebasestorage.app
+NEXT_PUBLIC_MEASUREMENT_ID=your_measurement_id
 
-# Email
-SMTP_HOST=
-SMTP_PORT=
-SMTP_USER=
-SMTP_PASS=
+# ============================================
+# Firebase Admin SDK (Backend - Service Account)
+# ============================================
+SERVICE_ACCOUNT_CLIENT_EMAIL=firebase-adminsdk@your_project.iam.gserviceaccount.com
+SERVICE_ACCOUNT_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nyour_private_key\n-----END PRIVATE KEY-----\n"
+SERVICE_ACCOUNT_PROJECT_ID=your_project_id
 
-# Blockchain (for NFT features)
-PRIVATE_KEY=
-ALCHEMY_API_KEY=
-ETHERSCAN_API_KEY=
+# ============================================
+# Email Configuration (SMTP)
+# ============================================
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=your_email@domain.com
+SMTP_PASS=your_app_password
+EMAIL_FROM=your_email@domain.com
+
+# ============================================
+# Google OAuth & Calendar API
+# ============================================
+GOOGLE_CLIENT_ID=your_client_id.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=your_client_secret
+GOOGLE_REDIRECT_URI=https://your_domain.com/api/calendar/callback
+
+# ============================================
+# Site Configuration
+# ============================================
+NEXT_PUBLIC_SITE_URL=https://your_domain.com
+NEXT_PUBLIC_API_URL=http://localhost:3008
+
+# ============================================
+# NFT & IPFS Configuration
+# ============================================
+PINATA_JWT=your_pinata_jwt_token
+PINATA_GATEWAY=gateway.pinata.cloud
+
+# ============================================
+# Blockchain Configuration
+# ============================================
+ETHERSCAN_API_KEY=your_etherscan_api_key
+SEPOLIA_RPC_URL=https://ethereum-sepolia-rpc.publicnode.com
+
+# ============================================
+# Optional Configuration
+# ============================================
+NEXT_PUBLIC_RESUME_UPLOAD_PASSWORD=your_password
+NEXT_PUBLIC_RESUME_UPLOAD_SERVICE_ACCOUNT=your_service_account
+NEXT_PUBLIC_VAPID_KEY=your_vapid_key
 ```
+
+#### Configuration Notes:
+
+1. **Firebase Setup**:
+   - Get credentials from [Firebase Console](https://console.firebase.google.com/)
+   - Web App config: Project Settings → General → Your apps
+   - Service Account: Project Settings → Service Accounts → Generate new private key
+
+2. **Email (SMTP)**:
+   - For Gmail: Enable 2FA and generate an [App Password](https://myaccount.google.com/apppasswords)
+   - Port 587 for TLS, Port 465 for SSL
+
+3. **Google OAuth**:
+   - Set up in [Google Cloud Console](https://console.cloud.google.com/)
+   - Add authorized redirect URIs: `https://your_domain.com/api/calendar/callback`
+
+4. **NFT & IPFS**:
+   - Get Pinata JWT from [Pinata](https://www.pinata.cloud/)
+   - Required for NFT metadata storage
+
+5. **Blockchain**:
+   - Etherscan API key from [Etherscan](https://etherscan.io/myapikey)
+   - Required for contract verification
 
 ### Installation
 ```bash
