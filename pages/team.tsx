@@ -1630,17 +1630,14 @@ export default function TeamRegisterPage() {
               )}
 
               {/* Wallet Addresses */}
-              <div
-                className="rounded-lg p-8 shadow-lg"
-                style={{ backgroundColor: '#1a2332', border: '1px solid #2d3748' }}
-              >
-                <h2 className="text-2xl font-bold mb-6" style={{ color: '#ffffff' }}>
+              <div className="bg-white rounded-lg p-8 shadow-sm">
+                <h2 className="text-2xl font-bold mb-6" style={{ color: '#1a3a6e' }}>
                   錢包地址
                 </h2>
 
                 {/* EVM Wallet Address */}
                 <div className="mb-6">
-                  <label className="block text-sm font-medium mb-2" style={{ color: '#e5e7eb' }}>
+                  <label className="block text-sm font-medium mb-2" style={{ color: '#374151' }}>
                     EVM 錢包地址
                   </label>
                   <p className="text-xs text-gray-500 mb-2">
@@ -1659,7 +1656,7 @@ export default function TeamRegisterPage() {
 
                 {/* Other Wallet Addresses */}
                 <div>
-                  <label className="block text-sm font-medium mb-2" style={{ color: '#e5e7eb' }}>
+                  <label className="block text-sm font-medium mb-2" style={{ color: '#374151' }}>
                     其他錢包地址
                   </label>
 
@@ -1670,7 +1667,7 @@ export default function TeamRegisterPage() {
                         <div
                           key={index}
                           className="flex items-start gap-3 p-3 rounded-lg"
-                          style={{ backgroundColor: '#1a2332', border: '1px solid #374151' }}
+                          style={{ backgroundColor: '#f9fafb', border: '1px solid #d1d5db' }}
                         >
                           <div className="flex-grow">
                             <div className="text-sm font-medium" style={{ color: '#1a3a6e' }}>
