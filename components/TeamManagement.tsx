@@ -248,7 +248,7 @@ const TeamManagement: React.FC = () => {
                     className="ml-2 text-sm font-normal px-2 py-1 rounded"
                     style={{ backgroundColor: '#dbeafe', color: '#1a3a6e' }}
                   >
-                    隊長
+                    團隊報名者
                   </span>
                 )}
               </h3>
@@ -598,10 +598,10 @@ const TeamManagement: React.FC = () => {
                   )}
                 </div>
 
-                {/* Team Leader */}
+                {/* Team Registrant */}
                 <div>
                   <label className="block text-sm font-medium mb-2" style={{ color: '#374151' }}>
-                    隊長
+                    團隊報名者
                   </label>
                   <div className="p-4 bg-gray-50 rounded-lg">
                     <div className="font-medium">{selectedTeam.teamLeader.name}</div>
