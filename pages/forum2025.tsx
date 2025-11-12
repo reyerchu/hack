@@ -11,12 +11,21 @@ export default function Forum2025({ htmlContent }: Forum2025Props) {
 }
 
 export const getStaticProps: GetStaticProps = async () => {
-  const filePath = path.join(process.cwd(), 'public', 'forum2025.html');
-  const htmlContent = fs.readFileSync(filePath, 'utf8');
+  try {
+    const filePath = path.join(process.cwd(), 'public', 'forum2025.html');
+    const htmlContent = fs.readFileSync(filePath, 'utf8');
 
-  return {
-    props: {
-      htmlContent,
-    },
-  };
+    return {
+      props: {
+        htmlContent,
+      },
+    };
+  } catch (error) {
+    console.error('Error reading forum2025.html:', error);
+    return {
+      props: {
+        htmlContent: '<h1>Forum content temporarily unavailable</h1>',
+      },
+    };
+  }
 };
