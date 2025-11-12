@@ -4,7 +4,7 @@
  */
 
 import { NextApiRequest, NextApiResponse } from 'next';
-import { initializeApi } from '../../../../../lib/admin/init';
+import initializeApi from '../../../../../lib/admin/init';
 import firebase from 'firebase-admin';
 
 initializeApi();
