@@ -584,11 +584,14 @@ async function sendDeleteRequestEmail(
   const ADMIN_EMAIL = 'reyerchu@defintek.io';
   const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://hackathon.com.tw';
 
-  const subject = `【團隊刪除請求】${teamName}`;
+  const subject = `🚨 【團隊刪除請求】${teamName} - 請求者：${requesterEmail}`;
   const html = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-      <h2 style="color: #1a3a6e;">團隊刪除請求</h2>
-      <p>有團隊成員請求刪除團隊，詳細資訊如下：</p>
+      <div style="background-color: #dc2626; color: white; padding: 15px; border-radius: 8px 8px 0 0; margin-bottom: 20px;">
+        <h2 style="color: white; margin: 0;">🚨 團隊刪除請求 - 需要您的審核</h2>
+      </div>
+      <p style="font-size: 16px; font-weight: bold; color: #dc2626;">有團隊成員請求刪除團隊，請盡快審核！</p>
+      <p>詳細資訊如下：</p>
       
       <div style="background-color: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
         <p><strong>團隊名稱：</strong>${teamName}</p>
