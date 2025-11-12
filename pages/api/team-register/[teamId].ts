@@ -471,7 +471,7 @@ async function handleDelete(req: NextApiRequest, res: NextApiResponse, teamId: s
     const teamData = teamDoc.data()!;
 
     // ONLY ADMIN CAN DELETE - Simple and direct
-    const ADMIN_EMAIL = 'reyerchu@defintek.io';
+    const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'reyerchu@defintek.io';
     const isAdmin = userEmail === ADMIN_EMAIL;
 
     if (!isAdmin) {

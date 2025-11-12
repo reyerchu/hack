@@ -220,6 +220,12 @@ ETHERSCAN_API_KEY=your_etherscan_api_key
 SEPOLIA_RPC_URL=https://ethereum-sepolia-rpc.publicnode.com
 
 # ============================================
+# Admin Configuration
+# ============================================
+ADMIN_EMAIL=your_admin_email@domain.com
+NEXT_PUBLIC_ADMIN_EMAIL=your_admin_email@domain.com
+
+# ============================================
 # Optional Configuration
 # ============================================
 NEXT_PUBLIC_RESUME_UPLOAD_PASSWORD=your_password
@@ -249,6 +255,10 @@ NEXT_PUBLIC_VAPID_KEY=your_vapid_key
 5. **Blockchain**:
    - Etherscan API key from [Etherscan](https://etherscan.io/myapikey)
    - Required for contract verification
+
+6. **Admin Configuration**:
+   - Set `ADMIN_EMAIL` to your admin email address
+   - Used for permission checks and admin notifications
 
 ### Installation
 ```bash

@@ -32,7 +32,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const userEmail = decodedToken.email;
 
     // Check if user is admin
-    const ADMIN_EMAIL = 'reyerchu@defintek.io';
+    const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'reyerchu@defintek.io';
     if (userEmail !== ADMIN_EMAIL) {
       return res.status(403).json({ error: 'Admin access required' });
     }

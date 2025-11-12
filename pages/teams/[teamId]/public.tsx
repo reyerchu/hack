@@ -59,7 +59,7 @@ export default function TeamPublicPage() {
   const [copiedAddress, setCopiedAddress] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const ADMIN_EMAIL = 'reyerchu@defintek.io';
+  const ADMIN_EMAIL = process.env.NEXT_PUBLIC_ADMIN_EMAIL || 'reyerchu@defintek.io';
   const isAdmin = user?.preferredEmail === ADMIN_EMAIL;
 
   const handleDeleteTeam = async () => {
