@@ -363,7 +363,7 @@ const TeamManagement: React.FC = () => {
                       e.currentTarget.style.backgroundColor = '#dc2626';
                     }}
                   >
-                    刪除
+                    刪除請求
                   </button>
                 </>
               )}
