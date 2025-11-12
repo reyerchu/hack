@@ -333,8 +333,13 @@ This project is based on [HackPortal](https://github.com/acmutd/hackportal) by A
 
 ## 📧 Contact
 
-For questions or support, please contact: [reyerchu@defintek.io](mailto:reyerchu@defintek.io)
+**Email**: [reyerchu@defintek.io](mailto:reyerchu@defintek.io)
+
+**Websites**:
+- [reyerchu.com](https://reyerchu.com) - Personal Portfolio
+- [rwa.nexus](https://rwa.nexus) - RWA Nexus Platform
+- [defintek.io](https://defintek.io) - Defintek Technology
 
 ---
 
-Built with ❤️ for the Web3 community in Taiwan
+Built with ❤️ and Cursor AI w/ Claude 4.5, for the Web3 community in Taiwan
