@@ -836,9 +836,12 @@ export default function NFTCampaignPage() {
     if (network.toLowerCase() === 'arbitrum') {
       return `https://arbiscan.io/address/${address}`;
     }
-    // Handle Ethereum networks
-    const prefix = network === 'mainnet' ? '' : `${network}.`;
-    return `https://${prefix}etherscan.io/address/${address}`;
+    // Handle Ethereum Mainnet
+    if (network.toLowerCase() === 'ethereum' || network.toLowerCase() === 'mainnet') {
+      return `https://etherscan.io/address/${address}`;
+    }
+    // Handle Ethereum testnets (sepolia, goerli, etc.)
+    return `https://${network}.etherscan.io/address/${address}`;
   };
 
   const getTxExplorerUrl = (network: string, txHash: string) => {
@@ -846,9 +849,12 @@ export default function NFTCampaignPage() {
     if (network.toLowerCase() === 'arbitrum') {
       return `https://arbiscan.io/tx/${txHash}`;
     }
-    // Handle Ethereum networks
-    const prefix = network === 'mainnet' ? '' : `${network}.`;
-    return `https://${prefix}etherscan.io/tx/${txHash}`;
+    // Handle Ethereum Mainnet
+    if (network.toLowerCase() === 'ethereum' || network.toLowerCase() === 'mainnet') {
+      return `https://etherscan.io/tx/${txHash}`;
+    }
+    // Handle Ethereum testnets (sepolia, goerli, etc.)
+    return `https://${network}.etherscan.io/tx/${txHash}`;
   };
 
   if (loading && !campaign) {
