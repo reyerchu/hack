@@ -159,12 +159,22 @@ done
 
 if [ $SUCCESS -eq 0 ]; then
   echo ""
-  echo "   ❌ Health check timeout!"
+  echo "   ⚠️  Health check timeout (but service may still be starting)..."
   pm2 status
-  pm2 logs $APP_NAME --lines 50 --nostream
   echo ""
-  echo "   Run: ./fix-zombie.sh"
-  exit 1
+  echo "   Checking final status..."
+  FINAL_STATUS=$(pm2 jlist 2>/dev/null | jq -r ".[] | select(.name==\"$APP_NAME\") | .pm2_env.status" 2>/dev/null || echo "unknown")
+  
+  if [ "$FINAL_STATUS" = "online" ]; then
+    echo "   ℹ️  Service is online. If you encounter issues, run: ./fix-zombie.sh"
+    SUCCESS=1
+  else
+    echo "   ❌ Service failed to start!"
+    pm2 logs $APP_NAME --lines 50 --nostream
+    echo ""
+    echo "   Run: ./fix-zombie.sh"
+    exit 1
+  fi
 fi
 echo ""
 

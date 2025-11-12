@@ -864,11 +864,13 @@ const TeamManagement: React.FC = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg max-w-md w-full p-6">
             <h3 className="text-xl font-bold mb-4" style={{ color: '#dc2626' }}>
-              確認刪除團隊
+              發送刪除請求
             </h3>
 
             <div className="mb-6">
-              <p className="text-gray-700 mb-2">您確定要刪除以下團隊嗎？此操作無法撤銷。</p>
+              <p className="text-gray-700 mb-2">
+                此請求將發送給管理員審核。管理員會在評估後決定是否刪除團隊。
+              </p>
               <div className="p-4 bg-gray-50 rounded-lg mt-4">
                 <div className="font-semibold text-lg" style={{ color: '#1a3a6e' }}>
                   {teamToDelete.teamName}
@@ -906,7 +908,7 @@ const TeamManagement: React.FC = () => {
                   if (!isDeleting) e.currentTarget.style.backgroundColor = '#dc2626';
                 }}
               >
-                {isDeleting ? '刪除中...' : '確認刪除'}
+                {isDeleting ? '發送中...' : '發送請求'}
               </button>
             </div>
           </div>
