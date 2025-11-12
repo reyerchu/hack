@@ -440,6 +440,8 @@ async function handlePut(req: NextApiRequest, res: NextApiResponse, teamId: stri
 
 /**
  * DELETE - Delete team registration
+ * Admin (reyerchu@defintek.io): 直接刪除
+ * 團隊成員: 發送刪除請求 email 給 admin，不執行刪除
  */
 async function handleDelete(req: NextApiRequest, res: NextApiResponse, teamId: string) {
   try {
@@ -457,6 +459,7 @@ async function handleDelete(req: NextApiRequest, res: NextApiResponse, teamId: s
     }
 
     const userId = decodedToken.uid;
+    const userEmail = decodedToken.email;
 
     // Get team document
     const teamDoc = await db.collection('team-registrations').doc(teamId).get();
@@ -467,42 +470,99 @@ async function handleDelete(req: NextApiRequest, res: NextApiResponse, teamId: s
 
     const teamData = teamDoc.data()!;
 
-    // Only team leader can delete
-    if (teamData.teamLeader?.userId !== userId) {
-      return res.status(403).json({ error: '只有團隊領導者可以刪除團隊' });
+    // Check if user is admin (reyerchu@defintek.io)
+    const ADMIN_EMAIL = 'reyerchu@defintek.io';
+    const isAdmin = userEmail === ADMIN_EMAIL;
+
+    // Check if user has permission (team leader or member with edit rights)
+    const isLeader = teamData.teamLeader?.userId === userId;
+    const hasMemberEditRight = teamData.teamMembers?.some(
+      (member: any) => member.userId === userId && member.hasEditRight,
+    );
+
+    const hasPermission = isLeader || hasMemberEditRight;
+
+    if (!isAdmin && !hasPermission) {
+      return res.status(403).json({ error: '您沒有權限刪除此團隊' });
     }
 
-    // Check if before deadline (2025-10-27 23:59)
-    const deadline = new Date('2025-10-27T23:59:59+08:00');
-    const now = new Date();
+    // If admin: directly delete the team
+    if (isAdmin) {
+      console.log('[DeleteTeam] Admin deleting team:', teamId);
 
-    if (now > deadline) {
-      return res.status(403).json({
-        error: '報名截止日期已過，無法刪除團隊',
+      // Delete team
+      await db.collection('team-registrations').doc(teamId).delete();
+
+      // Log activity
+      try {
+        await db.collection('activity-logs').add({
+          userId: userId,
+          action: 'team_registration_delete_admin',
+          resourceType: 'team_registration',
+          resourceId: teamId,
+          teamName: teamData.teamName,
+          timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+        });
+      } catch (logError) {
+        console.error('[DeleteTeam] Failed to log activity:', logError);
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: '團隊已刪除',
       });
     }
 
-    // Delete team
-    await db.collection('team-registrations').doc(teamId).delete();
+    // If team member: send delete request email to admin (不執行刪除)
+    console.log('[DeleteTeam] Team member requesting delete:', {
+      teamId,
+      userId,
+      userEmail,
+    });
 
-    // Log activity
+    // Create delete request record
     try {
+      await db.collection('team-delete-requests').add({
+        teamId,
+        teamName: teamData.teamName,
+        requestedBy: {
+          userId,
+          email: userEmail,
+          name: isLeader
+            ? teamData.teamLeader.name
+            : teamData.teamMembers.find((m: any) => m.userId === userId)?.name,
+          role: isLeader ? '團隊領導者' : '團隊成員',
+        },
+        teamData: teamData,
+        status: 'pending',
+        requestedAt: firebase.firestore.Timestamp.now(),
+      });
+
+      // Send email notification to admin
+      await sendDeleteRequestEmail(teamId, teamData.teamName, userEmail, isLeader);
+
+      // Log activity
       await db.collection('activity-logs').add({
         userId: userId,
-        action: 'team_registration_delete',
+        action: 'team_delete_request',
         resourceType: 'team_registration',
         resourceId: teamId,
         teamName: teamData.teamName,
         timestamp: firebase.firestore.FieldValue.serverTimestamp(),
       });
-    } catch (logError) {
-      console.error('[DeleteTeam] Failed to log activity:', logError);
-    }
 
-    return res.status(200).json({
-      success: true,
-      message: '團隊已刪除',
-    });
+      return res.status(200).json({
+        success: true,
+        message: '刪除請求已發送給管理員，請等待審核',
+        isRequest: true, // 標記這是請求而非直接刪除
+      });
+    } catch (emailError) {
+      console.error('[DeleteTeam] Failed to send delete request:', emailError);
+      return res.status(500).json({
+        error: '發送刪除請求失敗',
+        details: emailError.message,
+      });
+    }
   } catch (error: any) {
     console.error('[DeleteTeam] Error:', error);
     return res.status(500).json({
@@ -510,4 +570,136 @@ async function handleDelete(req: NextApiRequest, res: NextApiResponse, teamId: s
       details: error.message,
     });
   }
+}
+
+/**
+ * Send delete request email to admin
+ */
+async function sendDeleteRequestEmail(
+  teamId: string,
+  teamName: string,
+  requesterEmail: string,
+  isLeader: boolean,
+): Promise<void> {
+  const ADMIN_EMAIL = 'reyerchu@defintek.io';
+  const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://hackathon.com.tw';
+
+  const subject = `【團隊刪除請求】${teamName}`;
+  const html = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+      <h2 style="color: #1a3a6e;">團隊刪除請求</h2>
+      <p>有團隊成員請求刪除團隊，詳細資訊如下：</p>
+      
+      <div style="background-color: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
+        <p><strong>團隊名稱：</strong>${teamName}</p>
+        <p><strong>團隊 ID：</strong>${teamId}</p>
+        <p><strong>請求者：</strong>${requesterEmail} (${isLeader ? '團隊領導者' : '團隊成員'})</p>
+        <p><strong>請求時間：</strong>${new Date().toLocaleString('zh-TW', {
+          timeZone: 'Asia/Taipei',
+        })}</p>
+      </div>
+      
+      <p>您可以登入管理後台查看團隊詳情並決定是否刪除：</p>
+      <p><a href="${BASE_URL}/admin/team-management" style="display: inline-block; background-color: #1a3a6e; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; margin: 10px 0;">前往管理後台</a></p>
+      
+      <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
+      <p style="color: #666; font-size: 12px;">此郵件由 RWA 黑客松台灣系統自動發送，請勿直接回覆。</p>
+    </div>
+  `;
+
+  const text = `
+團隊刪除請求
+
+團隊名稱：${teamName}
+團隊 ID：${teamId}
+請求者：${requesterEmail} (${isLeader ? '團隊領導者' : '團隊成員'})
+請求時間：${new Date().toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' })}
+
+請登入管理後台查看詳情：${BASE_URL}/admin/team-management
+  `;
+
+  try {
+    await sendEmail(ADMIN_EMAIL, subject, html, text);
+    console.log('[DeleteTeam] Delete request email sent to admin');
+  } catch (error) {
+    console.error('[DeleteTeam] Failed to send email to admin:', error);
+    throw error;
+  }
+}
+
+/**
+ * Send email using SMTP or SendGrid
+ */
+async function sendEmail(to: string, subject: string, html: string, text?: string): Promise<void> {
+  const SENDGRID_API_KEY = process.env.SENDGRID_API_KEY;
+  const EMAIL_FROM = process.env.EMAIL_FROM || 'noreply@hackathon.com.tw';
+  const SMTP_HOST = process.env.SMTP_HOST;
+  const SMTP_PORT = parseInt(process.env.SMTP_PORT || '587');
+  const SMTP_USER = process.env.SMTP_USER;
+  const SMTP_PASS = process.env.SMTP_PASS;
+
+  // Try SMTP first
+  if (SMTP_HOST && SMTP_USER && SMTP_PASS) {
+    try {
+      const nodemailer = require('nodemailer');
+      const transporter = nodemailer.createTransport({
+        host: SMTP_HOST,
+        port: SMTP_PORT,
+        secure: SMTP_PORT === 465,
+        auth: { user: SMTP_USER, pass: SMTP_PASS },
+      });
+
+      await transporter.sendMail({
+        from: EMAIL_FROM,
+        to,
+        subject,
+        text,
+        html,
+      });
+
+      console.log('[DeleteTeam] SMTP email sent to:', to);
+      return;
+    } catch (error) {
+      console.error('[DeleteTeam] SMTP send failed:', error);
+    }
+  }
+
+  // Try SendGrid
+  if (SENDGRID_API_KEY) {
+    try {
+      const response = await fetch('https://api.sendgrid.com/v3/mail/send', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${SENDGRID_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          personalizations: [{ to: [{ email: to }] }],
+          from: { email: EMAIL_FROM },
+          subject,
+          content: [
+            { type: 'text/plain', value: text || subject },
+            { type: 'text/html', value: html },
+          ],
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.text();
+        throw new Error(`SendGrid API error: ${error}`);
+      }
+
+      console.log('[DeleteTeam] SendGrid email sent to:', to);
+      return;
+    } catch (error) {
+      console.error('[DeleteTeam] SendGrid send failed:', error);
+      throw error;
+    }
+  }
+
+  // No email service configured
+  console.log('[DeleteTeam] No email service configured. Email would be sent:');
+  console.log(`  To: ${to}`);
+  console.log(`  Subject: ${subject}`);
+  console.log(`  Text: ${text}`);
 }
