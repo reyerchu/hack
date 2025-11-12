@@ -337,8 +337,8 @@ This project is based on [HackPortal](https://github.com/acmutd/hackportal) by A
 
 **Websites**:
 - [reyerchu.com](https://reyerchu.com) - Personal Portfolio
-- [rwa.nexus](https://rwa.nexus) - RWA Nexus Platform
-- [defintek.io](https://defintek.io) - Defintek Technology
+- [rwa.nexus](https://rwa.nexus) - RWA-focused Startup
+- [defintek.io](https://defintek.io) - Online Web3 Courses
 
 ---
 
