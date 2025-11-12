@@ -267,12 +267,12 @@ npm start            # Production server
 
 ## 🌟 Unique Features
 
-### Team Edit System
-- Separated team registration and edit pages
-- Visual member management with role badges
-- Team registrant highlighting
-- Trash can icons for intuitive deletion
-- Redirect to team public page after save/cancel
+### Simple & Elegant Schedule with Share Feature
+- Clean, professional event schedule interface
+- Real-time event filtering and search
+- One-click share to Google Calendar
+- Responsive design for mobile and desktop
+- Time zone support for international participants
 
 ### NFT Auto-Setup
 - One-click contract deployment
