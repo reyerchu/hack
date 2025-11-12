@@ -47,6 +47,15 @@ const withPWA = require('next-pwa')({
       test: /\.md$/,
       use: 'raw-loader',
     });
+
+    // Fix for ethers.js and bn.js in webpack 5
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+      fs: false,
+      net: false,
+      tls: false,
+    };
+
     return config;
   },
 })),

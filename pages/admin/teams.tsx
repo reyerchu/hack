@@ -2,6 +2,7 @@ import Head from 'next/head';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import AdminHeader from '../../components/adminComponents/AdminHeader';
+import TeamDeleteRequests from '../../components/admin/TeamDeleteRequests';
 import { RequestHelper } from '../../lib/request-helper';
 import { useAuthContext } from '../../lib/user/AuthContext';
 import { isAuthorized } from '.';
@@ -270,6 +271,11 @@ export default function AdminTeamsPage() {
             </h1>
           </div>
           <AdminHeader />
+
+          {/* Team Delete Requests Section */}
+          <div className="mb-8">
+            <TeamDeleteRequests />
+          </div>
 
           {/* Header with stats */}
           <div className="mb-6">

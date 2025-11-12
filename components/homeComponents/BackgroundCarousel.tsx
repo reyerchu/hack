@@ -66,7 +66,7 @@ export default function BackgroundCarousel() {
           </div>
 
           {/* CTA Button - Fluid Typography */}
-          <Link href="/team-register-info">
+          <Link href="/nft/QtQbhHP0cD9sew3ue2XD">
             <a
               className="inline-block bg-white text-blue-900 rounded-lg font-bold hover:bg-blue-50 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl landscape:px-6 landscape:py-2"
               style={{
@@ -74,7 +74,7 @@ export default function BackgroundCarousel() {
                 padding: 'clamp(0.75rem, 1vw, 1rem) clamp(2rem, 3vw, 3rem)',
               }}
             >
-              立即報名
+              參賽 NFT 鑄造
             </a>
           </Link>
 

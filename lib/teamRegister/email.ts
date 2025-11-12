@@ -288,10 +288,53 @@ export async function notifyAdminNewTeamRegistration(
   memberCount: number,
   teamMembers: Array<{ name: string; email: string; role: string }>,
   tracks: Array<{ name: string; sponsorName?: string }>,
+  evmWalletAddress?: string,
+  otherWallets?: Array<{ chain: string; address: string }>,
 ): Promise<boolean> {
   const adminEmail = 'reyer.chu@rwa.nexus';
   const subject = `[RWA Hackathon Admin] 新團隊報名 - ${teamName}`;
   const teamUrl = `${BASE_URL}/profile`; // 管理員可以在後台查看
+
+  // 准备钱包地址显示
+  const walletSection =
+    evmWalletAddress || (otherWallets && otherWallets.length > 0)
+      ? `
+      <div class="highlight">
+        <strong>錢包地址：</strong><br>
+        ${
+          evmWalletAddress
+            ? `<strong>EVM 錢包地址：</strong><br>
+        <span style="font-family: 'Courier New', monospace; font-size: 13px; color: #1a3a6e;">${evmWalletAddress}</span><br><br>`
+            : ''
+        }
+        ${
+          otherWallets && otherWallets.length > 0
+            ? `<strong>其他錢包地址：</strong><br>
+        ${otherWallets
+          .map(
+            (w) =>
+              `<span style="color: #1a3a6e; font-weight: 600;">${w.chain}：</span><br>
+        <span style="font-family: 'Courier New', monospace; font-size: 13px;">${w.address}</span>`,
+          )
+          .join('<br><br>')}`
+            : ''
+        }
+      </div>
+      `
+      : '';
+
+  const walletTextSection =
+    evmWalletAddress || (otherWallets && otherWallets.length > 0)
+      ? `
+錢包地址：
+${evmWalletAddress ? `EVM 錢包地址：${evmWalletAddress}` : ''}
+${
+  otherWallets && otherWallets.length > 0
+    ? otherWallets.map((w) => `${w.chain}：${w.address}`).join('\n')
+    : ''
+}
+`
+      : '';
 
   const html = `
 <!DOCTYPE html>
@@ -348,6 +391,8 @@ export async function notifyAdminNewTeamRegistration(
         </div>
       </div>
       
+      ${walletSection}
+      
       <p style="color: #666; font-size: 14px; margin-top: 20px;">
         此為系統自動通知，無需回覆。
       </p>
@@ -381,6 +426,7 @@ ${teamMembers.map((m) => `• ${m.name} (${m.email}) - ${m.role}`).join('\n')}
 參賽賽道：共 ${tracks.length} 個
 ${tracks.map((t) => `• ${t.name}${t.sponsorName ? ` (${t.sponsorName})` : ''}`).join('\n')}
 
+${walletTextSection}
 此為系統自動通知，無需回覆。
 
 RWA Hackathon Taiwan - Admin Panel
@@ -399,9 +445,52 @@ export async function notifyAdminTeamEdit(
   editorEmail: string,
   editorName: string,
   changedFields: string[],
+  evmWalletAddress?: string,
+  otherWallets?: Array<{ chain: string; address: string }>,
 ): Promise<boolean> {
   const adminEmail = 'reyer.chu@rwa.nexus';
   const subject = `[RWA Hackathon Admin] 團隊資料修改 - ${teamName}`;
+
+  // 准备钱包地址显示
+  const walletSection =
+    evmWalletAddress || (otherWallets && otherWallets.length > 0)
+      ? `
+      <div class="highlight">
+        <strong>錢包地址：</strong><br>
+        ${
+          evmWalletAddress
+            ? `<strong>EVM 錢包地址：</strong><br>
+        <span style="font-family: 'Courier New', monospace; font-size: 13px; color: #1a3a6e;">${evmWalletAddress}</span><br><br>`
+            : ''
+        }
+        ${
+          otherWallets && otherWallets.length > 0
+            ? `<strong>其他錢包地址：</strong><br>
+        ${otherWallets
+          .map(
+            (w) =>
+              `<span style="color: #1a3a6e; font-weight: 600;">${w.chain}：</span><br>
+        <span style="font-family: 'Courier New', monospace; font-size: 13px;">${w.address}</span>`,
+          )
+          .join('<br><br>')}`
+            : ''
+        }
+      </div>
+      `
+      : '';
+
+  const walletTextSection =
+    evmWalletAddress || (otherWallets && otherWallets.length > 0)
+      ? `
+錢包地址：
+${evmWalletAddress ? `EVM 錢包地址：${evmWalletAddress}` : ''}
+${
+  otherWallets && otherWallets.length > 0
+    ? otherWallets.map((w) => `${w.chain}：${w.address}`).join('\n')
+    : ''
+}
+`
+      : '';
 
   const html = `
 <!DOCTYPE html>
@@ -445,6 +534,8 @@ export async function notifyAdminTeamEdit(
         ${changedFields.map((f) => `• ${f}`).join('<br>')}
       </div>
       
+      ${walletSection}
+      
       <p style="color: #666; font-size: 14px; margin-top: 20px;">
         此為系統自動通知，無需回覆。
       </p>
@@ -474,6 +565,7 @@ Email：${editorEmail}
 修改內容：
 ${changedFields.map((f) => `• ${f}`).join('\n')}
 
+${walletTextSection}
 此為系統自動通知，無需回覆。
 
 RWA Hackathon Taiwan - Admin Panel

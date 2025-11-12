@@ -1,0 +1,129 @@
+#!/bin/bash
+
+# Pre-commit Hook: 防止意外覆蓋功能
+# 檢查是否刪除了大量代碼或重要功能
+
+echo "🔍 Pre-commit check: 檢查是否有大量代碼刪除..."
+
+# 獲取即將提交的更改統計
+STATS=$(git diff --cached --numstat)
+
+# 計算刪除的行數
+DELETED_LINES=$(echo "$STATS" | awk '{sum += $2} END {print sum}')
+ADDED_LINES=$(echo "$STATS" | awk '{sum += $1} END {print sum}')
+
+# 如果沒有更改，退出
+if [ -z "$DELETED_LINES" ]; then
+  echo "✅ 沒有更改"
+  exit 0
+fi
+
+# 設定閾值：如果刪除超過 500 行，發出警告
+DELETION_THRESHOLD=500
+
+if [ "$DELETED_LINES" -gt "$DELETION_THRESHOLD" ]; then
+  echo ""
+  echo "⚠️  警告：即將刪除 $DELETED_LINES 行代碼！"
+  echo "   新增：$ADDED_LINES 行"
+  echo "   刪除：$DELETED_LINES 行"
+  echo ""
+  
+  # 檢查是否刪除了關鍵功能相關的代碼
+  CRITICAL_KEYWORDS=(
+    "evmWalletAddress"
+    "otherWallets"
+    "handleMint"
+    "nftContract"
+    "notifyAdminTeamEdit"
+    "TeamDeleteRequests"
+  )
+  
+  FOUND_CRITICAL=false
+  for keyword in "${CRITICAL_KEYWORDS[@]}"; do
+    if git diff --cached | grep -q "^-.*$keyword"; then
+      echo "🚨 檢測到關鍵功能代碼被刪除：$keyword"
+      FOUND_CRITICAL=true
+    fi
+  done
+  
+  if [ "$FOUND_CRITICAL" = true ]; then
+    echo ""
+    echo "🔴 發現刪除關鍵功能相關代碼！"
+    echo ""
+    echo "請確認："
+    echo "1. 這是否為預期的刪除？"
+    echo "2. 是否已檢查 FEATURES.md 確認影響範圍？"
+    echo "3. 是否有備份或可恢復該功能？"
+    echo ""
+    echo "刪除的文件和行數："
+    git diff --cached --stat
+    echo ""
+    
+    # 詢問用戶是否繼續
+    read -p "⚠️  確定要繼續提交嗎？(yes/no) " -n 3 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy][Ee][Ss]$ ]]; then
+      echo "❌ Commit 已取消"
+      echo "💡 建議："
+      echo "   - 使用 'git diff --cached' 查看所有更改"
+      echo "   - 使用 'git reset' 取消 staging"
+      echo "   - 檢查 FEATURES.md 確認功能完整性"
+      exit 1
+    fi
+  else
+    echo ""
+    echo "💡 大量代碼刪除，但未檢測到關鍵功能"
+    echo "   請確認這是預期的更改"
+    echo ""
+  fi
+fi
+
+# 檢查 FEATURES.md 是否需要更新
+MODIFIED_FILES=$(git diff --cached --name-only)
+
+# 關鍵文件列表
+CRITICAL_FILES=(
+  "pages/team-register.tsx"
+  "pages/api/team-register"
+  "pages/nft"
+  "lib/hooks/useNFT"
+  "components/admin/NFT"
+  "lib/winnersData.ts"
+)
+
+NEEDS_FEATURES_UPDATE=false
+for critical_file in "${CRITICAL_FILES[@]}"; do
+  if echo "$MODIFIED_FILES" | grep -q "$critical_file"; then
+    NEEDS_FEATURES_UPDATE=true
+    break
+  fi
+done
+
+if [ "$NEEDS_FEATURES_UPDATE" = true ]; then
+  if ! echo "$MODIFIED_FILES" | grep -q "FEATURES.md"; then
+    echo ""
+    echo "⚠️  警告：修改了關鍵功能文件，但未更新 FEATURES.md"
+    echo ""
+    echo "修改的關鍵文件："
+    for critical_file in "${CRITICAL_FILES[@]}"; do
+      if echo "$MODIFIED_FILES" | grep -q "$critical_file"; then
+        echo "  - $critical_file"
+      fi
+    done
+    echo ""
+    echo "💡 建議：更新 FEATURES.md 記錄此次更改"
+    echo ""
+    
+    read -p "⚠️  是否繼續提交？(yes/no) " -n 3 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy][Ee][Ss]$ ]]; then
+      echo "❌ Commit 已取消"
+      echo "💡 請更新 FEATURES.md 後再提交"
+      exit 1
+    fi
+  fi
+fi
+
+echo "✅ Pre-commit check 通過"
+exit 0
+

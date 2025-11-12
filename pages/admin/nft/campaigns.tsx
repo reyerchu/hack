@@ -36,6 +36,18 @@ export default function NFTCampaignsAdmin() {
   const [campaignImageFiles, setCampaignImageFiles] = useState<Record<string, File>>({});
   const [copiedAddress, setCopiedAddress] = useState<string>('');
 
+  // Helper function to get blockchain explorer URL
+  const getNetworkExplorerUrl = (network: string, address: string) => {
+    if (network.toLowerCase() === 'arbitrum') {
+      return `https://arbiscan.io/address/${address}`;
+    }
+    if (network.toLowerCase() === 'ethereum' || network.toLowerCase() === 'mainnet') {
+      return `https://etherscan.io/address/${address}`;
+    }
+    // Testnets (sepolia, goerli, etc.)
+    return `https://${network}.etherscan.io/address/${address}`;
+  };
+
   // Form state
   const getDefaultDates = () => {
     const now = new Date();
@@ -578,32 +590,66 @@ export default function NFTCampaignsAdmin() {
                               <p className="text-sm font-semibold text-emerald-700">合約已部署</p>
                             </div>
                           </div>
-                          <button
-                            onClick={() => {
-                              navigator.clipboard.writeText(campaign.contractAddress);
-                              setCopiedAddress(campaign.contractAddress);
-                              setTimeout(() => setCopiedAddress(''), 2000);
-                            }}
-                            className="w-full flex items-center justify-center gap-2 px-2 py-2 hover:bg-gray-100 rounded transition-colors cursor-pointer group"
-                            title="點擊複製合約地址"
-                          >
-                            <p className="text-xs text-gray-600 group-hover:text-gray-900 font-mono break-all text-center flex-1">
-                              {campaign.contractAddress}
-                            </p>
-                            <div className="flex-shrink-0">
+                          <div className="flex items-center gap-2">
+                            <a
+                              href={getNetworkExplorerUrl(
+                                campaign.network,
+                                campaign.contractAddress,
+                              )}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex-1 flex items-center justify-center gap-2 px-2 py-2 hover:bg-indigo-50 rounded transition-colors group"
+                              style={{
+                                borderLeft: '3px solid #1a3a6e',
+                                backgroundColor: '#f8fafc',
+                              }}
+                              title="在區塊鏈瀏覽器查看"
+                            >
+                              <p
+                                className="text-xs font-mono break-all text-center flex-1"
+                                style={{ color: '#1a3a6e' }}
+                              >
+                                {campaign.contractAddress}
+                              </p>
+                              <svg
+                                className="w-4 h-4 flex-shrink-0"
+                                style={{ color: '#1a3a6e' }}
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                                />
+                              </svg>
+                            </a>
+                            <button
+                              onClick={() => {
+                                navigator.clipboard.writeText(campaign.contractAddress);
+                                setCopiedAddress(campaign.contractAddress);
+                                setTimeout(() => setCopiedAddress(''), 2000);
+                              }}
+                              className="p-2 hover:bg-gray-100 rounded transition-colors"
+                              title="複製地址"
+                            >
                               {copiedAddress === campaign.contractAddress ? (
-                                <div className="flex items-center gap-1 text-emerald-700">
-                                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                    <path
-                                      fillRule="evenodd"
-                                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                      clipRule="evenodd"
-                                    />
-                                  </svg>
-                                </div>
+                                <svg
+                                  className="w-4 h-4 text-emerald-700"
+                                  fill="currentColor"
+                                  viewBox="0 0 20 20"
+                                >
+                                  <path
+                                    fillRule="evenodd"
+                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                    clipRule="evenodd"
+                                  />
+                                </svg>
                               ) : (
                                 <svg
-                                  className="w-4 h-4 text-gray-500 group-hover:text-gray-700"
+                                  className="w-4 h-4 text-gray-500"
                                   fill="none"
                                   stroke="currentColor"
                                   viewBox="0 0 24 24"
@@ -616,8 +662,8 @@ export default function NFTCampaignsAdmin() {
                                   />
                                 </svg>
                               )}
-                            </div>
-                          </button>
+                            </button>
+                          </div>
                         </div>
                       ) : (
                         <NFTAutoSetup
