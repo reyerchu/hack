@@ -723,8 +723,8 @@ export default function TeamRegisterPage() {
                       key={index}
                       className="flex items-center gap-3 p-4 rounded-lg"
                       style={{
-                        backgroundColor: index === 0 ? '#1e3a5f' : '#1a2332',
-                        border: index === 0 ? '2px solid #3b82f6' : '1px solid #374151',
+                        backgroundColor: index === 0 ? '#1a2332' : '#1a2332',
+                        border: index === 0 ? '2px solid #1a3a6e' : '1px solid #374151',
                       }}
                     >
                       <div className="flex-1 min-w-0">
@@ -732,7 +732,7 @@ export default function TeamRegisterPage() {
                           {index === 0 && (
                             <span
                               className="text-xs px-2 py-1 rounded font-bold"
-                              style={{ backgroundColor: '#3b82f6', color: '#ffffff' }}
+                              style={{ backgroundColor: '#1a3a6e', color: '#ffffff' }}
                             >
                               👑 團隊報名者
                             </span>
@@ -742,14 +742,14 @@ export default function TeamRegisterPage() {
                           </span>
                           <span
                             className="text-sm px-2 py-1 rounded"
-                            style={{ backgroundColor: '#1e3a8a', color: '#93c5fd' }}
+                            style={{ backgroundColor: '#1a3a6e', color: '#d1d5db' }}
                           >
                             {member.role}
                           </span>
                           {member.hasEditRight && (
                             <span
                               className="text-xs px-2 py-1 rounded"
-                              style={{ backgroundColor: '#065f46', color: '#6ee7b7' }}
+                              style={{ backgroundColor: '#10403b', color: '#d1d5db' }}
                             >
                               ✓ 可編輯
                             </span>
@@ -773,9 +773,9 @@ export default function TeamRegisterPage() {
                 {/* 添加新成員的輸入區域 */}
                 <div
                   className="space-y-4 p-4 rounded-lg"
-                  style={{ backgroundColor: '#1a2332', border: '2px dashed #3b82f6' }}
+                  style={{ backgroundColor: '#1a2332', border: '2px dashed #374151' }}
                 >
-                  <div className="text-sm font-medium mb-3" style={{ color: '#60a5fa' }}>
+                  <div className="text-sm font-medium mb-3" style={{ color: '#9ca3af' }}>
                     + 新增成員
                   </div>
 
