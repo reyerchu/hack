@@ -57,6 +57,44 @@ export default function TeamPublicPage() {
   const [error, setError] = useState('');
   const [canEdit, setCanEdit] = useState(false);
   const [copiedAddress, setCopiedAddress] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const ADMIN_EMAIL = 'reyerchu@defintek.io';
+  const isAdmin = user?.preferredEmail === ADMIN_EMAIL;
+
+  const handleDeleteTeam = async () => {
+    if (!isAdmin || !user?.token || !teamId) return;
+
+    const confirmDelete = window.confirm(
+      `⚠️ 警告：您確定要刪除團隊「${team?.teamName}」嗎？\n\n此操作無法撤銷！`,
+    );
+
+    if (!confirmDelete) return;
+
+    try {
+      setIsDeleting(true);
+      const response = await fetch(`/api/team-register/${teamId}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: user.token,
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || '刪除失敗');
+      }
+
+      alert('✅ 團隊已成功刪除');
+      router.push('/admin/teams');
+    } catch (error: any) {
+      console.error('[TeamPublic] Delete error:', error);
+      alert(`刪除失敗：${error.message || '未知錯誤'}`);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   useEffect(() => {
     if (!teamId) return;
@@ -202,32 +240,64 @@ export default function TeamPublicPage() {
                   {team.teamName}
                 </h1>
               </div>
-              {canEdit && (
-                <button
-                  onClick={() => router.push(`/team-register?edit=${teamId}`)}
-                  className="ml-4 px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"
-                  style={{
-                    backgroundColor: '#1a3a6e',
-                    color: '#ffffff',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = '#2a4a7e';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = '#1a3a6e';
-                  }}
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                    />
-                  </svg>
-                  編輯
-                </button>
-              )}
+              <div className="flex gap-2">
+                {canEdit && (
+                  <button
+                    onClick={() => router.push(`/team-register?edit=${teamId}`)}
+                    className="ml-4 px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"
+                    style={{
+                      backgroundColor: '#1a3a6e',
+                      color: '#ffffff',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = '#2a4a7e';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = '#1a3a6e';
+                    }}
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                      />
+                    </svg>
+                    編輯
+                  </button>
+                )}
+                {isAdmin && (
+                  <button
+                    onClick={handleDeleteTeam}
+                    disabled={isDeleting}
+                    className="px-4 py-2 rounded-lg font-bold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-2"
+                    style={{
+                      backgroundColor: '#ffffff',
+                      color: '#dc2626',
+                      border: '2px solid #dc2626',
+                      cursor: isDeleting ? 'not-allowed' : 'pointer',
+                      opacity: isDeleting ? 0.6 : 1,
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!isDeleting) e.currentTarget.style.backgroundColor = '#fef2f2';
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!isDeleting) e.currentTarget.style.backgroundColor = '#ffffff';
+                    }}
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                      />
+                    </svg>
+                    {isDeleting ? '刪除中...' : '刪除'}
+                  </button>
+                )}
+              </div>
             </div>
             <div className="w-20 h-1 mb-4" style={{ backgroundColor: '#8B4049' }}></div>
 

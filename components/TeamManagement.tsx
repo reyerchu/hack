@@ -51,6 +51,9 @@ const TeamManagement: React.FC = () => {
   const router = useRouter();
   const { user } = useAuthContext();
 
+  const ADMIN_EMAIL = 'reyerchu@defintek.io';
+  const isAdmin = user?.preferredEmail === ADMIN_EMAIL;
+
   const [teams, setTeams] = useState<Team[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
@@ -68,11 +71,6 @@ const TeamManagement: React.FC = () => {
   });
   const [isSaving, setIsSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState('');
-
-  // Delete states
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [teamToDelete, setTeamToDelete] = useState<Team | null>(null);
-  const [isDeleting, setIsDeleting] = useState(false);
 
   // Fetch teams
   useEffect(() => {
@@ -147,59 +145,6 @@ const TeamManagement: React.FC = () => {
     setSelectedTeam(null);
     setIsEditing(false);
     setSaveMessage('');
-  };
-
-  // Handle delete team
-  const handleDeleteTeam = (team: Team) => {
-    setTeamToDelete(team);
-    setShowDeleteConfirm(true);
-  };
-
-  const confirmDeleteTeam = async () => {
-    if (!teamToDelete || !user?.token) return;
-
-    try {
-      setIsDeleting(true);
-      console.log('[TeamManagement] Deleting team:', teamToDelete.id);
-
-      const response = await RequestHelper.delete(`/api/team-register/${teamToDelete.id}`, {
-        headers: { Authorization: user.token },
-      });
-
-      console.log('[TeamManagement] Delete response:', response);
-
-      // Check if this is a delete request (not actual deletion)
-      if (response.isRequest) {
-        // Team member sent delete request to admin
-        alert(
-          '✅ 刪除請求已發送\n\n您的刪除請求已成功發送給管理員。\n管理員會在審核後處理此請求。\n\n團隊仍會保留在您的列表中，直到管理員批准刪除。',
-        );
-
-        // Close modal (no need to refresh since team is not deleted)
-        setShowDeleteConfirm(false);
-        setTeamToDelete(null);
-      } else {
-        // Admin actually deleted the team
-        alert('✅ 團隊已成功刪除');
-
-        // Refresh teams list
-        await fetchTeams();
-
-        // Close modal
-        setShowDeleteConfirm(false);
-        setTeamToDelete(null);
-      }
-    } catch (error: any) {
-      console.error('[TeamManagement] Error deleting team:', error);
-      alert(`刪除失敗：${error.message || '未知錯誤'}`);
-    } finally {
-      setIsDeleting(false);
-    }
-  };
-
-  const cancelDelete = () => {
-    setShowDeleteConfirm(false);
-    setTeamToDelete(null);
   };
 
   const handleSaveTeam = async () => {
@@ -360,24 +305,6 @@ const TeamManagement: React.FC = () => {
                     }}
                   >
                     編輯
-                  </button>
-
-                  <button
-                    onClick={() => handleDeleteTeam(team)}
-                    className="px-4 py-2 rounded-lg font-bold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
-                    style={{
-                      backgroundColor: '#ffffff',
-                      color: '#dc2626',
-                      border: '2px solid #dc2626',
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = '#fef2f2';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = '#ffffff';
-                    }}
-                  >
-                    刪除請求
                   </button>
                 </>
               )}
@@ -868,62 +795,6 @@ const TeamManagement: React.FC = () => {
                   )}
                 </div>
               </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Delete Confirmation Modal */}
-      {showDeleteConfirm && teamToDelete && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-md w-full p-6">
-            <h3 className="text-xl font-bold mb-4" style={{ color: '#dc2626' }}>
-              發送刪除請求
-            </h3>
-
-            <div className="mb-6">
-              <p className="text-gray-700 mb-2">
-                此請求將發送給管理員審核。管理員會在評估後決定是否刪除團隊。
-              </p>
-              <div className="p-4 bg-gray-50 rounded-lg mt-4">
-                <div className="font-semibold text-lg" style={{ color: '#1a3a6e' }}>
-                  {teamToDelete.teamName}
-                </div>
-                <div className="text-sm text-gray-600 mt-2">
-                  <div>成員數：{teamToDelete.teamMembers.length + 1} 人</div>
-                  <div>賽道數：{teamToDelete.tracks.length} 個</div>
-                  <div>團隊 ID：{teamToDelete.id}</div>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex justify-end gap-3">
-              <button
-                onClick={cancelDelete}
-                disabled={isDeleting}
-                className="px-6 py-2 rounded-lg border-2 font-medium transition-colors"
-                style={{ borderColor: '#d1d5db', color: '#374151' }}
-              >
-                取消
-              </button>
-              <button
-                onClick={confirmDeleteTeam}
-                disabled={isDeleting}
-                className="px-6 py-2 rounded-lg font-medium transition-colors"
-                style={{
-                  backgroundColor: isDeleting ? '#9ca3af' : '#dc2626',
-                  color: 'white',
-                  cursor: isDeleting ? 'not-allowed' : 'pointer',
-                }}
-                onMouseEnter={(e) => {
-                  if (!isDeleting) e.currentTarget.style.backgroundColor = '#b91c1c';
-                }}
-                onMouseLeave={(e) => {
-                  if (!isDeleting) e.currentTarget.style.backgroundColor = '#dc2626';
-                }}
-              >
-                {isDeleting ? '發送中...' : '發送請求'}
-              </button>
             </div>
           </div>
         </div>
