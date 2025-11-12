@@ -287,9 +287,9 @@ const TeamManagement: React.FC = () => {
                       console.log('[TeamManagement] Navigate to edit page:', {
                         teamId: team.id,
                         teamName: team.teamName,
-                        url: `/team-register?edit=${team.id}`,
+                        url: `/team?edit=${team.id}`,
                       });
-                      router.push(`/team-register?edit=${team.id}`);
+                      router.push(`/team?edit=${team.id}`);
                     }}
                     className="px-4 py-2 rounded-lg font-bold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
                     style={{
