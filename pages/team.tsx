@@ -1817,7 +1817,7 @@ export default function TeamRegisterPage() {
                 {isEditMode && (
                   <button
                     type="button"
-                    onClick={() => router.push('/profile')}
+                    onClick={() => router.push(`/teams/${editTeamId}/public`)}
                     disabled={isSubmitting}
                     className="px-8 py-3 rounded-lg border-2 font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     style={{
