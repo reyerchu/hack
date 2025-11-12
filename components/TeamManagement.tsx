@@ -319,13 +319,17 @@ const TeamManagement: React.FC = () => {
             <div className="flex gap-2">
               <button
                 onClick={() => router.push(`/teams/${team.id}/public`)}
-                className="px-4 py-2 rounded-lg border-2 font-medium transition-colors"
-                style={{ borderColor: '#1a3a6e', color: '#1a3a6e' }}
+                className="px-4 py-2 rounded-lg font-bold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                style={{
+                  backgroundColor: '#ffffff',
+                  color: '#1a3a6e',
+                  border: '2px solid #1a3a6e',
+                }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = '#f0f4ff';
+                  e.currentTarget.style.backgroundColor = '#f0f9ff';
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'transparent';
+                  e.currentTarget.style.backgroundColor = '#ffffff';
                 }}
               >
                 查看
@@ -342,13 +346,17 @@ const TeamManagement: React.FC = () => {
                       });
                       router.push(`/team-register?edit=${team.id}`);
                     }}
-                    className="px-4 py-2 rounded-lg font-medium transition-colors"
-                    style={{ backgroundColor: '#1a3a6e', color: 'white' }}
+                    className="px-4 py-2 rounded-lg font-bold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                    style={{
+                      backgroundColor: '#ffffff',
+                      color: '#1a3a6e',
+                      border: '2px solid #1a3a6e',
+                    }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = '#2a4a7e';
+                      e.currentTarget.style.backgroundColor = '#f0f9ff';
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = '#1a3a6e';
+                      e.currentTarget.style.backgroundColor = '#ffffff';
                     }}
                   >
                     編輯
@@ -356,13 +364,17 @@ const TeamManagement: React.FC = () => {
 
                   <button
                     onClick={() => handleDeleteTeam(team)}
-                    className="px-4 py-2 rounded-lg font-medium transition-colors"
-                    style={{ backgroundColor: '#dc2626', color: 'white' }}
+                    className="px-4 py-2 rounded-lg font-bold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                    style={{
+                      backgroundColor: '#ffffff',
+                      color: '#dc2626',
+                      border: '2px solid #dc2626',
+                    }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = '#b91c1c';
+                      e.currentTarget.style.backgroundColor = '#fef2f2';
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = '#dc2626';
+                      e.currentTarget.style.backgroundColor = '#ffffff';
                     }}
                   >
                     刪除請求
