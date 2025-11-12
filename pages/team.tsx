@@ -715,8 +715,8 @@ export default function TeamRegisterPage() {
                       key={index}
                       className="flex items-center gap-3 p-4 rounded-lg"
                       style={{
-                        backgroundColor: index === 0 ? '#fff8e1' : '#f9fafb',
-                        border: index === 0 ? '2px solid #ffa726' : '1px solid #e5e7eb',
+                        backgroundColor: index === 0 ? '#e8eef7' : '#f9fafb',
+                        border: index === 0 ? '2px solid #1a3a6e' : '1px solid #d1d5db',
                       }}
                     >
                       <div className="flex-1 min-w-0">
@@ -724,9 +724,9 @@ export default function TeamRegisterPage() {
                           {index === 0 && (
                             <span
                               className="text-xs px-2 py-1 rounded font-bold"
-                              style={{ backgroundColor: '#ff9800', color: '#ffffff' }}
+                              style={{ backgroundColor: '#1a3a6e', color: '#ffffff' }}
                             >
-                              👑 團隊報名者
+                              團隊報名者
                             </span>
                           )}
                           <span className="text-sm font-semibold" style={{ color: '#1a3a6e' }}>
@@ -734,14 +734,14 @@ export default function TeamRegisterPage() {
                           </span>
                           <span
                             className="text-sm px-2 py-1 rounded"
-                            style={{ backgroundColor: '#dbeafe', color: '#1e40af' }}
+                            style={{ backgroundColor: '#1a3a6e', color: '#ffffff' }}
                           >
                             {member.role}
                           </span>
                           {member.hasEditRight && (
                             <span
                               className="text-xs px-2 py-1 rounded"
-                              style={{ backgroundColor: '#d1fae5', color: '#065f46' }}
+                              style={{ backgroundColor: '#047857', color: '#ffffff' }}
                             >
                               ✓ 可編輯
                             </span>
