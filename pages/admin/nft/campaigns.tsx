@@ -688,3 +688,8 @@ export default function NFTCampaignsAdmin() {
     </>
   );
 }
+
+// Force server-side rendering to prevent SSR AuthContext errors
+export async function getServerSideProps() {
+  return { props: {} };
+}
