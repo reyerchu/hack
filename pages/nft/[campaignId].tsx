@@ -715,16 +715,14 @@ export default function NFTCampaignPage() {
       setCanMintNFT(false);
       setError('');
 
+      // Refresh campaign data immediately to update the supply count
+      await fetchCampaignData();
+
       alert(
         `🎉 NFT 鑄造成功！\n\nToken ID: ${result.tokenId || 'N/A'}\n交易哈希：${
           result.transactionHash || result.txHash
-        }\n\n頁面將自動刷新...`,
+        }`,
       );
-
-      // Refresh campaign data
-      setTimeout(() => {
-        fetchCampaignData();
-      }, 2000);
     } catch (err: any) {
       console.error('[MintWithAutoConnect] ❌ Error:', err);
       // Extract user-friendly error message
