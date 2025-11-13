@@ -715,8 +715,8 @@ export default function NFTCampaignPage() {
       setCanMintNFT(false);
       setError('');
 
-      // Refresh campaign data immediately to update the supply count
-      await fetchCampaignData();
+      // Refresh campaign data AND contract status immediately to update the supply count
+      await Promise.all([fetchCampaignData(), nftContract.checkStatus()]);
 
       alert(
         `🎉 NFT 鑄造成功！\n\nToken ID: ${result.tokenId || 'N/A'}\n交易哈希：${
