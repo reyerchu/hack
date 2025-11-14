@@ -247,115 +247,137 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       console.log(`[TeamPublic] Found ${submissionsSnapshot.size} submissions for team ${teamId}`);
 
-      // 对每个提交，获取挑战详情
-      for (const submissionDoc of submissionsSnapshot.docs) {
-        const submissionData = submissionDoc.data();
-        const challengeId = submissionData.challengeId;
-
+      // Performance optimization: Batch fetch all challenges in parallel
+      const uniqueSubmissions = submissionsSnapshot.docs.filter((doc) => {
+        const challengeId = doc.data().challengeId;
         if (challengeId && !challengeSet.has(challengeId)) {
           challengeSet.add(challengeId);
+          return true;
+        }
+        return false;
+      });
 
+      console.log(`[TeamPublic] Fetching ${uniqueSubmissions.length} challenges in parallel`);
+
+      // Fetch all challenges in parallel
+      const challengePromises = uniqueSubmissions.map((submissionDoc) => {
+        const submissionData = submissionDoc.data();
+        const challengeId = submissionData.challengeId;
+        return db
+          .collection('extended-challenges')
+          .doc(challengeId)
+          .get()
+          .then((challengeDoc) => ({ submissionData, challengeDoc }))
+          .catch((err) => {
+            console.error('[TeamPublic] Error fetching challenge:', challengeId, err);
+            return { submissionData, challengeDoc: null };
+          });
+      });
+
+      const challengeResults = await Promise.all(challengePromises);
+      console.log(`[TeamPublic] Fetched ${challengeResults.length} challenges`);
+
+      // Process all challenges
+      for (const { submissionData, challengeDoc } of challengeResults) {
+        if (challengeDoc && challengeDoc.exists) {
           try {
-            const challengeDoc = await db.collection('extended-challenges').doc(challengeId).get();
-            if (challengeDoc.exists) {
-              const challengeData = challengeDoc.data();
-              const trackId = challengeData?.trackId || submissionData.trackId || '';
+            const challengeData = challengeDoc.data();
+            const trackId = challengeData?.trackId || submissionData.trackId || '';
 
-              // 使用辅助函数获取赛道名称
-              const trackName = trackId ? await getTrackName(trackId) : '';
+            // 使用辅助函数获取赛道名称
+            const trackName = trackId ? await getTrackName(trackId) : '';
 
-              challenges.push({
-                challengeId: challengeDoc.id,
-                challengeTitle: challengeData?.title || submissionData.challengeTitle || '未知挑战',
-                trackId: trackId,
-                trackName: trackName,
-                submissionStatus: '提交完成',
-              });
+            challenges.push({
+              challengeId: challengeDoc.id,
+              challengeTitle: challengeData?.title || submissionData.challengeTitle || '未知挑战',
+              trackId: trackId,
+              trackName: trackName,
+              submissionStatus: '提交完成',
+            });
 
-              // 檢查是否為 Demo Day 賽道的提交
+            // 檢查是否為 Demo Day 賽道的提交
+            console.log(
+              `[TeamPublic] Challenge trackName: "${trackName}", challengeTitle: "${challengeData?.title}"`,
+            );
+
+            if (trackName && trackName.includes('Demo Day')) {
+              console.log(`[TeamPublic] Found Demo Day track submission for team ${teamId}`);
+              const demoDayData: any = {};
+
+              // 使用本地 public 目錄的 PDF 文件
+              // 所有 Demo Day 團隊的 PDF 都同步到 /team-media/2025/DemoDay/{teamName}.pdf
+              const teamName = teamData.teamName;
+              const pdfPath = `/team-media/2025/DemoDay/${teamName}.pdf`;
+
+              console.log(`[TeamPublic] Using local PDF path: ${pdfPath}`);
+
+              demoDayData.onePager = {
+                title: '一頁簡介',
+                value: pdfPath,
+                type: '檔案',
+                teamName: teamName,
+              };
+
+              // 從提交中提取所有 Github 原始碼連結
+              const items = [
+                ...(submissionData.submissions || []),
+                ...(submissionData.extraItems || []),
+              ];
+              console.log(`[TeamPublic] Checking ${items.length} items for GitHub repos`);
               console.log(
-                `[TeamPublic] Challenge trackName: "${trackName}", challengeTitle: "${challengeData?.title}"`,
+                `[TeamPublic] Items details:`,
+                JSON.stringify(
+                  items.map((i) => ({ title: i.title, type: i.type, hasValue: !!i.value })),
+                ),
               );
 
-              if (trackName && trackName.includes('Demo Day')) {
-                console.log(`[TeamPublic] Found Demo Day track submission for team ${teamId}`);
-                const demoDayData: any = {};
-
-                // 使用本地 public 目錄的 PDF 文件
-                // 所有 Demo Day 團隊的 PDF 都同步到 /team-media/2025/DemoDay/{teamName}.pdf
-                const teamName = teamData.teamName;
-                const pdfPath = `/team-media/2025/DemoDay/${teamName}.pdf`;
-
-                console.log(`[TeamPublic] Using local PDF path: ${pdfPath}`);
-
-                demoDayData.onePager = {
-                  title: '一頁簡介',
-                  value: pdfPath,
-                  type: '檔案',
-                  teamName: teamName,
-                };
-
-                // 從提交中提取所有 Github 原始碼連結
-                const items = [
-                  ...(submissionData.submissions || []),
-                  ...(submissionData.extraItems || []),
-                ];
-                console.log(`[TeamPublic] Checking ${items.length} items for GitHub repos`);
+              const githubRepos: any[] = [];
+              for (const item of items) {
                 console.log(
-                  `[TeamPublic] Items details:`,
-                  JSON.stringify(
-                    items.map((i) => ({ title: i.title, type: i.type, hasValue: !!i.value })),
-                  ),
+                  `[TeamPublic] Checking item: title="${item.title}", type="${
+                    item.type
+                  }", value="${item.value?.substring(0, 50)}..."`,
                 );
+                if (item.value) {
+                  const valueLower = item.value.toLowerCase();
+                  const titleLower = item.title?.toLowerCase() || '';
 
-                const githubRepos: any[] = [];
-                for (const item of items) {
-                  console.log(
-                    `[TeamPublic] Checking item: title="${item.title}", type="${
-                      item.type
-                    }", value="${item.value?.substring(0, 50)}..."`,
-                  );
-                  if (item.value) {
-                    const valueLower = item.value.toLowerCase();
-                    const titleLower = item.title?.toLowerCase() || '';
-
-                    // 檢查 value 或 title 是否包含 GitHub 相關關鍵字
-                    if (
-                      valueLower.includes('github') ||
-                      titleLower.includes('github') ||
-                      titleLower.includes('原始碼') ||
-                      titleLower.includes('source') ||
-                      titleLower.includes('code') ||
-                      titleLower.includes('repo')
-                    ) {
-                      githubRepos.push({
-                        title: item.title || 'Github 連結',
-                        value: item.value,
-                        type: item.type,
-                      });
-                      console.log(`[TeamPublic] Found githubRepo: ${item.value}`);
-                    }
+                  // 檢查 value 或 title 是否包含 GitHub 相關關鍵字
+                  if (
+                    valueLower.includes('github') ||
+                    titleLower.includes('github') ||
+                    titleLower.includes('原始碼') ||
+                    titleLower.includes('source') ||
+                    titleLower.includes('code') ||
+                    titleLower.includes('repo')
+                  ) {
+                    githubRepos.push({
+                      title: item.title || 'Github 連結',
+                      value: item.value,
+                      type: item.type,
+                    });
+                    console.log(`[TeamPublic] Found githubRepo: ${item.value}`);
                   }
                 }
+              }
 
-                // 如果找到 GitHub 連結，儲存所有連結
-                if (githubRepos.length > 0) {
-                  demoDayData.githubRepos = githubRepos;
-                  console.log(`[TeamPublic] Found ${githubRepos.length} GitHub repos`);
-                }
+              // 如果找到 GitHub 連結，儲存所有連結
+              if (githubRepos.length > 0) {
+                demoDayData.githubRepos = githubRepos;
+                console.log(`[TeamPublic] Found ${githubRepos.length} GitHub repos`);
+              }
 
-                // 儲存 Demo Day 資料
-                if (Object.keys(demoDayData).length > 0) {
-                  teamInfo.demoDaySubmission = demoDayData;
-                  console.log(
-                    `[TeamPublic] Saved Demo Day submission for team ${teamId}:`,
-                    JSON.stringify(demoDayData),
-                  );
-                }
+              // 儲存 Demo Day 資料
+              if (Object.keys(demoDayData).length > 0) {
+                teamInfo.demoDaySubmission = demoDayData;
+                console.log(
+                  `[TeamPublic] Saved Demo Day submission for team ${teamId}:`,
+                  JSON.stringify(demoDayData),
+                );
               }
             }
           } catch (err) {
-            console.error(`[TeamPublic] Error fetching challenge ${challengeId}:`, err);
+            console.error(`[TeamPublic] Error processing challenge:`, err);
           }
         }
       }
