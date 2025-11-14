@@ -648,8 +648,3 @@ export default function TeamPublicPage() {
     </>
   );
 }
-
-// Force server-side rendering to prevent SSR AuthContext errors and ensure dynamic routing works
-export async function getServerSideProps() {
-  return { props: {} };
-}
