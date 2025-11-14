@@ -268,35 +268,104 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return false;
       });
 
-      console.log(`[TeamPublic] Fetching ${uniqueSubmissions.length} challenges in parallel`);
+      console.log(
+        `[TeamPublic] Fetching ${uniqueSubmissions.length} challenges in parallel (with cache)`,
+      );
 
-      // Fetch all challenges in parallel
-      const challengePromises = uniqueSubmissions.map((submissionDoc) => {
+      // Performance: Use cached challenges map
+      const CHALLENGES_CACHE_KEY = 'challenges:map:all';
+      const CHALLENGES_CACHE_TTL = 10 * 60 * 1000; // 10 minutes
+
+      const challengesMap = await memoryCache.getOrSet(
+        CHALLENGES_CACHE_KEY,
+        async () => {
+          console.log('[TeamPublic] Cache miss: Building challenges map from Firestore...');
+          const challengesSnapshot = await db.collection('extended-challenges').get();
+          const map = new Map();
+          challengesSnapshot.docs.forEach((doc) => {
+            map.set(doc.id, {
+              id: doc.id,
+              title: doc.data().title,
+              trackId: doc.data().trackId,
+            });
+          });
+          console.log(`[TeamPublic] Built challenges map with ${map.size} entries`);
+          return map;
+        },
+        CHALLENGES_CACHE_TTL,
+      );
+
+      // Map submissions to challenges using cache
+      const challengeResults = uniqueSubmissions.map((submissionDoc) => {
         const submissionData = submissionDoc.data();
         const challengeId = submissionData.challengeId;
-        return db
-          .collection('extended-challenges')
-          .doc(challengeId)
-          .get()
-          .then((challengeDoc) => ({ submissionData, challengeDoc }))
-          .catch((err) => {
-            console.error('[TeamPublic] Error fetching challenge:', challengeId, err);
-            return { submissionData, challengeDoc: null };
-          });
+        const cachedChallenge = challengesMap.get(challengeId);
+
+        if (cachedChallenge) {
+          return {
+            submissionData,
+            challengeDoc: {
+              exists: true,
+              id: cachedChallenge.id,
+              data: () => cachedChallenge,
+            },
+          };
+        } else {
+          console.warn(`[TeamPublic] Challenge ${challengeId} not found in cache`);
+          return {
+            submissionData,
+            challengeDoc: null,
+          };
+        }
       });
 
-      const challengeResults = await Promise.all(challengePromises);
-      console.log(`[TeamPublic] Fetched ${challengeResults.length} challenges`);
+      console.log(`[TeamPublic] Fetched ${challengeResults.length} challenges (cached)`);
 
-      // Process all challenges
+      // Performance: Pre-fetch all missing track names in parallel
+      const missingTrackIds = new Set<string>();
+      challengeResults.forEach(({ challengeDoc, submissionData }) => {
+        if (challengeDoc && challengeDoc.exists) {
+          const challengeData = challengeDoc.data();
+          const trackId = challengeData?.trackId || submissionData.trackId || '';
+          if (trackId && !trackIdToNameMap.has(trackId)) {
+            missingTrackIds.add(trackId);
+          }
+        }
+      });
+
+      // Batch fetch missing tracks if any
+      if (missingTrackIds.size > 0) {
+        console.log(`[TeamPublic] Fetching ${missingTrackIds.size} missing track names...`);
+        const missingTrackPromises = Array.from(missingTrackIds).map(async (trackId) => {
+          try {
+            const trackDoc = await db.collection('tracks').doc(trackId).get();
+            if (trackDoc.exists) {
+              return { trackId, name: trackDoc.data()?.name || '' };
+            }
+          } catch (err) {
+            console.error(`[TeamPublic] Error fetching track ${trackId}:`, err);
+          }
+          return { trackId, name: '' };
+        });
+
+        const missingTracks = await Promise.all(missingTrackPromises);
+        missingTracks.forEach(({ trackId, name }) => {
+          if (name) {
+            trackIdToNameMap.set(trackId, name);
+          }
+        });
+        console.log(`[TeamPublic] Fetched ${missingTracks.length} missing tracks`);
+      }
+
+      // Process all challenges (now all track names are in the map)
       for (const { submissionData, challengeDoc } of challengeResults) {
         if (challengeDoc && challengeDoc.exists) {
           try {
             const challengeData = challengeDoc.data();
             const trackId = challengeData?.trackId || submissionData.trackId || '';
 
-            // 使用辅助函数获取赛道名称
-            const trackName = trackId ? await getTrackName(trackId) : '';
+            // Get track name from map (instant lookup, no async call)
+            const trackName = trackId ? trackIdToNameMap.get(trackId) || '' : '';
 
             challenges.push({
               challengeId: challengeDoc.id,
