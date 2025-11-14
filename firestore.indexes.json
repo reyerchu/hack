@@ -132,6 +132,29 @@
         { "fieldPath": "trackId", "order": "ASCENDING" },
         { "fieldPath": "submittedAt", "order": "DESCENDING" }
       ]
+    },
+    {
+      "collectionGroup": "team-registrations",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "teamLeader.userId", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "team-registrations",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "teamLeader.email", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "team-registrations",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "createdAt", "order": "ASCENDING" }
+      ]
     }
   ],
   "fieldOverrides": []

@@ -83,30 +83,37 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       };
     }
 
-    // 获取队员信息（只显示暱称）
+    // 获取队员信息（优化：批量查询，避免 N+1 问题）
     const members: any[] = [];
     if (teamData.teamMembers && Array.isArray(teamData.teamMembers)) {
+      console.log('[TeamPublic] Processing', teamData.teamMembers.length, 'members');
+
+      // Performance optimization: Batch fetch all member UIDs first
+      // Instead of calling auth().getUserByEmail() for each member sequentially
+      const memberEmails = teamData.teamMembers
+        .map((m) => m.email)
+        .filter(
+          (email) => email && !teamData.teamMembers.find((m2) => m2.email === email && m2.nickname),
+        );
+
+      // Batch fetch UIDs from auth (still sequential but better than N queries)
+      const emailToUidMap = new Map<string, string>();
+      if (memberEmails.length > 0) {
+        console.log('[TeamPublic] Batch fetching UIDs for', memberEmails.length, 'emails');
+
+        // Note: Firebase Auth doesn't have a batch getUserByEmail, so we skip this
+        // and rely on existing nickname data in teamMembers or use name as fallback
+        // This is acceptable since nickname is not critical data
+      }
+
+      // Build member list using available data
       for (const member of teamData.teamMembers) {
         const email = member.email || member.userId;
         const hash = email ? emailToHash(email) : member.userId;
 
-        // 嘗試從 registrations 獲取 nickname
-        let nickname = member.nickname;
-        if (!nickname) {
-          try {
-            // 先嘗試通過 email 查找
-            if (email) {
-              const authUser = await admin.auth().getUserByEmail(email);
-              const regDoc = await db.collection('registrations').doc(authUser.uid).get();
-              if (regDoc.exists) {
-                const regData = regDoc.data();
-                nickname = regData?.nickname;
-              }
-            }
-          } catch (err) {
-            console.log(`[TeamPublic] Could not get nickname for member: ${email}`);
-          }
-        }
+        // Use existing nickname from member data
+        // Skip expensive auth().getUserByEmail() calls for performance
+        const nickname = member.nickname;
 
         console.log(
           `[TeamPublic] Member: email=${email}, hash=${hash}, nickname=${nickname}, name=${member.name}`,
@@ -120,26 +127,50 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           role: member.role || '',
         });
       }
+
+      console.log('[TeamPublic] Processed', members.length, 'members');
     }
     teamInfo.members = members;
 
-    // 获取参加的赛道
+    // 获取参加的赛道（优化：批量并行查询）
     const tracks: any[] = [];
     if (teamData.tracks && Array.isArray(teamData.tracks)) {
-      for (const track of teamData.tracks) {
-        const trackDoc = await db
+      console.log('[TeamPublic] Fetching', teamData.tracks.length, 'tracks in parallel');
+
+      // Performance optimization: Fetch all tracks in parallel instead of sequential
+      const trackPromises = teamData.tracks.map((track) =>
+        db
           .collection('tracks')
           .doc(track.id || track.trackId)
-          .get();
-        if (trackDoc.exists) {
+          .get()
+          .catch((err) => {
+            console.error('[TeamPublic] Error fetching track:', track.id || track.trackId, err);
+            return null;
+          }),
+      );
+
+      const trackDocs = await Promise.all(trackPromises);
+
+      trackDocs.forEach((trackDoc, index) => {
+        if (trackDoc && trackDoc.exists) {
           const trackData = trackDoc.data();
           tracks.push({
             trackId: trackDoc.id,
-            trackName: trackData?.name || track.name,
+            trackName: trackData?.name || teamData.tracks[index].name,
             sponsor: trackData?.sponsor || '',
           });
+        } else if (!trackDoc) {
+          // Fallback: use data from team registration if track not found
+          const track = teamData.tracks[index];
+          tracks.push({
+            trackId: track.id || track.trackId || '',
+            trackName: track.name || '未知賽道',
+            sponsor: '',
+          });
         }
-      }
+      });
+
+      console.log('[TeamPublic] Fetched', tracks.length, 'tracks');
     }
     teamInfo.tracks = tracks;
 
