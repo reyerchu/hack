@@ -25,6 +25,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ error: 'Invalid team ID' });
     }
 
+    // Performance: Cache entire team response for 5 minutes
+    const TEAM_CACHE_KEY = `team:public:${teamId}`;
+    const TEAM_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+    const cachedResponse = memoryCache.get<any>(TEAM_CACHE_KEY);
+    if (cachedResponse) {
+      console.log(`[TeamPublic] Cache HIT for team ${teamId}`);
+      return res.status(200).json(cachedResponse);
+    }
+
+    console.log(`[TeamPublic] Cache MISS for team ${teamId}, fetching...`);
     const db = admin.firestore();
 
     // 获取团队信息
@@ -502,10 +513,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     teamInfo.awards = awards;
     console.log(`[TeamPublic] Found ${awards.length} awards for team ${teamData.teamName}`);
 
-    return res.status(200).json({
+    const response = {
       success: true,
       team: teamInfo,
-    });
+    };
+
+    // Cache the entire response
+    memoryCache.set(TEAM_CACHE_KEY, response, TEAM_CACHE_TTL);
+    console.log(`[TeamPublic] Cached response for team ${teamId}`);
+
+    return res.status(200).json(response);
   } catch (error: any) {
     console.error('[TeamPublic] Error:', error);
     return res.status(500).json({ error: error.message || 'Failed to get team public info' });
