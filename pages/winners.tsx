@@ -821,7 +821,7 @@ export const getServerSideProps: GetServerSideProps<WinnersPageProps> = async ()
         teamId: 'BX4zmUyHbvrpDwkVeWYz',
       },
       { name: 'twin3', project: '人類體驗就是你的資產', teamId: 'CK31HdDK77648HIjt2Lp' },
-      { name: '五告Sui', project: 'OnChain Bank', teamId: '4Dz3PhOaR5tXpYH3wfVR' },
+      { name: '五告Sui', project: 'OnChain Bank', teamId: 'tmt7xeMh6nb5EButG7Ll' },
       { name: 'VoucherFi', project: 'RWA Wallet Experience', teamId: 'fqY07QecjJC0rrHYpkei' },
       { name: 'Zzyzx Labs', project: 'SEAWALLET', teamId: 'sFhTwh81W0fuZBFm9Kap' },
       {
