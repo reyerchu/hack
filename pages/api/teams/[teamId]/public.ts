@@ -9,6 +9,7 @@ import admin from 'firebase-admin';
 import initializeApi from '../../../../lib/admin/init';
 import { emailToHash } from '../../../../lib/utils/email-hash';
 import { getTeamAwards } from '../../../../lib/winnersData';
+import memoryCache from '../../../../lib/cache/memoryCache';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   initializeApi();
@@ -132,45 +133,55 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
     teamInfo.members = members;
 
-    // 获取参加的赛道（优化：批量并行查询）
+    // 获取参加的赛道（优化：使用緩存 + 批量并行查詢）
     const tracks: any[] = [];
     if (teamData.tracks && Array.isArray(teamData.tracks)) {
-      console.log('[TeamPublic] Fetching', teamData.tracks.length, 'tracks in parallel');
+      console.log('[TeamPublic] Fetching', teamData.tracks.length, 'tracks (with cache)');
 
-      // Performance optimization: Fetch all tracks in parallel instead of sequential
-      const trackPromises = teamData.tracks.map((track) =>
-        db
-          .collection('tracks')
-          .doc(track.id || track.trackId)
-          .get()
-          .catch((err) => {
-            console.error('[TeamPublic] Error fetching track:', track.id || track.trackId, err);
-            return null;
-          }),
+      // Performance optimization: Use cached tracks map for instant lookup
+      const CACHE_KEY = 'tracks:map:all';
+      const CACHE_TTL = 10 * 60 * 1000; // 10 minutes
+
+      const tracksMap = await memoryCache.getOrSet(
+        CACHE_KEY,
+        async () => {
+          console.log('[TeamPublic] Cache miss: Building tracks map from Firestore...');
+          const tracksSnapshot = await db.collection('tracks').get();
+          const map = new Map();
+          tracksSnapshot.docs.forEach((doc) => {
+            map.set(doc.id, {
+              id: doc.id,
+              name: doc.data().name,
+              sponsor: doc.data().sponsor || '',
+            });
+          });
+          return map;
+        },
+        CACHE_TTL,
       );
 
-      const trackDocs = await Promise.all(trackPromises);
+      // Use cached tracks map for instant lookup
+      teamData.tracks.forEach((track) => {
+        const trackId = track.id || track.trackId;
+        const cachedTrack = tracksMap.get(trackId);
 
-      trackDocs.forEach((trackDoc, index) => {
-        if (trackDoc && trackDoc.exists) {
-          const trackData = trackDoc.data();
+        if (cachedTrack) {
           tracks.push({
-            trackId: trackDoc.id,
-            trackName: trackData?.name || teamData.tracks[index].name,
-            sponsor: trackData?.sponsor || '',
+            trackId: cachedTrack.id,
+            trackName: cachedTrack.name || track.name,
+            sponsor: cachedTrack.sponsor || '',
           });
-        } else if (!trackDoc) {
+        } else {
           // Fallback: use data from team registration if track not found
-          const track = teamData.tracks[index];
           tracks.push({
-            trackId: track.id || track.trackId || '',
+            trackId: trackId || '',
             trackName: track.name || '未知賽道',
             sponsor: '',
           });
         }
       });
 
-      console.log('[TeamPublic] Fetched', tracks.length, 'tracks');
+      console.log('[TeamPublic] Fetched', tracks.length, 'tracks (cached)');
     }
     teamInfo.tracks = tracks;
 
