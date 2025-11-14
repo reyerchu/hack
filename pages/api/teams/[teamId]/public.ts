@@ -123,9 +123,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const email = member.email || member.userId;
         const hash = email ? emailToHash(email) : member.userId;
 
-        // Use existing nickname from member data
-        // Skip expensive auth().getUserByEmail() calls for performance
-        const nickname = member.nickname;
+        // Try to get nickname from member data or registrations
+        let nickname = member.nickname;
+
+        // If no nickname in member data, try to fetch from registrations
+        if (!nickname && email) {
+          try {
+            const authUser = await admin.auth().getUserByEmail(email);
+            const regDoc = await db.collection('registrations').doc(authUser.uid).get();
+            if (regDoc.exists) {
+              const regData = regDoc.data();
+              nickname = regData?.nickname;
+            }
+          } catch (err) {
+            // Silently fail - will use name as fallback
+          }
+        }
 
         console.log(
           `[TeamPublic] Member: email=${email}, hash=${hash}, nickname=${nickname}, name=${member.name}`,
