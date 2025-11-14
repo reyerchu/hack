@@ -454,28 +454,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       .where('teamLeader.email', '==', userEmail)
       .get();
 
-    // 查找作为队员的团队（优化：避免全集合扫描）
-    // Strategy: Query by common fields first, then filter in memory
-    // This is much faster than scanning all teams
+    // 查找作为队员的团队（全集合扫描 - 待优化）
+    // TODO: Add Firestore index for createdAt to enable range queries
+    // For now, scan all teams to ensure service stability
+    const teamsAsMemberSnapshot = await db.collection('team-registrations').get();
+
     const teamsAsMember: any[] = [];
+    console.log('[UserPublic] Scanning', teamsAsMemberSnapshot.size, 'teams for member');
 
-    // Performance optimization: Only scan teams where user might be a member
-    // Since Firestore doesn't support nested array queries efficiently,
-    // we use a limited query with createdAt to reduce scan size
-    console.log('[UserPublic] Searching teams for member:', userEmail, 'userId:', userDoc.id);
-
-    // Get only recent teams (last 90 days) to limit scan size
-    const ninetyDaysAgo = new Date();
-    ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
-
-    const recentTeamsSnapshot = await db
-      .collection('team-registrations')
-      .where('createdAt', '>=', ninetyDaysAgo)
-      .get();
-
-    console.log('[UserPublic] Scanning', recentTeamsSnapshot.size, 'recent teams');
-
-    recentTeamsSnapshot.forEach((doc) => {
+    teamsAsMemberSnapshot.forEach((doc) => {
       const teamData = doc.data();
       if (teamData.teamMembers && Array.isArray(teamData.teamMembers)) {
         const isMember = teamData.teamMembers.some(
@@ -483,7 +470,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         );
         if (isMember) {
           teamsAsMember.push(doc);
-          console.log('[UserPublic] Found team as member:', teamData.teamName);
         }
       }
     });
