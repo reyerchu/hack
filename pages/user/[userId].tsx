@@ -776,8 +776,3 @@ export default function UserPublicPage() {
     </>
   );
 }
-
-// Force server-side rendering to prevent SSR AuthContext errors and ensure dynamic routing works
-export async function getServerSideProps() {
-  return { props: {} };
-}
