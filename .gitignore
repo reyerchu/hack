@@ -63,3 +63,13 @@ submitted-teams-members.csv
 # Contracts environment variables (contains API keys)
 contracts/.env
 
+
+# Temporary HTML files in public (except bootcamp.html and forum2025.html)
+public/debug.html
+public/test-*.html
+public/checkin-*.html
+public/clear-*.html
+public/check-*.html
+public/diagnose*.html
+public/migrate-*.html
+public/forum2025.html
