@@ -126,6 +126,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     console.log('[AssignTrack] Challenges updated successfully');
 
+    // Invalidate track and related challenge caches
+    try {
+      const { invalidateTrackRelatedCaches } = await import(
+        '../../../../../lib/cache/invalidation'
+      );
+      const challengeIds = challengesSnapshot.docs.map((doc) => doc.id);
+      await invalidateTrackRelatedCaches(trackId, { challengeIds });
+      console.log('[AssignTrack] Cache invalidated for track and challenges');
+    } catch (cacheError) {
+      console.error('[AssignTrack] Failed to clear cache:', cacheError);
+    }
+
     // 8. Log activity
     try {
       await db.collection('sponsor-activity-logs').add({

@@ -98,6 +98,18 @@ async function handlePut(req: NextApiRequest, res: NextApiResponse) {
       updatedAt: firestore.FieldValue.serverTimestamp(),
     });
 
+    // Invalidate challenge and track caches
+    try {
+      const { invalidateChallengeRelatedCaches } = await import(
+        '../../../../../lib/cache/invalidation'
+      );
+      const trackId = oldData.trackId || oldData.track;
+      await invalidateChallengeRelatedCaches(challengeId, { trackId });
+      console.log('[assign] Cache invalidated for challenge and track');
+    } catch (cacheError) {
+      console.error('[assign] Failed to clear cache:', cacheError);
+    }
+
     // 5. 記錄活動日誌
     console.log('[assign] 記錄活動日誌...');
     try {

@@ -369,6 +369,15 @@ async function handlePut(req: NextApiRequest, res: NextApiResponse, teamId: stri
     // Update team
     await db.collection('team-registrations').doc(teamId).update(updates);
 
+    // Clear team public page cache to reflect the update immediately
+    try {
+      const { invalidateCache } = await import('../../../lib/cache/invalidation');
+      invalidateCache({ type: 'team', teamId });
+    } catch (cacheError) {
+      console.error('[UpdateTeam] Failed to clear cache:', cacheError);
+      // Don't fail the update if cache clearing fails
+    }
+
     // Log activity
     try {
       await db.collection('activity-logs').add({

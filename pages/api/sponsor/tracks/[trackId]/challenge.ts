@@ -276,6 +276,20 @@ async function handlePut(req: NextApiRequest, res: NextApiResponse) {
 
     console.log('[PUT /api/sponsor/tracks/[trackId]/challenge] Challenge updated successfully');
 
+    // Invalidate challenge and track caches
+    try {
+      const { invalidateChallengeRelatedCaches } = await import(
+        '../../../../../lib/cache/invalidation'
+      );
+      await invalidateChallengeRelatedCaches(challengeId, { trackId });
+      console.log('[PUT /api/sponsor/tracks/[trackId]/challenge] Cache invalidated');
+    } catch (cacheError) {
+      console.error(
+        '[PUT /api/sponsor/tracks/[trackId]/challenge] Failed to clear cache:',
+        cacheError,
+      );
+    }
+
     // 5. 記錄活动日志
     await logSponsorActivity({
       sponsorId: existingChallenge.sponsorId,

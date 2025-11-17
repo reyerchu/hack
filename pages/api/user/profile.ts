@@ -147,6 +147,15 @@ async function handlePut(req: NextApiRequest, res: NextApiResponse) {
 
     await userData.ref.update(updateData);
 
+    // Invalidate user public page cache
+    try {
+      const { invalidateCache } = await import('../../../lib/cache/invalidation');
+      invalidateCache({ type: 'user', userId });
+      console.log('[/api/user/profile] Cache invalidated for user:', userId);
+    } catch (cacheError) {
+      console.error('[/api/user/profile] Failed to clear cache:', cacheError);
+    }
+
     console.log('[/api/user/profile] ✅ 更新成功');
     return ApiResponse.success(res, { message: '更新成功', data: updateData });
   } catch (error: any) {

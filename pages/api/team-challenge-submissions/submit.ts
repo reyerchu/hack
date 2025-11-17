@@ -160,6 +160,15 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
       console.log('[SubmitChallenge] Created submission:', submissionRef.id);
     }
 
+    // Invalidate team cache when team submits a challenge
+    try {
+      const { invalidateCache } = await import('../../../lib/cache/invalidation');
+      invalidateCache({ type: 'team', teamId });
+      console.log('[SubmitChallenge] Cache invalidated for team:', teamId);
+    } catch (cacheError) {
+      console.error('[SubmitChallenge] Failed to clear cache:', cacheError);
+    }
+
     return res.status(200).json({
       success: true,
       submissionId: submissionRef.id,

@@ -220,6 +220,15 @@ async function handlePut(req: NextApiRequest, res: NextApiResponse) {
 
     await trackDoc.ref.update(updateData);
 
+    // Invalidate track caches
+    try {
+      const { invalidateTrackRelatedCaches } = await import('../../../../lib/cache/invalidation');
+      await invalidateTrackRelatedCaches(trackId);
+      console.log('[/api/sponsor/tracks/[trackId]] Cache invalidated for track');
+    } catch (cacheError) {
+      console.error('[/api/sponsor/tracks/[trackId]] Failed to clear cache:', cacheError);
+    }
+
     // 3. 記錄活動日誌
     try {
       await db.collection('sponsor-activity-logs').add({
