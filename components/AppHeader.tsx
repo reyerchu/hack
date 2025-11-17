@@ -86,7 +86,12 @@ export default function AppHeader() {
                 .map((item) => (
                   <Link key={item.text} href={item.path}>
                     <a className="px-5 py-3 hover:bg-primaryDark hover:text-white border-b border-gray-100 text-complementary">
-                      <p className="text-sm font-medium">{item.text}</p>
+                      <p
+                        className="text-sm font-medium"
+                        style={item.style === 'dark-red' ? { color: '#8B0000' } : {}}
+                      >
+                        {item.text}
+                      </p>
                     </a>
                   </Link>
                 ))}
@@ -104,7 +109,12 @@ export default function AppHeader() {
           {dynamicNavItems.map((item) => (
             <Link key={item.text} href={item.path}>
               <a>
-                <p className="md:mx-4 text-sm font-bold">{item.text}</p>
+                <p
+                  className="md:mx-4 text-sm font-bold"
+                  style={item.style === 'dark-red' ? { color: '#8B0000' } : {}}
+                >
+                  {item.text}
+                </p>
               </a>
             </Link>
           ))}
