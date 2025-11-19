@@ -6,7 +6,6 @@ export const buttonDatas = [
 
 export const navItems = [
   { text: '首頁', path: '/' },
-  { text: '第二屆黑客松特訓營', path: '/bootcamp2', style: 'dark-red' },
   { text: '賽道挑戰', path: '/tracks-challenges' },
   { text: '時程表', path: '/schedule' },
   { text: '導師評審', path: '/mentors' },
