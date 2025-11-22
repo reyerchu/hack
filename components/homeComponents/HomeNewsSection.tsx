@@ -24,9 +24,13 @@ export default function HomeNewsSection() {
           {/* Hackathon Completion Announcement */}
           <div>
             <p className="text-[18px] leading-relaxed text-gray-800 mb-4">
-              🎉 我們「<span className="font-semibold">RWA 黑客松 Taiwan</span>」的活動已於{' '}
+              「<span className="font-semibold">RWA 黑客松 Taiwan</span>」的活動已於{' '}
               <span className="font-semibold">2025/11/1 圓滿落幕</span>
-              ！感謝所有參與者、贊助商和合作夥伴的熱情支持。讓我們一起見證優秀團隊的創新成果！
+              ！感謝所有參與者、贊助商和合作夥伴的熱情支持。活動共吸引{' '}
+              <span className="font-semibold">40 多個團隊報名</span>、超過{' '}
+              <span className="font-semibold">100 位黑客參賽</span>
+              ，其中共有 <span className="font-semibold">30 個團隊</span>於 Demo Day
+              登台展示成果。讓我們一起見證優秀團隊的創新成果！
             </p>
             <Link href="/winners">
               <a
