@@ -226,16 +226,23 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // 辅助函数：根据 trackId 查找 trackName（支持异步查询）
     const getTrackName = async (trackId: string): Promise<string> => {
+      if (!trackId) return '';
+
+      // Hardcoded fix for known legacy ID
+      if (trackId === 'rwa-黑客松台灣賽道-622165') {
+        console.log('[TeamPublic] getTrackName: Hit legacy ID fix');
+        return 'Demo Day 賽道';
+      }
+
       // 首先尝试直接匹配
       if (trackIdToNameMap.has(trackId)) {
         return trackIdToNameMap.get(trackId) || '';
       }
 
       // 如果直接匹配失败，尝试从 trackId 中提取名称进行模糊匹配
-      // 例如 "sui-賽道-835919" -> 查找包含 "sui" 和 "賽道" 的 track
       let result = '';
       trackNameToNameMap.forEach((trackName, normalizedName) => {
-        if (result) return; // 已找到，跳过
+        if (result) return;
         const trackIdLower = trackId.toLowerCase().replace(/\s+/g, '');
         const firstPart = trackIdLower.split('-')[0];
         // 简单的包含检查
@@ -245,23 +252,27 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       });
 
       // 如果模糊匹配也失败，尝试直接查询 tracks 集合
-      if (!result && trackId) {
+      if (!result) {
         try {
+          console.log(`[TeamPublic] getTrackName: Fetching track ${trackId} from Firestore`);
           const trackDoc = await db.collection('tracks').doc(trackId).get();
           if (trackDoc.exists) {
             result = trackDoc.data()?.name || '';
           } else {
+            console.log(`[TeamPublic] getTrackName: Track ${trackId} not found, trying fallback`);
             // 尝试通过 trackId 中的关键词搜索
-            // 例如 "rwa-黑客松台灣賽道-622165" 可能对应 "Demo Day 賽道"
             if (trackId.includes('rwa') || trackId.includes('黑客松') || trackId.includes('台灣')) {
-              // 这通常是 Demo Day 赛道的旧 ID
               const tracksSnapshot = await db
                 .collection('tracks')
                 .where('name', '==', 'Demo Day 賽道')
                 .limit(1)
                 .get();
+
               if (!tracksSnapshot.empty) {
                 result = tracksSnapshot.docs[0].data()?.name || '';
+                console.log(`[TeamPublic] getTrackName: Fallback found: ${result}`);
+              } else {
+                console.log('[TeamPublic] getTrackName: Fallback found nothing');
               }
             }
           }
