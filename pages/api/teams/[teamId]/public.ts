@@ -270,6 +270,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
       }
 
+      if (result) {
+        trackIdToNameMap.set(trackId, result);
+      }
+
       return result;
     };
 
@@ -345,42 +349,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       console.log(`[TeamPublic] Fetched ${challengeResults.length} challenges (cached)`);
 
-      // Performance: Pre-fetch all missing track names in parallel
-      const missingTrackIds = new Set<string>();
-      challengeResults.forEach(({ challengeDoc, submissionData }) => {
-        if (challengeDoc && challengeDoc.exists) {
-          const challengeData = challengeDoc.data();
-          const trackId = challengeData?.trackId || submissionData.trackId || '';
-          if (trackId && !trackIdToNameMap.has(trackId)) {
-            missingTrackIds.add(trackId);
-          }
-        }
-      });
-
-      // Batch fetch missing tracks if any
-      if (missingTrackIds.size > 0) {
-        console.log(`[TeamPublic] Fetching ${missingTrackIds.size} missing track names...`);
-        const missingTrackPromises = Array.from(missingTrackIds).map(async (trackId) => {
-          try {
-            const trackDoc = await db.collection('tracks').doc(trackId).get();
-            if (trackDoc.exists) {
-              return { trackId, name: trackDoc.data()?.name || '' };
-            }
-          } catch (err) {
-            console.error(`[TeamPublic] Error fetching track ${trackId}:`, err);
-          }
-          return { trackId, name: '' };
-        });
-
-        const missingTracks = await Promise.all(missingTrackPromises);
-        missingTracks.forEach(({ trackId, name }) => {
-          if (name) {
-            trackIdToNameMap.set(trackId, name);
-          }
-        });
-        console.log(`[TeamPublic] Fetched ${missingTracks.length} missing tracks`);
-      }
-
       // Process all challenges (now all track names are in the map)
       for (const { submissionData, challengeDoc } of challengeResults) {
         if (challengeDoc && challengeDoc.exists) {
@@ -388,8 +356,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             const challengeData = challengeDoc.data();
             const trackId = challengeData?.trackId || submissionData.trackId || '';
 
-            // Get track name from map (instant lookup, no async call)
-            const trackName = trackId ? trackIdToNameMap.get(trackId) || '' : '';
+            // Get track name using getTrackName helper to ensure fallback logic is used
+            // This handles cases where trackId is missing from tracks collection (e.g. rwa-黑客松台灣賽道-622165)
+            const trackName = trackId ? await getTrackName(trackId) : '';
 
             challenges.push({
               challengeId: challengeDoc.id,
