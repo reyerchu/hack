@@ -1411,16 +1411,23 @@ export default function NFTCampaignPage() {
           {/* Mint Records / Whitelist Status */}
           {(mintRecords.length > 0 || (isAdmin && whitelistStatus.length > 0)) && (
             <div className="bg-white border border-gray-300 rounded-lg p-8">
-              <h2
-                className="text-[24px] md:text-[32px] font-bold mb-8"
-                style={{ color: '#1a3a6e' }}
-              >
-                鑄造記錄 (
-                {isAdmin && whitelistStatus.length > 0
-                  ? whitelistStatus.length
-                  : mintRecords.length}
-                )
-              </h2>
+              <div className="flex items-center justify-between mb-8">
+                <h2 className="text-[24px] md:text-[32px] font-bold" style={{ color: '#1a3a6e' }}>
+                  鑄造記錄 (
+                  {isAdmin && whitelistStatus.length > 0
+                    ? whitelistStatus.length
+                    : mintRecords.length}
+                  )
+                </h2>
+                {isAdmin && (
+                  <button
+                    onClick={() => setShowAddWhitelistModal(true)}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors text-sm font-medium"
+                  >
+                    ➕ 添加白名單
+                  </button>
+                )}
+              </div>
 
               {isAdmin && whitelistStatus.length > 0 ? (
                 /* Admin View - Whitelist Status Table */
