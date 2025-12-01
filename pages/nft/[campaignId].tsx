@@ -102,7 +102,8 @@ export default function NFTCampaignPage() {
   const [currentChainId, setCurrentChainId] = useState<string>('');
 
   // Check if user is admin
-  const isAdmin = user?.permissions?.includes('super_admin') || false;
+  const isAdmin =
+    user?.permissions?.includes('super_admin') || user?.permissions?.includes('admin') || false;
 
   // Use NFT contract hook
   const nftContract = useNFTContractMerkle(campaign?.contractAddress, walletAddress, emailHash);
@@ -1066,9 +1067,10 @@ export default function NFTCampaignPage() {
                     {isAdmin && (
                       <button
                         onClick={handleDeleteCampaign}
-                        className="text-xs px-3 py-1 bg-rose-600 text-white rounded hover:bg-rose-700 transition-colors"
+                        className="text-xs px-3 py-1 text-white rounded hover:opacity-90 transition-colors"
+                        style={{ backgroundColor: '#8B0000' }}
                       >
-                        🗑️ 刪除活動
+                        刪除
                       </button>
                     )}
                   </div>
@@ -1422,9 +1424,10 @@ export default function NFTCampaignPage() {
                 {isAdmin && (
                   <button
                     onClick={() => setShowAddWhitelistModal(true)}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors text-sm font-medium"
+                    className="px-4 py-2 text-white rounded-md hover:opacity-90 transition-colors text-sm font-medium"
+                    style={{ backgroundColor: '#00008B' }}
                   >
-                    ➕ 添加白名單
+                    添加白名單
                   </button>
                 )}
               </div>

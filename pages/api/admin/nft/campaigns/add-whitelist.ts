@@ -91,6 +91,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       totalCount: updatedWhitelist.length,
       newMerkleRoot: merkleData.root,
       duplicates: duplicates.length > 0 ? duplicates : undefined,
+      contractAddress: campaignData?.contractAddress, // Return contract address to frontend
     });
   } catch (error: any) {
     console.error('[add-whitelist] Error:', error);
