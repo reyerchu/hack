@@ -104,6 +104,33 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           if (!usersSnapshot.empty) {
             const userDoc = usersSnapshot.docs[0];
             userInfoMap[`email:${normalizedEmail}`] = { ...userDoc.data(), userId: userDoc.id };
+            return;
+          }
+
+          // Try registrations collection (email)
+          usersSnapshot = await db
+            .collection('registrations')
+            .where('email', '==', normalizedEmail)
+            .limit(1)
+            .get();
+
+          if (!usersSnapshot.empty) {
+            const userDoc = usersSnapshot.docs[0];
+            userInfoMap[`email:${normalizedEmail}`] = { ...userDoc.data(), userId: userDoc.id };
+            return;
+          }
+
+          // Try registrations collection (preferredEmail)
+          usersSnapshot = await db
+            .collection('registrations')
+            .where('preferredEmail', '==', normalizedEmail)
+            .limit(1)
+            .get();
+
+          if (!usersSnapshot.empty) {
+            const userDoc = usersSnapshot.docs[0];
+            userInfoMap[`email:${normalizedEmail}`] = { ...userDoc.data(), userId: userDoc.id };
+            return;
           }
         } catch (error) {
           console.error(`Error fetching user by email ${email}:`, error);

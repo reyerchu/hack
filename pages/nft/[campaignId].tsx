@@ -275,6 +275,14 @@ export default function NFTCampaignPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [campaignId, user]); // Re-fetch when user changes (e.g., after login)
 
+  // Add this effect to trigger sync when wallet connects
+  useEffect(() => {
+    if (walletConnected && campaign && user?.preferredEmail && !alreadyMinted) {
+      syncMintStatus();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [walletConnected, campaign, user, alreadyMinted]);
+
   // Listen for network changes in MetaMask
   useEffect(() => {
     if (typeof (window as any).ethereum === 'undefined') return;
@@ -829,6 +837,88 @@ export default function NFTCampaignPage() {
     }
   };
 
+  const handleDeleteCampaign = async () => {
+    if (!campaign) return;
+
+    const confirmDelete = confirm(
+      `⚠️ 危險操作 ⚠️\n\n確定要刪除 NFT 活動「${campaign.name}」嗎？\n\n此操作無法復原！`,
+    );
+    if (!confirmDelete) return;
+
+    const doubleConfirm = prompt('請輸入 "DELETE" 以確認刪除：');
+    if (doubleConfirm !== 'DELETE') {
+      alert('取消刪除');
+      return;
+    }
+
+    try {
+      const auth = (await import('firebase/app')).default.auth();
+      const currentUser = auth.currentUser;
+      let token = '';
+      if (currentUser) {
+        token = await currentUser.getIdToken();
+      }
+
+      const response = await fetch('/api/admin/nft/campaigns/delete', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          campaignId: campaign.id,
+        }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || '刪除失敗');
+      }
+
+      alert('✅ 活動已刪除');
+      router.push('/'); // Redirect to home
+    } catch (err: any) {
+      console.error('Error deleting campaign:', err);
+      alert(`❌ 刪除失敗：${err.message}`);
+    }
+  };
+
+  const syncMintStatus = async () => {
+    try {
+      if (!campaign || !walletAddress || !user?.preferredEmail) return;
+
+      // Only check if not already marked as minted
+      if (alreadyMinted) return;
+
+      console.log('[NFT Page] 🔄 Syncing mint status with blockchain...');
+      const response = await fetch('/api/nft/sync-mint', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          campaignId: campaign.id,
+          walletAddress,
+          userEmail: user.preferredEmail,
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.mint) {
+          console.log('[NFT Page] ✅ Sync successful! Found mint record:', data.mint);
+          setAlreadyMinted(true);
+          setCanMintNFT(false);
+          setMintRecords((prev) => [...prev, data.mint]); // Optimistic update
+
+          // Reload campaign data to be sure
+          fetchCampaignData();
+          alert('🎉 檢測到您已完成鑄造！已同步狀態。');
+        }
+      }
+    } catch (err) {
+      console.error('[NFT Page] Sync check failed:', err);
+    }
+  };
+
   const getNetworkExplorerUrl = (network: string, address: string) => {
     // Handle Arbitrum network
     if (network.toLowerCase() === 'arbitrum') {
@@ -957,21 +1047,31 @@ export default function NFTCampaignPage() {
                   <h1 className="text-[32px] md:text-[40px] font-bold" style={{ color: '#1a3a6e' }}>
                     {campaign.name}
                   </h1>
-                  <span
-                    className={`px-3 py-1 rounded-full text-sm font-medium ${
-                      campaign.status === 'active'
-                        ? 'bg-emerald-700 bg-opacity-10 text-emerald-700'
+                  <div className="flex flex-col items-end gap-2">
+                    <span
+                      className={`px-3 py-1 rounded-full text-sm font-medium ${
+                        campaign.status === 'active'
+                          ? 'bg-emerald-700 bg-opacity-10 text-emerald-700'
+                          : campaign.status === 'ended'
+                          ? 'bg-gray-100 text-gray-800'
+                          : 'bg-amber-100 text-amber-800'
+                      }`}
+                    >
+                      {campaign.status === 'active'
+                        ? '進行中'
                         : campaign.status === 'ended'
-                        ? 'bg-gray-100 text-gray-800'
-                        : 'bg-amber-100 text-amber-800'
-                    }`}
-                  >
-                    {campaign.status === 'active'
-                      ? '進行中'
-                      : campaign.status === 'ended'
-                      ? '已結束'
-                      : campaign.status}
-                  </span>
+                        ? '已結束'
+                        : campaign.status}
+                    </span>
+                    {isAdmin && (
+                      <button
+                        onClick={handleDeleteCampaign}
+                        className="text-xs px-3 py-1 bg-rose-600 text-white rounded hover:bg-rose-700 transition-colors"
+                      >
+                        🗑️ 刪除活動
+                      </button>
+                    )}
+                  </div>
                 </div>
 
                 <p className="text-gray-700 mb-6 leading-relaxed">{campaign.description}</p>
