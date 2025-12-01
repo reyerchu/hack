@@ -122,11 +122,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         // If simple ERC721 (not enumerable), we can't easily list.
         // But `hasEmailMinted` ensures they minted ONE specific token (since it checks map).
         // We just don't know WHICH one without the log.
-        return res
-          .status(500)
-          .json({
-            error: 'Mint verified on-chain but transaction log not found. Please contact support.',
-          });
+        return res.status(500).json({
+          error: 'Mint verified on-chain but transaction log not found. Please contact support.',
+        });
       }
       return res.status(404).json({ error: 'Log not found and no current balance.' });
     }
