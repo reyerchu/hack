@@ -34,7 +34,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const decodedToken = await auth().verifyIdToken(token);
         const userDoc = await db.collection('users').doc(decodedToken.uid).get();
         const userData = userDoc.data();
-        isAdmin = userData?.permissions?.includes('super_admin') || false;
+        isAdmin =
+          userData?.permissions?.includes('super_admin') ||
+          userData?.permissions?.includes('admin') ||
+          false;
       } catch (err) {
         console.log('[NFT Campaign API] Auth check failed:', err);
       }
@@ -57,8 +60,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     };
 
     // Include whitelist for admin users
-    if (isAdmin && campaignData?.eligibleEmails) {
-      publicCampaign.whitelistedEmails = campaignData.eligibleEmails;
+    if (isAdmin) {
+      publicCampaign.whitelistedEmails =
+        campaignData?.whitelistedEmails || campaignData?.eligibleEmails || [];
     }
 
     return res.status(200).json({

@@ -66,6 +66,22 @@ const AddWhitelistModal: React.FC<AddWhitelistModalProps> = ({
         throw new Error(data.error || '添加失敗');
       }
 
+      // Check if contract address is available
+      // If not deployed (contractAddress is empty or null), skip contract update
+      if (!data.contractAddress || data.contractAddress === '') {
+        console.log('[AddWhitelist] Contract not deployed yet, skipping on-chain update.');
+        alert(
+          `✅ 白名單已更新到資料庫！\n\n` +
+            `已添加：${data.addedCount} 個地址\n` +
+            `總數：${data.totalCount} 個地址\n\n` +
+            `⚠️ 注意：此活動尚未部署合約，因此不需要更新鏈上 Merkle Root。`,
+        );
+        setEmails('');
+        onSuccess();
+        onClose();
+        return;
+      }
+
       setNewMerkleRoot(data.newMerkleRoot);
 
       // Step 2: Update contract Merkle Root
@@ -169,10 +185,11 @@ const AddWhitelistModal: React.FC<AddWhitelistModalProps> = ({
           placeholder="輸入電子郵件地址（每行一個或用逗號分隔）&#10;例如：&#10;user1@example.com&#10;user2@example.com&#10;user3@example.com"
           helperText="輸入一個或多個電子郵件地址，用換行或逗號分隔"
           disabled={loading}
+          sx={{ mt: 1 }}
         />
 
         <Typography variant="caption" color="text.secondary" sx={{ mt: 2, display: 'block' }}>
-          注意：添加後會自動生成新的 Merkle Root 並要求您通過 MetaMask 更新智能合約。
+          注意：添加後會自動生成新的 Merkle Root。若合約已部署，將要求您通過 MetaMask 更新智能合約。
         </Typography>
       </DialogContent>
       <DialogActions>

@@ -1066,9 +1066,10 @@ export default function NFTCampaignPage() {
                     {isAdmin && (
                       <button
                         onClick={handleDeleteCampaign}
-                        className="text-xs px-3 py-1 bg-rose-600 text-white rounded hover:bg-rose-700 transition-colors"
+                        className="text-xs px-3 py-1 text-white rounded hover:opacity-90 transition-colors"
+                        style={{ backgroundColor: '#8B4049' }}
                       >
-                        🗑️ 刪除活動
+                        刪除
                       </button>
                     )}
                   </div>
@@ -1162,8 +1163,8 @@ export default function NFTCampaignPage() {
                       )}
                     </div>
                     <div className="text-lg font-semibold" style={{ color: '#1a3a6e' }}>
-                      {nftContract.totalSupply !== null && nftContract.maxSupply !== null
-                        ? `${nftContract.totalSupply} / ${nftContract.maxSupply}`
+                      {nftContract.totalSupply !== null
+                        ? `${nftContract.totalSupply} / ${campaign.maxSupply}`
                         : `${campaign.currentSupply} / ${campaign.maxSupply}`}
                     </div>
                   </div>
@@ -1422,9 +1423,10 @@ export default function NFTCampaignPage() {
                 {isAdmin && (
                   <button
                     onClick={() => setShowAddWhitelistModal(true)}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors text-sm font-medium"
+                    className="px-4 py-2 text-white rounded-md hover:opacity-90 transition-colors text-sm font-medium"
+                    style={{ backgroundColor: '#1a3a6e' }}
                   >
-                    ➕ 添加白名單
+                    添加白名單
                   </button>
                 )}
               </div>

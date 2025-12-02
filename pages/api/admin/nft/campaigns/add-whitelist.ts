@@ -49,7 +49,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     const campaignData = campaignDoc.data();
-    const existingWhitelist = campaignData?.whitelistedEmails || [];
+    // Support both new field (whitelistedEmails) and legacy field (eligibleEmails)
+    const existingWhitelist = campaignData?.whitelistedEmails || campaignData?.eligibleEmails || [];
 
     // Merge and deduplicate emails
     const normalizedNewEmails = newEmails.map((e) => e.trim().toLowerCase());
@@ -91,6 +92,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       totalCount: updatedWhitelist.length,
       newMerkleRoot: merkleData.root,
       duplicates: duplicates.length > 0 ? duplicates : undefined,
+      contractAddress: campaignData?.contractAddress,
     });
   } catch (error: any) {
     console.error('[add-whitelist] Error:', error);
