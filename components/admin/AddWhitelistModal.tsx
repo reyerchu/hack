@@ -154,29 +154,33 @@ const AddWhitelistModal: React.FC<AddWhitelistModalProps> = ({
         }
         if (errorMessage.includes('user rejected')) {
           errorMessage = '⚠️ 您取消了 MetaMask 交易。正在撤銷資料庫變更...';
+        }
 
-          // Parse emails again to revert
-          const emailListToRevert = emails
-            .split(/[\n,]/)
-            .map((e) => e.trim())
-            .filter((e) => e.length > 0);
+        // Parse emails again to revert
+        const emailListToRevert = emails
+          .split(/[\n,]/)
+          .map((e) => e.trim())
+          .filter((e) => e.length > 0);
 
-          // Call remove API to revert
-          try {
-            await fetch('/api/admin/nft/campaigns/remove-whitelist', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                campaignId,
-                emailsToRemove: emailListToRevert,
-              }),
-            });
-            errorMessage =
-              '❌ 交易已取消。因為合約未更新，系統已自動撤銷資料庫中的變更，白名單未被修改。';
-          } catch (revertErr) {
-            console.error('Revert failed:', revertErr);
-            errorMessage = '⚠️ 交易已取消，但撤銷資料庫變更失敗。請手動檢查白名單。';
+        // Call remove API to revert
+        try {
+          await fetch('/api/admin/nft/campaigns/remove-whitelist', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              campaignId,
+              emailsToRemove: emailListToRevert,
+            }),
+          });
+
+          if (errorMessage.includes('正在撤銷')) {
+            // Message already set
+          } else {
+            errorMessage += ' (資料庫變更已自動撤銷)';
           }
+        } catch (revertErr) {
+          console.error('Revert failed:', revertErr);
+          errorMessage += ' (⚠️ 嚴重錯誤：資料庫撤銷失敗，請手動修正)';
         }
       } // Close the if/else chain properly
 

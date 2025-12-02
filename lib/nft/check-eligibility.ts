@@ -307,7 +307,7 @@ export async function checkNFTEligibility(
     }
 
     // User is eligible to mint
-    const result: MintStatus = {
+    return {
       eligible: true,
       alreadyMinted: false,
       campaign: {
@@ -322,43 +322,6 @@ export async function checkNFTEligibility(
         endDate: eligibleCampaign.endDate?.toDate(),
       },
     };
-
-    // Check for registered wallet address in team-registrations
-    let requiredWalletAddress: string | undefined = undefined;
-
-    // 1. Check as team leader
-    const leaderTeamsSnapshot = await db
-      .collection('team-registrations')
-      .where('teamLeader.email', '==', normalizedEmail)
-      .get();
-
-    leaderTeamsSnapshot.forEach((doc) => {
-      const data = doc.data();
-      if (data.evmWalletAddress && !requiredWalletAddress) {
-        requiredWalletAddress = data.evmWalletAddress;
-      }
-    });
-
-    // 2. Check as team member (scan all if not found yet)
-    if (!requiredWalletAddress) {
-      const allTeamsSnapshot = await db.collection('team-registrations').get();
-      for (const doc of allTeamsSnapshot.docs) {
-        const data = doc.data();
-        const members = data.teamMembers || [];
-        const isMember = members.some((m: any) => m.email?.toLowerCase() === normalizedEmail);
-
-        if (isMember && data.evmWalletAddress) {
-          requiredWalletAddress = data.evmWalletAddress;
-          break;
-        }
-      }
-    }
-
-    if (requiredWalletAddress) {
-      result.requiredWalletAddress = requiredWalletAddress;
-    }
-
-    return result;
   } catch (error) {
     console.error('[checkNFTEligibility] Error:', error);
     return {
