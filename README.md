@@ -1,174 +1,180 @@
 # RWA Hackathon Taiwan Portal
 
-### _A professional and elegant platform for Web3 hackathon event management._
+### _專業優雅的 Web3 黑客松活動管理平台_
 
 [![Live Site](https://img.shields.io/badge/Live-hackathon.com.tw-blue)](https://hackathon.com.tw)
-[![Version](https://img.shields.io/badge/version-1.0.3-green.svg)](https://github.com/reyerchu/hack)
+[![Version](https://img.shields.io/badge/version-1.0.7-green.svg)](https://github.com/reyerchu/hack)
 [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
 
-🌐 **Live Site**: [hackathon.com.tw](https://hackathon.com.tw)
+🌐 **正式網站**: [hackathon.com.tw](https://hackathon.com.tw)
 
-Forked from [HackPortal by ACM UTD](https://github.com/acmutd/hackportal)
-
----
-
-## 🎯 About
-
-The **RWA Hackathon Taiwan Portal** is a comprehensive platform designed for Taiwan's first RWA (Real World Assets) Hackathon. Built with Next.js and Firebase, it provides a professional, elegant, and user-friendly experience for participants, sponsors, mentors, and organizers.
+基於 [HackPortal by ACM UTD](https://github.com/acmutd/hackportal) 開發
 
 ---
 
-## ✨ Key Features
+## 🎯 關於本專案
 
-### 🏠 Public Pages
-
-- **首頁 (Home)** - Professional landing page with dynamic carousel, real-time statistics, and elegant animations
-- **賽道挑戰 (Tracks & Challenges)** - Comprehensive sponsor tracks with detailed challenge descriptions and prize information
-- **時程表 (Schedule)** - Interactive event schedule with calendar integration
-- **導師評審 (Mentors & Judges)** - Showcase of expert mentors and judges with profiles
-- **得獎名單 (Winners)** - Elegant winners page displaying awards across all tracks with team links and logos
-
-### 🔐 User Features
-
-#### 📝 Registration & Profile
-- Email and Google OAuth authentication
-- Comprehensive user profile management
-- Resume upload and management
-- Privacy settings control
-- Public profile pages with awards display
-
-#### 👥 Team Management
-- **Team Registration** - Easy team formation with member invitation system
-- **Team Edit Page** - Separate editing interface with intuitive member management
-- **Public Team Pages** - Professional team showcase with project links and awards
-- **Member Permissions** - Granular edit rights for team members
-- **Wallet Integration** - EVM and multi-chain wallet address management
-- **Demo Day Submissions** - PDF upload for Demo Day track participants
-
-#### 🤝 Find Teammate (Team-Up System)
-- Post team needs with role descriptions
-- Browse available opportunities
-- Application management system
-- Real-time notifications for applications
-- Automated email notifications
-
-#### 🪙 NFT System
-- **Multi-Chain Support** - Ethereum, Sepolia, Arbitrum, and more
-- **Merkle Tree Whitelist** - Efficient on-chain verification
-- **Email-Based Eligibility** - Automated whitelist management
-- **Auto-Deployment** - Streamlined contract deployment workflow
-- **Mint Tracking** - Complete minting history and analytics
-- **IPFS Integration** - Decentralized metadata storage
-
-### 🛠️ Admin Panel
-
-#### 👥 User Management
-- View and manage all registered users
-- Role assignment (Admin, Super Admin, Sponsor)
-- User statistics and analytics
-- Resume download and review
-
-#### 👨‍👩‍👧‍👦 Team Management
-- View all participating teams
-- Export team data to CSV
-- Monitor team registrations
-- Admin-only team deletion rights
-
-#### 🏢 Sponsor Management
-- Create and manage sponsor profiles
-- Assign track permissions
-- Upload sponsor logos and materials
-- Track-specific sponsor dashboards
-
-#### 🎯 Track & Challenge Management
-- Create custom sponsor tracks
-- Define challenges with prize pools
-- Manage submissions and judging
-- Real-time submission tracking
-
-#### 🎨 NFT Campaign Management
-- Create NFT campaigns with custom artwork
-- Generate and deploy smart contracts
-- Manage whitelist with Merkle trees
-- Auto-setup workflows with progress tracking
-- Contract verification on block explorers
-- Mint monitoring and analytics
-
-#### 📢 Communication Tools
-- Push notification system
-- Announcement broadcasting
-- Email notification automation
-- Question & Answer system
-
-#### 📊 Analytics & Reporting
-- Real-time attendance tracking
-- Check-in statistics
-- Team registration metrics
-- NFT minting analytics
+**RWA Hackathon Taiwan Portal** 是為台灣首屆 RWA（真實世界資產）黑客松設計的綜合平台。採用 Next.js 和 Firebase 建構，為參賽者、贊助商、導師和主辦方提供專業、優雅且友善的使用體驗。
 
 ---
 
-## 🎨 Design Philosophy
+## ✨ 主要功能
 
-- **Professional & Elegant** - Dark blue theme (#1a3a6e) with clean, modern UI
-- **Responsive Design** - Optimized for desktop, tablet, and mobile
-- **Smooth Animations** - Subtle transitions and hover effects
-- **Accessibility** - WCAG compliant with semantic HTML
-- **Performance** - Optimized images, lazy loading, and efficient data fetching
+### 🏠 公開頁面
+
+- **首頁** - 專業的登陸頁面，包含動態輪播、即時統計和優雅動畫
+- **賽道挑戰** - 完整的贊助商賽道，包含詳細的挑戰說明和獎金資訊
+- **時程表** - 互動式活動時程，支援日曆整合
+- **導師評審** - 展示專業導師和評審的個人資料
+- **得獎名單** - 優雅的得獎頁面，顯示各賽道獎項、團隊連結和標誌
+
+### 🔐 使用者功能
+
+#### 📝 註冊與個人檔案
+- Email 和 Google OAuth 認證
+- 完整的個人檔案管理
+- 履歷上傳與管理
+- 隱私設定控制
+- 公開個人頁面（含獎項展示）
+
+#### 👥 團隊管理
+- **團隊報名** - 簡易的團隊組建與成員邀請系統
+- **團隊編輯頁面** - 獨立的編輯介面，直覺的成員管理
+- **公開團隊頁面** - 專業的團隊展示，包含專案連結和獎項
+- **成員權限** - 細緻的團隊成員編輯權限
+- **錢包整合** - EVM 和多鏈錢包地址管理
+- **Demo Day 提交** - Demo Day 賽道參賽者的 PDF 上傳
+
+#### 🤝 找隊友系統
+- 發布團隊需求與角色說明
+- 瀏覽可用機會
+- 申請管理系統
+- 即時申請通知
+- 自動化 Email 通知
+
+#### 🪙 NFT 系統
+- **多鏈支援** - Ethereum、Sepolia、Arbitrum 等
+- **Merkle Tree 白名單** - 高效的鏈上驗證，自動生成 Merkle Root
+- **Email 資格驗證** - 與使用者註冊綁定的自動化白名單管理
+- **自動部署** - 流程化的合約部署工作流程，含進度追蹤
+- **鑄造追蹤** - 完整的鑄造歷史和分析儀表板
+- **IPFS 整合** - 透過 Pinata 的去中心化元資料儲存
+- **智慧白名單管理** - 新增/移除 Email，合約更新失敗時自動回滾資料庫
+- **MetaMask 整合** - 無縫的錢包連接，用於鑄造和管理操作
+- **合約驗證** - 部署後自動在 Etherscan 驗證
+
+### 🛠️ 管理後台
+
+#### 👥 使用者管理
+- 檢視和管理所有註冊使用者
+- 角色分配（管理員、超級管理員、贊助商）
+- 使用者統計和分析
+- 履歷下載和審閱
+
+#### 👨‍👩‍👧‍👦 團隊管理
+- 檢視所有參賽團隊
+- 匯出團隊資料為 CSV
+- 監控團隊報名
+- 僅限管理員的團隊刪除權限
+
+#### 🏢 贊助商管理
+- 建立和管理贊助商資料
+- 分配賽道權限
+- 上傳贊助商標誌和素材
+- 賽道專屬贊助商儀表板
+
+#### 🎯 賽道與挑戰管理
+- 建立自訂贊助商賽道
+- 定義挑戰與獎金池
+- 管理提交和評審
+- 即時提交追蹤
+
+#### 🎨 NFT 活動管理
+- 建立 NFT 活動，含自訂圖片和元資料
+- 一鍵生成和部署智能合約
+- 使用 Merkle Tree 管理白名單，自動更新 Root
+- 自動設定工作流程，含即時進度追蹤
+- 在 Etherscan/區塊瀏覽器上驗證合約
+- 鑄造監控和分析，含使用者追蹤
+- **新增白名單（含回滾）** - MetaMask/合約更新失敗時自動撤銷資料庫變更
+- **移除白名單** - 安全移除，含鑄造狀態檢查（防止移除已鑄造的 Email）
+- **多語言支援** - 錯誤訊息以繁體中文顯示
+
+#### 📢 通訊工具
+- 推播通知系統
+- 公告廣播
+- Email 通知自動化
+- 問答系統
+
+#### 📊 分析與報表
+- 即時出席追蹤
+- 報到統計
+- 團隊報名指標
+- NFT 鑄造分析
 
 ---
 
-## 🚀 Technical Stack
+## 🎨 設計理念
 
-- **Frontend**: Next.js 12, React 18, TypeScript
-- **Styling**: Tailwind CSS, Custom CSS
-- **Backend**: Next.js API Routes, Firebase Functions
-- **Database**: Firebase Firestore
-- **Authentication**: Firebase Auth (Email/Google)
-- **Storage**: Firebase Storage, IPFS (NFT metadata)
-- **Blockchain**: Ethers.js, Hardhat
+- **專業優雅** - 深藍色主題 (#1a3a6e)，乾淨現代的 UI
+- **響應式設計** - 針對桌機、平板和手機優化
+- **流暢動畫** - 細緻的過渡和懸停效果
+- **無障礙設計** - 符合 WCAG 標準，使用語意化 HTML
+- **效能優化** - 圖片優化、延遲載入和高效資料獲取
+
+---
+
+## 🚀 技術架構
+
+- **前端**: Next.js 12, React 18, TypeScript
+- **樣式**: Tailwind CSS, 自訂 CSS
+- **後端**: Next.js API Routes, Firebase Functions
+- **資料庫**: Firebase Firestore
+- **認證**: Firebase Auth (Email/Google)
+- **儲存**: Firebase Storage, IPFS (NFT 元資料)
+- **區塊鏈**: Ethers.js, Hardhat
 - **Email**: Nodemailer with SMTP
-- **Process Manager**: PM2
-- **Version Control**: Git with automated backups
+- **程序管理**: PM2
+- **版本控制**: Git，含自動備份
 
 ---
 
-## 🏗️ Project Structure
+## 🏗️ 專案結構
 
 ```
-├── pages/                  # Next.js pages
-│   ├── api/               # API routes
-│   ├── admin/             # Admin panel pages
-│   ├── sponsor/           # Sponsor dashboard
-│   ├── teams/             # Team public pages
-│   ├── nft/               # NFT campaign pages
+├── pages/                  # Next.js 頁面
+│   ├── api/               # API 路由
+│   ├── admin/             # 管理後台頁面
+│   ├── sponsor/           # 贊助商儀表板
+│   ├── teams/             # 團隊公開頁面
+│   ├── nft/               # NFT 活動頁面
 │   └── ...
-├── components/            # React components
-├── lib/                   # Utility libraries
-│   ├── firebase/         # Firebase configuration
-│   ├── teamRegister/     # Team management
-│   └── nft/              # NFT utilities
-├── public/               # Static assets
-├── styles/               # Global styles
-└── scripts/              # Deployment & maintenance scripts
+├── components/            # React 元件
+├── lib/                   # 工具函式庫
+│   ├── firebase/         # Firebase 設定
+│   ├── teamRegister/     # 團隊管理
+│   └── nft/              # NFT 工具
+├── public/               # 靜態資源
+├── styles/               # 全域樣式
+└── scripts/              # 部署與維護腳本
 ```
 
 ---
 
-## 🔧 Setup & Deployment
+## 🔧 設定與部署
 
-### Prerequisites
+### 前置需求
 - Node.js 16+
-- npm or yarn
-- Firebase project
-- SMTP credentials (for emails)
+- npm 或 yarn
+- Firebase 專案
+- SMTP 憑證（用於 Email）
 
-### Environment Variables
-Create `.env.local` with the following configuration:
+### 環境變數
+建立 `.env.local` 並填入以下設定：
 
 ```bash
 # ============================================
-# Firebase Web App Configuration (Frontend)
+# Firebase Web App 設定（前端）
 # ============================================
 NEXT_PUBLIC_FIREBASE_API_KEY=your_api_key
 NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
@@ -179,14 +185,14 @@ NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_project.firebasestorage.app
 NEXT_PUBLIC_MEASUREMENT_ID=your_measurement_id
 
 # ============================================
-# Firebase Admin SDK (Backend - Service Account)
+# Firebase Admin SDK（後端 - 服務帳戶）
 # ============================================
 SERVICE_ACCOUNT_CLIENT_EMAIL=firebase-adminsdk@your_project.iam.gserviceaccount.com
 SERVICE_ACCOUNT_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nyour_private_key\n-----END PRIVATE KEY-----\n"
 SERVICE_ACCOUNT_PROJECT_ID=your_project_id
 
 # ============================================
-# Email Configuration (SMTP)
+# Email 設定（SMTP）
 # ============================================
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
@@ -195,161 +201,152 @@ SMTP_PASS=your_app_password
 EMAIL_FROM=your_email@domain.com
 
 # ============================================
-# Google OAuth & Calendar API
+# Google OAuth 與日曆 API
 # ============================================
 GOOGLE_CLIENT_ID=your_client_id.apps.googleusercontent.com
 GOOGLE_CLIENT_SECRET=your_client_secret
 GOOGLE_REDIRECT_URI=https://your_domain.com/api/calendar/callback
 
 # ============================================
-# Site Configuration
+# 網站設定
 # ============================================
 NEXT_PUBLIC_SITE_URL=https://your_domain.com
 NEXT_PUBLIC_API_URL=http://localhost:3008
 
 # ============================================
-# NFT & IPFS Configuration
+# NFT 與 IPFS 設定
 # ============================================
 PINATA_JWT=your_pinata_jwt_token
 PINATA_GATEWAY=gateway.pinata.cloud
 
 # ============================================
-# Blockchain Configuration
+# 區塊鏈設定
 # ============================================
 ETHERSCAN_API_KEY=your_etherscan_api_key
 SEPOLIA_RPC_URL=https://ethereum-sepolia-rpc.publicnode.com
 
 # ============================================
-# Admin Configuration
+# 管理員設定
 # ============================================
 ADMIN_EMAIL=your_admin_email@domain.com
 NEXT_PUBLIC_ADMIN_EMAIL=your_admin_email@domain.com
 
 # ============================================
-# Optional Configuration
+# 選用設定
 # ============================================
 NEXT_PUBLIC_RESUME_UPLOAD_PASSWORD=your_password
 NEXT_PUBLIC_RESUME_UPLOAD_SERVICE_ACCOUNT=your_service_account
 NEXT_PUBLIC_VAPID_KEY=your_vapid_key
 ```
 
-#### Configuration Notes:
+#### 設定說明：
 
-1. **Firebase Setup**:
-   - Get credentials from [Firebase Console](https://console.firebase.google.com/)
-   - Web App config: Project Settings → General → Your apps
-   - Service Account: Project Settings → Service Accounts → Generate new private key
+1. **Firebase 設定**：
+   - 從 [Firebase Console](https://console.firebase.google.com/) 取得憑證
+   - Web App 設定：專案設定 → 一般 → 您的應用程式
+   - 服務帳戶：專案設定 → 服務帳戶 → 產生新的私密金鑰
 
-2. **Email (SMTP)**:
-   - For Gmail: Enable 2FA and generate an [App Password](https://myaccount.google.com/apppasswords)
-   - Port 587 for TLS, Port 465 for SSL
+2. **Email (SMTP)**：
+   - 若使用 Gmail：啟用兩步驟驗證並產生[應用程式密碼](https://myaccount.google.com/apppasswords)
+   - Port 587 用於 TLS，Port 465 用於 SSL
 
-3. **Google OAuth**:
-   - Set up in [Google Cloud Console](https://console.cloud.google.com/)
-   - Add authorized redirect URIs: `https://your_domain.com/api/calendar/callback`
+3. **Google OAuth**：
+   - 在 [Google Cloud Console](https://console.cloud.google.com/) 設定
+   - 新增授權的重新導向 URI：`https://your_domain.com/api/calendar/callback`
 
-4. **NFT & IPFS**:
-   - Get Pinata JWT from [Pinata](https://www.pinata.cloud/)
-   - Required for NFT metadata storage
+4. **NFT 與 IPFS**：
+   - 從 [Pinata](https://www.pinata.cloud/) 取得 JWT
+   - 用於 NFT 元資料儲存
 
-5. **Blockchain**:
-   - Etherscan API key from [Etherscan](https://etherscan.io/myapikey)
-   - Required for contract verification
+5. **區塊鏈**：
+   - 從 [Etherscan](https://etherscan.io/myapikey) 取得 API 金鑰
+   - 用於合約驗證
 
-6. **Admin Configuration**:
-   - Set `ADMIN_EMAIL` to your admin email address
-   - Used for permission checks and admin notifications
+6. **管理員設定**：
+   - 將 `ADMIN_EMAIL` 設為您的管理員 Email 地址
+   - 用於權限檢查和管理員通知
 
-### Installation
+### 安裝
 ```bash
 npm install
-npm run dev          # Development server
-npm run build        # Production build
-npm start            # Production server
+npm run dev          # 開發伺服器
+npm run build        # 正式版建置
+npm start            # 正式版伺服器
 ```
 
-### Safe Deployment
+### 安全部署
 ```bash
-./safe-deploy.sh    # Automated deployment with health checks
+./safe-deploy.sh    # 自動化部署，含健康檢查
 ```
 
 ---
 
-## 🌟 Unique Features
+## 🌟 特色功能
 
-### Simple & Elegant Schedule with Share Feature
-- Clean, professional event schedule interface
-- Real-time event filtering and search
-- One-click share to Google Calendar
-- Responsive design for mobile and desktop
-- Time zone support for international participants
+### 簡潔優雅的時程表（含分享功能）
+- 乾淨、專業的活動時程介面
+- 即時活動篩選和搜尋
+- 一鍵分享至 Google 日曆
+- 響應式設計，適用手機和桌機
+- 時區支援，適合國際參與者
 
-### NFT Auto-Setup
-- One-click contract deployment
-- Automated Merkle tree generation
-- Contract verification on Etherscan
-- Email-based whitelist management
-- Multi-step progress tracking
+### NFT 自動設定與白名單管理
+- 一鍵合約部署，含 IPFS 元資料上傳
+- 自動化 Merkle Tree 生成和鏈上 Root 更新
+- 在 Etherscan 驗證合約，含重試機制
+- Email 白名單管理，支援新增/移除
+- 多步驟進度追蹤，含即時狀態更新
+- **原子操作** - 智能合約更新失敗時自動回滾資料庫變更
+- **錯誤處理** - 完整的 MetaMask、錢包權限和合約錯誤訊息
+- **管理員白名單面板** - 檢視所有白名單 Email，含鑄造狀態和一鍵移除
 
-### Find Teammate
-- Skill-based matching system
-- Application workflow
-- Automated notifications
-- Integrated with user profiles
+### 找隊友
+- 技能配對系統
+- 申請工作流程
+- 自動化通知
+- 與使用者個人檔案整合
 
-### Email Automation
-- New team registration notifications
-- Team edit notifications with change tracking
-- Demo Day PDF submission alerts
-- Team-up application notifications
-
----
-
-## 📈 Event Statistics
-
-- **30+ Teams** participated in RWA Hackathon Taiwan 2025
-- **Multiple Tracks**: Demo Day, Self Protocol, Sui, and more
-- **$10,000+ in prizes** distributed across tracks
-- **NFT Participation Badges** minted to all participants
+### Email 自動化
+- 新團隊報名通知
+- 團隊編輯通知（含變更追蹤）
+- Demo Day PDF 提交提醒
+- 找隊友申請通知
 
 ---
 
-## 🤝 Contributing
+## 📈 活動統計
 
-We welcome contributions! Please follow these guidelines:
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+- **30+ 團隊**參與 RWA Hackathon Taiwan 2025
+- **多個賽道**：Demo Day、Self Protocol、Sui 等
+- **超過 $10,000 獎金**分配於各賽道
+- **NFT 參與徽章**發送給所有參與者
 
 ---
 
-## 📝 License
+## 📝 授權
 
-This project is based on [HackPortal](https://github.com/acmutd/hackportal) by ACM UTD.
-
----
-
-## 🙏 Acknowledgments
-
-- **Original Project**: [HackPortal by ACM UTD](https://github.com/acmutd/hackportal)
-- **RWA Hackathon Taiwan Team** for feature requirements and testing
-- **All Sponsors** for their support and track contributions
-- **Participants** for their valuable feedback
+本專案基於 [HackPortal](https://github.com/acmutd/hackportal) by ACM UTD 開發。
 
 ---
 
-## 📧 Contact
+## 🙏 致謝
+
+- **原始專案**：[HackPortal by ACM UTD](https://github.com/acmutd/hackportal)
+- **RWA Hackathon Taiwan 團隊**提供功能需求和測試
+- **所有贊助商**的支持和賽道貢獻
+- **參賽者**提供的寶貴回饋
+
+---
+
+## 📧 聯繫方式
 
 **Email**: [reyerchu@defintek.io](mailto:reyerchu@defintek.io)
 
-**Websites**:
-- [reyerchu.com](https://reyerchu.com) - Personal Portfolio
-- [rwa.nexus](https://rwa.nexus) - RWA-focused Startup
-- [defintek.io](https://defintek.io) - Online Web3 Courses
+**網站**:
+- [reyerchu.com](https://reyerchu.com) - 個人網站
+- [rwa.nexus](https://rwa.nexus) - RWA 相關新創
+- [defintek.io](https://defintek.io) - 線上 Web3 課程
 
 ---
 
-Built with ❤️ and Cursor AI w/ Claude 4.5, for the Web3 community in Taiwan
+以 ❤️ 和 Cursor AI w/ Claude Opus 4.5 打造，獻給台灣的 Web3 社群
