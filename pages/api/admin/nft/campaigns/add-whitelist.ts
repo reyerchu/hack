@@ -19,14 +19,14 @@ const db = getFirestore();
  */
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+    return res.status(405).json({ error: '不允許的請求方法' });
   }
 
   try {
     const { campaignId, newEmails } = req.body;
 
     if (!campaignId || !Array.isArray(newEmails) || newEmails.length === 0) {
-      return res.status(400).json({ error: 'Missing or invalid fields' });
+      return res.status(400).json({ error: '缺少必要欄位或欄位格式錯誤' });
     }
 
     // Validate emails
@@ -35,7 +35,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     if (invalidEmails.length > 0) {
       return res.status(400).json({
-        error: 'Invalid email format',
+        error: '電子郵件格式無效',
         invalidEmails,
       });
     }
@@ -45,7 +45,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const campaignDoc = await campaignRef.get();
 
     if (!campaignDoc.exists) {
-      return res.status(404).json({ error: 'Campaign not found' });
+      return res.status(404).json({ error: '找不到此活動' });
     }
 
     const campaignData = campaignDoc.data();
@@ -64,7 +64,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     if (uniqueNewEmails.length === 0) {
       return res.status(400).json({
-        error: 'All emails already in whitelist',
+        error: '所有電子郵件都已在白名單中',
         duplicates,
       });
     }
@@ -97,7 +97,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   } catch (error: any) {
     console.error('[add-whitelist] Error:', error);
     return res.status(500).json({
-      error: 'Failed to add to whitelist',
+      error: '添加白名單失敗',
       details: error.message,
     });
   }
