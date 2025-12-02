@@ -39,6 +39,10 @@ const AddWhitelistModal: React.FC<AddWhitelistModalProps> = ({
     setLoading(true);
     setStep('updating-db');
 
+    // Use local variable to track if DB was updated (React state is async)
+    let dbUpdated = false;
+    let addedEmailList: string[] = [];
+
     try {
       // Parse emails (comma or newline separated)
       const emailList = emails
@@ -49,6 +53,8 @@ const AddWhitelistModal: React.FC<AddWhitelistModalProps> = ({
       if (emailList.length === 0) {
         throw new Error('請輸入至少一個電子郵件地址');
       }
+
+      addedEmailList = emailList;
 
       // Step 1: Add to database and get new Merkle Root
       const response = await fetch('/api/admin/nft/campaigns/add-whitelist', {
@@ -65,6 +71,10 @@ const AddWhitelistModal: React.FC<AddWhitelistModalProps> = ({
       if (!response.ok) {
         throw new Error(data.error || '添加失敗');
       }
+
+      // Mark that DB has been updated
+      dbUpdated = true;
+      console.log('[AddWhitelist] Database updated, dbUpdated =', dbUpdated);
 
       // Check if contract address is available
       // If not deployed (contractAddress is empty or null), skip contract update
@@ -135,47 +145,32 @@ const AddWhitelistModal: React.FC<AddWhitelistModalProps> = ({
       onClose();
     } catch (err: any) {
       console.error('[AddWhitelist] Error:', err);
-      let errorMessage = err.message || '添加白名單失敗';
-      let needsRevert = false;
+      console.log('[AddWhitelist] dbUpdated =', dbUpdated, ', addedEmailList =', addedEmailList);
 
-      // Check if we're in the contract update phase (after DB was updated)
-      const isContractPhaseError = step === 'updating-contract';
+      let errorMessage = err.message || '添加白名單失敗';
 
       // Handle specific error messages
       if (errorMessage.includes('請安裝 MetaMask')) {
         errorMessage = '❌ 請安裝 MetaMask 錢包擴充功能後再試。';
-        needsRevert = isContractPhaseError;
       } else if (errorMessage.includes('user rejected') || errorMessage.includes('User rejected')) {
         errorMessage = '⚠️ 您取消了 MetaMask 交易。';
-        needsRevert = isContractPhaseError;
       } else if (
         errorMessage.includes('OwnableUnauthorizedAccount') ||
         errorMessage.includes('0x118cdaa7')
       ) {
         errorMessage =
           '❌ 權限錯誤：您當前連接的錢包不是此合約的擁有者，無法更新白名單。請切換到部署合約的錢包。';
-        needsRevert = isContractPhaseError;
       } else if (
         errorMessage.includes('execution reverted') ||
         errorMessage.includes('UNPREDICTABLE_GAS_LIMIT')
       ) {
         errorMessage =
           '❌ 鏈上更新失敗：您可能不是合約擁有者，或者合約狀態不允許修改。請確認您使用的是正確的管理員錢包。';
-        needsRevert = isContractPhaseError;
-      } else if (isContractPhaseError) {
-        // Any other error during contract phase should trigger revert
-        needsRevert = true;
       }
 
-      // Revert database changes if needed
-      if (needsRevert) {
+      // Revert database changes if DB was updated but contract update failed
+      if (dbUpdated && addedEmailList.length > 0) {
         console.log('[AddWhitelist] Contract update failed, reverting database changes...');
-
-        // Parse emails again to revert
-        const emailListToRevert = emails
-          .split(/[\n,]/)
-          .map((e) => e.trim())
-          .filter((e) => e.length > 0);
 
         // Call remove API to revert
         try {
@@ -184,7 +179,7 @@ const AddWhitelistModal: React.FC<AddWhitelistModalProps> = ({
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               campaignId,
-              emailsToRemove: emailListToRevert,
+              emailsToRemove: addedEmailList,
             }),
           });
 
