@@ -3,7 +3,7 @@
 ### _A professional and elegant platform for Web3 hackathon event management._
 
 [![Live Site](https://img.shields.io/badge/Live-hackathon.com.tw-blue)](https://hackathon.com.tw)
-[![Version](https://img.shields.io/badge/version-1.0.3-green.svg)](https://github.com/reyerchu/hack)
+[![Version](https://img.shields.io/badge/version-1.0.6-green.svg)](https://github.com/reyerchu/hack)
 [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
 
 🌐 **Live Site**: [hackathon.com.tw](https://hackathon.com.tw)
@@ -54,11 +54,14 @@ The **RWA Hackathon Taiwan Portal** is a comprehensive platform designed for Tai
 
 #### 🪙 NFT System
 - **Multi-Chain Support** - Ethereum, Sepolia, Arbitrum, and more
-- **Merkle Tree Whitelist** - Efficient on-chain verification
-- **Email-Based Eligibility** - Automated whitelist management
-- **Auto-Deployment** - Streamlined contract deployment workflow
-- **Mint Tracking** - Complete minting history and analytics
-- **IPFS Integration** - Decentralized metadata storage
+- **Merkle Tree Whitelist** - Efficient on-chain verification with automatic Merkle root generation
+- **Email-Based Eligibility** - Automated whitelist management tied to user registration
+- **Auto-Deployment** - Streamlined contract deployment workflow with progress tracking
+- **Mint Tracking** - Complete minting history and analytics dashboard
+- **IPFS Integration** - Decentralized metadata storage via Pinata
+- **Smart Whitelist Management** - Add/remove emails with automatic database rollback on contract failure
+- **MetaMask Integration** - Seamless wallet connection for minting and admin operations
+- **Contract Verification** - Automatic Etherscan verification after deployment
 
 ### 🛠️ Admin Panel
 
@@ -87,12 +90,15 @@ The **RWA Hackathon Taiwan Portal** is a comprehensive platform designed for Tai
 - Real-time submission tracking
 
 #### 🎨 NFT Campaign Management
-- Create NFT campaigns with custom artwork
-- Generate and deploy smart contracts
-- Manage whitelist with Merkle trees
-- Auto-setup workflows with progress tracking
-- Contract verification on block explorers
-- Mint monitoring and analytics
+- Create NFT campaigns with custom artwork and metadata
+- Generate and deploy smart contracts with one-click setup
+- Manage whitelist with Merkle trees and automatic root updates
+- Auto-setup workflows with real-time progress tracking
+- Contract verification on Etherscan/block explorers
+- Mint monitoring and analytics with user tracking
+- **Add Whitelist with Rollback** - Automatically reverts database changes if MetaMask/contract update fails
+- **Remove Whitelist** - Safe removal with mint status checking (prevents removing minted emails)
+- **Multi-language Support** - Error messages in Traditional Chinese (繁體中文)
 
 #### 📢 Communication Tools
 - Push notification system
@@ -284,12 +290,15 @@ npm start            # Production server
 - Responsive design for mobile and desktop
 - Time zone support for international participants
 
-### NFT Auto-Setup
-- One-click contract deployment
-- Automated Merkle tree generation
-- Contract verification on Etherscan
-- Email-based whitelist management
-- Multi-step progress tracking
+### NFT Auto-Setup & Whitelist Management
+- One-click contract deployment with IPFS metadata upload
+- Automated Merkle tree generation and on-chain root updates
+- Contract verification on Etherscan with retry mechanism
+- Email-based whitelist management with add/remove capabilities
+- Multi-step progress tracking with real-time status updates
+- **Atomic Operations** - Database changes automatically rollback if smart contract update fails
+- **Error Handling** - Comprehensive error messages for MetaMask, wallet permissions, and contract errors
+- **Admin Whitelist Panel** - View all whitelisted emails with mint status and one-click removal
 
 ### Find Teammate
 - Skill-based matching system
@@ -352,4 +361,20 @@ This project is based on [HackPortal](https://github.com/acmutd/hackportal) by A
 
 ---
 
-Built with ❤️ and Cursor AI w/ Claude 4.5, for the Web3 community in Taiwan
+Built with ❤️ and Cursor AI w/ Claude Opus 4.5, for the Web3 community in Taiwan
+
+---
+
+## 📋 Recent Updates (v1.0.6)
+
+### NFT Whitelist Management Improvements
+- **Atomic Whitelist Operations**: When adding emails to whitelist, if the smart contract update fails (no MetaMask, wrong wallet, user rejection), the database changes are automatically rolled back
+- **Improved Error Messages**: All NFT-related error messages now display in Traditional Chinese (繁體中文)
+- **Safe Remove Whitelist**: API prevents removal of emails that have already minted NFTs
+- **Better State Tracking**: Uses local variables instead of React state for reliable rollback detection
+
+### Bug Fixes
+- Fixed issue where emails were added to database even when MetaMask wallet was not installed
+- Fixed React useState async issue in AddWhitelistModal rollback logic
+- Fixed production build using development JSX runtime (eval-source-map)
+- Fixed PM2 environment variable loading for Firebase private key with newlines
