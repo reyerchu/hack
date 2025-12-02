@@ -38,15 +38,13 @@ export default function TeamDeleteRequests() {
 
     try {
       setLoading(true);
-      const response = await RequestHelper.get<{ success: boolean; requests: DeleteRequest[] }>(
-        '/api/admin/team-delete-requests',
-        {
-          headers: { Authorization: user.token },
-        },
-      );
+      const response = await RequestHelper.get<any>('/api/admin/team-delete-requests', {
+        headers: { Authorization: user.token },
+      });
 
-      if (response.success) {
-        setRequests(response.requests);
+      const data = response.data;
+      if (data && data.success) {
+        setRequests(data.requests);
       }
     } catch (error) {
       console.error('[TeamDeleteRequests] Error fetching requests:', error);

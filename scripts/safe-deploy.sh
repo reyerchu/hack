@@ -3,6 +3,7 @@
 # Prevents cache mismatch, port conflicts, and type errors
 
 set -e  # Exit on error
+set -o pipefail # Exit if any command in a pipe fails
 
 APP_NAME="hackathon"
 PORT=3008

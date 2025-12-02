@@ -1,12 +1,7 @@
-import { useEffect, useState } from 'react';
 import SponsorCard from './SponsorCard';
 
 export default function HomeSponsors(props: { sponsorCard: Sponsor[] }) {
-  const [sponsor, setSponsor] = useState<Sponsor[]>([]);
-
-  useEffect(() => {
-    setSponsor(props.sponsorCard);
-  });
+  const sponsor = props.sponsorCard || [];
 
   return (
     sponsor.length != 0 && (

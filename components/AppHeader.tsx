@@ -88,7 +88,7 @@ export default function AppHeader() {
                     <a className="px-5 py-3 hover:bg-primaryDark hover:text-white border-b border-gray-100 text-complementary">
                       <p
                         className="text-sm font-medium"
-                        style={item.style === 'dark-red' ? { color: '#8B0000' } : {}}
+                        style={(item as any).style === 'dark-red' ? { color: '#8B0000' } : {}}
                       >
                         {item.text}
                       </p>
@@ -111,7 +111,7 @@ export default function AppHeader() {
               <a>
                 <p
                   className="md:mx-4 text-sm font-bold"
-                  style={item.style === 'dark-red' ? { color: '#8B0000' } : {}}
+                  style={(item as any).style === 'dark-red' ? { color: '#8B0000' } : {}}
                 >
                   {item.text}
                 </p>

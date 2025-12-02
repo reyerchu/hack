@@ -48,8 +48,8 @@ class MemoryCache {
    * Delete cache entry
    * @param key Cache key
    */
-  delete(key: string): void {
-    this.cache.delete(key);
+  delete(key: string): boolean {
+    return this.cache.delete(key);
   }
 
   /**
@@ -64,11 +64,11 @@ class MemoryCache {
    */
   clearExpired(): void {
     const now = Date.now();
-    for (const [key, entry] of this.cache.entries()) {
+    Array.from(this.cache.entries()).forEach(([key, entry]) => {
       if (now > entry.expiresAt) {
         this.cache.delete(key);
       }
-    }
+    });
   }
 
   /**

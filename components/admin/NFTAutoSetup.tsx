@@ -28,6 +28,9 @@ interface DeploymentProgress {
     transactionHash: string;
     network: string;
     completedAt: Date;
+    verified?: boolean;
+    verifiedAt?: Date;
+    etherscanUrl?: string;
   };
 }
 

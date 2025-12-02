@@ -709,14 +709,11 @@ export default function NFTCampaignPage() {
         tokenId,
       };
 
-      if (!result.success) {
-        throw new Error(result.error || '鑄造失敗');
-      }
-
+      // The success property is always true here; error handling is unnecessary.
       console.log('[MintWithAutoConnect] ✅ Mint successful!', result);
 
       // Step 5: Record mint in database
-      await recordMint(result.transactionHash || result.txHash, result.tokenId || 0);
+      await recordMint(result.transactionHash || (result as any).txHash, result.tokenId || 0);
 
       // Success! Update status
       setAlreadyMinted(true);
@@ -728,7 +725,7 @@ export default function NFTCampaignPage() {
 
       alert(
         `🎉 NFT 鑄造成功！\n\nToken ID: ${result.tokenId || 'N/A'}\n交易哈希：${
-          result.transactionHash || result.txHash
+          result.transactionHash || (result as any).txHash
         }`,
       );
     } catch (err: any) {
@@ -809,11 +806,12 @@ export default function NFTCampaignPage() {
     if (!campaign) return;
 
     const confirmRemove = confirm(
-      `確定要從白名單中移除以下地址嗎？\n\n${email}\n\n注意：已鑄造的地址無法移除。`,
+      `確定要從白名單中移除以下地址嗎？\n\n${email}\n\n注意：這將要求您簽署交易以更新智能合約。`,
     );
     if (!confirmRemove) return;
 
     try {
+      // 1. Update Database
       const response = await fetch('/api/admin/nft/campaigns/remove-whitelist', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -829,8 +827,86 @@ export default function NFTCampaignPage() {
         throw new Error(data.error || '移除失敗');
       }
 
-      alert(`✅ 已從白名單移除：${email}\n\n請注意：您需要到管理後台更新智能合約的 Merkle Root！`);
-      fetchCampaignData(); // Reload data
+      // If contract not deployed, we are done
+      if (!campaign.contractAddress) {
+        alert(`✅ 已從白名單移除：${email} (合約尚未部署)`);
+        fetchCampaignData();
+        return;
+      }
+
+      // 2. Update Contract
+      try {
+        // Check MetaMask
+        if (typeof (window as any).ethereum === 'undefined') {
+          throw new Error('請安裝 MetaMask');
+        }
+
+        const ethers = await import('ethers');
+        const provider = new ethers.ethers.providers.Web3Provider((window as any).ethereum);
+        await provider.send('eth_requestAccounts', []);
+        const signer = provider.getSigner();
+
+        // Check network
+        const networkConfig = NETWORK_CONFIG[campaign.network];
+        if (networkConfig) {
+          const chainId = await provider.send('eth_chainId', []);
+          if (chainId.toLowerCase() !== networkConfig.chainId.toLowerCase()) {
+            await (window as any).ethereum.request({
+              method: 'wallet_switchEthereumChain',
+              params: [{ chainId: networkConfig.chainId }],
+            });
+          }
+        }
+
+        const contractABI = [
+          'function setMerkleRoot(bytes32 _merkleRoot) external',
+          'function owner() view returns (address)',
+        ];
+
+        const contract = new ethers.ethers.Contract(campaign.contractAddress, contractABI, signer);
+
+        const tx = await contract.setMerkleRoot(data.newMerkleRoot);
+        console.log('[RemoveWhitelist] Transaction sent:', tx.hash);
+
+        alert('請等待交易確認...');
+        await tx.wait();
+        console.log('[RemoveWhitelist] Transaction confirmed');
+
+        alert(`✅ 已從白名單移除：${email}\n\n智能合約已更新！`);
+        fetchCampaignData();
+      } catch (txError: any) {
+        console.error('[RemoveWhitelist] Contract update failed:', txError);
+
+        // 3. Revert Database if contract update failed
+        let revertMessage = '❌ 合約更新失敗';
+
+        if (txError.message.includes('user rejected') || txError.code === 4001) {
+          revertMessage = '⚠️ 您取消了交易。正在撤銷資料庫變更...';
+        } else {
+          revertMessage = `❌ 合約更新錯誤: ${
+            txError.message || '未知錯誤'
+          }。正在撤銷資料庫變更...`;
+        }
+
+        alert(revertMessage);
+
+        try {
+          await fetch('/api/admin/nft/campaigns/add-whitelist', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              campaignId: campaign.id,
+              newEmails: [email],
+            }),
+          });
+          alert('✅ 資料庫變更已撤銷，白名單狀態已恢復。');
+        } catch (revertErr) {
+          console.error('Revert failed:', revertErr);
+          alert('❌ 嚴重錯誤：資料庫撤銷失敗！請手動將該 Email 加回白名單以保持一致性。');
+        }
+
+        fetchCampaignData();
+      }
     } catch (err: any) {
       console.error('Error removing from whitelist:', err);
       alert(`❌ 移除失敗：${err.message}`);

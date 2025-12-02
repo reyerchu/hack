@@ -539,7 +539,7 @@ export default function ProfilePage() {
     isRegistered,
     checkingRegistration,
     user: user ? { id: user.id, email: user.preferredEmail } : null,
-    profile: profile ? { id: profile.id, email: profile.email } : null,
+    profile: profile ? { id: profile.id, email: (profile as any).email } : null,
   });
 
   // 正在檢查註冊狀態
@@ -582,7 +582,7 @@ export default function ProfilePage() {
                 <div className="flex gap-3">
                   <button
                     onClick={() => {
-                      const email = user?.preferredEmail || profile?.email;
+                      const email = user?.preferredEmail || (profile as any)?.email;
                       console.log('[Profile] 查看公開頁面 - email:', email);
                       if (email) {
                         const hash = emailToHash(email);

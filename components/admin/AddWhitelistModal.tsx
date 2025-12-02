@@ -135,7 +135,52 @@ const AddWhitelistModal: React.FC<AddWhitelistModalProps> = ({
       onClose();
     } catch (err: any) {
       console.error('[AddWhitelist] Error:', err);
-      setError(err.message || '添加白名單失敗');
+      let errorMessage = err.message || '添加白名單失敗';
+
+      // Handle specific MetaMask/Ethers errors
+      if (
+        errorMessage.includes('execution reverted') ||
+        errorMessage.includes('UNPREDICTABLE_GAS_LIMIT')
+      ) {
+        if (
+          errorMessage.includes('OwnableUnauthorizedAccount') ||
+          errorMessage.includes('0x118cdaa7')
+        ) {
+          errorMessage =
+            '❌ 權限錯誤：您當前連接的錢包不是此合約的擁有者，無法更新白名單。請切換到部署合約的錢包。';
+        } else {
+          errorMessage =
+            '❌ 鏈上更新失敗：您可能不是合約擁有者，或者合約狀態不允許修改。請確認您使用的是正確的管理員錢包。';
+        }
+        if (errorMessage.includes('user rejected')) {
+          errorMessage = '⚠️ 您取消了 MetaMask 交易。正在撤銷資料庫變更...';
+
+          // Parse emails again to revert
+          const emailListToRevert = emails
+            .split(/[\n,]/)
+            .map((e) => e.trim())
+            .filter((e) => e.length > 0);
+
+          // Call remove API to revert
+          try {
+            await fetch('/api/admin/nft/campaigns/remove-whitelist', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                campaignId,
+                emailsToRemove: emailListToRevert,
+              }),
+            });
+            errorMessage =
+              '❌ 交易已取消。因為合約未更新，系統已自動撤銷資料庫中的變更，白名單未被修改。';
+          } catch (revertErr) {
+            console.error('Revert failed:', revertErr);
+            errorMessage = '⚠️ 交易已取消，但撤銷資料庫變更失敗。請手動檢查白名單。';
+          }
+        }
+      } // Close the if/else chain properly
+
+      setError(errorMessage);
     } finally {
       setLoading(false);
       setStep('input');

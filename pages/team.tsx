@@ -589,8 +589,10 @@ export default function TeamRegisterPage() {
         requestData,
       );
 
-      if ((response as any).error || response.data?.error) {
-        setSubmitMessage((response as any).error || response.data?.error || '更新失敗，請稍後再試');
+      if ((response as any).error || (response as any).data?.error) {
+        setSubmitMessage(
+          (response as any).error || (response as any).data?.error || '更新失敗，請稍後再試',
+        );
         setSubmitSuccess(false);
       } else {
         setSubmitMessage('更新成功！正在跳轉到團隊頁面...');
@@ -603,7 +605,7 @@ export default function TeamRegisterPage() {
       }
     } catch (error: any) {
       console.error('[TeamRegister] Submission error:', error);
-      setSubmitMessage(error.message || '提交失敗，請稍後再試');
+      setSubmitMessage(error?.message || '提交失敗，請稍後再試');
       setSubmitSuccess(false);
     } finally {
       setIsSubmitting(false);

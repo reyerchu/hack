@@ -1,4 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
+import * as admin from 'firebase-admin';
 import { firestore } from 'firebase-admin';
 import { ethers } from 'ethers';
 import initializeApi from '../../../lib/admin/init';
