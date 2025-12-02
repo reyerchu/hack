@@ -100,6 +100,7 @@ export default function NFTCampaignPage() {
   const [merkleProof, setMerkleProof] = useState<string[] | null>(null);
   const [emailHash, setEmailHash] = useState<string>('');
   const [currentChainId, setCurrentChainId] = useState<string>('');
+  const [requiredWalletAddress, setRequiredWalletAddress] = useState<string>('');
 
   // Check if user is admin
   const isAdmin = user?.permissions?.includes('super_admin') || false;
@@ -218,6 +219,11 @@ export default function NFTCampaignPage() {
       const canMint = data.eligible && !data.alreadyMinted;
       console.log('[NFT Page] 🎯 Setting canMintNFT to:', canMint);
       console.log('[NFT Page] 🎯 Setting alreadyMinted to:', data.alreadyMinted);
+
+      if (data.requiredWalletAddress) {
+        setRequiredWalletAddress(data.requiredWalletAddress);
+        console.log('[NFT Page] 🔒 Enforcing registered wallet:', data.requiredWalletAddress);
+      }
 
       setCanMintNFT(canMint);
       setAlreadyMinted(data.alreadyMinted);
@@ -456,6 +462,8 @@ export default function NFTCampaignPage() {
       }
 
       // Step 2: Connect wallet if not connected with verification loop
+      let activeAccount = walletAddress;
+
       if (!walletConnected) {
         console.log('[MintWithAutoConnect] 🔗 Step 2: Connecting wallet...');
 
@@ -466,6 +474,7 @@ export default function NFTCampaignPage() {
         console.log('[MintWithAutoConnect] 📝 Setting wallet address:', accounts[0]);
         setWalletAddress(accounts[0]);
         setWalletConnected(true);
+        activeAccount = accounts[0];
         console.log('[MintWithAutoConnect] ✅ Wallet connected:', accounts[0]);
 
         // Wait and verify wallet connection with retry loop
@@ -504,6 +513,25 @@ export default function NFTCampaignPage() {
         }
       } else {
         console.log('[MintWithAutoConnect] ⏭️ Step 2 skipped: Wallet already connected');
+
+        // Ensure we have the latest account
+        const accounts = await (window as any).ethereum.request({ method: 'eth_accounts' });
+        if (accounts.length > 0) {
+          activeAccount = accounts[0];
+          if (activeAccount !== walletAddress) {
+            setWalletAddress(activeAccount);
+          }
+        }
+      }
+
+      // Enforce registered wallet address match
+      if (
+        requiredWalletAddress &&
+        activeAccount.toLowerCase() !== requiredWalletAddress.toLowerCase()
+      ) {
+        throw new Error(
+          `錢包地址不匹配！\n請使用您報名團隊時填寫的錢包地址：\n${requiredWalletAddress}\n\n當前連接：\n${activeAccount}`,
+        );
       }
 
       // Step 3: Check and switch network if needed

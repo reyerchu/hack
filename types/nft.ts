@@ -59,4 +59,5 @@ export interface MintStatus {
     mintedAt: Date;
     transactionHash: string;
   };
+  requiredWalletAddress?: string; // Enforce wallet address match if set
 }
