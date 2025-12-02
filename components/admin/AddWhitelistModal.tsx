@@ -136,25 +136,40 @@ const AddWhitelistModal: React.FC<AddWhitelistModalProps> = ({
     } catch (err: any) {
       console.error('[AddWhitelist] Error:', err);
       let errorMessage = err.message || '添加白名單失敗';
+      let needsRevert = false;
 
-      // Handle specific MetaMask/Ethers errors
-      if (
+      // Check if we're in the contract update phase (after DB was updated)
+      const isContractPhaseError = step === 'updating-contract';
+
+      // Handle specific error messages
+      if (errorMessage.includes('請安裝 MetaMask')) {
+        errorMessage = '❌ 請安裝 MetaMask 錢包擴充功能後再試。';
+        needsRevert = isContractPhaseError;
+      } else if (errorMessage.includes('user rejected') || errorMessage.includes('User rejected')) {
+        errorMessage = '⚠️ 您取消了 MetaMask 交易。';
+        needsRevert = isContractPhaseError;
+      } else if (
+        errorMessage.includes('OwnableUnauthorizedAccount') ||
+        errorMessage.includes('0x118cdaa7')
+      ) {
+        errorMessage =
+          '❌ 權限錯誤：您當前連接的錢包不是此合約的擁有者，無法更新白名單。請切換到部署合約的錢包。';
+        needsRevert = isContractPhaseError;
+      } else if (
         errorMessage.includes('execution reverted') ||
         errorMessage.includes('UNPREDICTABLE_GAS_LIMIT')
       ) {
-        if (
-          errorMessage.includes('OwnableUnauthorizedAccount') ||
-          errorMessage.includes('0x118cdaa7')
-        ) {
-          errorMessage =
-            '❌ 權限錯誤：您當前連接的錢包不是此合約的擁有者，無法更新白名單。請切換到部署合約的錢包。';
-        } else {
-          errorMessage =
-            '❌ 鏈上更新失敗：您可能不是合約擁有者，或者合約狀態不允許修改。請確認您使用的是正確的管理員錢包。';
-        }
-        if (errorMessage.includes('user rejected')) {
-          errorMessage = '⚠️ 您取消了 MetaMask 交易。正在撤銷資料庫變更...';
-        }
+        errorMessage =
+          '❌ 鏈上更新失敗：您可能不是合約擁有者，或者合約狀態不允許修改。請確認您使用的是正確的管理員錢包。';
+        needsRevert = isContractPhaseError;
+      } else if (isContractPhaseError) {
+        // Any other error during contract phase should trigger revert
+        needsRevert = true;
+      }
+
+      // Revert database changes if needed
+      if (needsRevert) {
+        console.log('[AddWhitelist] Contract update failed, reverting database changes...');
 
         // Parse emails again to revert
         const emailListToRevert = emails
@@ -164,7 +179,7 @@ const AddWhitelistModal: React.FC<AddWhitelistModalProps> = ({
 
         // Call remove API to revert
         try {
-          await fetch('/api/admin/nft/campaigns/remove-whitelist', {
+          const revertResponse = await fetch('/api/admin/nft/campaigns/remove-whitelist', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -173,16 +188,19 @@ const AddWhitelistModal: React.FC<AddWhitelistModalProps> = ({
             }),
           });
 
-          if (errorMessage.includes('正在撤銷')) {
-            // Message already set
-          } else {
+          if (revertResponse.ok) {
             errorMessage += ' (資料庫變更已自動撤銷)';
+            console.log('[AddWhitelist] Database revert successful');
+          } else {
+            const revertData = await revertResponse.json();
+            console.error('[AddWhitelist] Revert API error:', revertData);
+            errorMessage += ' (⚠️ 資料庫撤銷失敗，請手動修正)';
           }
         } catch (revertErr) {
-          console.error('Revert failed:', revertErr);
+          console.error('[AddWhitelist] Revert failed:', revertErr);
           errorMessage += ' (⚠️ 嚴重錯誤：資料庫撤銷失敗，請手動修正)';
         }
-      } // Close the if/else chain properly
+      }
 
       setError(errorMessage);
     } finally {

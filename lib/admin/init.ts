@@ -12,12 +12,10 @@ let apiInitialized = false;
  * other middleware, those services should be called in this function.
  */
 export default function initializeApi() {
-  if (apiInitialized) {
-    return;
+  // Always try to initialize Firebase if no apps exist
+  if (admin.apps.length < 1) {
+    initializeFirebase();
   }
-  // Put API initializations here.
-  initializeFirebase();
-
   apiInitialized = true;
 }
 
