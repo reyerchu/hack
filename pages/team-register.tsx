@@ -1566,118 +1566,116 @@ export default function TeamRegisterPage() {
               )}
 
               {/* Commitment Agreement */}
-              {!isRegistrationClosed && (
-                <div className="bg-white rounded-lg p-8 shadow-sm">
-                  <h2 className="text-2xl font-bold mb-6" style={{ color: '#1a3a6e' }}>
-                    參賽者承諾書 <span style={{ color: '#ef4444' }}>*</span>
-                  </h2>
+              <div className="bg-white rounded-lg p-8 shadow-sm">
+                <h2 className="text-2xl font-bold mb-6" style={{ color: '#1a3a6e' }}>
+                  參賽者承諾書 <span style={{ color: '#ef4444' }}>*</span>
+                </h2>
 
-                  <div className="mb-6">
-                    <button
-                      type="button"
-                      onClick={() => setShowCommitment(!showCommitment)}
-                      className="flex items-center gap-2 text-sm font-medium hover:underline"
-                      style={{ color: '#1a3a6e' }}
-                    >
-                      {showCommitment ? '收起' : '展開'}參賽者承諾書
-                      <svg
-                        className={`w-5 h-5 transform transition-transform ${
-                          showCommitment ? 'rotate-180' : ''
-                        }`}
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M19 9l-7 7-7-7"
-                        />
-                      </svg>
-                    </button>
-                  </div>
-
-                  {showCommitment && (
-                    <div
-                      className="mb-6 p-6 border rounded-lg max-h-96 overflow-y-auto"
-                      style={{ borderColor: '#e5e7eb', backgroundColor: '#f9fafb' }}
-                    >
-                      <CommitmentContent />
-                      <div
-                        className="mt-6 pt-4 border-t text-center"
-                        style={{ borderColor: '#e5e7eb' }}
-                      >
-                        <Link href="/commitment">
-                          <a
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-sm hover:underline inline-flex items-center gap-1"
-                            style={{ color: '#1a3a6e' }}
-                          >
-                            在新視窗中開啟完整內容
-                            <svg
-                              className="w-4 h-4"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                              />
-                            </svg>
-                          </a>
-                        </Link>
-                      </div>
-                    </div>
-                  )}
-
-                  <div
-                    className="flex items-start gap-2 p-3 rounded-lg"
-                    style={{ backgroundColor: '#fef3c7', border: '1px solid #fbbf24' }}
+                <div className="mb-6">
+                  <button
+                    type="button"
+                    onClick={() => setShowCommitment(!showCommitment)}
+                    className="flex items-center gap-2 text-sm font-medium hover:underline"
+                    style={{ color: '#1a3a6e' }}
                   >
+                    {showCommitment ? '收起' : '展開'}參賽者承諾書
                     <svg
-                      className="w-5 h-5 flex-shrink-0 mt-0.5"
-                      style={{ color: '#92400e' }}
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
+                      className={`w-5 h-5 transform transition-transform ${
+                        showCommitment ? 'rotate-180' : ''
+                      }`}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
                     >
                       <path
-                        fillRule="evenodd"
-                        d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                        clipRule="evenodd"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 9l-7 7-7-7"
                       />
                     </svg>
-                    <div className="text-sm" style={{ color: '#92400e' }}>
-                      ⚠️ 請務必詳細閱讀參賽者承諾書，確認了解所有條款後再勾選同意。
+                  </button>
+                </div>
+
+                {showCommitment && (
+                  <div
+                    className="mb-6 p-6 border rounded-lg max-h-96 overflow-y-auto"
+                    style={{ borderColor: '#e5e7eb', backgroundColor: '#f9fafb' }}
+                  >
+                    <CommitmentContent />
+                    <div
+                      className="mt-6 pt-4 border-t text-center"
+                      style={{ borderColor: '#e5e7eb' }}
+                    >
+                      <Link href="/commitment">
+                        <a
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-sm hover:underline inline-flex items-center gap-1"
+                          style={{ color: '#1a3a6e' }}
+                        >
+                          在新視窗中開啟完整內容
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                            />
+                          </svg>
+                        </a>
+                      </Link>
                     </div>
                   </div>
+                )}
 
-                  <div className="mt-6 flex items-start gap-3">
-                    <input
-                      type="checkbox"
-                      id="hasAgreed"
-                      checked={hasAgreed}
-                      onChange={(e) => setHasAgreed(e.target.checked)}
-                      className="mt-1 w-5 h-5 rounded focus:ring-2 focus:ring-blue-500"
-                      style={{ accentColor: '#1a3a6e' }}
-                      disabled={isSubmitting}
-                      required
+                <div
+                  className="flex items-start gap-2 p-3 rounded-lg"
+                  style={{ backgroundColor: '#fef3c7', border: '1px solid #fbbf24' }}
+                >
+                  <svg
+                    className="w-5 h-5 flex-shrink-0 mt-0.5"
+                    style={{ color: '#92400e' }}
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                      clipRule="evenodd"
                     />
-                    <label
-                      htmlFor="hasAgreed"
-                      className="text-sm font-medium cursor-pointer"
-                      style={{ color: '#374151' }}
-                    >
-                      我已詳細閱讀並同意遵守參賽者承諾書的所有條款{' '}
-                      <span style={{ color: '#ef4444' }}>*</span>
-                    </label>
+                  </svg>
+                  <div className="text-sm" style={{ color: '#92400e' }}>
+                    ⚠️ 請務必詳細閱讀參賽者承諾書，確認了解所有條款後再勾選同意。
                   </div>
                 </div>
-              )}
+
+                <div className="mt-6 flex items-start gap-3">
+                  <input
+                    type="checkbox"
+                    id="hasAgreed"
+                    checked={hasAgreed}
+                    onChange={(e) => setHasAgreed(e.target.checked)}
+                    className="mt-1 w-5 h-5 rounded focus:ring-2 focus:ring-blue-500"
+                    style={{ accentColor: '#1a3a6e' }}
+                    disabled={isSubmitting}
+                    required
+                  />
+                  <label
+                    htmlFor="hasAgreed"
+                    className="text-sm font-medium cursor-pointer"
+                    style={{ color: '#374151' }}
+                  >
+                    我已詳細閱讀並同意遵守參賽者承諾書的所有條款{' '}
+                    <span style={{ color: '#ef4444' }}>*</span>
+                  </label>
+                </div>
+              </div>
 
               {/* Wallet Addresses */}
               <div className="bg-white rounded-lg p-8 shadow-sm">
